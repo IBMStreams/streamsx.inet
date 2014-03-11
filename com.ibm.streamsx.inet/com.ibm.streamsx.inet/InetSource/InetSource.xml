@@ -1,0 +1,169 @@
+<?xml version="1.0" ?>
+
+<!-- Copyright (C) 2010,2012-2014, International Business Machines     -->
+<!-- Corportation.  All Rights Reserved                                 -->
+
+<operatorModel
+  xmlns="http://www.ibm.com/xmlns/prod/streams/spl/operator" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:cmn="http://www.ibm.com/xmlns/prod/streams/spl/common"
+  xsi:schemaLocation="http://www.ibm.com/xmlns/prod/streams/spl/operator
+  operatorModel.xsd">
+  <cppOperatorModel>
+    <context>
+      <description docHref="doc/${nl}/doc/inetsourceoperator.html">Source adapter to support file ingestion via remote http/https, remote ftp/ftps, and local file URLs.</description>
+      <iconUri size="16">InetSource_16.gif</iconUri>
+      <iconUri size="32">InetSource_32.gif</iconUri>
+      <customLiterals/>
+      <libraryDependencies>
+        <library>
+          <cmn:description>curl-library</cmn:description>
+          <cmn:managedLibrary>
+            <cmn:lib>curl</cmn:lib>
+          </cmn:managedLibrary>
+        </library>
+        <library>
+          <cmn:description>inet-tk-lib</cmn:description>
+          <cmn:managedLibrary>
+            <cmn:lib>streams-tk-inet</cmn:lib>
+            <cmn:includePath>../../impl/cpp/include</cmn:includePath>
+          </cmn:managedLibrary>
+        </library>
+      </libraryDependencies>
+      <providesSingleThreadedContext>Always</providesSingleThreadedContext>
+      <codeTemplates>
+        <codeTemplate name="InetSource">
+          <description>Basic InetSource template</description>
+          <template>stream&lt;${streamType}&gt; ${streamName} = InetSource() {
+            param
+                URIList : ["${urilistitem}"];
+        }</template>
+        </codeTemplate>
+      </codeTemplates>      
+    </context>  
+    <parameters>
+      <allowAny>false</allowAny>
+      <parameter>
+        <name>URIList</name>
+        <description>A comma-separated list of quoted strings, each representing a URI whose contents you wish to retrieve.</description>
+        <optional>false</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>AttributeFree</expressionMode>
+        <type>list&lt;rstring&gt;</type>
+      </parameter>
+      <parameter>
+        <name>initDelay</name>
+        <description>Specifies an initial processing delay, in seconds, before the operator begins emitting tuples.  Default is zero seconds.</description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>AttributeFree</expressionMode>
+        <type>float64</type>
+        <cardinality>1</cardinality>
+      </parameter>
+      <parameter>
+        <name>inputLinesPerRecord</name>
+        <description>The number of carriage-return-separated lines from the URI contents that will be grouped into each record for processing.  Default is one line per record.</description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>AttributeFree</expressionMode>
+        <type>uint32</type>
+        <cardinality>1</cardinality>
+      </parameter>
+       <parameter>
+        <name>intraRecordPadValue</name>
+        <description>A double-quoted string of zero or more characters to be placed between lines of input data that are grouped into a single record (in configurations where the inputLinesPerRecord parameter is greater than one).  Default is a single blank character.</description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>AttributeFree</expressionMode>
+        <type>rstring</type>
+        <cardinality>1</cardinality>
+      </parameter>
+      <parameter>
+        <name>fetchInterval</name>
+        <description>The interval, in seconds, between the end of a retrieval of the contents of all the URIs in the URIList parameter, and the start of the next retrieval.  Default is every 600 seconds (ten minutes).</description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>AttributeFree</expressionMode>
+        <type>float64</type>
+        <cardinality>1</cardinality>
+      </parameter>
+      <parameter>
+        <name>incrementalFetch</name>
+        <description>Controls whether the entire contents of each URI are streamed out during each retrieval from that URI, or only the data appended to the URI contents since the preceding retrieval.  Default is false, meaning that the entire contents will be streamed out on each fetch.</description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>AttributeFree</expressionMode>
+        <type>boolean</type>
+        <cardinality>1</cardinality>
+      </parameter>
+      <parameter>
+        <name>doNotStreamInitialFetch</name>
+        <description>Controls whether the operator will suppress streaming the contents from the initial retrieval.  Default is false, meaning that the initial retrieval contents will be streamed out.</description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>Constant</expressionMode>
+        <type>boolean</type>
+        <cardinality>1</cardinality>
+      </parameter>
+      <parameter>
+        <name>unconditionalFetch</name>
+        <description>Controls whether the contents of each URI will be streamed out even if the server-side timestamp on the URI is unchanged since the previous retrieval cycle.  Default is false, meaning that the URI contents will be streamed out only if the server-side timestamp has changed since the previous retrieval.</description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>AttributeFree</expressionMode>
+        <type>boolean</type>
+        <cardinality>1</cardinality>
+      </parameter>
+      <parameter>
+        <name>emitTuplePerFetch</name>
+        <description>Causes all the data from all the URIs in a given retrieval cycle to be loaded into each emitted tuple (one tuple per retrieval cycle), whose single attribute must be a list of rstring.  Mutually-exclusive with the emitTuplePerURI and emitTuplePerRecordCount parameters.  Default is false, meaning that a tuple will be emitted for each record rather than a single tuple per retrieval.</description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>Constant</expressionMode>
+        <type>boolean</type>
+        <cardinality>1</cardinality>
+      </parameter>
+      <parameter>
+        <name>emitTuplePerURI</name>
+        <description>Causes all the data from each URI in a given retrieval cycle to be loaded into each emitted tuple (one tuple per URI per retrieval cycle), whose single attribute must be a list of rstring.  Mutually-exclusive with the emitTuplePerFetch and emitTuplePerRecordCount parameters.  Default is false, meaning that a tuple will be emitted for each record rather than a single tuple per URI.</description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>Constant</expressionMode>
+        <type>boolean</type>
+        <cardinality>1</cardinality>
+      </parameter>
+      <parameter>
+        <name>emitTuplePerRecordCount</name>
+        <description>Causes the data from the specified number of records to be loaded into each emitted tuple, whose single attribute must be a list of rstring.  Mutually-exclusive with the emitTuplePerFetch and emitTuplePerURI parameters.  There is no default, meaning that a tuple will be emitted for each record rather than a tuple per group of records.</description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>AttributeFree</expressionMode>
+        <type>uint32</type>
+        <cardinality>1</cardinality>
+      </parameter>
+      <parameter>
+        <name>punctPerFetch</name>
+        <description>Controls whether a window punctuation is emitted after the tuples resulting from each retrieval (even if no tuples resulted from a given retrieval).  The default is false, meaning that no window punctuations will be emitted.</description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>AttributeFree</expressionMode>
+        <type>boolean</type>
+        <cardinality>1</cardinality>
+      </parameter>
+    </parameters>
+    <inputPorts>
+    </inputPorts>
+    <outputPorts>
+      <outputPortSet>
+        <expressionMode>Expression</expressionMode> 
+        <autoAssignment>false</autoAssignment>
+        <completeAssignment>false</completeAssignment>
+        <rewriteAllowed>false</rewriteAllowed>
+        <windowPunctuationOutputMode>Generating</windowPunctuationOutputMode>
+        <tupleMutationAllowed>true</tupleMutationAllowed>
+        <cardinality>1</cardinality>
+        <optional>false</optional>
+      </outputPortSet>    
+    </outputPorts>
+  </cppOperatorModel>
+</operatorModel>

@@ -1,0 +1,19 @@
+<!-- Copyright (C) 2010,2012-2014, International Business Machines Corportation -->
+<!-- All Rights Reserved                                                   -->
+<toolkitInfoModel 
+    xmlns="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo toolkitInfoModel.xsd">
+  <identity>
+    <name>com.ibm.streamsx.inet</name>
+    <description>Internet Adapters Toolkit</description>
+    <version>1.0.0</version>
+    <requiredProductVersion>2.0</requiredProductVersion>
+  </identity>
+  <dependencies/>
+  <resources>
+    <messageSet name="InetResource">
+      <lang default="true">en_US/InetResource.xlf</lang>
+    </messageSet>
+  </resources>
+</toolkitInfoModel>

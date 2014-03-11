@@ -1,0 +1,43 @@
+<%
+# Copyright (C) 2010,2012,2014, International Business Machines Corporation. 
+# All Rights Reserved.
+%>
+#include <vector>
+#include "InetRetriever.h"
+
+<%SPL::CodeGen::headerPrologue($model);%>
+
+class MY_OPERATOR : public MY_BASE_OPERATOR 
+{
+public:
+  // constructor
+  MY_OPERATOR();
+
+  // destructor
+  virtual ~MY_OPERATOR(); 
+
+  // notify port readiness
+  void allPortsReady(); 
+
+  // notify termination
+  void prepareToShutdown(); 
+
+  // processing for source and threaded operators   
+  void process(uint32_t idx);
+    
+private:
+  // members
+  std::tr1::unordered_map<com_ibm_streams_adapters::InetRetriever*, std::pair<int, uint32_t> > retrievers_;
+  SPL::list<SPL::rstring> uris_;
+  uint32_t inputLinesPerRecord_;
+  SPL::rstring intraRecordPadValue_;
+  SPL::float64 fetchInterval_;
+  bool punctPerFetch_;
+  uint32_t emitTuplePerRecordCount_;
+
+  MY_OPERATOR(const MY_OPERATOR& op);
+  MY_OPERATOR& operator=(const MY_OPERATOR& op);
+}; 
+
+<%SPL::CodeGen::headerEpilogue($model);%>
+
