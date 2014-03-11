@@ -11,7 +11,10 @@ CFLAGS= -fPIC -I impl/cpp/include -I $(CURL_INCLUDE_DIR) -I $(STREAMS_INSTALL)/i
 BIN_DIR=impl/cpp/bin
 LDFLAGS=-shared
 
-all: impl/lib/libstreams-tk-inet.so
+all: impl/lib/libstreams-tk-inet.so toolkit.xml
+
+toolkit.xml:
+	spl-make-toolkit -i .
 
 $(BIN_DIR): 
 	mkdir $(BIN_DIR)
