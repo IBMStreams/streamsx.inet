@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="com.ibm.streamsx.inet"
+         basedir="." default="jar">
+  	
+ <property environment="env"/>
+ <property name="streams.install" value="${env.STREAMS_INSTALL}"/>
+ <property name="streams.op.jar" value="${streams.install}/lib/com.ibm.streams.operator.jar"/>
+ <property name="src.dir" value="${basedir}/impl/java/src"/>
+ <property name="build.dir" value="${basedir}/impl/java/bin"/>
+ <property name="lib.dir" value="${basedir}/impl/lib"/>
+ <property name="jarfile" value="streamsx.inet.jar"/>
+ 
+ 
+
+ <target name="init">
+   <mkdir dir="${build.dir}"/>
+   <mkdir dir="${lib.dir}"/>   
+ </target>
+
+ <target name="compile" depends="init">
+   <javac srcdir="${src.dir}" destdir="${build.dir}" debug="true">
+     <classpath>
+       <pathelement location="${streams.op.jar}"/>
+     </classpath>
+   </javac>
+ </target>
+ 
+ <target name="jar" depends="compile">
+   <jar destfile="${lib.dir}/${jarfile}" basedir="${build.dir}"/>
+ </target>
+ 
+ <target name="clean">
+   <delete dir="${build.dir}"/>
+	 <delete file="${lib.dir}/${jarfile}"/>
+ </target>
+ 
+</project>
