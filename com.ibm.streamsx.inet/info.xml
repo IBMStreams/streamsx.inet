@@ -7,8 +7,8 @@
   <identity>
     <name>com.ibm.streamsx.inet</name>
     <description>Internet Adapters Toolkit</description>
-    <version>1.0.0</version>
-    <requiredProductVersion>2.0</requiredProductVersion>
+    <version>1.1.0</version>
+    <requiredProductVersion>3.2</requiredProductVersion>
   </identity>
   <dependencies/>
   <resources>
