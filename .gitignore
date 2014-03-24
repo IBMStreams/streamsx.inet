@@ -12,7 +12,8 @@ samples/*/toolkit.xml
 *.class
 
 # Package Files #
-*.jar
+com.ibm.streamsx.inet/lib/*.jar
+com.ibm.streamsx.inet/impl/lib/*.jar
 *.war
 *.ear
 
