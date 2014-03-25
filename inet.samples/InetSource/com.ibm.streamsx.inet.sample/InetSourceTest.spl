@@ -5,6 +5,8 @@
 *******************************************************************************
 */
 
+namespace com.ibm.streamsx.inet.sample;
+
 use com.ibm.streamsx.inet::InetSource;
 
 composite InetSourceTest
