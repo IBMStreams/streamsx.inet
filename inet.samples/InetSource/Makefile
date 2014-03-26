@@ -7,8 +7,7 @@ STREAMS_INET_TOOLKIT=../../
 SPLC_FLAGS ?= -a -t $(STREAMS_INET_TOOLKIT)
 SPLC = $(STREAMS_INSTALL)/bin/sc
 SPL_CMD_ARGS ?= 
-SPL_MAIN_COMPOSITE = InetSourceTest
-
+SPL_MAIN_COMPOSITE = com.ibm.streamsx.inet.sample::GetWeather
 all: standalone
 
 standalone:
