@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="com.ibm.streamsx.inet"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="spldoc_toolkit__toolkit__1.1.0"/>
+<link rel="stylesheet" type="text/css" href="../html/commonltr.css"/>
+<link rel="stylesheet" type="text/css" href="../html/spldoc.css"/>
+<title>com.ibm.streamsx.inet</title>
+</head>
+<body id="spldoc_toolkit__toolkit__1.1.0">
+
+
+<h1 class="title topictitle1 spltoolkitname">com.ibm.streamsx.inet</h1>
+
+<div class="body refbody">
+<div class="section"><h2 class="title sectiontitle splhead-1">General Information</h2>
+
+
+<p class="p"><em class="ph i">Internet Adapters Toolkit</em> 
+</p>
+
+<p class="p"><em class="ph i">com.ibm.streamsx.inet.rest</em> 
+</p>
+
+<p class="p">This namespace includes a number of operators that embed the Jetty webserver to provide REST style api to streaming data. A main use is the <a class="xref" href="HTTPTupleView">HTTPTupleView</a> operator that provides <tt class="ph tt">HTTP GET</tt> access to the contents of a stream, as JSON data. This then allows browser-based visualization of streaming data using JavaScript widgets, such as Dojo Charting. 
+</p>
+
+<p class="p">Also provided is the ability to inject tuples into a stream using <tt class="ph tt">HTTP POST</tt> with the <a class="xref" href="HTTPTupleInjection">HTTPTupleInjection</a> and <a class="xref" href="HTTPXMLInjection">HTTPXMLInjection</a> operators. 
+</p>
+
+<p class="p">Meta-data for the streams connected to the operators is also available through <tt class="ph tt">HTTP GET</tt> requests, to allow JavaScript applications to self-discover the format of the data. 
+</p>
+
+<p class="p">Jetty 8.1.3 from Eclipse 4.2.2 is embedded in the toolkit, under <tt class="ph tt">opt/eclipse4.2.2</tt>.     
+</p>
+
+<dl class="dl">
+  
+  <dt class="dt dlterm">Version</dt>
+
+  <dd class="dd">1.1.0</dd>
+
+  
+  
+  <dt class="dt dlterm">Required Product Version</dt>
+
+  <dd class="dd">3.2</dd>
+
+  
+</dl>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Namespaces</h2>
+  
+<dl class="dl">
+   
+     <dt class="dt dlterm splpart"><a class="xref" href="com.ibm.streamsx.inet$.html">com.ibm.streamsx.inet</a></dt>
+
+   <dd class="dd">Operators
+       <ul class="sl simple">
+         <li class="sli"><a class="xref" href="com.ibm.streamsx.inet$InetSource.html">InetSource</a></li>
+
+       </ul>
+
+   </dd>
+
+     </dl>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">References</h2>
+  
+    <ul class="sl simple">
+    <li class="sli"><a class="xref" href="OperatorModel.html">Operator Model</a></li>
+
+    </ul>
+
+</div>
+
+</div>
+
+
+</body>
+</html>

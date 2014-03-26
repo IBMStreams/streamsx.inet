@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="com.ibm.streamsx.inet::InetSource"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="spldoc_operator__com.ibm.streamsx.inet__InetSource"/>
+<link rel="stylesheet" type="text/css" href="../html/commonltr.css"/>
+<link rel="stylesheet" type="text/css" href="../html/spldoc.css"/>
+<title>com.ibm.streamsx.inet::InetSource</title>
+</head>
+<body id="spldoc_operator__com.ibm.streamsx.inet__InetSource">
+
+
+<h1 class="title topictitle1">com.ibm.streamsx.inet::InetSource</h1>
+
+<div class="body refbody">
+<div class="section">
+<p class="p">
+<a class="xref" href="toolkit.html">
+com.ibm.streamsx.inet
+</a>
+-&gt; <a class="xref" href="com.ibm.streamsx.inet$.html">com.ibm.streamsx.inet</a>-&gt; InetSource</p>
+
+</div>
+
+<div class="section">
+
+<p class="p">Source adapter to support file ingestion via remote http/https, remote ftp/ftps, and local file URLs.
+</p>
+
+</div>
+
+<div class="section splprimop">
+<object type="image/svg+xml" data="../image/com.ibm.streamsx.inet$InetSource.svg" width="672" height="112">
+<span>Primitive operator image not displayed. Problem loading file: ../image/com.ibm.streamsx.inet$InetSource.svg
+</span>
+</object>
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Summary</h2>
+
+<dl class="dl" compact="compact">
+ 
+  <dt class="dt dlterm">Ports</dt>
+
+  <dd class="dd">This operator has 0 input ports and 1 output port.</dd>
+
+ 
+ 
+  <dt class="dt dlterm">Windowing</dt>
+
+  <dd class="dd">This operator does not accept any windowing configurations.</dd>
+
+ 
+ 
+  <dt class="dt dlterm">Parameters</dt>
+
+  <dd class="dd">This operator supports 12 parameters.
+<p class="p"> Required: 
+<a class="xref" href="#spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__URIList">URIList</a>
+
+</p>
+
+<p class="p"> Optional: 
+<a class="xref" href="#spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__initDelay">initDelay</a>, <a class="xref" href="#spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__inputLinesPerRecord">inputLinesPerRecord</a>, <a class="xref" href="#spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__intraRecordPadValue">intraRecordPadValue</a>, <a class="xref" href="#spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__fetchInterval">fetchInterval</a>, <a class="xref" href="#spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__incrementalFetch">incrementalFetch</a>, <a class="xref" href="#spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__doNotStreamInitialFetch">doNotStreamInitialFetch</a>, <a class="xref" href="#spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__unconditionalFetch">unconditionalFetch</a>, <a class="xref" href="#spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__emitTuplePerFetch">emitTuplePerFetch</a>, <a class="xref" href="#spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__emitTuplePerURI">emitTuplePerURI</a>, <a class="xref" href="#spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__emitTuplePerRecordCount">emitTuplePerRecordCount</a>, <a class="xref" href="#spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__punctPerFetch">punctPerFetch</a>
+
+</p>
+</dd>
+
+ 
+ 
+  <dt class="dt dlterm">Metrics</dt>
+
+  <dd class="dd">This operator does not report any metrics.</dd>
+
+ 
+</dl>
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Properties</h2>
+
+<dl class="dl" compact="compact">
+ 
+  <dt class="dt dlterm">Implementation</dt>
+
+  <dd class="dd">C++</dd>
+
+ 
+ 
+  <dt class="dt dlterm"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__context__providessinglethreadedexecutioncontext">Threading</a></dt>
+
+  <dd class="dd"><tt class="ph tt">Always</tt> - Operator always provides a single threaded execution context.</dd>
+
+ 
+</dl>
+
+</div>
+
+<div class="section">
+<p class="p splhead-1"><strong class="ph b"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__output_port_set">Output Ports</a></strong></p>
+<dl class="dl">
+  
+     <dt class="dt dlterm">Assignments</dt>
+
+     <dd class="dd">This operator allows any SPL expression of the correct type to be assigned to output attributes.</dd>
+
+  
+</dl>
+
+ <dl class="dl">
+  
+   <dt class="dt dlterm">Ports (0)</dt>
+
+   <dd class="dd">
+    <p class="p"/>
+
+    <dl class="dl">
+     
+      <dt class="dt dlterm">Properties</dt>
+
+      <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__output_port_set__optional">Optional</a>: false
+     </li>
+
+   </ul>
+
+   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__output_port_set__tuplemutationallowed">TupleMutationAllowed</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__output_port_set__windowpunctuationoutputmode">WindowPunctuationOutputMode</a>: Generating
+     </li>
+
+   </ul>
+
+</dd>
+     
+    </dl>
+
+    <p class="p"/>
+
+   </dd>
+
+  
+</dl>
+
+</div>
+
+<div class="section">
+<p class="p splhead-1"><strong class="ph b"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters">Parameters</a></strong></p>
+This operator supports 12 parameters.<dl class="dl">
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__URIList"><!-- --></a><tt class="ph tt">URIList</tt></dt>
+
+     <dd class="dd">
+<p class="p">A comma-separated list of quoted strings, each representing a URI whose contents you wish to retrieve.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: list&lt;rstring&gt;
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: false
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__initDelay"><!-- --></a><tt class="ph tt">initDelay</tt></dt>
+
+     <dd class="dd">
+<p class="p">Specifies an initial processing delay, in seconds, before the operator begins emitting tuples.  Default is zero seconds.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: float64
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__inputLinesPerRecord"><!-- --></a><tt class="ph tt">inputLinesPerRecord</tt></dt>
+
+     <dd class="dd">
+<p class="p">The number of carriage-return-separated lines from the URI contents that will be grouped into each record for processing.  Default is one line per record.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: uint32
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__intraRecordPadValue"><!-- --></a><tt class="ph tt">intraRecordPadValue</tt></dt>
+
+     <dd class="dd">
+<p class="p">A double-quoted string of zero or more characters to be placed between lines of input data that are grouped into a single record (in configurations where the inputLinesPerRecord parameter is greater than one).  Default is a single blank character.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__fetchInterval"><!-- --></a><tt class="ph tt">fetchInterval</tt></dt>
+
+     <dd class="dd">
+<p class="p">The interval, in seconds, between the end of a retrieval of the contents of all the URIs in the URIList parameter, and the start of the next retrieval.  Default is every 600 seconds (ten minutes).
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: float64
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__incrementalFetch"><!-- --></a><tt class="ph tt">incrementalFetch</tt></dt>
+
+     <dd class="dd">
+<p class="p">Controls whether the entire contents of each URI are streamed out during each retrieval from that URI, or only the data appended to the URI contents since the preceding retrieval.  Default is false, meaning that the entire contents will be streamed out on each fetch.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__doNotStreamInitialFetch"><!-- --></a><tt class="ph tt">doNotStreamInitialFetch</tt></dt>
+
+     <dd class="dd">
+<p class="p">Controls whether the operator will suppress streaming the contents from the initial retrieval.  Default is false, meaning that the initial retrieval contents will be streamed out.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Constant
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__unconditionalFetch"><!-- --></a><tt class="ph tt">unconditionalFetch</tt></dt>
+
+     <dd class="dd">
+<p class="p">Controls whether the contents of each URI will be streamed out even if the server-side timestamp on the URI is unchanged since the previous retrieval cycle.  Default is false, meaning that the URI contents will be streamed out only if the server-side timestamp has changed since the previous retrieval.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__emitTuplePerFetch"><!-- --></a><tt class="ph tt">emitTuplePerFetch</tt></dt>
+
+     <dd class="dd">
+<p class="p">Causes all the data from all the URIs in a given retrieval cycle to be loaded into each emitted tuple (one tuple per retrieval cycle), whose single attribute must be a list of rstring.  Mutually-exclusive with the emitTuplePerURI and emitTuplePerRecordCount parameters.  Default is false, meaning that a tuple will be emitted for each record rather than a single tuple per retrieval.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Constant
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__emitTuplePerURI"><!-- --></a><tt class="ph tt">emitTuplePerURI</tt></dt>
+
+     <dd class="dd">
+<p class="p">Causes all the data from each URI in a given retrieval cycle to be loaded into each emitted tuple (one tuple per URI per retrieval cycle), whose single attribute must be a list of rstring.  Mutually-exclusive with the emitTuplePerFetch and emitTuplePerRecordCount parameters.  Default is false, meaning that a tuple will be emitted for each record rather than a single tuple per URI.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Constant
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__emitTuplePerRecordCount"><!-- --></a><tt class="ph tt">emitTuplePerRecordCount</tt></dt>
+
+     <dd class="dd">
+<p class="p">Causes the data from the specified number of records to be loaded into each emitted tuple, whose single attribute must be a list of rstring.  Mutually-exclusive with the emitTuplePerFetch and emitTuplePerURI parameters.  There is no default, meaning that a tuple will be emitted for each record rather than a tuple per group of records.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: uint32
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__com.ibm.streamsx.inet__InetSource__parameter__punctPerFetch"><!-- --></a><tt class="ph tt">punctPerFetch</tt></dt>
+
+     <dd class="dd">
+<p class="p">Controls whether a window punctuation is emitted after the tuples resulting from each retrieval (even if no tuples resulted from a given retrieval).  The default is false, meaning that no window punctuations will be emitted.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+</dl>
+
+</div>
+
+<div class="section">
+<p class="p splhead-1"><strong class="ph b"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__context__codetemplate">Code Templates</a></strong></p>
+  <dl class="dl">
+    
+     <dt class="dt dlterm">InetSource</dt>
+
+     <dd class="dd">
+       <pre class="pre codeblock">
+stream&lt;${streamType}&gt; ${streamName} = InetSource() {
+            param
+                URIList : ["${urilistitem}"];
+        }
+      </pre>
+
+     <p class="p"/>
+
+     </dd>
+
+    
+  </dl>
+
+</div>
+
+<div class="section">
+<p class="p splhead-1"><strong class="ph b"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__context__dependencies">Libraries</a></strong></p>
+<dl class="dl">
+ 
+  <dt class="dt dlterm"><tt class="ph tt">curl-library</tt>  </dt>
+
+<dd class="dd"/>
+  <dd class="dd"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__context__dependencies__managedlibrary__lib">Library Name</a>: <tt class="ph tt">curl</tt></dd>
+
+ 
+ 
+  <dt class="dt dlterm"><tt class="ph tt">inet-tk-lib</tt>  </dt>
+
+<dd class="dd"/>
+  <dd class="dd"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__context__dependencies__managedlibrary__lib">Library Name</a>: <tt class="ph tt">streams-tk-inet</tt></dd>
+
+  <dd class="dd"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__context__dependencies__managedlibrary__includepath">Include Path</a>: <tt class="ph tt">../../impl/cpp/include</tt></dd>
+
+ 
+</dl>
+
+</div>
+
+</div>
+
+
+</body>
+</html>
