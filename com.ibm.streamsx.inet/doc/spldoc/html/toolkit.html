@@ -29,10 +29,10 @@
 <p class="p"><em class="ph i">com.ibm.streamsx.inet.rest</em> 
 </p>
 
-<p class="p">This namespace includes a number of operators that embed the Jetty webserver to provide REST style api to streaming data. A main use is the <a class="xref" href="HTTPTupleView">HTTPTupleView</a> operator that provides <tt class="ph tt">HTTP GET</tt> access to the contents of a stream, as JSON data. This then allows browser-based visualization of streaming data using JavaScript widgets, such as Dojo Charting. 
+<p class="p">This namespace includes a number of operators that embed the Jetty webserver to provide REST style api to streaming data. A main use is the <a class="xref" href="com.ibm.streamsx.inet.rest$HTTPTupleView.html">HTTPTupleView</a> operator that provides <tt class="ph tt">HTTP GET</tt> access to the contents of a stream, as JSON data. This then allows browser-based visualization of streaming data using JavaScript widgets, such as Dojo Charting. 
 </p>
 
-<p class="p">Also provided is the ability to inject tuples into a stream using <tt class="ph tt">HTTP POST</tt> with the <a class="xref" href="HTTPTupleInjection">HTTPTupleInjection</a> and <a class="xref" href="HTTPXMLInjection">HTTPXMLInjection</a> operators. 
+<p class="p">Also provided is the ability to inject tuples into a stream using <tt class="ph tt">HTTP POST</tt> with the <a class="xref" href="com.ibm.streamsx.inet.rest$HTTPTupleInjection.html">HTTPTupleInjection</a> and <a class="xref" href="com.ibm.streamsx.inet.rest$HTTPXMLInjection.html">HTTPXMLInjection</a> operators. 
 </p>
 
 <p class="p">Meta-data for the streams connected to the operators is also available through <tt class="ph tt">HTTP GET</tt> requests, to allow JavaScript applications to self-discover the format of the data. 
@@ -67,6 +67,25 @@
    <dd class="dd">Operators
        <ul class="sl simple">
          <li class="sli"><a class="xref" href="com.ibm.streamsx.inet$InetSource.html">InetSource</a></li>
+
+       </ul>
+
+   </dd>
+
+        
+     <dt class="dt dlterm splpart"><a class="xref" href="com.ibm.streamsx.inet.rest$.html">com.ibm.streamsx.inet.rest</a></dt>
+
+   <dd class="dd">Operators
+       <ul class="sl simple">
+         <li class="sli"><a class="xref" href="com.ibm.streamsx.inet.rest$HTTPTupleInjection.html">HTTPTupleInjection</a></li>
+
+         <li class="sli"><a class="xref" href="com.ibm.streamsx.inet.rest$HTTPTupleView.html">HTTPTupleView</a></li>
+
+         <li class="sli"><a class="xref" href="com.ibm.streamsx.inet.rest$HTTPXMLInjection.html">HTTPXMLInjection</a></li>
+
+         <li class="sli"><a class="xref" href="com.ibm.streamsx.inet.rest$HTTPXMLView.html">HTTPXMLView</a></li>
+
+         <li class="sli"><a class="xref" href="com.ibm.streamsx.inet.rest$WebContext.html">WebContext</a></li>
 
        </ul>
 
