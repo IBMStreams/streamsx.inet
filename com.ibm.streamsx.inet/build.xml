@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+# Licensed Materials - Property of IBM
+# Copyright IBM Corp. 2011, 2013
+# US Government Users Restricted Rights - Use, duplication or
+# disclosure restricted by GSA ADP Schedule Contract with
+# IBM Corp.
+-->
+<project name="com.ibm.streamsx.inet" basedir="." default="all">
+
+	<property environment="env" />
+	<property name="streams.install" value="${env.STREAMS_INSTALL}" />
+
+	<property name="src.dir" value="impl/java/src" />
+	<property name="build.dir" value="impl/java/classes" />
+	<property name="impl.lib.dir" value="impl/lib" />
+	<property name="lib.dir" value="lib" />
+	<property name="test.build.dir" value="impl/java/test.bin" />
+	<property name="test.run.dir" value="tests" />
+
+	<target name="init">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${lib.dir}" />
+		<mkdir dir="${impl.lib.dir}" />
+	</target>
+
+	<target name="clean">
+		<delete dir="${build.dir}" />
+		<delete dir="${impl.lib.dir}" />
+		<delete dir="output"/>
+		<delete dir="${test.run.dir}"/>
+		<delete dir="${test.build.dir}"/>
+	</target>
+
+
+	<path id="cp.eclipse.jetty">
+		<fileset dir="opt/eclipse-4.2.2/plugins">
+			<include name="javax.servlet*.jar" />
+			<include name="org.eclipse.jetty*.jar" />
+		</fileset>
+	</path>
+	<path id="cp.streams">
+		<pathelement location="${streams.install}/lib/com.ibm.streams.operator.samples.jar" />
+	</path>
+
+
+	<path id="cp.compile">
+		<pathelement location="${streams.install}/lib/com.ibm.streams.operator.samples.jar" />
+		<path refid="cp.eclipse.jetty" />
+	</path>
+	
+	<target name="all" depends="jar,cpp"/>
+	
+	<target name="cpp">
+		<exec executable="make">
+			<arg value="all"/>
+	    </exec>
+	</target>
+
+	<target name="compile" depends="init">
+		<javac srcdir="${src.dir}" destdir="${build.dir}" debug="true">
+			<classpath>
+				<path refid="cp.streams" />
+				<path refid="cp.eclipse.jetty" />
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile">
+		<manifestclasspath property="jar.cp.eclipse.jetty" jarfile="${impl.lib.dir}/com.ibm.streamsx.inet.rest.jar">
+			<classpath refid="cp.eclipse.jetty" />
+		</manifestclasspath>
+		<jar destfile="${impl.lib.dir}/com.ibm.streamsx.inet.rest.jar" basedir="${build.dir}" includes="com/ibm/streamsx/inet/**" filesonly="true">
+			<manifest>
+				<attribute name="Class-Path" value="${jar.cp.eclipse.jetty}" />
+			</manifest>
+		</jar>
+		<delete dir="${build.dir}" />
+	</target>
+
+	<target name="test" depends="jar">
+	<mkdir dir="${test.run.dir}"/>
+		  <junit printsummary="yes" haltonfailure="yes" >
+		      <classpath>
+		        <pathelement location="${test.build.dir}"/>
+		        <pathelement location="${impl.lib.dir}/com.ibm.streamsx.inet.rest.jar"/>
+		        <path refid="cp.streams" />
+		      </classpath>
+
+		      <formatter type="xml"/>
+		        
+		      <batchtest todir="${test.run.dir}">
+		        <fileset dir="${src.dir}">
+		          <include name="**/*Test.java"/>
+		        </fileset>
+		      </batchtest>
+		    </junit>
+
+		</target>
+
+</project>
+
