@@ -11,6 +11,9 @@ samples/*/toolkit.xml
 ## java excludes
 *.class
 
+# exclude generated Java primitive operator model files
+*$StreamsModel.java
+
 # Package Files #
 com.ibm.streamsx.inet/lib/*.jar
 com.ibm.streamsx.inet/impl/lib/*.jar
