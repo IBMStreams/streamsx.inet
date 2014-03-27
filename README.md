@@ -4,7 +4,7 @@ The IBMStreams/streamsx.inet toolkit project is an open source Streams toolkit p
 
 Project Overview at: http://ibmstreams.github.io/streamsx.inet/
 
-Operators, functions & tyoes are described using SPLDOC at
+Operators, functions & types are described using SPLDOC at
 
 http://ibmstreams.github.io/streamsx.inet/com.ibm.streamsx.inet/doc/spldoc/html/index.html
 
