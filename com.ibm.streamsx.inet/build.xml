@@ -45,7 +45,7 @@
 
 
 	<path id="cp.compile">
-		<pathelement location="${streams.install}/lib/com.ibm.streams.operator.samples.jar" />
+		<path refid="cp.streams" />
 		<path refid="cp.eclipse.jetty" />
 	</path>
 	
@@ -58,7 +58,9 @@
 	</target>
 
 	<target name="compile" depends="init">
-		<javac srcdir="${src.dir}" destdir="${build.dir}" debug="true">
+		<javac srcdir="${test.build.dir}" destdir="${build.dir}" debug="true"
+			includeantruntime="no"
+			excludes="com/ibm/streamsx/inet/rest/test/**">
 			<classpath>
 				<path refid="cp.streams" />
 				<path refid="cp.eclipse.jetty" />
@@ -79,7 +81,18 @@
 	</target>
 
 	<target name="test" depends="jar">
-	<mkdir dir="${test.run.dir}"/>
+		<mkdir dir="${test.run.dir}"/>
+		<mkdir dir="${test.build.dir}"/>
+		
+		<javac srcdir="${src.dir}" destdir="${test.run.dir}" debug="true"
+			includeantruntime="no"
+			includes="com/ibm/streamsx/inet/rest/test/**">
+			<classpath>
+				<pathelement location="${impl.lib.dir}/com.ibm.streamsx.inet.rest.jar"/>
+				<path refid="cp.streams" />
+			</classpath>
+		</javac>
+	
 		  <junit printsummary="yes" haltonfailure="yes" >
 		      <classpath>
 		        <pathelement location="${test.build.dir}"/>
