@@ -15,9 +15,9 @@
 	<property name="build.dir" value="impl/java/classes" />
 	<property name="impl.lib.dir" value="impl/lib" />
 	<property name="lib.dir" value="lib" />
-	<property name="test.build.dir" value="impl/java/test.bin" />
 	<property name="test.run.dir" value="tests" />
-
+	<property name="test.build.dir" value="${test.run.dir}/bin" />
+	
 	<target name="init">
 		<mkdir dir="${build.dir}" />
 		<mkdir dir="${lib.dir}" />
@@ -58,7 +58,7 @@
 	</target>
 
 	<target name="compile" depends="init">
-		<javac srcdir="${test.build.dir}" destdir="${build.dir}" debug="true"
+		<javac srcdir="${src.dir}" destdir="${build.dir}" debug="true"
 			includeantruntime="no"
 			excludes="com/ibm/streamsx/inet/rest/test/**">
 			<classpath>
@@ -80,12 +80,13 @@
 		<delete dir="${build.dir}" />
 	</target>
 
+        <!-- assumes Junit 4.3 (or later) is in $HOME/.ant/lib -->
 	<target name="test" depends="jar">
 		<mkdir dir="${test.run.dir}"/>
 		<mkdir dir="${test.build.dir}"/>
 		
-		<javac srcdir="${src.dir}" destdir="${test.run.dir}" debug="true"
-			includeantruntime="no"
+		<javac srcdir="${src.dir}" destdir="${test.build.dir}" debug="true"
+			includeantruntime="yes"
 			includes="com/ibm/streamsx/inet/rest/test/**">
 			<classpath>
 				<pathelement location="${impl.lib.dir}/com.ibm.streamsx.inet.rest.jar"/>
