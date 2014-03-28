@@ -11,7 +11,7 @@ CFLAGS= -fPIC -I impl/cpp/include -I $(CURL_INCLUDE_DIR) -I $(STREAMS_INSTALL)/i
 BIN_DIR=impl/cpp/bin
 LDFLAGS=-shared
 
-all: impl/lib/libstreams-tk-inet.so ant toolkit.xml
+all: impl/lib/libstreams-tk-inet.so toolkit.xml
 
 toolkit.xml:
 	spl-make-toolkit -i .
@@ -35,9 +35,5 @@ clean:
 	spl-make-toolkit -c -i .
 	rm -rf impl/bin
 	rm -f impl/lib/libstreams-tk-inet.so
-	ant clean
-	rm -rf output
 
 
-ant:
-	ant

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright (C) 2011,2014 International Business Machines Corportation -->
+<!-- Copyright (C) 2011,2014 International Business Machines Corporation -->
 <!-- All Rights Reserved                                                   -->
 
 <info:toolkitInfoModel xmlns:common="http://www.ibm.com/xmlns/prod/streams/spl/common"
  xmlns:info="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo">
  <info:identity>
-   <info:name>InetSourceTest</info:name>
+   <info:name>InetSourceSample</info:name>
    <info:description>Sample demonstrating InetSource</info:description>
    <info:version>1.0.0</info:version>
    <info:requiredProductVersion>2.0.0</info:requiredProductVersion>
