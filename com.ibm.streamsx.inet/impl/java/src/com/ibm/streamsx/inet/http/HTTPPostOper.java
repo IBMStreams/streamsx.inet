@@ -24,7 +24,6 @@ import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.model.InputPortSet;
 import com.ibm.streams.operator.model.InputPorts;
-import com.ibm.streams.operator.model.Libraries;
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.Parameter;
@@ -35,7 +34,6 @@ import com.ibm.streamsx.inet.http.HTTPRequest.RequestType;
 @InputPorts(@InputPortSet(cardinality=1))
 @OutputPorts(@OutputPortSet(cardinality=1, optional=true))
 @PrimitiveOperator(name="HTTPPostSink")
-@Libraries({"../../impl/lib/*"})
 public class HTTPPostOper extends AbstractOperator  
 {
 	static final String CLASS_NAME="com.ibm.streamsx.inet.http.HTTPPostOper";

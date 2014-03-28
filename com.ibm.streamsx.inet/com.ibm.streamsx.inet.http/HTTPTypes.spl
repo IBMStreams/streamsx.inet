@@ -1,5 +1,5 @@
 namespace com.ibm.streamsx.inet.http;
 
-				   
+//Output stream schema
 type HTTPResponse = rstring data, rstring errorMessage, int32 responseCode, int32 dataSize;
 		

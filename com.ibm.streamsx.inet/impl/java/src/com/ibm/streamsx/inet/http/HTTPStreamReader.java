@@ -22,7 +22,6 @@ import com.ibm.streams.operator.logging.LogLevel;
 import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.model.InputPortSet;
 import com.ibm.streams.operator.model.InputPorts;
-import com.ibm.streams.operator.model.Libraries;
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPortSet.WindowPunctuationOutputMode;
 import com.ibm.streams.operator.model.OutputPorts;
@@ -34,7 +33,6 @@ import com.ibm.streams.operator.types.RString;
 @OutputPorts({@OutputPortSet(cardinality=1, optional=false, windowPunctuationOutputMode=WindowPunctuationOutputMode.Generating),
 			  @OutputPortSet(cardinality=1, optional=true, windowPunctuationOutputMode=WindowPunctuationOutputMode.Free)})
 @PrimitiveOperator(name="HTTPGetStreamSource")
-@Libraries({"../../impl/lib/*"})
 public class HTTPStreamReader extends AbstractOperator {
 	private String dataParamName = "data";
 	private HTTPStreamReaderObj reader = null;

@@ -27,6 +27,7 @@
  
  <target name="jar" depends="compile">
    <jar destfile="${lib.dir}/${jarfile}" basedir="${build.dir}"/>
+	 <delete dir="${build.dir}"/>
  </target>
  
  <target name="clean">

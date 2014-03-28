@@ -16,20 +16,12 @@ import java.net.URLConnection;
 
 import com.ibm.streamsx.inet.http.HTTPRequest.RequestType;
 
-//interface HTTPLineReader {
-//	public void processNewLine(String line) throws Exception;
-//	public boolean connectionClosed() throws Exception;
-//	public void connectionSuccess() throws Exception;
-//	public boolean onReadException(Exception t) throws Exception;
-//}
-
-
 class HTTPException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
-	int responseCode = 0;
-	String data = "";
+	private int responseCode = 0;
+	private String data = "";
 	public HTTPException(int responseCode, String message) {
 		super(message);
 		this.responseCode = responseCode;
@@ -54,10 +46,11 @@ public class HTTPStreamReaderObj implements Runnable
 	private BufferedReader in = null;
 	private boolean shutdown = false;
 	private HTTPRequest req = null;
-	IAuthenticate auth = null;
-	String postData = null;
-	boolean usePost= false;
-	HTTPStreamReader reader = null;
+	private IAuthenticate auth = null;
+	private String postData = null;
+	private boolean usePost= false;
+	private HTTPStreamReader reader = null;
+	
 	public HTTPStreamReaderObj(String url, IAuthenticate auth, HTTPStreamReader reader, boolean usePost) 	{
 		this.auth = auth;
 		this.reader = reader;
