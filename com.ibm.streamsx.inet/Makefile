@@ -32,5 +32,8 @@ impl/lib/libstreams-tk-inet.so: $(BIN_DIR)/InetRetriever.o $(BIN_DIR)/URIHelper.
 	$(CXX) $(LDFLAGS) $(BIN_DIR)/InetRetriever.o $(BIN_DIR)/URIHelper.o $(LIBS) -o impl/lib/libstreams-tk-inet.so
 
 clean:
+	spl-make-toolkit -c -i .
 	rm -rf impl/bin
-	rm impl/lib/libstreams-tk-inet.so
+	rm -f impl/lib/libstreams-tk-inet.so
+
+

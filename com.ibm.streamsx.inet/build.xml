@@ -24,7 +24,7 @@
 		<mkdir dir="${impl.lib.dir}" />
 	</target>
 
-	<target name="clean">
+	<target name="clean" depends="cpp-clean">
 		<delete dir="${build.dir}" />
 		<delete dir="${impl.lib.dir}" />
 		<delete dir="output"/>
@@ -54,6 +54,12 @@
 	<target name="cpp">
 		<exec executable="make">
 			<arg value="all"/>
+	    </exec>
+	</target>
+
+	<target name="cpp-clean">
+		<exec executable="make">
+			<arg value="clean"/>
 	    </exec>
 	</target>
 
