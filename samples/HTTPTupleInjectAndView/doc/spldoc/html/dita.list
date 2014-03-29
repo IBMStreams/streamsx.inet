@@ -1,12 +1,12 @@
-#Sat Mar 29 14:59:16 EDT 2014
+#Sat Mar 29 14:59:05 EDT 2014
 copytosourcelist=
-hreftargetslist=com.ibm.streamsx.inet.sample$GetWeather$spl.xml,com.ibm.streamsx.inet.sample$.xml,toolkit.xml
+hreftargetslist=com.ibm.streamsx.inet.sample.rest$.xml,com.ibm.streamsx.inet.sample.rest$SimpleInject$spl.xml,toolkit.xml
 fullditatopicfile=fullditatopic.list
 fullditamapandtopicfile=fullditamapandtopic.list
-fullditatopiclist=com.ibm.streamsx.inet.sample$GetWeather$spl.xml,com.ibm.streamsx.inet.sample$.xml,toolkit.xml
-fullditamapandtopiclist=com.ibm.streamsx.inet.sample$GetWeather$spl.xml,toolkit.ditamap,com.ibm.streamsx.inet.sample$.xml,toolkit.xml
+fullditatopiclist=com.ibm.streamsx.inet.sample.rest$.xml,com.ibm.streamsx.inet.sample.rest$SimpleInject$spl.xml,toolkit.xml
+fullditamapandtopiclist=toolkit.ditamap,com.ibm.streamsx.inet.sample.rest$.xml,com.ibm.streamsx.inet.sample.rest$SimpleInject$spl.xml,toolkit.xml
 hrefditatopicfile=hrefditatopic.list
-hrefditatopiclist=com.ibm.streamsx.inet.sample$GetWeather$spl.xml,com.ibm.streamsx.inet.sample$.xml,toolkit.xml
+hrefditatopiclist=com.ibm.streamsx.inet.sample.rest$.xml,com.ibm.streamsx.inet.sample.rest$SimpleInject$spl.xml,toolkit.xml
 user.input.file=toolkit.ditamap
 subtargetsfile=subtargets.list
 fullditamapfile=fullditamap.list
@@ -27,7 +27,7 @@ imagelist=
 htmlfile=html.list
 htmllist=
 canditopicsfile=canditopics.list
-canditopicslist=com.ibm.streamsx.inet.sample$GetWeather$spl.xml,com.ibm.streamsx.inet.sample$.xml,toolkit.xml
+canditopicslist=com.ibm.streamsx.inet.sample.rest$.xml,com.ibm.streamsx.inet.sample.rest$SimpleInject$spl.xml,toolkit.xml
 keyreffile=keyref.list
 subjectschemefile=subjectscheme.list
 keyreflist=
@@ -37,7 +37,7 @@ codereffile=coderef.list
 keylist=
 codereflist=
 user.input.file.listfile=usr.input.file.list
-user.input.dir=/homes/hny2/hildrum/github/IBMStreams/streamsx.inet/samples/InetSource/doc/spldoc/dita
+user.input.dir=/homes/hny2/hildrum/github/IBMStreams/streamsx.inet/samples/HTTPTupleInjectAndView/doc/spldoc/dita
 uplevels=
 tempdirToinputmapdir.relative.value=
 conrefpushfile=conrefpush.list
