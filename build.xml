@@ -65,6 +65,7 @@
      <property name="tkdir" value="${basedir}"/>
      <echo message="Tookit to SPLDOC: ${tkdir}"/>
      <exec executable="${streams.install}/bin/spl-make-doc">
+        <arg value="--include-composite-operator-diagram"/>
         <arg value="--directory"/>
         <arg value="${tkdir}"/>
      </exec>
