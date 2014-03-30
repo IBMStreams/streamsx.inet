@@ -1,0 +1,24 @@
+<project name="streamsx.inet" default="test" basedir=".">
+    <description>
+        Build file for streamsx.inet project, built the toolkits and samples.
+    </description>
+  <!-- set global properties for this build -->
+  <property name="toolkit" location="com.ibm.streamsx.inet"/>
+	
+  <target name="test" depends="toolkit"/>
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+  </target>
+
+  <target name="toolkit" depends="init"
+        description="Build any code and index the toolkit." >
+  	<ant dir="${toolkit}" target="all"/>
+  </target>
+
+  <target name="clean"
+        description="clean up" >
+  	<ant dir="${toolkit}" target="clean"/>
+  </target>
+</project>
