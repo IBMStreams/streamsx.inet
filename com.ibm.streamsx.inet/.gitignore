@@ -1,1 +1,3 @@
-/impl/java/bin
+impl/java/src/com/ibm/streamsx/inet/http/HTTPPostOper\$StreamsModel.java
+impl/java/src/com/ibm/streamsx/inet/http/HTTPStreamReader\$StreamsModel.java
+impl/java/bin
