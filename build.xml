@@ -43,6 +43,11 @@
        <dirset dir="samples" includes="*"/>
     </subant>
   </target>
+  
+  <!-- Test targets -->
+  <target name="tests">
+     <ant dir="${toolkit}" target="test"/>
+  </target>
 
 
   <!-- Targets called on samples -->
