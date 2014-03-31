@@ -1,6 +1,6 @@
 ##README --  IBMStreams/streamsx.inet
 
-The IBMStreams/streamsx.inet toolkit project is an open source Streams toolkit project focused on the development of operators and functions that extend IBM InfoSphere Streams internet capabilities.
+The IBMStreams/streamsx.inet toolkit project is an open source IBM InfoSphere Streams toolkit project supporting common internet protocols, such as HTTP, Websockets, etc.
 
 Project Overview at: http://ibmstreams.github.io/streamsx.inet/
 
