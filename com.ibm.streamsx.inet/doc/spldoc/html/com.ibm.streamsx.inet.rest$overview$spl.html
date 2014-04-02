@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="overview.spl"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="spldoc_compilationunit__"/>
+<link rel="stylesheet" type="text/css" href="../html/commonltr.css"/>
+<link rel="stylesheet" type="text/css" href="../html/spldoc.css"/>
+<title>overview.spl</title>
+</head>
+<body id="spldoc_compilationunit__">
+
+
+<h1 class="title topictitle1">overview.spl</h1>
+
+<div class="body refbody">
+<div class="section">
+<p class="p">
+<a class="xref" href="toolkit.html">
+com.ibm.streamsx.inet
+</a>
+-&gt; <a class="xref" href="com.ibm.streamsx.inet.rest$.html">com.ibm.streamsx.inet.rest</a>-&gt; overview.spl</p>
+
+</div>
+
+<div class="section">
+
+<p class="p">A set of operators using HTTP REST apis to interact with streaming data. 
+</p>
+
+<p class="p">These operators all embed an instance of Eclipse Jetty to provide an web-server embedded within the operator. 
+</p>
+
+<p class="p">Access to streaming data is provided through the <a class="xref" href="com.ibm.streamsx.inet.rest$HTTPTupleView.html">HTTPTupleView</a> and <a class="xref" href="com.ibm.streamsx.inet.rest$HTTPXMLView.html">HTTPXMLView</a> operators. These two operators support <tt class="ph tt">HTTP GET</tt> requests to fetch the latest version of the streaming data in the operator's state. 
+</p>
+
+<p class="p">Data can be injected into a stream through  <a class="xref" href="com.ibm.streamsx.inet.rest$HTTPTupleInjection.html">HTTPTupleInjection</a> and <a class="xref" href="com.ibm.streamsx.inet.rest$HTTPXMLInjection.html">HTTPXMLInjection</a> operators. Each operators extracts data from an <tt class="ph tt">HTTP POST</tt> and submits a tuple on an output port. 
+</p>
+
+<p class="p"><a class="xref" href="com.ibm.streamsx.inet.rest$WebContext.html">WebContext</a> provides a mechanism to serve files at a fixed web context, a fixed path relative to the root URL of the web server. 
+</p>
+
+<p class="p">Multiple operators share a single web-server by being colocated in the same partition (fused in the same proccessing element). This allows operators to expose streams through the same webserver without having to be connected in the SPL graph. 
+</p>
+
+<p class="p">Overall, these set of operators allow a complete web-application to be self-contained within an SPL application. In addition to the operators the webserver will serve up HTML and Javascript files. Javascript can be used with the JSON data provided by <a class="xref" href="com.ibm.streamsx.inet.rest$HTTPTupleView.html">HTTPTupleView</a> to visual live data using graphical packages such as <a class="xref" href="http://dojotoolkit.org">DOJO</a> and  <a class="xref" href="http://d3js.org">D3</a>. 
+</p>
+
+</div>
+
+</div>
+
+
+</body>
+</html>
