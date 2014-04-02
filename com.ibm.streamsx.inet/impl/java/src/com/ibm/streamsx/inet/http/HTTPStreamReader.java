@@ -66,7 +66,7 @@ public class HTTPStreamReader extends AbstractOperator {
 		this.authType = val;
 	}
 	@Parameter(optional=true, description="Path to the properties file containing authentication information."+
-			" See config/http_auth_basic.properties for a sample of basic authentication properties.")
+			" See http_auth_basic.properties in the toolkits config directory for a sample of basic authentication properties.")
 	public void setAuthenticationFile(String val) {
 		this.authFile = val;
 	}
