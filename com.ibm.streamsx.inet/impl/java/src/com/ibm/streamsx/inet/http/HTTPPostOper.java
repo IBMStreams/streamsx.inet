@@ -65,7 +65,8 @@ public class HTTPPostOper extends AbstractOperator
 	public void setAuthenticationType(String val) {
 		this.authType = val;
 	}
-	@Parameter(optional=true, description="Path to the properties file containing authentication information."+
+	@Parameter(optional=true, description=
+			"Path to the properties file containing authentication information. Path can be absolute or relative to the data directory of the application."+
 			" See http_auth_basic.properties in the toolkits config directory for a sample of basic authentication properties.")
 	public void setAuthenticationFile(String val) {
 		this.authFile = val;
