@@ -7,11 +7,11 @@
   <identity>
     <name>com.ibm.streamsx.inet</name>
     <description>
-*Internet Adapters Toolkit*
+Support for common internet protocols.
 
 *com.ibm.streamsx.inet.rest*
 
-This namespace includes a number of operators that embed the Jetty webserver to provide REST style api to streaming data.
+This namespace includes a number of operators that embed the Jetty webserver to provide HTTP REST style api to streaming data.
 A main use is the [HTTPTupleView] operator that provides `HTTP GET` access to the contents of a stream, as JSON data.
 This then allows browser-based visualization of streaming data using JavaScript widgets, such as Dojo Charting.
 

@@ -1,0 +1,73 @@
+<project name="streamsx.inet" default="all" basedir=".">
+    <description>
+        Build file for streamsx.inet project, built the toolkits and samples.
+    </description>
+  <!-- set global properties for this build -->
+  <property environment="env" />
+  <property name="streams.install" value="${env.STREAMS_INSTALL}" />
+  <property name="toolkit" location="com.ibm.streamsx.inet"/>
+	
+  <target name="all" depends="toolkit,samples"/>
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+  </target>
+
+  <target name="clean" depends="cleansamples"
+        description="clean up" >
+  	<ant dir="${toolkit}" target="clean"/>
+  </target>
+
+  <target name="toolkit" depends="init"
+        description="Build any code and index the toolkit." >
+  	<ant dir="${toolkit}" target="all"/>
+  </target>
+
+  <target name="spldoc" depends="samples">
+    <antcall target="spldoctoolkit">
+       <param name="tkdir" value="${toolkit}"/>
+    </antcall>
+    <subant target="spldoctoolkit" genericantfile="${basedir}/build.xml">
+       <dirset dir="samples" includes="*"/>
+    </subant>
+  </target>
+
+  <target name="samples" depends="toolkit">
+    <subant target="indextoolkit" genericantfile="${basedir}/build.xml">
+       <dirset dir="samples" includes="*"/>
+    </subant>
+  </target>
+  <target name="cleansamples">
+    <subant target="cleantoolkit" genericantfile="${basedir}/build.xml">
+       <dirset dir="samples" includes="*"/>
+    </subant>
+  </target>
+
+
+  <!-- Targets called on samples -->
+  <target name="indextoolkit">
+     <echo message="Tookit to index: ${basedir}"/>
+     <exec executable="${streams.install}/bin/spl-make-toolkit">
+        <arg value="--directory"/>
+        <arg value="${basedir}"/>
+     </exec>
+  </target>
+  <target name="cleantoolkit">
+     <echo message="Tookit to clean: ${basedir}"/>
+     <exec executable="${streams.install}/bin/spl-make-toolkit">
+        <arg value="--clean"/>
+        <arg value="--directory"/>
+        <arg value="${basedir}"/>
+     </exec>
+  </target>
+  <target name="spldoctoolkit">
+     <property name="tkdir" value="${basedir}"/>
+     <echo message="Tookit to SPLDOC: ${tkdir}"/>
+     <exec executable="${streams.install}/bin/spl-make-doc">
+        <arg value="--include-composite-operator-diagram"/>
+        <arg value="--directory"/>
+        <arg value="${tkdir}"/>
+     </exec>
+  </target>
+</project>
