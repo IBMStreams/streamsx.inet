@@ -31,9 +31,12 @@ import com.ibm.streams.operator.model.PrimitiveOperator;
 import com.ibm.streams.operator.types.RString;
 import com.ibm.streamsx.inet.http.HTTPRequest.RequestType;
 
-@InputPorts(@InputPortSet(cardinality=1))
-@OutputPorts(@OutputPortSet(cardinality=1, optional=true))
-@PrimitiveOperator(name="HTTPPostSink")
+@InputPorts(@InputPortSet(cardinality=1, 
+			description="All attributes of the input stream are sent as POST data to the specified HTTP server"))
+@OutputPorts(@OutputPortSet(cardinality=1, optional=true, 
+			description="Emits a tuple containing the reponse received from the server. " +
+		     "Tuple structure must conform to the \\\"HTTPResponse\\\" type specified in this namespace."))
+@PrimitiveOperator(name="HTTPPostSink", description=HTTPPostOper.DESC)
 public class HTTPPostOper extends AbstractOperator  
 {
 	static final String CLASS_NAME="com.ibm.streamsx.inet.http.HTTPPostOper";
@@ -212,4 +215,20 @@ public class HTTPPostOper extends AbstractOperator
 	public void shutdown() throws Exception {
 		shutdown = true;
 	}
+
+	public static final String DESC = 
+			"This operator sends incoming tuples to the specified HTTP server as part of a POST request." +
+			"A single tuple will be sent as part of one HTTP POST request." +
+			"All attributes of the tuple will be serialized sent to the server." +
+			"Certain authentication modes are supported." +
+			"Tuples are sent to the server one at a time. If the HTTP server cannot be accessed, retries " +
+			"will be done on the current thread an may block any additional tuples that arrive on the input port" +
+			"\\n" + 
+			"**Limitations**:\\n" + 
+			"* Nested attributes are not individually accessed and serialized. Only the top level attributes are serialized individually.\\n" 
+		;
+
 }
+
+
+

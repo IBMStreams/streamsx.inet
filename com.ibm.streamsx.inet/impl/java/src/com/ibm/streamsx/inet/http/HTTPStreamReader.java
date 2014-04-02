@@ -30,9 +30,12 @@ import com.ibm.streams.operator.model.PrimitiveOperator;
 import com.ibm.streams.operator.types.RString;
 
 @InputPorts(@InputPortSet(cardinality=0))
-@OutputPorts({@OutputPortSet(cardinality=1, optional=false, windowPunctuationOutputMode=WindowPunctuationOutputMode.Generating),
-			  @OutputPortSet(cardinality=1, optional=true, windowPunctuationOutputMode=WindowPunctuationOutputMode.Free)})
-@PrimitiveOperator(name="HTTPGetStreamSource")
+@OutputPorts({@OutputPortSet(cardinality=1, optional=false, windowPunctuationOutputMode=WindowPunctuationOutputMode.Generating,
+			  description="Data received from the server will be sent on this port."),
+			  @OutputPortSet(cardinality=1, optional=true, windowPunctuationOutputMode=WindowPunctuationOutputMode.Free, 
+			  description="Error information will be sent out on this port including the response code and any message recieved from the server. " +
+			  		"Tuple structure must conform to the \\\"HTTPResponse\\\" type specified in this namespace.")})
+@PrimitiveOperator(name="HTTPGetStreamSource", description=HTTPStreamReader.DESC)
 public class HTTPStreamReader extends AbstractOperator {
 	private String dataParamName = "data";
 	private HTTPStreamReaderObj reader = null;
@@ -237,5 +240,13 @@ public class HTTPStreamReader extends AbstractOperator {
 		}
 		return retry;
 	}
+	
+	
+	public static final String DESC  = 
+			"Connects to an HTTP endpoint and reads \\\"chunks\\\" of data and sends it to the output port." +
+			"Every line read from the HTTP server endpoint is sent as a single tuple." +
+			"If a connection is closed by the server, a punctuation will be sent on port 0." +
+			"Certain authentication modes are supported." 
+			;
 }
 
