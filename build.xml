@@ -6,17 +6,22 @@
   <property environment="env" />
   <property name="streams.install" value="${env.STREAMS_INSTALL}" />
   <property name="toolkit" location="com.ibm.streamsx.inet"/>
+  <property name="tmp" location="tmp" />
 	
   <target name="all" depends="toolkit,samples"/>
 
   <target name="init">
     <!-- Create the time stamp -->
     <tstamp/>
+    <!-- Extract info from the toolkit's info.xml -->
+    <xmlproperty file="${toolkit}/info.xml" prefix="tkinfo" keepRoot="no"/>
+    <echo message="Toolkit Version: ${tkinfo.identity.version}"/>
   </target>
 
   <target name="clean" depends="cleansamples"
         description="clean up" >
   	<ant dir="${toolkit}" target="clean"/>
+        <delete dir="${tmp}"/>
   </target>
 
   <target name="toolkit" depends="init"
@@ -75,4 +80,15 @@
         <arg value="${tkdir}"/>
      </exec>
   </target>
+
+  <!-- Targets to build releases -->
+  <target name="release"  depends="clean,all,spldoc">
+	<mkdir dir="${tmp}" />
+    	<tar compression="gzip" longfile="gnu"
+             destfile="${tmp}/streamx.inet.toolkits-${tkinfo.identity.version}-${DSTAMP}-${TSTAMP}.tgz"
+    	     basedir="${basedir}"
+             includes="com.ibm.streamsx.inet/** samples/**"
+             excludes="**/.gitignore **/.settings/** **/.settings **/.project **/.classpath"
+    	/>
+    </target>
 </project>
