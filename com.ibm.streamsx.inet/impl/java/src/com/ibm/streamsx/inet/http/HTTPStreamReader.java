@@ -243,7 +243,7 @@ public class HTTPStreamReader extends AbstractOperator {
 	
 	
 	public static final String DESC  = 
-			"Connects to an HTTP endpoint and reads \\\"chunks\\\" of data and sends it to the output port." +
+			"Connects to an HTTP endpoint, reads \\\"chunks\\\" of data and sends it to the output port." +
 			"Every line read from the HTTP server endpoint is sent as a single tuple." +
 			"If a connection is closed by the server, a punctuation will be sent on port 0." +
 			"Certain authentication modes are supported." 

@@ -219,10 +219,10 @@ public class HTTPPostOper extends AbstractOperator
 	public static final String DESC = 
 			"This operator sends incoming tuples to the specified HTTP server as part of a POST request." +
 			"A single tuple will be sent as part of one HTTP POST request." +
-			"All attributes of the tuple will be serialized sent to the server." +
+			"All attributes of the tuple will be serialized and sent to the server." +
 			"Certain authentication modes are supported." +
-			"Tuples are sent to the server one at a time. If the HTTP server cannot be accessed, retries " +
-			"will be done on the current thread an may block any additional tuples that arrive on the input port" +
+			"Tuples are sent to the server one at a time in order of receipt. If the HTTP server cannot be accessed, the operation " +
+			"will be retried on the current thread and may temporarily block any additional tuples that arrive on the input port" +
 			"\\n" + 
 			"**Limitations**:\\n" + 
 			"* Nested attributes are not individually accessed and serialized. Only the top level attributes are serialized individually.\\n" 
