@@ -13,8 +13,6 @@
   <target name="init">
     <!-- Create the time stamp -->
     <tstamp/>
-    <!-- Extract info from the toolkit's info.xml -->
-    <xmlproperty file="${toolkit}/info.xml" prefix="tkinfo" keepRoot="no"/>
 
     <!-- Extract the git commit hash -->
     <exec executable="git" outputproperty="commithash">
@@ -23,11 +21,15 @@
         <arg value="HEAD"/>
     </exec>
 
-    <echo message="Toolkit Version: ${tkinfo.identity.version}"/>
-    <echo message="Git Hash: ${commithash}"/>
 
      <!-- Update the info.xml -->
      <replace file="${toolkit}/info.xml" token="__dev__" value="commit_${commithash}" summary="yes"/>
+
+    <!-- Extract info from the toolkit's info.xml -->
+    <xmlproperty file="${toolkit}/info.xml" prefix="tkinfo" keepRoot="no"/>
+
+    <echo message="Toolkit Version: ${tkinfo.identity.version}"/>
+    <echo message="Git Hash: ${commithash}"/>
      
   </target>
 
@@ -107,11 +109,14 @@
         <arg value="${toolkit}/info.xml"/>
     </exec>
 	<mkdir dir="${tmp}" />
+        <property name="releasefilename" value="${tmp}/streamx.inet.toolkits-${tkinfo.identity.version}-${DSTAMP}-${TSTAMP}.tgz"/>
     	<tar compression="gzip" longfile="gnu"
-             destfile="${tmp}/streamx.inet.toolkits-${tkinfo.identity.version}-${DSTAMP}-${TSTAMP}.tgz"
+             destfile="${releasefilename}"
     	     basedir="${basedir}"
              includes="${tkinfo.identity.name}/** samples/**"
              excludes="**/.gitignore **/.settings/** **/.settings **/.project **/.classpath"
     	/>
+        <checksum file="${releasefilename}"/>
+        <checksum algorithm="sha1" file="${releasefilename}"/>
     </target>
 </project>
