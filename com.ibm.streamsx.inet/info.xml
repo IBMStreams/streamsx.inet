@@ -22,7 +22,7 @@ to allow JavaScript applications to self-discover the format of the data.
 
 Jetty 8.1.3 from Eclipse 4.2.2 is embedded in the toolkit, under `opt/eclipse4.2.2`.
     </description>
-    <version>1.1.0</version>
+    <version>1.1.0.##dev##</version>
     <requiredProductVersion>3.2</requiredProductVersion>
   </identity>
   <dependencies/>
