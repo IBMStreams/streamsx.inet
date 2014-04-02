@@ -15,7 +15,20 @@
     <tstamp/>
     <!-- Extract info from the toolkit's info.xml -->
     <xmlproperty file="${toolkit}/info.xml" prefix="tkinfo" keepRoot="no"/>
+
+    <!-- Extract the git commit hash -->
+    <exec executable="git" outputproperty="commithash">
+        <arg value="rev-parse"/>
+        <arg value="--short"/>
+        <arg value="HEAD"/>
+    </exec>
+
     <echo message="Toolkit Version: ${tkinfo.identity.version}"/>
+    <echo message="Git Hash: ${commithash}"/>
+
+     <!-- Update the info.xml -->
+     <replace file="${toolkit}/info.xml" token="__dev__" value="commit_${commithash}" summary="yes"/>
+     
   </target>
 
   <target name="clean" depends="cleansamples"
@@ -32,6 +45,7 @@
   <target name="spldoc" depends="samples">
     <antcall target="spldoctoolkit">
        <param name="tkdir" value="${toolkit}"/>
+       <param name="tktitle" value="IBMStreams ${tkinfo.identity.name} Toolkit"/>
     </antcall>
     <subant target="spldoctoolkit" genericantfile="${basedir}/build.xml">
        <dirset dir="samples" includes="*"/>
@@ -76,6 +90,10 @@
      <echo message="Tookit to SPLDOC: ${tkdir}"/>
      <exec executable="${streams.install}/bin/spl-make-doc">
         <arg value="--include-composite-operator-diagram"/>
+        <arg value="--author"/>
+        <arg value="IBMStreams Open Source Community at GitHub - https://github.com/IBMStreams/${ant.project.name}"/>
+        <arg value="--doc-title"/>
+        <arg value="${tktitle}"/>
         <arg value="--directory"/>
         <arg value="${tkdir}"/>
      </exec>
@@ -83,11 +101,16 @@
 
   <!-- Targets to build releases -->
   <target name="release"  depends="clean,all,spldoc">
+    <exec executable="git">
+        <arg value="checkout"/>
+        <arg value="--"/>
+        <arg value="${toolkit}/info.xml"/>
+    </exec>
 	<mkdir dir="${tmp}" />
     	<tar compression="gzip" longfile="gnu"
              destfile="${tmp}/streamx.inet.toolkits-${tkinfo.identity.version}-${DSTAMP}-${TSTAMP}.tgz"
     	     basedir="${basedir}"
-             includes="com.ibm.streamsx.inet/** samples/**"
+             includes="${tkinfo.identity.name}/** samples/**"
              excludes="**/.gitignore **/.settings/** **/.settings **/.project **/.classpath"
     	/>
     </target>
