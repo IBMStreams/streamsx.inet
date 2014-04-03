@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 #Thu Apr 03 00:56:22 EDT 2014
-=======
-#Thu Apr 03 00:26:21 EDT 2014
->>>>>>> cdc8b1751c69417d934e12e8e1ac36cfbca47404
 copytosourcelist=
 hreftargetslist=dita/com.ibm.streamsx.inet.sample$GetWeather$spl.xml,dita/com.ibm.streamsx.inet.sample$.xml,dita/toolkit.xml
 fullditatopicfile=fullditatopic.list
