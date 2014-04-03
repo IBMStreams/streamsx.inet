@@ -5,8 +5,11 @@ impl/nl/include/*.h
 # If you want to include a perl module, do
 # !foo.pm
 
+/com.ibm.streamsx.inet/doc/
+
 samples/*/output
 samples/*/toolkit.xml
+/samples/*/doc
 
 ## java excludes
 *.class
@@ -35,3 +38,5 @@ com.ibm.streamsx.inet/impl/lib/*.jar
 *.la
 *.a
 
+# temporary directories
+tmp
