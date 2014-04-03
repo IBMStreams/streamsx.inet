@@ -30,9 +30,12 @@ import com.ibm.streams.operator.model.PrimitiveOperator;
 import com.ibm.streams.operator.types.RString;
 
 @InputPorts(@InputPortSet(cardinality=0))
-@OutputPorts({@OutputPortSet(cardinality=1, optional=false, windowPunctuationOutputMode=WindowPunctuationOutputMode.Generating),
-			  @OutputPortSet(cardinality=1, optional=true, windowPunctuationOutputMode=WindowPunctuationOutputMode.Free)})
-@PrimitiveOperator(name="HTTPGetStreamSource")
+@OutputPorts({@OutputPortSet(cardinality=1, optional=false, windowPunctuationOutputMode=WindowPunctuationOutputMode.Generating,
+			  description="Data received from the server will be sent on this port."),
+			  @OutputPortSet(cardinality=1, optional=true, windowPunctuationOutputMode=WindowPunctuationOutputMode.Free, 
+			  description="Error information will be sent out on this port including the response code and any message recieved from the server. " +
+			  		"Tuple structure must conform to the \\\"HTTPResponse\\\" type specified in this namespace.")})
+@PrimitiveOperator(name="HTTPGetStreamSource", description=HTTPStreamReader.DESC)
 public class HTTPStreamReader extends AbstractOperator {
 	private String dataParamName = "data";
 	private HTTPStreamReaderObj reader = null;
@@ -62,7 +65,9 @@ public class HTTPStreamReader extends AbstractOperator {
 	public void setAuthenticationType(String val) {
 		this.authType = val;
 	}
-	@Parameter(optional=true, description="Path to the properties file containing authentication information.")
+	@Parameter(optional=true, description=
+			"Path to the properties file containing authentication information. Path can be absolute or relative to the data directory of the application."+
+			" See http_auth_basic.properties in the toolkits config directory for a sample of basic authentication properties.")
 	public void setAuthenticationFile(String val) {
 		this.authFile = val;
 	}
@@ -237,5 +242,13 @@ public class HTTPStreamReader extends AbstractOperator {
 		}
 		return retry;
 	}
+	
+	
+	public static final String DESC  = 
+			"Connects to an HTTP endpoint, reads \\\"chunks\\\" of data and sends it to the output port." +
+			"Every line read from the HTTP server endpoint is sent as a single tuple." +
+			"If a connection is closed by the server, a punctuation will be sent on port 0." +
+			"Certain authentication modes are supported." 
+			;
 }
 
