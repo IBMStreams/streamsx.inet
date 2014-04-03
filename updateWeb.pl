@@ -116,7 +116,7 @@ sub lookForApp($$) {
 }
 
 sub main() {
-    #system("ant spldoc");
+    system("ant spldoc");
     $? >> 8 == 0 or die "Could not build spl doc";
     # Make sure the branch is checked out in location given on the command
   
