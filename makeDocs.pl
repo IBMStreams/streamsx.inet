@@ -1,15 +1,43 @@
 #!/usr/bin/perl
 
 use strict;
+use Getopt::Long;
 
+
+my $debug = 0;
+my $dryrun = 0;
+my $doPush;
+my $doCommit=1; 
+my $message = "Update documents";
+my $help;
+
+GetOptions('push!'=>\$doPush,
+	   'commit!'=>\$doCommit,
+	   'dryrun' => \$dryrun,
+	   'message|m=s' => \$message,
+           'help|h|?'=>\$help);
+if ($dryrun) {
+    $doPush = 0;
+    $doCommit = 0;
+}
+
+if ($doPush && !$doCommit) {
+    print STDERR "If --push is specified, then commit must be enabled\n";
+} 
+
+if ($help) {
+    print STDOUT "makeDocs.pl runs spl-make-doc in the current repository for all toolkits and samples,\n";
+    print STDOUT "and then commits the doc updates to a second document repository (one set to gh-pages).\n";
+    print STDOUT "Usage: makeDocs.pl [--commit|--nocommit] [--push|--nopush] [--message <msg>] <gh-pagesrepos>\n";
+    exit 0;
+}
 if (scalar @ARGV != 1) {
     print STDERR "Usage: makeDocs.pl <pagesrepo>\n";
     exit 1;
 }
-
-my $debug = 0;
-my $dryrun = 0;
 my $pagesLocation = $ARGV[0];
+die "$pagesLocation not a valid directory" unless (-e $pagesLocation && -d $pagesLocation);
+
 
 sub quotedollar($) {
     my ($instring) = @_;
@@ -89,6 +117,7 @@ sub lookForApp($$) {
     my ($dir,$exclude) = @_;
     $debug && print "lookForApp($dir,$exclude)\n";
     my @files = `ls $dir`;
+    my $changes = 0;
     for my $f (@files) {
 	chomp $f;
 	my $fullName = "$dir/$f";
@@ -97,21 +126,37 @@ sub lookForApp($$) {
 	next unless (-d "$fullName");
 	if (-e "$fullName/info.xml") {
 	    $debug && print "directory $fullName appears to have a toolkit\n";
-	    system("spl-make-doc -i $fullName");
-	    syncDirectory("$fullName/doc","$pagesLocation/$fullName/doc");
+	    # if there is java to build, build it.  
+	    if (-e "$fullName/build.xml") {
+		system("cd $fullName; ant");
+	    }
+	    # don't need to make any c++ operators, because they don't create model files.
+	    system("spl-make-toolkit -i $fullName; spl-make-doc -i $fullName");
+	    $changes += syncDirectory("$fullName/doc","$pagesLocation/$fullName/doc");
 	}
 	else {
 	    $debug && print "$fullName/info.xml does not exist\n";
 	    lookForApp("$fullName");
 	}
     }
+    return $changes;
 }
 
 sub main() {
     # Make sure the branch is checked out in location given on the command
     system("cd $pagesLocation; git checkout gh-pages");
+    $? == 0 or die "Cannot set branch to gh-pages in $pagesLocation";
     # handle the toolkit; need a better way of specifying which toolkit.
-    lookForApp(".","test");
+    my $changes = lookForApp(".","test");
+    if ($dryrun) {
+	print "DryRun: $changes files changed";
+    }
+    elsif ($changes >0 && $doCommit) {
+	system("cd $pagesLocation; git commit -a -m \"Update spl-doc for web page\"");
+	if ($doPush) {
+	    system("cd $pagesLocation; git push origin gh-pages");
+	}
+    }
 }
 
 main();
