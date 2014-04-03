@@ -10,12 +10,14 @@ my $doPush;
 my $doCommit=1; 
 my $message = "Update documents";
 my $help;
+my $useTemp;
 
 GetOptions('push!'=>\$doPush,
 	   'commit!'=>\$doCommit,
 	   'dryrun' => \$dryrun,
 	   'message|m=s' => \$message,
-           'help|h|?'=>\$help);
+           'help|h|?'=>\$help,
+           'createTempRepository' => \$useTemp);
 if ($dryrun) {
     $doPush = 0;
     $doCommit = 0;
@@ -31,12 +33,16 @@ if ($help) {
     print STDOUT "Usage: makeDocs.pl [--commit|--nocommit] [--push|--nopush] [--message <msg>] <gh-pagesrepos>\n";
     exit 0;
 }
-if (scalar @ARGV != 1) {
+if (scalar @ARGV != 1 && !$useTemp) {
     print STDERR "Usage: makeDocs.pl <pagesrepo>\n";
     exit 1;
 }
+if ($useTemp) {
+    $doCommit or die "Must do a commit if making a temporary repository";
+    $doPush or die "Must do a push if using a temporary repository";
+}
 my $pagesLocation = $ARGV[0];
-die "$pagesLocation not a valid directory" unless (-e $pagesLocation && -d $pagesLocation);
+die "$pagesLocation not a valid directory" unless $useTemp || (-e $pagesLocation && -d $pagesLocation);
 
 
 sub quotedollar($) {
@@ -68,51 +74,6 @@ sub runString($) {
     return ($? >> 8);
 }
 
-sub syncDirectory($$) {
-    my ($sourceDir, $destDir) = @_;
-    $debug && print "syncDirectory($sourceDir,$destDir)\n";
-    if (!(-e $destDir)) {
-	system("mkdir -p $destDir");
-    }
-    my @files = `ls $sourceDir`;
-    my $changes = 0;
-    for my $file (@files) {
-	chomp $file;
-	my $basename = $file;
-	if ($file =~ /\/([^\/]+)$/) {
-	    $basename = $1;
-	}
-	$debug && print "\t $file basename $basename\n";
-	my $fullDest = "$destDir/$basename";
-	my $fullSource = "$sourceDir/$basename";
-	if (-d $fullSource) {
-	    $changes += syncDirectory($fullSource,$fullDest); 
-	}
-	else {
-	    if (-e $fullDest) {
-	       # it exists.
-		system(("diff", "-q",$fullSource, $fullDest));
-		my $rc = $? >> 8;
-		if ($rc == 1) {
-		    # the files differ
-		    my @cmd = ("cp",$fullSource,$fullDest);
-		    my $rc = run(@cmd);
-		    $changes++;
-		}
-		else {
-		    $debug && print "No action: $fullSource is the same as $fullDest\n";
-		}
-	    }
-	    else {
-		my $cmd = quotedollar("cp $fullSource $fullDest;cd $pagesLocation; git add $fullSource");
-		my $rc = runString($cmd);
-		$changes++;
-	    }
-	}
-    }
-    return $changes; 
-}
-
 sub lookForApp($$) {
     my ($dir,$exclude) = @_;
     $debug && print "lookForApp($dir,$exclude)\n";
@@ -124,37 +85,62 @@ sub lookForApp($$) {
 	$debug && print "Trying file $fullName\n";
 	next if (defined $exclude && $dir =~ /$exclude/);
 	next unless (-d "$fullName");
-	if (-e "$fullName/info.xml") {
-	    $debug && print "directory $fullName appears to have a toolkit\n";
-	    # if there is java to build, build it.  
-	    if (-e "$fullName/build.xml") {
-		system("cd $fullName; ant");
+	if (-e "$fullName/doc/spldoc") {
+	    $debug && print "directory $fullName appears to have a documentation\n";
+	    if ($dryrun) {
+		print "Would copy $fullName/doc to $pagesLocation\n";
 	    }
-	    # don't need to make any c++ operators, because they don't create model files.
-	    system("spl-make-toolkit -i $fullName; spl-make-doc -i $fullName");
-	    $changes += syncDirectory("$fullName/doc","$pagesLocation/$fullName/doc");
+	    else {
+		system("cp -r $fullName/doc $pagesLocation/$fullName");
+		system("cd $pagesLocation; git add -A $fullName/doc");
+	    }
+	    $? >> 8 == 0 or die "Problem adding.";
 	}
 	else {
-	    $debug && print "$fullName/info.xml does not exist\n";
+	    $debug && print "no docs found in $fullName\n";
 	    lookForApp("$fullName");
 	}
     }
-    return $changes;
 }
 
 sub main() {
+    system("ant spldoc");
+    $? >> 8 == 0 or die "Could not build spl doc";
     # Make sure the branch is checked out in location given on the command
-    system("cd $pagesLocation; git checkout gh-pages");
-    $? == 0 or die "Cannot set branch to gh-pages in $pagesLocation";
-    # handle the toolkit; need a better way of specifying which toolkit.
-    my $changes = lookForApp(".","test");
-    if ($dryrun) {
-	print "DryRun: $changes files changed";
+  
+    if ($useTemp) {
+	my $line = `git remote show origin | grep Fetch`;
+	$line =~ /(https:\/\/github.com\/IBMStreams\/(.+)\.git)$/;
+	my $url = $1;
+	my $repoName = $2;
+	system("cd /tmp; git clone $url");
+	$pagesLocation = "/tmp/$repoName";
     }
-    elsif ($changes >0 && $doCommit) {
-	system("cd $pagesLocation; git commit -a -m \"Update spl-doc for web page\"");
-	if ($doPush) {
-	    system("cd $pagesLocation; git push origin gh-pages");
+
+    system("cd $pagesLocation; git checkout gh-pages");
+    $? >> 8 == 0 or die "Cannot set branch to gh-pages in $pagesLocation";
+    # handle the toolkit; need a better way of specifying which toolkit.
+    lookForApp(".","test");
+    my $changes = `cd $pagesLocation; git status -s | grep -v "^?" | wc -l`;
+    chomp $changes;
+    print "$changes files changed\n";
+    if ($changes > 0) {
+	if ($dryrun) {
+	    print "DryRun: $changes files changed\n";
+	}
+	elsif ($changes >0 && $doCommit) {
+	    system("cd $pagesLocation; git commit -a -m \"$message\"");
+	    if ($doPush) {
+		system("cd $pagesLocation; git push origin gh-pages");
+	    }
+	}
+    }
+    if ($useTemp) {
+	if ($pagesLocation =~ /tmp/) {
+	    system("rm -rf $pagesLocation");
+	}
+	else {
+	    die "Unexpected temporary repository structure; not deleting $pagesLocation";
 	}
     }
 }
