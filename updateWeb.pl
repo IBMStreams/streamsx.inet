@@ -11,6 +11,7 @@ my $doCommit=1;
 my $message = "Update documents";
 my $help;
 my $useTemp;
+my $deleteTemp = 1;
 my %samples;
 
 GetOptions('push!'=>\$doPush,
@@ -18,6 +19,7 @@ GetOptions('push!'=>\$doPush,
 	   'dryrun' => \$dryrun,
 	   'message|m=s' => \$message,
            'help|h|?'=>\$help,
+	   'deleteTemp!' => \$deleteTemp,
            'createTempRepository' => \$useTemp);
 if ($dryrun) {
     $doPush = 0;
@@ -38,7 +40,7 @@ if (scalar @ARGV != 1 && !$useTemp) {
     print STDERR "Usage: makeDocs.pl <pagesrepo>\n";
     exit 1;
 }
-if ($useTemp) {
+if ($useTemp && $deleteTemp) {
     $doCommit or die "Must do a commit if making a temporary repository";
     $doPush or die "Must do a push if using a temporary repository";
 }
@@ -148,7 +150,7 @@ sub main() {
 	    }
 	}
     }
-    if ($useTemp) {
+    if ($useTemp && $deleteTemp) {
 	if ($pagesLocation =~ /tmp/) {
 	    system("rm -rf $pagesLocation");
 	}
