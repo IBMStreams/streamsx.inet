@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="toolkit.html">
+<a class="xref" href="toolkit.html" title="com.ibm.streamsx.inet">
 com.ibm.streamsx.inet
 </a>
 -&gt; <a class="xref" href="com.ibm.streamsx.inet.http$.html">com.ibm.streamsx.inet.http</a>-&gt; HTTPTypes.spl</p>
@@ -42,7 +42,7 @@ com.ibm.streamsx.inet
   
      <dt class="dt dlterm"><a class="xref" href="#spldoc_compilationunit____type__HTTPResponse">HTTPResponse</a></dt>
 
-     <dd class="dd"/>
+     <dd class="dd">Output Stream Schema for HTTP operators  data - Data sent by the receiver on its output stream  errorMessage - Data sent by the receiver on its error stream  responseCode - HTTP response code.</dd>
 
   
      </dl>
@@ -60,6 +60,24 @@ com.ibm.streamsx.inet
 <div class="section" id="spldoc_compilationunit____type__HTTPResponse"><h2 class="title sectiontitle splpart">HTTPResponse</h2>
   
 </div>
+<div class="section">
+
+<p class="p">Output Stream Schema for HTTP operators 
+</p>
+
+<ul class="ul">
+<li class="li"> data - Data sent by the receiver on its output stream </li>
+
+<li class="li"> errorMessage - Data sent by the receiver on its error stream </li>
+
+<li class="li"> responseCode - HTTP response code. -1 if server is unavailable. </li>
+
+<li class="li"> dataSize - Size of the data field in bytes </li>
+
+</ul>
+
+</div>
+
 <div class="section">
    <p class="p">
 <tt class="ph tt">HTTPResponse = rstring data, rstring errorMessage, int32 responseCode, int32 dataSize;</tt>

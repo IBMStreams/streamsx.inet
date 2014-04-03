@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="toolkit.html">
+<a class="xref" href="toolkit.html" title="com.ibm.streamsx.inet">
 com.ibm.streamsx.inet
 </a>
 -&gt; <a class="xref" href="com.ibm.streamsx.inet.http$.html">com.ibm.streamsx.inet.http</a>-&gt; HTTPPostSink</p>
@@ -30,6 +30,14 @@ com.ibm.streamsx.inet
 </div>
 
 <div class="section">
+
+<p class="p">This operator sends incoming tuples to the specified HTTP server as part of a POST request.A single tuple will be sent as a body of one HTTP POST request.All attributes of the tuple will be serialized and sent to the server.Certain authentication modes are supported.Tuples are sent to the server one at a time in order of receipt. If the HTTP server cannot be accessed, the operation will be retried on the current thread and may temporarily block any additional tuples that arrive on the input port <strong class="ph b">Limitations</strong>: 
+</p>
+
+<ul class="ul">
+<li class="li"> Nested attributes are not individually accessed and serialized. Only the top level attributes are serialized individually. </li>
+
+</ul>
 
 </div>
 
@@ -91,6 +99,9 @@ com.ibm.streamsx.inet
    <dt class="dt dlterm">Ports (0)</dt>
 
    <dd class="dd">
+
+<p class="p">All attributes of the input stream are sent as POST data to the specified HTTP server
+</p>
    </dd>
 
   
@@ -148,6 +159,9 @@ com.ibm.streamsx.inet
 
    <dd class="dd">
 
+<p class="p">Emits a tuple containing the reponse received from the server. Tuple structure must conform to the "HTTPResponse" type specified in this namespace.
+</p>
+
 <p class="p"/>
 
    <dl class="dl">
@@ -188,7 +202,7 @@ This operator supports 7 parameters.<dl class="dl">
 <dt class="dt dlterm" id="spldoc_operator__com.ibm.streamsx.inet.http__HTTPPostSink__parameter_authenticationFile"><tt class="ph tt">authenticationFile</tt></dt>
 
 <dd class="dd">
-<p class="p">Path to the properties file containing authentication information.
+<p class="p">Path to the properties file containing authentication information. Path can be absolute or relative to the data directory of the application. See http_auth_basic.properties in the toolkits config directory for a sample of basic authentication properties.
 </p>
 <dl class="dl">
 

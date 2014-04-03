@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="toolkit.html">
+<a class="xref" href="toolkit.html" title="com.ibm.streamsx.inet">
 com.ibm.streamsx.inet
 </a>
 -&gt; <a class="xref" href="com.ibm.streamsx.inet.http$.html">com.ibm.streamsx.inet.http</a>-&gt; HTTPGetStreamSource</p>
@@ -30,6 +30,9 @@ com.ibm.streamsx.inet
 </div>
 
 <div class="section">
+
+<p class="p">Connects to an HTTP endpoint, reads "chunks" of data and sends it to the output port.Every line read from the HTTP server endpoint is sent as a single tuple.If a connection is closed by the server, a punctuation will be sent on port 0.Certain authentication modes are supported.
+</p>
 
 </div>
 
@@ -148,6 +151,9 @@ com.ibm.streamsx.inet
 
    <dd class="dd">
 
+<p class="p">Data received from the server will be sent on this port.
+</p>
+
 <p class="p"/>
 
    <dl class="dl">
@@ -181,6 +187,9 @@ com.ibm.streamsx.inet
    <dt class="dt dlterm">Ports (1)</dt>
 
    <dd class="dd">
+
+<p class="p">Error information will be sent out on this port including the response code and any message recieved from the server. Tuple structure must conform to the "HTTPResponse" type specified in this namespace.
+</p>
 
 <p class="p"/>
 
@@ -222,7 +231,7 @@ This operator supports 10 parameters.<dl class="dl">
 <dt class="dt dlterm" id="spldoc_operator__com.ibm.streamsx.inet.http__HTTPGetStreamSource__parameter_authenticationFile"><tt class="ph tt">authenticationFile</tt></dt>
 
 <dd class="dd">
-<p class="p">Path to the properties file containing authentication information.
+<p class="p">Path to the properties file containing authentication information. Path can be absolute or relative to the data directory of the application. See http_auth_basic.properties in the toolkits config directory for a sample of basic authentication properties.
 </p>
 <dl class="dl">
 
