@@ -36,7 +36,7 @@ import com.ibm.streamsx.inet.http.HTTPRequest.RequestType;
 @OutputPorts(@OutputPortSet(cardinality=1, optional=true, 
 			description="Emits a tuple containing the reponse received from the server. " +
 		     "Tuple structure must conform to the \\\"HTTPResponse\\\" type specified in this namespace."))
-@PrimitiveOperator(name="HTTPPostSink", description=HTTPPostOper.DESC)
+@PrimitiveOperator(name="HTTPPost", description=HTTPPostOper.DESC)
 public class HTTPPostOper extends AbstractOperator  
 {
 	static final String CLASS_NAME="com.ibm.streamsx.inet.http.HTTPPostOper";
