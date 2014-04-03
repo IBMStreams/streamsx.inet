@@ -1,10 +1,10 @@
-#Thu Apr 03 00:56:22 EDT 2014
+#Thu Apr 03 13:10:48 PDT 2014
 copytosourcelist=
 hreftargetslist=dita/com.ibm.streamsx.inet.sample$GetWeather$spl.xml,dita/com.ibm.streamsx.inet.sample$.xml,dita/toolkit.xml
 fullditatopicfile=fullditatopic.list
 fullditamapandtopicfile=fullditamapandtopic.list
 fullditatopiclist=dita/com.ibm.streamsx.inet.sample$GetWeather$spl.xml,dita/com.ibm.streamsx.inet.sample$.xml,dita/toolkit.xml
-fullditamapandtopiclist=dita/com.ibm.streamsx.inet.sample$GetWeather$spl.xml,dita/toolkit.ditamap,dita/com.ibm.streamsx.inet.sample$.xml,dita/toolkit.xml
+fullditamapandtopiclist=dita/com.ibm.streamsx.inet.sample$GetWeather$spl.xml,dita/com.ibm.streamsx.inet.sample$.xml,dita/toolkit.ditamap,dita/toolkit.xml
 hrefditatopicfile=hrefditatopic.list
 hrefditatopiclist=dita/com.ibm.streamsx.inet.sample$GetWeather$spl.xml,dita/com.ibm.streamsx.inet.sample$.xml,dita/toolkit.xml
 user.input.file=dita/toolkit.ditamap
@@ -33,17 +33,17 @@ subjectschemefile=subjectscheme.list
 keyreflist=
 subjectschemelist=
 keyfile=key.list
-codereffile=coderef.list
 keylist=
+codereffile=coderef.list
 codereflist=
 user.input.file.listfile=usr.input.file.list
-user.input.dir=/homes/hny2/hildrum/github/IBMStreams/streamsx.inet/samples/InetSource/doc/spldoc
 uplevels=../
-tempdirToinputmapdir.relative.value=dita/
+user.input.dir=/home/streams/streamsx.manual.git/IBMStreams/streamsx.inet/samples/InetSource/doc/spldoc
 conrefpushfile=conrefpush.list
+tempdirToinputmapdir.relative.value=dita/
 flagimagefile=flagimage.list
-skipchunkfile=skipchunk.list
 conrefpushlist=
+skipchunkfile=skipchunk.list
 flagimagelist=
 skipchunklist=
 relflagimagefile=relflagimage.list
