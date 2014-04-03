@@ -34,8 +34,8 @@ import com.ibm.streams.operator.types.RString;
 			  description="Data received from the server will be sent on this port."),
 			  @OutputPortSet(cardinality=1, optional=true, windowPunctuationOutputMode=WindowPunctuationOutputMode.Free, 
 			  description="Error information will be sent out on this port including the response code and any message recieved from the server. " +
-			  		"Tuple structure must conform to the \\\"HTTPResponse\\\" type specified in this namespace.")})
-@PrimitiveOperator(name="HTTPGetStreamSource", description=HTTPStreamReader.DESC)
+			  		"Tuple structure must conform to the [HTTPResponse] type specified in this namespace.")})
+@PrimitiveOperator(name="HTTPGetStream", description=HTTPStreamReader.DESC)
 public class HTTPStreamReader extends AbstractOperator {
 	private String dataParamName = "data";
 	private HTTPStreamReaderObj reader = null;
