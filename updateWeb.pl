@@ -11,6 +11,7 @@ my $doCommit=1;
 my $message = "Update documents";
 my $help;
 my $useTemp;
+my %samples;
 
 GetOptions('push!'=>\$doPush,
 	   'commit!'=>\$doCommit,
@@ -44,34 +45,39 @@ if ($useTemp) {
 my $pagesLocation = $ARGV[0];
 die "$pagesLocation not a valid directory" unless $useTemp || (-e $pagesLocation && -d $pagesLocation);
 
+sub updateIndexHtml() {
 
-sub quotedollar($) {
-    my ($instring) = @_;
-    $instring =~ s/\$/\\\$/g;
-    return $instring;
-}
-
-sub run(@) {
-    my @cmd = @_;
-
-    if ($dryrun) {
-	print "@cmd\n";
+    my $infile = "$pagesLocation/index.html";
+    my $outfile = "$pagesLocation/index.html.tmp";
+    open(IN,"<$pagesLocation/index.html") or die "Could not open $infile";
+    open(OUT,">$pagesLocation/index.html.tmp") or die "Could not open $outfile";
+    while(<IN>) {
+	if (/<!--\s*BEGIN SAMPLE LIST\s*-->/) {
+	    print OUT $_;
+	    my $foundEnd = 0;
+	    print OUT "<ul>\n";
+	    for my $app (keys %samples) {
+		print OUT "<li><a href=\"$samples{$app}\">$app</a>\n";
+	    }
+	    print OUT "</ul>\n";
+	    while(<IN>) {
+		if (/<!--\s*END SAMPLE LIST\s*-->/) {
+		    $foundEnd = 1;
+		    print OUT $_;
+		    last;
+		}
+	    }
+	    die "Did not find END SAMPLE LIST" if !$foundEnd;
+	}
+	else {
+	    print OUT $_;
+	}
     }
-    else {
-	system(@cmd);
-    }
-}
 
-sub runString($) {
-    my ($cmd) = @_;
-
-    if ($dryrun) {
-	print "$cmd\n";
-    }
-    else {
-	system($cmd);
-    }
-    return ($? >> 8);
+    close OUT;
+    close IN;
+    system("cp $outfile $infile");
+    system("cd $pagesLocation; git add index.html");
 }
 
 sub lookForApp($$) {
@@ -86,6 +92,10 @@ sub lookForApp($$) {
 	next if (defined $exclude && $dir =~ /$exclude/);
 	next unless (-d "$fullName");
 	if (-e "$fullName/doc/spldoc") {
+	    if ($fullName =~ /samples/) {
+		$debug && print "$fullName is a sample\n";
+		$samples{$f}="$fullName/doc/spldoc/html/index.html";
+	    }
 	    $debug && print "directory $fullName appears to have a documentation\n";
 	    if ($dryrun) {
 		print "Would copy $fullName/doc to $pagesLocation\n";
@@ -104,7 +114,7 @@ sub lookForApp($$) {
 }
 
 sub main() {
-    system("ant spldoc");
+    #system("ant spldoc");
     $? >> 8 == 0 or die "Could not build spl doc";
     # Make sure the branch is checked out in location given on the command
   
@@ -113,14 +123,17 @@ sub main() {
 	$line =~ /(https:\/\/github.com\/IBMStreams\/(.+)\.git)$/;
 	my $url = $1;
 	my $repoName = $2;
-	system("cd /tmp; git clone $url");
 	$pagesLocation = "/tmp/$repoName";
+	die "Cannot create repository since $pagesLocation already exists" if (-e $pagesLocation);
+	system("cd /tmp; git clone $url");
+
     }
 
     system("cd $pagesLocation; git checkout gh-pages");
     $? >> 8 == 0 or die "Cannot set branch to gh-pages in $pagesLocation";
     # handle the toolkit; need a better way of specifying which toolkit.
     lookForApp(".","test");
+    updateIndexHtml();
     my $changes = `cd $pagesLocation; git status -s | grep -v "^?" | wc -l`;
     chomp $changes;
     print "$changes files changed\n";
