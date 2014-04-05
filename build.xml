@@ -10,7 +10,7 @@
 	
   <target name="all" depends="toolkit,samples"/>
 
-  <target name="init">
+  <target name="setcommitversion">
     <!-- Create the time stamp -->
     <tstamp/>
 
@@ -20,7 +20,6 @@
         <arg value="--short"/>
         <arg value="HEAD"/>
     </exec>
-
 
      <!-- Update the info.xml -->
      <replace file="${toolkit}/info.xml" token="__dev__" value="commit_${commithash}" summary="yes"/>
@@ -33,18 +32,28 @@
      
   </target>
 
+   <target name="revertversion">
+    <exec executable="git">
+        <arg value="checkout"/>
+        <arg value="--"/>
+        <arg value="${toolkit}/info.xml"/>
+    </exec>
+    </target>
+
   <target name="clean" depends="cleansamples"
         description="clean up" >
   	<ant dir="${toolkit}" target="clean"/>
         <delete dir="${tmp}"/>
   </target>
 
-  <target name="toolkit" depends="init"
+  <target name="toolkit"
         description="Build any code and index the toolkit." >
   	<ant dir="${toolkit}" target="all"/>
   </target>
 
-  <target name="spldoc" depends="samples">
+  <target name="spldoc" depends="spldoc_work, revertversion"/>
+
+  <target name="spldoc_work" depends="setcommitversion, samples">
     <antcall target="spldoctoolkit">
        <param name="tkdir" value="${toolkit}"/>
        <param name="tktitle" value="IBMStreams ${tkinfo.identity.name} Toolkit"/>
@@ -103,11 +112,6 @@
 
   <!-- Targets to build releases -->
   <target name="release"  depends="clean,all,spldoc">
-    <exec executable="git">
-        <arg value="checkout"/>
-        <arg value="--"/>
-        <arg value="${toolkit}/info.xml"/>
-    </exec>
 	<mkdir dir="${tmp}" />
         <property name="releasefilename" value="${tmp}/streamx.inet.toolkits-${tkinfo.identity.version}-${DSTAMP}-${TSTAMP}.tgz"/>
     	<tar compression="gzip" longfile="gnu"
