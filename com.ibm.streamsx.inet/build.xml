@@ -6,6 +6,12 @@
 # disclosure restricted by GSA ADP Schedule Contract with
 # IBM Corp.
 -->
+
+<!-- 
+Found that if you built under Streams studio, *$StreamsModel.java
+artifacts were left around and caused issues with the ant build.
+-->
+
 <project name="com.ibm.streamsx.inet" basedir="." default="all">
 
 	<property environment="env" />
@@ -15,6 +21,7 @@
 	<property name="build.dir" value="impl/java/classes" />
 	<property name="impl.lib.dir" value="impl/lib" />
 	<property name="lib.dir" value="lib" />
+	<property name="opt.wssupport.dir" value="opt/wssupport" />
 	<property name="test.run.dir" value="tests" />
 	<property name="test.build.dir" value="${test.run.dir}/bin" />
 	
@@ -25,11 +32,18 @@
 	</target>
 
 	<target name="clean" depends="cpp-clean">
+		<delete>
+		  <fileset dir="${build.dir}" includes="**/*$StreamsModel.java"/>
+		</delete>
+		<delete>
+		  <fileset dir="${src.dir}" includes="**/*$StreamsModel.java"/>
+		</delete>
 		<delete dir="${build.dir}" />
 		<delete dir="${impl.lib.dir}" />
 		<delete dir="output"/>
 		<delete dir="${test.run.dir}"/>
 		<delete dir="${test.build.dir}"/>
+
 	</target>
 
 
@@ -39,14 +53,31 @@
 			<include name="org.eclipse.jetty*.jar" />
 		</fileset>
 	</path>
+	<path id="cp.wssocket">
+		<fileset dir="opt/wssupport">
+		        <include name="java_websocket.jar" />
+		</fileset>
+	</path>
 	<path id="cp.streams">
 		<pathelement location="${streams.install}/lib/com.ibm.streams.operator.samples.jar" />
-	</path>
 
+	</path>
 
 	<path id="cp.compile">
 		<path refid="cp.streams" />
 		<path refid="cp.eclipse.jetty" />
+	</path>
+	<!-- I would have thought I could use cp.compile where I'm using 
+             cp.manifest, but it fails. Correction would be appreciated 
+        -->
+	<path id="cp.manifest">
+		<fileset dir="opt/wssupport">
+		        <include name="java_websocket.jar" />
+		</fileset>
+		<fileset dir="opt/eclipse-4.2.2/plugins">
+			<include name="javax.servlet*.jar" />
+			<include name="org.eclipse.jetty*.jar" />
+		</fileset>
 	</path>
 	
 	<target name="all" depends="jar,cpp"/>
@@ -69,6 +100,7 @@
 			excludes="com/ibm/streamsx/inet/rest/test/**">
 			<classpath>
 				<path refid="cp.streams" />
+				<path refid="cp.wssocket" />
 				<path refid="cp.eclipse.jetty" />
 			</classpath>
 		</javac>
@@ -76,7 +108,7 @@
 
 	<target name="jar" depends="compile">
 		<manifestclasspath property="jar.cp.eclipse.jetty" jarfile="${impl.lib.dir}/com.ibm.streamsx.inet.rest.jar">
-			<classpath refid="cp.eclipse.jetty" />
+			<classpath refid="cp.manifest" />
 		</manifestclasspath>
 		<jar destfile="${impl.lib.dir}/com.ibm.streamsx.inet.rest.jar" basedir="${build.dir}" includes="com/ibm/streamsx/inet/**" filesonly="true">
 			<manifest>
@@ -85,7 +117,6 @@
 		</jar>
 		<delete dir="${build.dir}" />
 	</target>
-
         <!-- assumes Junit 4.3 (or later) is in $HOME/.ant/lib -->
 	<target name="test" depends="jar">
 		<mkdir dir="${test.run.dir}"/>

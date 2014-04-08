@@ -43,7 +43,7 @@ import com.ibm.streams.operator.samples.patterns.TupleProducer;
 
 @PrimitiveOperator(name="Receive", namespace="com.ibm.streamsx.inet.wsserver",description=Receive.primDesc)
 @OutputPorts({@OutputPortSet(description=Receive.outPortDesc, cardinality=1, optional=false, windowPunctuationOutputMode=WindowPunctuationOutputMode.Free)})
-@Libraries("lib/java_websocket.jar")
+@Libraries("opt/wssupport/java_websocket.jar")
 public class Receive extends TupleProducer {
 	final static String primDesc = 
 			" This operator starts WebSocket server that receives messages via the WebSocket protocol." +
@@ -172,13 +172,13 @@ public class Receive extends TupleProducer {
     /**
      * Submit new tuples to the output stream
      * @throws Exception if an error occurs while submitting a tuple
+     * 
      */
     public void produceTuples(String msg, String id) throws Exception  {
         final StreamingOutput<OutputTuple> out = getOutput(0);
         
         OutputTuple tuple = out.newTuple();
         // Set attributes in tuple
-        Logger.getLogger(this.getClass()).trace("Receiving  :  " + msg ); 
         if (attrMsgName == null) { // only once 
         	if (out.getStreamSchema().getAttributeCount() == 1) { // port only 1 attribute        	
         		attrMsgTypeName = out.getStreamSchema().getAttribute(0).getType().getLanguageType();                

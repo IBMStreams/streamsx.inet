@@ -51,7 +51,7 @@ import com.ibm.streams.operator.samples.patterns.TupleConsumer;
 
 @PrimitiveOperator(name="Send", namespace="com.ibm.streamsx.inet.wsserver",description=Send.primDesc)
 @InputPorts({@InputPortSet(description=Send.parmPortDesc, cardinality=1, optional=false, windowingMode=WindowMode.NonWindowed)})
-@Libraries("lib/java_websocket.jar")
+@Libraries("opt/wssupport/java_websocket.jar")
 public class Send extends TupleConsumer {
 
 	final static String primDesc =
@@ -59,18 +59,13 @@ public class Send extends TupleConsumer {
 			"JSON formatted messages " +
 			"and transmitted to all currently connected clients. Clients can connect and disconnect at anytime.";
 
-			
-
 	final static String parmPortDesc =
 			"Port that clients connect to and tuples formatted as JSON message are transmitted over.";
-
 	
 	private WSServer wsServer;
     private int portNum;
     private Metric nMessagesSent;
     private Metric nClientsConnected;
-
-    
 
     @CustomMetric(description="Number of messages sent using WebSocket", kind=Kind.COUNTER)
     public void setnMessagesSent(Metric nPostRequests) {
@@ -109,7 +104,6 @@ public class Send extends TupleConsumer {
 	public synchronized void initialize(OperatorContext context)
 			throws Exception {
 		super.initialize(context);
-        Logger.getLogger(this.getClass()).trace("Operator " + context.getName() + " initializing in PE: " + context.getPE().getPEId() + " in Job: " + context.getPE().getJobId() );
 
         // we will be batching....
         setBatchSize(getBatchSize());
@@ -131,7 +125,7 @@ public class Send extends TupleConsumer {
     	// This method is commonly used by source operators. 
     	// Operators that process incoming tuples generally do not need this notification. 
         OperatorContext context = getOperatorContext();
-        Logger.getLogger(this.getClass()).trace("Operator " + context.getName() + " all ports are ready in PE: " + context.getPE().getPEId() + " in Job: " + context.getPE().getJobId() );
+        Logger.getLogger(this.getClass()).trace("Operator " + context.getName() + " all ports are ready in PE: " + context.getPE().getPEId() + " in Job: " + context.getPE().getJobId() + " starting WebServer.");
         // Start the server, it will wait for new client connections - send tuples to all connected clients. 
         wsServer.start();
     }
@@ -174,10 +168,9 @@ public class Send extends TupleConsumer {
     public synchronized void shutdown() throws Exception {
         super.shutdown();    	
         OperatorContext context = getOperatorContext();
-        Logger.getLogger(this.getClass()).trace("Operator " + context.getName() + " shutting down in PE: " + context.getPE().getPEId() + " in Job: " + context.getPE().getJobId() );
+        Logger.getLogger(this.getClass()).trace("Operator " + context.getName() + " shutting down in PE: " + context.getPE().getPEId() + " in Job: " + context.getPE().getJobId() + " stopping WebServer.");
         active = false;
         wsServer.stop();        
-        // Must call super.shutdown()
 
     }
 

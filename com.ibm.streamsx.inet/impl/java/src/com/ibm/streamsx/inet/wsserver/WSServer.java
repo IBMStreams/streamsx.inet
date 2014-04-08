@@ -1,3 +1,4 @@
+package com.ibm.streamsx.inet.wsserver;
 /*
 # Licensed Materials - Property of IBM
 # Copyright IBM Corp. 2013, 2013
@@ -5,7 +6,6 @@
 # disclosure restricted by GSA ADP Schedule Contract with
 # IBM Corp.
 */
-package com.ibm.streamsx.inet.wsserver;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
