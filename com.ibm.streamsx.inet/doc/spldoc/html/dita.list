@@ -1,4 +1,4 @@
-#Thu Apr 03 13:10:21 PDT 2014
+#Tue Apr 08 12:48:13 PDT 2014
 copytosourcelist=
 hreftargetslist=dita/com.ibm.streamsx.inet.rest$.xml,dita/com.ibm.streamsx.inet.rest$HTTPTupleView.xml,dita/com.ibm.streamsx.inet$.xml,dita/com.ibm.streamsx.inet.rest$HTTPXMLView.xml,dita/com.ibm.streamsx.inet.rest$HTTPXMLInjection.xml,dita/com.ibm.streamsx.inet.rest$HTTPTupleInjection.xml,dita/OperatorModel.xml,dita/com.ibm.streamsx.inet.http$HTTPGetStream.xml,dita/com.ibm.streamsx.inet$InetSource.xml,dita/com.ibm.streamsx.inet.rest$overview$spl.xml,dita/com.ibm.streamsx.inet.http$HTTPPost.xml,dita/com.ibm.streamsx.inet.http$HTTPTypes$spl.xml,dita/com.ibm.streamsx.inet.http$.xml,dita/com.ibm.streamsx.inet.rest$WebContext.xml,dita/toolkit.xml
 fullditatopicfile=fullditatopic.list
@@ -38,7 +38,7 @@ codereffile=coderef.list
 codereflist=
 user.input.file.listfile=usr.input.file.list
 uplevels=../
-user.input.dir=/home/streams/streamsx.manual.git/IBMStreams/streamsx.inet/com.ibm.streamsx.inet/doc/spldoc
+user.input.dir=/home/streams/.jenkins/jobs/streamsx.inet/workspace/com.ibm.streamsx.inet/doc/spldoc
 conrefpushfile=conrefpush.list
 tempdirToinputmapdir.relative.value=dita/
 flagimagefile=flagimage.list

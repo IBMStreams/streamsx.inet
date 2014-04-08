@@ -1,4 +1,4 @@
-#Thu Apr 03 13:10:36 PDT 2014
+#Tue Apr 08 12:48:27 PDT 2014
 copytosourcelist=
 hreftargetslist=dita/com.ibm.streamsx.inet.sample.rest$SimpleInject$spl.xml,dita/com.ibm.streamsx.inet.sample.rest$.xml,dita/toolkit.xml
 fullditatopicfile=fullditatopic.list
@@ -38,7 +38,7 @@ codereffile=coderef.list
 codereflist=
 user.input.file.listfile=usr.input.file.list
 uplevels=../
-user.input.dir=/home/streams/streamsx.manual.git/IBMStreams/streamsx.inet/samples/HTTPTupleInjectAndView/doc/spldoc
+user.input.dir=/home/streams/.jenkins/jobs/streamsx.inet/workspace/samples/HTTPTupleInjectAndView/doc/spldoc
 conrefpushfile=conrefpush.list
 tempdirToinputmapdir.relative.value=dita/
 flagimagefile=flagimage.list
