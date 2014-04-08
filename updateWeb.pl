@@ -12,12 +12,14 @@ my $message = "Update documents";
 my $help;
 my $useTemp;
 my $deleteTemp = 1;
+my $makeDoc = 1;
 my %samples;
 
 GetOptions('push!'=>\$doPush,
 	   'commit!'=>\$doCommit,
 	   'dryrun' => \$dryrun,
 	   'message|m=s' => \$message,
+	   'makedoc!' => \$makeDoc,
            'help|h|?'=>\$help,
 	   'deleteTemp!' => \$deleteTemp,
            'createTempRepository' => \$useTemp);
@@ -101,8 +103,11 @@ sub lookForApp($$) {
 	    $debug && print "directory $fullName appears to have a documentation\n";
 	    if ($dryrun) {
 		print "Would copy $fullName/doc to $pagesLocation\n";
+		print "cp -r $fullName/doc $pagesLocation/$fullName\n";
+		print "cd $pagesLocation; git add -A $fullName/doc\n";
 	    }
 	    else {
+		system("mkdir -p $pagesLocation/$fullName");
 		system("cp -r $fullName/doc $pagesLocation/$fullName");
 		system("cd $pagesLocation; git add -A $fullName/doc");
 	    }
@@ -116,7 +121,9 @@ sub lookForApp($$) {
 }
 
 sub main() {
-    system("ant spldoc");
+    if ($makeDoc) {
+	system("ant spldoc");
+    }
     $? >> 8 == 0 or die "Could not build spl doc";
     # Make sure the branch is checked out in location given on the command
   
