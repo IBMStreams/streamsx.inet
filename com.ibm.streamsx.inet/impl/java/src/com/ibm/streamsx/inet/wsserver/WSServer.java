@@ -16,6 +16,7 @@ import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
 import com.ibm.json.java.JSONObject;
+import com.ibm.streams.operator.log4j.TraceLevel;
 
 /**
  * <P>Simple streams socket server - both receives and sends.<p> 
@@ -26,6 +27,9 @@ import com.ibm.json.java.JSONObject;
  * messages out.</p>
  */
 public class WSServer extends WebSocketServer {
+	static final String CLASS_NAME="com.ibm.streamsx.inet.wsserver";
+	private static Logger trace = Logger.getLogger(CLASS_NAME);	
+	
 	int count = 0;
 	long totalSentCount = 0;
 	private int ackCount = 0;
@@ -49,7 +53,7 @@ public class WSServer extends WebSocketServer {
 	 */
 	public void setWebSocketSink(Send wsSink) {
 		this.wsSink = wsSink;
-	    Logger.getLogger(this.getClass()).trace("setWebSocketSink port : " + wsSink.getPort() );                    													
+		trace.log(TraceLevel.INFO,"setWebSocketSink port : " + wsSink.getPort() );                    													
 	}
 	/**
 	 * Do not do this unless you are going to be a client or a server.  
@@ -57,7 +61,7 @@ public class WSServer extends WebSocketServer {
 	 */
 	public WSServer( InetSocketAddress address ) {
 		super( address );
-	    Logger.getLogger(this.getClass()).trace("InetSocketAddress  : " + address.toString());                    											
+		trace.log(TraceLevel.INFO,"InetSocketAddress  : " + address.toString());                    											
 	}
 
 	public int getAckCount() {
@@ -65,7 +69,7 @@ public class WSServer extends WebSocketServer {
 	}
 	public void setAckCount(int ackCount) {
 		this.ackCount = ackCount;
-	    Logger.getLogger(this.getClass()).trace("setAckCount()  : " + ackCount);                    									
+		trace.log(TraceLevel.INFO,"setAckCount()  : " + ackCount);                    									
 	}
 
 	@Override
@@ -89,9 +93,9 @@ public class WSServer extends WebSocketServer {
 		try {
 			if (wsSource != null) {
 				wsSource.produceTuples(message,conn.getRemoteSocketAddress().toString());
-		        Logger.getLogger(this.getClass()).trace("WebSocket Source onMessage()" + conn.getRemoteSocketAddress().getAddress().getHostAddress() + "::" + message);                    				                    		        						
+				trace.log(TraceLevel.INFO,"onMessage() source-" + conn.getRemoteSocketAddress().getAddress().getHostAddress() + "::" + message);                    				                    		        						
 			} else {
-		        Logger.getLogger(this.getClass()).trace("WebSocket as Sink onMessage()" + conn.getRemoteSocketAddress().getAddress().getHostAddress() + "::" + message);                    				                    		        						
+				trace.log(TraceLevel.INFO,"onMessage() sink-" + conn.getRemoteSocketAddress().getAddress().getHostAddress() + "::" + message);                    				                    		        						
 			}
 			
 		} catch (Exception e) {
@@ -122,7 +126,7 @@ public class WSServer extends WebSocketServer {
 		int cnt = 0;        
 		synchronized ( con ) {
 			for( WebSocket c : con ) {
-		        Logger.getLogger(this.getClass()).trace("sendToAll()" + c.getRemoteSocketAddress().getAddress().getHostAddress() + "::" + cnt++ + " of " + con.size());                    				                    		        									
+				trace.log(TraceLevel.INFO,"sendToAll()" + c.getRemoteSocketAddress().getAddress().getHostAddress() + "::" + cnt++ + " of " + con.size());                    				                    		        									
 				c.send( text );
 			}
 		}
@@ -130,7 +134,8 @@ public class WSServer extends WebSocketServer {
 		return cnt;
 	}
 	/**
-	 * Get total number of messages sent.
+	 * Get total number of messages sent: WSconnections * messages where WSConnections 
+	 * varies over time. 
 	 * 
 	 */
 	public long getTotalSentCount() {
@@ -148,7 +153,7 @@ public class WSServer extends WebSocketServer {
 		controlBody.put("status", status);
 		controlBody.put("text", text);
 		controlMessage.put("control", controlBody);
-        Logger.getLogger(this.getClass()).trace("statusToAll() : " + controlMessage.toString());                    				
+		trace.log(TraceLevel.INFO,"statusToAll() : " + controlMessage.toString());                    				
 		sendToAll(controlMessage.toString());
 	}
 	public long getClientCount() {

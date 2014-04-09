@@ -11,6 +11,8 @@ import org.apache.log4j.Logger;
 import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.OutputTuple;
 import com.ibm.streams.operator.StreamingOutput;
+import com.ibm.streams.operator.Type;
+import com.ibm.streams.operator.log4j.TraceLevel;
 import com.ibm.streams.operator.metrics.Metric;
 import com.ibm.streams.operator.metrics.Metric.Kind;
 import com.ibm.streams.operator.model.CustomMetric;
@@ -22,31 +24,27 @@ import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
 import com.ibm.streams.operator.samples.patterns.TupleProducer;
 
+/* TODO - enable ability to specify the network device the operator listens on */
 
 /**
- * A source operator that does not receive any input streams and produces new tuples. 
- * The method <code>produceTuples</code> is called to begin submitting tuples.
- * <P>
- * For a source operator, the following event methods from the Operator interface can be called:
- * </p>
- * <ul>
- * <li><code>initialize()</code> to perform operator initialization</li>
- * <li>allPortsReady() notification indicates the operator's ports are ready to process and submit tuples</li> 
- * <li>shutdown() to shutdown the operator. A shutdown request may occur at any time, 
- * such as a request to stop a PE or cancel a job. 
- * Thus the shutdown() may occur while the operator is processing tuples, punctuation marks, 
- * or even during port ready notification.</li>
- * </ul>
- * <p>With the exception of operator initialization, all the other events may occur concurrently with each other, 
- * which lead to these methods being called concurrently by different threads.</p> 
+ * A source type operator that receives websockets messages from multiple clients. 
+ * Each message arriving on the WebSocket is converted to a tuple and injected into 
+ * the stream.  
+ * 
+ * Optionally the tuple being injected can include and identifier of the sender,
+ * the identifier is unique for the lifetime of the session. 
+ *  
  */
 
-@PrimitiveOperator(name="Receive", namespace="com.ibm.streamsx.inet.wsserver",description=Receive.primDesc)
+@PrimitiveOperator(description=Receive.primDesc)
 @OutputPorts({@OutputPortSet(description=Receive.outPortDesc, cardinality=1, optional=false, windowPunctuationOutputMode=WindowPunctuationOutputMode.Free)})
 @Libraries("opt/wssupport/java_websocket.jar")
+
+
+
 public class Receive extends TupleProducer {
 	final static String primDesc = 
-			" This operator starts WebSocket server that receives messages via the WebSocket protocol." +
+			" Operator recieves messages from WebSocket clients and generates a tuple which is sent to streams. " +
 			" Each received message is output as tuple. The data received is dependent upon" + 
 			" the input ports schema.";
 
@@ -67,6 +65,9 @@ public class Receive extends TupleProducer {
 			"Input port attribute that will we loaded with the message sender's identifier, this " +
 			"identifier is consistent during the lifetime of the sender's session.";
 
+	static final String CLASS_NAME="com.ibm.streamsx.inet.wsserver";
+	private static Logger trace = Logger.getLogger(CLASS_NAME);
+
 	
     private WSServer wsServer;
     private int portNum;
@@ -76,6 +77,7 @@ public class Receive extends TupleProducer {
     
     private Metric nMessagesReceived;
     private Metric nClientsConnected;
+
     
 
     @CustomMetric(description="Number of messages received via WebSocket", kind=Kind.COUNTER)
@@ -111,7 +113,6 @@ public class Receive extends TupleProducer {
 
 	
     
-    
     @Parameter(name="ackCount", optional=true,description=parmAckDesc)
 	public void setAckCount(int ackCount) {
     	this.ackCount = ackCount;
@@ -142,31 +143,22 @@ public class Receive extends TupleProducer {
         // This is important!!! you need this or the Stream is marked dead before 
         // any data is pushed down. 
         createAvoidCompletionThread();    
-        Logger.getLogger(this.getClass()).trace("Operator " + context.getName() + " initializing in PE: " + context.getPE().getPEId() + " in Job: " + context.getPE().getJobId() );
+        trace.log(TraceLevel.INFO,"initalize():Operator " + context.getName() + " initializing in PE: " + context.getPE().getPEId() + " in Job: " + context.getPE().getJobId() );
         
         wsServer = new WSServer(portNum);
         wsServer.setAckCount(ackCount);
         wsServer.setWebSocketSource(this);
     }
 
-    /**
-     * Notification that initialization is complete and all input and output ports 
-     * are connected and ready to receive and submit tuples.
-     * @throws Exception Operator failure, will cause the enclosing PE to terminate.
-     */
     @Override
-    public synchronized void allPortsReady() throws Exception {
-        OperatorContext context = getOperatorContext();
-        Logger.getLogger(this.getClass()).trace("ContextName: " + context.getName() + "  all ports are ready in PE: " + context.getPE().getPEId() + " in Job: " + context.getPE().getJobId() );
-        wsServer.start();        
+    protected void startProcessing() throws Exception {    	
+         OperatorContext context = getOperatorContext();
+         trace.log(TraceLevel.INFO,"startProcessing():ContextName: " + context.getName() + "  all ports are ready in PE: " + context.getPE().getPEId() + " in Job: " + context.getPE().getJobId() );
+         wsServer.start();        
+    	 
     }
 
-    @Override
-    protected void startProcessing() throws Exception {
-        Logger.getLogger(this.getClass()).trace("startProcessing" );    	
-    }
-    
-    String attrIdTypeName = null, attrIdName = null;    
+    String attrIdName = null;    
     String attrMsgTypeName = null, attrMsgName = null;            
     
     /**
@@ -197,35 +189,36 @@ public class Receive extends TupleProducer {
         			if (out.getStreamSchema().getAttribute(attrIdName) == null) {        		
         			   throw new IllegalArgumentException("No such attribute named '" + attrIdName + "'.");        			        			        			
         			}
-        			attrIdTypeName = out.getStreamSchema().getAttribute(attrIdName).getType().getLanguageType();
-            		if (attrIdTypeName != "rstring") {
-            			throw new IllegalArgumentException("Attibute '" + attrMsgName + "' type must be rstring, found '" + attrIdTypeName +"'.");
+            		if (out.getStreamSchema().getAttribute(attrIdName).getType() != Type.MetaType.RSTRING) {        			
+            			String typeString = out.getStreamSchema().getAttribute(attrIdName).getType().getLanguageType();             			
+            			throw new IllegalArgumentException("Attibute '" + attrMsgName + "' type must be rstring, found '" + typeString +"'.");
             		}        			
         		}
         	}
     		if (out.getStreamSchema().getAttribute(attrMsgName) == null) {
     			throw new IllegalArgumentException("No such attribute named '" + attrMsgName + "' found.");        			        			        			
     		}
-    		attrMsgTypeName = out.getStreamSchema().getAttribute(attrMsgName).getType().getLanguageType();        	
-        	if (attrMsgTypeName != "rstring") {
-        		throw new IllegalArgumentException("Attibute '" + attrMsgName + "' type must be rstring, found '" + attrMsgTypeName +"'.");
+System.out.println(out.getStreamSchema().getAttribute(attrMsgName).getType().getMetaType() + ":" + Type.MetaType.RSTRING);
+    		if (out.getStreamSchema().getAttribute(attrMsgName).getType().getMetaType() != Type.MetaType.RSTRING) {
+        		String typeString = out.getStreamSchema().getAttribute(attrMsgName).getType().getLanguageType();        	    			
+        		throw new IllegalArgumentException("Attribute '" + attrMsgName + "' type must be rstring, found '" + typeString +"'.");
         	}
         } // done with first time check 
         if (attrIdName != null) { 
         	tuple.setString(attrIdName, id);
-            Logger.getLogger(this.getClass()).trace("Tuple Build Id Name:" + attrIdName + " Value:[" + id + "]");                            	
+        	 trace.log(TraceLevel.INFO, "produceTuples(): idName:" + attrIdName + " Value:[" + id + "]");                            	
         }
         tuple.setString(attrMsgName, msg);
-        Logger.getLogger(this.getClass()).trace("Tuple Build Msg Name:" + attrMsgName + " Value:[" + msg + "]");                            	        
+        trace.log(TraceLevel.INFO,"produceTuples(): ATTR:" + attrMsgName + " Value:[" + msg + "]");                            	        
         // Submit tuple to output stream
         try {
-            Logger.getLogger(this.getClass()).trace("WebSocket-submit.  ");                    
-        	out.submit(tuple);
+	    trace.log(TraceLevel.INFO,"produceTuples():submit id: " + id + " len:" + msg.length());;
+	    out.submit(tuple);
             getnMessagesReceived().incrementValue(1L);
             getnClientsConnected().setValue(wsServer.getClientCount());
         } catch (Exception iae) {
-        	iae.printStackTrace();
-        	
+    		trace.log(TraceLevel.ERROR, "Failed to submit tuple - msg:" + iae.getLocalizedMessage()); 
+            throw(iae);
         }
     }
 
@@ -237,10 +230,11 @@ public class Receive extends TupleProducer {
     public synchronized void shutdown() throws Exception {
         super.shutdown();
         OperatorContext context = getOperatorContext();
-        Logger.getLogger(this.getClass()).trace("Operator " + context.getName() + " shutting down in PE: " + context.getPE().getPEId() + " in Job: " + context.getPE().getJobId() );
+        trace.log(TraceLevel.INFO,
+        		  "shutdown();Operator " +  context.getName() +
+        		  " shutting down in PE: " + context.getPE().getPEId() + 
+        		  " in Job: " + context.getPE().getJobId() );
         wsServer.stop();
-
-
     }
 
 
