@@ -142,7 +142,8 @@ public class Send extends TupleConsumer {
 
             JSONObject tuple = new JSONObject();
             //tuple.put("tuple", jsonEncoding.encodeAsString(item.getTuple()));
-            tuple.put("tuple", item.getTuple());
+            tuple.put("tuple", jsonEncoding.encodeTuple(item.getTuple()));
+            //tuple.put("tuple", item.getTuple());
             tuples.add(tuple);
         }
         JSONObject message = new JSONObject();

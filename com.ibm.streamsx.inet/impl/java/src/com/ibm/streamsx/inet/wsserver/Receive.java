@@ -198,7 +198,6 @@ public class Receive extends TupleProducer {
     		if (out.getStreamSchema().getAttribute(attrMsgName) == null) {
     			throw new IllegalArgumentException("No such attribute named '" + attrMsgName + "' found.");        			        			        			
     		}
-System.out.println(out.getStreamSchema().getAttribute(attrMsgName).getType().getMetaType() + ":" + Type.MetaType.RSTRING);
     		if (out.getStreamSchema().getAttribute(attrMsgName).getType().getMetaType() != Type.MetaType.RSTRING) {
         		String typeString = out.getStreamSchema().getAttribute(attrMsgName).getType().getLanguageType();        	    			
         		throw new IllegalArgumentException("Attribute '" + attrMsgName + "' type must be rstring, found '" + typeString +"'.");

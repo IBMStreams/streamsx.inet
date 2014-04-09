@@ -66,26 +66,26 @@
 //	var tid = 0;
 
         function SndWebSocket() {
+	    var sndMsg;
             if ("WebSocket" in window) {
-                var userMsg = document.getElementById('userMsg');
+                sndMsg = document.getElementById('sndMsg');
                 alert("WebSocket is supported by your Browser!");
                 // Let us open a web socket
                 var wsSoc = "ws://" + document.getElementById("outWSsnd").value.trim();
                 wsSnd = new WebSocket(wsSoc)
                 wsSnd.onopen = function () {
                     // Web Socket is connected, send data using send()
-                    wsSoc.send("<CONTROL>ID "+ document.getElementById("formID").value  + " STARTING</CONTROL>");
-                    userMsg.innerHTML = "Transmitting on port : " + portIDSnd;
+                    wsSnd.send("<CONTROL>ID "+ document.getElementById("formID").value  + " STARTING</CONTROL>");
+                    sndMsg.innerHTML = "Transmitting on port : " + portIDSnd;
                     alert("Message is sent...");
                 };
                 wsSnd.onmessage = function (evt) {
                     var received_msg = evt.data;
-                    userMsg.innerHTML = "Alert:<b>" + received_msg + "</b>";
+                    sndMsg.innerHTML = "Alert:<b>" + received_msg + "</b>";
                 };
                 wsSnd.onclose = function () {
-                    // websocket is closed.
                     alert("Connection is closed...");
-                    userMsg.innerHTML = "Connection closed....";
+                    sndMsg.innerHTML = "Connection closed....";
                     wsSnd = null;
                 };
 	        setInterval(buildMessage, 100);
@@ -104,8 +104,11 @@
 function RcvWebSocket()
 {
      // Let us open a web socket
+     var rcvDataDoc = document.getElementById("rcvdata");
      var wsSocRcv = "ws://" + document.getElementById("outWSrcv").value.trim();
      wsRcv = new WebSocket(wsSocRcv);	 
+
+
      wsRcv.onopen = function()
      {
         // Web Socket is connected, send data using send()
@@ -114,10 +117,15 @@ function RcvWebSocket()
      };
      wsRcv.onmessage = function (evt)   { 
         var json_msg = JSON.parse(evt.data);
-	var tupleStr = json_msg.tuples[0].tuple;
-        var tuple = JSON.parse(tupleStr);
-        var controlOut = document.getElementById("receiving");
-        controlOut.innerHTML = "<b>" + tuple.data + "</b>";
+
+	if (json_msg.tuples != null) {
+	   var tmp = json_msg.tuples[0].tuple.data;
+           rcvDataDoc.innerHTML = "<b>" + tmp + "</b>";
+	} 
+	if (json_msg.control != null) {
+	   // we do have a status
+	   // json_msg.control.status &  json_msg.control.text;
+	}
      };
      wsRcv.onclose = function()  { 
         // websocket is closed.
@@ -149,15 +157,15 @@ Server clients to demonstrate the use of WebSocket operators.
 </ol>
 
 <h2>Monitor the data exchange...</h2>
-<pre>SND state:<span id="userMsg"></span></pre>
+<pre>SND state:<span id="sndMsg"></span></pre>
 TimeStamp:<span id="currentTime"></span><br>
 <HR>
 <p>
 TRANSMIT:<span id="transmitting"></span>
 </p>
 <HR>
-<p>
-RECIEVED:<span id="receiving"></span>
+<br>
+RECIEVED:<span id="rcvdata"></span>
 </p>
 Recieved data has been 'augmented' by Streams..
 <HR>
