@@ -39,7 +39,8 @@ import com.ibm.streams.operator.types.RString;
 public class HTTPStreamReader extends AbstractOperator {
 	private String dataParamName = "data";
 	private HTTPStreamReaderObj reader = null;
-	private int retries = 3, sleepDelay = 30;
+	private int retries = 3;
+	private double sleepDelay = 30;
 	private MetaType dataParamType = MetaType.USTRING;
 	private boolean hasErrorOut = false;
 	private Thread th = null;
@@ -79,8 +80,8 @@ public class HTTPStreamReader extends AbstractOperator {
 	public void setMaxRetries(int val) {
 		this.retries = val;
 	}
-	@Parameter(optional=true, description="Wait time between retries in case of failures/disconnects.")
-	public void setSleepDelay(int val) {
+	@Parameter(optional=true, name="retryDelay", description="Wait time between retries in case of failures/disconnects.")
+	public void setSleepDelay(double val) {
 		this.sleepDelay = val;
 	}
 	@Parameter(optional=true, description="Send the request as a POST instead of GET. Default is false")
@@ -198,9 +199,9 @@ public class HTTPStreamReader extends AbstractOperator {
 		return retry;
 	}
 
-	void sleepABit(long seconds) throws InterruptedException {
+	void sleepABit(double seconds) throws InterruptedException {
 		trace.log(TraceLevel.INFO, "Sleeping for: " + seconds);
-		long end  = System.currentTimeMillis() + (seconds * 1000);
+		long end  = System.currentTimeMillis() + (long)(seconds * 1000);
 		while(!shutdown && System.currentTimeMillis() < end) {
 			Thread.sleep(1 * 100);
 		}

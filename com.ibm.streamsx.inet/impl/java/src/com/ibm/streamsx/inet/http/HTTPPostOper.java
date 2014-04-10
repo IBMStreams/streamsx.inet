@@ -45,7 +45,8 @@ public class HTTPPostOper extends AbstractOperator
 
 	private static final String ENCODING = "UTF-8"; 
 
-	private int sleepDelay = 3, retries = 3;
+	private double sleepDelay = 3;
+	private int retries = 3;
 	private String url = null;
 	private IAuthenticate auth = null;
 	private boolean sendAsParams = false;
@@ -79,7 +80,7 @@ public class HTTPPostOper extends AbstractOperator
 	public void setMaxRetries(int val) {
 		this.retries = val;
 	}
-	@Parameter(optional=true, description="Wait time between retries in case of failures/disconnects.")
+	@Parameter(optional=true, name="retryDelay", description="Wait time between retries in case of failures/disconnects.")
 	public void setSleepDelay(int val) {
 		this.sleepDelay = val;
 	}
@@ -205,11 +206,11 @@ public class HTTPPostOper extends AbstractOperator
 		op.submit(otup);
 	}
 
-	void sleepABit(long seconds) throws InterruptedException {
-		long end  = System.currentTimeMillis() + (seconds * 1000);
+	void sleepABit(double seconds) throws InterruptedException {
+		long end  = System.currentTimeMillis() + (long)(seconds * 1000);
 
 		while(!shutdown && System.currentTimeMillis() < end) {
-			Thread.sleep(1 * 100);
+			Thread.sleep(100);
 		}
 	}
 
@@ -231,6 +232,3 @@ public class HTTPPostOper extends AbstractOperator
 		;
 
 }
-
-
-

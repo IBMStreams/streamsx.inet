@@ -9,10 +9,10 @@ package com.ibm.streamsx.inet.http;
 class RetryController {
 	
 	protected int maxRetries = 3;
-	protected int sleepDelay = 30;
+	protected double sleepDelay = 30;
 	protected int curTry = 0;
 	
-	public RetryController(int maxRetries, int sleepDelay) {
+	public RetryController(int maxRetries, double sleepDelay) {
 		this.maxRetries = maxRetries;
 		this.sleepDelay = sleepDelay;
 	}
@@ -33,7 +33,7 @@ class RetryController {
 	boolean doRetry() {
 		return maxRetries == -1 || curTry <= maxRetries;
 	}
-	int getSleep() {
+	double getSleep() {
 		return sleepDelay;
 	}	
 	protected void reset() {
