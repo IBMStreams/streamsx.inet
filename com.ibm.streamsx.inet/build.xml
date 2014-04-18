@@ -19,6 +19,7 @@
 	<property name="test.run.dir" value="tests" />
 	<property name="test.build.dir" value="${test.run.dir}/bin" />
 	<property name="ext.downloads.dir" value="opt/downloaded" />
+	<property name="jarfile" value="com.ibm.streamsx.inet.jar" />
 	
 	<target name="init">
 		<fail unless="env.MAVEN_BIN" 
@@ -96,10 +97,10 @@
 	</target>
 
 	<target name="jar" depends="compile">
-		<manifestclasspath property="jar.cp.eclipse.jetty" jarfile="${impl.lib.dir}/com.ibm.streamsx.inet.rest.jar">
+		<manifestclasspath property="jar.cp.eclipse.jetty" jarfile="${impl.lib.dir}/${jarfile}">
 			<classpath refid="cp.eclipse.jetty" />
 		</manifestclasspath>
-		<jar destfile="${impl.lib.dir}/com.ibm.streamsx.inet.rest.jar" basedir="${build.dir}" includes="com/ibm/streamsx/inet/**" filesonly="true">
+		<jar destfile="${impl.lib.dir}/${jarfile}" basedir="${build.dir}" includes="com/ibm/streamsx/inet/**" filesonly="true">
 			<manifest>
 				<attribute name="Class-Path" value="${jar.cp.eclipse.jetty}" />
 			</manifest>
@@ -116,7 +117,7 @@
 			includeantruntime="yes"
 			includes="com/ibm/streamsx/inet/rest/test/**">
 			<classpath>
-				<pathelement location="${impl.lib.dir}/com.ibm.streamsx.inet.rest.jar"/>
+				<pathelement location="${impl.lib.dir}/${jarfile}"/>
 				<path refid="cp.streams" />
 			</classpath>
 		</javac>
@@ -124,7 +125,7 @@
 		  <junit printsummary="yes" haltonfailure="yes" >
 		      <classpath>
 		        <pathelement location="${test.build.dir}"/>
-		        <pathelement location="${impl.lib.dir}/com.ibm.streamsx.inet.rest.jar"/>
+		        <pathelement location="${impl.lib.dir}/${jarfile}"/>
 		        <path refid="cp.streams" />
 		      </classpath>
 
