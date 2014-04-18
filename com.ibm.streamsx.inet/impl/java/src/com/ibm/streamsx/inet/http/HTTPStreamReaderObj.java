@@ -13,12 +13,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
-
-import org.eclipse.jetty.util.UrlEncoded;
 
 import com.ibm.streamsx.inet.http.HTTPRequest.RequestType;
 
@@ -47,7 +44,7 @@ class HTTPException extends Exception {
 	}
 }
 
-public class HTTPStreamReaderObj implements Runnable
+class HTTPStreamReaderObj implements Runnable
 {
 	private BufferedReader in = null;
 	private boolean shutdown = false;

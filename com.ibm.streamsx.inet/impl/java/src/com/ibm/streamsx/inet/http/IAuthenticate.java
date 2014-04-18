@@ -10,8 +10,11 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.List;
 
-//Authenticates HTTP requests using the appropriate mechanism
-public interface IAuthenticate {
+/**
+ * Authenticates HTTP requests using the appropriate mechanism
+ *
+ */
+interface IAuthenticate {
 	/**
 	 * This method will be invoked once before the first invocation of the "sign" method
 	 * @param propFile Properties file name containing the authentication properties

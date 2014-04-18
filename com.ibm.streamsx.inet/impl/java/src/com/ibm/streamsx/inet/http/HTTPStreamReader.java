@@ -53,7 +53,7 @@ public class HTTPStreamReader extends AbstractOperator {
 	private boolean disableCompression = false;
 
 
-	@Parameter(optional= false, description="URL endpoint to connect.")
+	@Parameter(optional= false, description="URL endpoint to connect to.")
 	public void setUrl(String url) {
 		this.url = url;
 	}
@@ -150,12 +150,19 @@ public class HTTPStreamReader extends AbstractOperator {
 		th.start();
 	}
 
-	public void connectionSuccess() throws Exception {
+	@Override
+	public void shutdown() throws Exception {
+		shutdown = true;
+		if(reader!=null)
+			reader.shutdown();
+	}
+
+	void connectionSuccess() throws Exception {
 		trace.log(LogLevel.INFO, "Connection successful");
 		rc.connectionSuccess();
 	}
 
-	public boolean onReadException(Exception e) throws Exception {
+	boolean onReadException(Exception e) throws Exception {
 		rc.readException();
 		trace.log(TraceLevel.ERROR, "Processing Read Exception", e);
 
@@ -196,13 +203,8 @@ public class HTTPStreamReader extends AbstractOperator {
 		}
 	}
 
-	public void shutdown() throws Exception {
-		shutdown = true;
-		if(reader!=null)
-			reader.shutdown();
-	}
 
-	public void processNewLine(String line) throws Exception {
+	void processNewLine(String line) throws Exception {
 		if(line == null) return;
 		
 		if(trace.isLoggable(TraceLevel.TRACE))
@@ -218,7 +220,7 @@ public class HTTPStreamReader extends AbstractOperator {
 			trace.log(TraceLevel.TRACE, "Done Submitting");
 	}
 
-	public boolean connectionClosed() throws Exception {
+	boolean connectionClosed() throws Exception {
 		trace.log(TraceLevel.INFO, "Stream Connection Closed");
 		rc.connectionClosed();
 		StreamingOutput<OutputTuple> op = getOutput(0);
@@ -233,9 +235,10 @@ public class HTTPStreamReader extends AbstractOperator {
 	
 	public static final String DESC  = 
 			"Connects to an HTTP endpoint, reads \\\"chunks\\\" of data and sends it to the output port." +
-			"Every line read from the HTTP server endpoint is sent as a single tuple." +
-			"If a connection is closed by the server, a WINDOW punctuation will be sent on port 0." +
-			"Certain authentication modes are supported." 
+			" Every line read from the HTTP server endpoint is sent as a single tuple." +
+			" If a connection is closed by the server, a WINDOW punctuation will be sent on port 0." +
+			" Supported Authentications: Basic Authentication, OAuth 1.0a." +
+			" Supported Compressions: Gzip, Deflate."
 			;
 }
 

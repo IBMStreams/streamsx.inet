@@ -9,7 +9,7 @@ package com.ibm.streamsx.inet.http;
 import java.io.IOException;
 import java.util.List;
 
-public class AuthHelper {
+class AuthHelper {
 
 	public static IAuthenticate getAuthenticator(String name, String authFile, List<String> override) throws IOException {
 		if(name == null)
