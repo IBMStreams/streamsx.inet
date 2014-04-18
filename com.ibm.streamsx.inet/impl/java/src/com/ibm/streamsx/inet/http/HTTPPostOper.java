@@ -6,11 +6,9 @@
 //
 package com.ibm.streamsx.inet.http;
 
-import java.io.FileReader;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 import com.ibm.streams.operator.AbstractOperator;
@@ -24,19 +22,20 @@ import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.model.InputPortSet;
 import com.ibm.streams.operator.model.InputPorts;
+import com.ibm.streams.operator.model.Libraries;
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
-import com.ibm.streams.operator.types.RString;
 import com.ibm.streamsx.inet.http.HTTPRequest.RequestType;
 
 @InputPorts(@InputPortSet(cardinality=1, 
 			description="All attributes of the input stream are sent as POST data to the specified HTTP server"))
 @OutputPorts(@OutputPortSet(cardinality=1, optional=true, 
 			description="Emits a tuple containing the reponse received from the server. " +
-		     "Tuple structure must conform to the \\\"HTTPResponse\\\" type specified in this namespace."))
+		     "Tuple structure must conform to the [HTTPResponse] type specified in this namespace."))
 @PrimitiveOperator(name="HTTPPost", description=HTTPPostOper.DESC)
+@Libraries(value={"opt/downloaded/*"})
 public class HTTPPostOper extends AbstractOperator  
 {
 	static final String CLASS_NAME="com.ibm.streamsx.inet.http.HTTPPostOper";
@@ -95,24 +94,13 @@ public class HTTPPostOper extends AbstractOperator
 	{
 		super.initialize(op);    
 
-		Properties props = null;
-		if(authFile != null) {
-			props = new Properties();
-			props.load(new FileReader(authFile));
-		}
-		if(authProps.size() >0 ) {
-			for(String value : authProps) {
-				String [] arr = value.split("=");
-				if(arr.length < 2) 
-					throw new IllegalArgumentException("Invalid property: " + value);
-				String name = arr[0];
-				String v = value.substring(arr[0].length()+1, value.length());
-				props.setProperty(name, v);
-			}
+		//special case..we do not support oAuth for POST at the moment
+		if(authType.equals("oauth")) {
+			throw new Exception("Authentication method \\\"oauth\\\" not currently supported for this operator.");
 		}
 		
 		trace.log(TraceLevel.INFO, "Using authentication type: " + authType);
-		auth = AuthHelper.getAuthenticator(authType, props);
+		auth = AuthHelper.getAuthenticator(authType, authFile, authProps);
 
 		rc = new RetryController(retries, sleepDelay);
 		hasOutputPort = op.getStreamingOutputs().size() == 1;
@@ -181,21 +169,20 @@ public class HTTPPostOper extends AbstractOperator
 		OutputTuple otup = op.newTuple();
 		
 		if(resp == null) {
-			if(t == null) 
-				otup.setObject("errorMessage", new RString("Unknown error."));
-			else 
-				otup.setObject("errorMessage", new RString(t.getMessage()));
-			
+			otup.setString("errorMessage", 
+					t == null ? "Unknown error." : t.getMessage()
+					);			
 			otup.setInt("responseCode", -1);
 		}
 		else {
-			trace.log(TraceLevel.INFO, "Response: " + resp.toString());
+			if(trace.isLoggable(TraceLevel.DEBUG))
+				trace.log(TraceLevel.DEBUG, "Response: " + resp.toString());
 			
 			if(resp.getErrorStreamData()!=null)
-				otup.setObject("errorMessage", new RString(resp.getErrorStreamData()));
+				otup.setString("errorMessage", resp.getErrorStreamData());
 	
 			if(resp.getOutStreamData() != null) {
-				otup.setObject("data", new RString(resp.getOutStreamData()));
+				otup.setString("data", resp.getOutStreamData());
 				otup.setInt("dataSize", resp.getOutStreamData().length());
 			}
 	
@@ -221,11 +208,12 @@ public class HTTPPostOper extends AbstractOperator
 
 	public static final String DESC = 
 			"This operator sends incoming tuples to the specified HTTP server as part of a POST request." +
-			"A single tuple will be sent as a body of one HTTP POST request." +
-			"All attributes of the tuple will be serialized and sent to the server." +
+			" A single tuple will be sent as a body of one HTTP POST request." +
+			" All attributes of the tuple will be serialized and sent to the server." +
 			"Certain authentication modes are supported." +
-			"Tuples are sent to the server one at a time in order of receipt. If the HTTP server cannot be accessed, the operation " +
-			"will be retried on the current thread and may temporarily block any additional tuples that arrive on the input port" +
+			" Tuples are sent to the server one at a time in order of receipt. If the HTTP server cannot be accessed, the operation " +
+			"will be retried on the current thread and may temporarily block any additional tuples that arrive on the input port." +
+			" Data is sent in application/x-www-form-urlencoded UTF-8 encoded format." + 
 			"\\n" + 
 			"**Limitations**:\\n" + 
 			"* Nested attributes are not individually accessed and serialized. Only the top level attributes are serialized individually.\\n" 

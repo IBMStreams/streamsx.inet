@@ -6,10 +6,8 @@
 //
 package com.ibm.streamsx.inet.http;
 
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 import com.ibm.streams.operator.AbstractOperator;
@@ -22,12 +20,12 @@ import com.ibm.streams.operator.logging.LogLevel;
 import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.model.InputPortSet;
 import com.ibm.streams.operator.model.InputPorts;
+import com.ibm.streams.operator.model.Libraries;
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPortSet.WindowPunctuationOutputMode;
 import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
-import com.ibm.streams.operator.types.RString;
 
 @InputPorts(@InputPortSet(cardinality=0))
 @OutputPorts({@OutputPortSet(cardinality=1, optional=false, windowPunctuationOutputMode=WindowPunctuationOutputMode.Generating,
@@ -36,17 +34,17 @@ import com.ibm.streams.operator.types.RString;
 			  description="Error information will be sent out on this port including the response code and any message recieved from the server. " +
 			  		"Tuple structure must conform to the [HTTPResponse] type specified in this namespace.")})
 @PrimitiveOperator(name="HTTPGetStream", description=HTTPStreamReader.DESC)
+@Libraries(value={"opt/downloaded/*"})
 public class HTTPStreamReader extends AbstractOperator {
-	private String dataParamName = "data";
+	private String dataAttributeName = "data";
 	private HTTPStreamReaderObj reader = null;
 	private int retries = 3;
 	private double sleepDelay = 30;
-	private MetaType dataParamType = MetaType.USTRING;
 	private boolean hasErrorOut = false;
 	private Thread th = null;
-	private boolean shutdown = false, useBackoff = false, usePost = false;
-
+	private boolean shutdown = false, useBackoff = false;
 	private String url = null;
+	private String postData = null;
 	private String authType = "none", authFile = null;
 	private RetryController rc = null;
 	private List<String> authProps = new ArrayList<String>();
@@ -55,6 +53,7 @@ public class HTTPStreamReader extends AbstractOperator {
 
 	private static Logger trace = Logger.getLogger(CLASS_NAME);
 	private boolean retryOnClose = false;
+	private boolean disableCompression = false;
 
 
 	@Parameter(optional= false, description="URL to connect to")
@@ -62,13 +61,14 @@ public class HTTPStreamReader extends AbstractOperator {
 		this.url = url;
 	}
 	@Parameter(optional=true, 
-			description="Valid options are \\\"basic\\\" and \\\"none\\\". Default is \\\"none\\\".")
+			description="Valid options are \\\"oauth\\\", \\\"basic\\\" and \\\"none\\\". Default is \\\"none\\\".")
 	public void setAuthenticationType(String val) {
 		this.authType = val;
 	}
 	@Parameter(optional=true, description=
-			"Path to the properties file containing authentication information. Path can be absolute or relative to the data directory of the application."+
-			" See http_auth_basic.properties in the toolkits config directory for a sample of basic authentication properties.")
+			"Path to the properties file containing authentication information." +
+			" Path can be absolute or relative to the data directory of the application."+
+			" See the config directory for sample properties files.")
 	public void setAuthenticationFile(String val) {
 		this.authFile = val;
 	}
@@ -84,9 +84,10 @@ public class HTTPStreamReader extends AbstractOperator {
 	public void setSleepDelay(double val) {
 		this.sleepDelay = val;
 	}
-	@Parameter(optional=true, description="Send the request as a POST instead of GET. Default is false")
-	public void setUsePost(boolean val) {
-		this.usePost = val;
+	@Parameter(optional=true, 
+			description="The value for this parameter will be sent to the server as a POST request body.")
+	public void setPostData(String val) {
+		this.postData = val;
 	}
 	@Parameter(optional=true, description="Use a backoff function for increasing the wait time between retries. " +
 			"Wait times increase by a factor of 10. Default is false")
@@ -95,17 +96,22 @@ public class HTTPStreamReader extends AbstractOperator {
 	}
 	@Parameter(optional=true, description="Name of the attribute to populate the response data with. Default is \\\"data\\\"")
 	public void setDataAttributeName(String val) {
-		this.dataParamName = val;
+		this.dataAttributeName = val;
 	}
 	@Parameter(optional=true, description="Retry connecting if the connection has been closed. Default is false")
 	public void setRetryOnClose(boolean val) {
 		this.retryOnClose = val;
 	}
+	@Parameter(optional=true, 
+			description="By default the client will ask the server to compress its reponse data using supported compressions (gzip, deflate). " +
+			"Setting this option to true will disable compressions. Default is false.")
+	public void setCompression(boolean val) {
+		this.disableCompression = val;
+	}
 
 
 	@Override
-	public void initialize(OperatorContext op) throws Exception 
-	{
+	public void initialize(OperatorContext op) throws Exception {
 		super.initialize(op);
 
 		if(op.getNumberOfStreamingOutputs() == 2) {
@@ -113,33 +119,18 @@ public class HTTPStreamReader extends AbstractOperator {
 			trace.log(TraceLevel.INFO, "Error handler port is enabled");
 		}
 
-		Properties props =  new Properties();
-		if(authFile != null) {
-			props.load(new FileReader(authFile));
-		}
-		if(authProps.size() >0 ) {
-			for(String value : authProps) {
-				String [] arr = value.split("=");
-				if(arr.length < 2) 
-					throw new IllegalArgumentException("Invalid property: " + value);
-				String name = arr[0];
-				String v = value.substring(arr[0].length()+1, value.length());
-				props.setProperty(name, v);
-			}
-		}
-
-		if(getOutput(0).getStreamSchema().getAttribute(dataParamName) == null) {
+		if(getOutput(0).getStreamSchema().getAttribute(dataAttributeName) == null) {
 			if(getOutput(0).getStreamSchema().getAttributeCount() > 1) {
 				throw new Exception("Could not automatically detect the data field for output port 0. " +
 						"Specify a valid value for \"dataAttributeName\"");
 			}
-			dataParamName = getOutput(0).getStreamSchema().getAttribute(0).getName();
+			dataAttributeName = getOutput(0).getStreamSchema().getAttribute(0).getName();
 		}
 
-		dataParamType = getOutput(0).getStreamSchema().getAttribute(dataParamName).getType().getMetaType();
+		MetaType dataParamType = getOutput(0).getStreamSchema().getAttribute(dataAttributeName).getType().getMetaType();
 		if(dataParamType!=MetaType.USTRING && dataParamType!=MetaType.RSTRING)
 			throw new Exception("Only types \"" + MetaType.USTRING + "\" and \"" 
-					+ MetaType.RSTRING + "\" allowed for param " + dataParamName + "\"");
+					+ MetaType.RSTRING + "\" allowed for param " + dataAttributeName + "\"");
 
 		if(useBackoff) 
 			rc=new BackoffRetryController(retries, sleepDelay);
@@ -147,9 +138,9 @@ public class HTTPStreamReader extends AbstractOperator {
 			rc=new RetryController(retries, sleepDelay);
 
 		trace.log(TraceLevel.INFO, "Using authentication type: " + authType);
-		IAuthenticate auth = AuthHelper.getAuthenticator(authType, props);
+		IAuthenticate auth = AuthHelper.getAuthenticator(authType, authFile, authProps);
 
-		reader = new HTTPStreamReaderObj(this.url, auth, this, usePost);
+		reader = new HTTPStreamReaderObj(this.url, auth, this, postData, disableCompression);
 		th = op.getThreadFactory().newThread(reader);
 		th.setDaemon(false);
 	}
@@ -178,7 +169,7 @@ public class HTTPStreamReader extends AbstractOperator {
 				retCode = ((HTTPException) e).getResponseCode();
 				String data = ((HTTPException) e).getData();
 				if(data != null) {
-					otup.setObject("data", new RString(data));
+					otup.setString("data", data);
 					otup.setInt("dataSize", data.length());
 				}
 				else {
@@ -187,7 +178,7 @@ public class HTTPStreamReader extends AbstractOperator {
 			}
 
 			otup.setInt("responseCode", retCode);
-			otup.setObject("errorMessage", new RString(e.getMessage()));
+			otup.setString("errorMessage", e.getMessage());
 
 			getOutput(1).submit(otup);
 		}
@@ -223,10 +214,7 @@ public class HTTPStreamReader extends AbstractOperator {
 			trace.log(TraceLevel.DEBUG, line);
 		StreamingOutput<OutputTuple> op = getOutput(0);
 		OutputTuple otup = op.newTuple(); 
-		if(dataParamType==MetaType.USTRING)
-			otup.setString(dataParamName, line);
-		else 
-			otup.setObject(dataParamName, new RString(line));
+		otup.setString(dataAttributeName, line);
 		op.submit(otup);
 		if(trace.isLoggable(TraceLevel.TRACE))
 			trace.log(TraceLevel.TRACE, "Done Submitting");
@@ -248,7 +236,7 @@ public class HTTPStreamReader extends AbstractOperator {
 	public static final String DESC  = 
 			"Connects to an HTTP endpoint, reads \\\"chunks\\\" of data and sends it to the output port." +
 			"Every line read from the HTTP server endpoint is sent as a single tuple." +
-			"If a connection is closed by the server, a punctuation will be sent on port 0." +
+			"If a connection is closed by the server, a WINDOW punctuation will be sent on port 0." +
 			"Certain authentication modes are supported." 
 			;
 }
