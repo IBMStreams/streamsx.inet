@@ -12,7 +12,12 @@ import java.util.Properties;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.basic.DefaultOAuthConsumer;
 
-//sign a request using oAuth
+/**
+ * Sign a request using oAuth1.0a
+ * This class uses the Signpost library to sign the requests
+ * Required properties are "consumerKey", "consumerSecret", "accessToken" and "accessTokenSecret"
+ *
+ */
 class OAuth extends AAuthenticate {
 
 

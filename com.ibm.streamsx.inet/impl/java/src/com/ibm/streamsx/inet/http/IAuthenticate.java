@@ -10,46 +10,23 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.List;
 
-import com.ibm.misc.BASE64Encoder;
-
+//Authenticates HTTP requests using the appropriate mechanism
 public interface IAuthenticate {
-
+	/**
+	 * This method will be invoked once before the first invocation of the "sign" method
+	 * @param propFile Properties file name containing the authentication properties
+	 * @param override List of override properties in the "name=value" format.
+	 * @throws IOException
+	 */
 	public void setProperties(String propFile, List<String> override) throws IOException ;
 
+	
+	/**
+	 * Signs request using the authentication mode, connects to the endpoint and returns the connection
+	 * @param req HTTP request object to be signed
+	 * @return 
+	 * @throws Exception
+	 */
 	public HttpURLConnection sign(HTTPRequest req) throws Exception ;
 }
 
-class BasicAuth extends AAuthenticate {
-	private String useridpassword = null;
-
-	@Override
-	public void init() {
-		useridpassword = 
-				getRequiredProperty("userid") 
-				+ ":" 
-				+ getRequiredProperty("password");
-	}
-
-	@Override
-	public HttpURLConnection sign(HTTPRequest req) throws Exception {
-		BASE64Encoder encoder = new BASE64Encoder();
-		String up_encoded = encoder.encode(useridpassword.getBytes());
-		req.setHeader("Authorization", "Basic " + up_encoded);
-		return req.connect();
-	}
-}
-
-//no authentication
-class NoAuth extends AAuthenticate {
-
-	@Override
-	public HttpURLConnection sign(HTTPRequest req) throws Exception {
-		return req.connect();
-	}
-
-	@Override
-	void init() {
-		//do nothing
-	}
-
-}

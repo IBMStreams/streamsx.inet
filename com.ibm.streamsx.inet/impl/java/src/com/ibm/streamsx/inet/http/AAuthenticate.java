@@ -8,8 +8,11 @@ package com.ibm.streamsx.inet.http;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Properties;
+
+import com.ibm.misc.BASE64Encoder;
 
 abstract class AAuthenticate implements IAuthenticate {
 
@@ -20,7 +23,7 @@ abstract class AAuthenticate implements IAuthenticate {
 		if(authFile != null) {
 			prop.load(new FileReader(authFile));
 		}
-		if(overrideProps.size() >0 ) {
+		if(overrideProps != null && overrideProps.size() >0 ) {
 			for(String value : overrideProps) {
 				String [] arr = value.split("=");
 				if(arr.length < 2) 
@@ -33,16 +36,67 @@ abstract class AAuthenticate implements IAuthenticate {
 		init();
 	}
 	
-	String getRequiredProperty(String name) {
+	/**
+	 * Returns the property value. 
+	 * @param name
+	 * @throws RuntimeException if a property is not found.
+	 * @return
+	 */
+	public String getRequiredProperty(String name) {
 		if(prop == null)
-			throw new IllegalArgumentException("No authentication properties specified");
+			throw new RuntimeException("No authentication properties specified");
 		String ret = prop.getProperty(name);
 		if(ret == null || ret.isEmpty())
-			throw new IllegalArgumentException("Required property \"" + name + "\" not specified");
+			throw new RuntimeException("Required property \"" + name + "\" not specified");
 		return ret;
 	}
 	
-	//called once all properties are initialized
+	/**
+	 * Called once all the properties are initialized
+	 */
 	abstract void init(); 
 	
+}
+
+
+/**
+ * Signs request with basic authentication
+ * "userid" and "password" properties are required.
+ *
+ */
+class BasicAuth extends AAuthenticate {
+	private String useridpassword = null;
+
+	@Override
+	public void init() {
+		useridpassword = 
+				getRequiredProperty("userid") 
+				+ ":" 
+				+ getRequiredProperty("password");
+	}
+
+	@Override
+	public HttpURLConnection sign(HTTPRequest req) throws Exception {
+		BASE64Encoder encoder = new BASE64Encoder();
+		String up_encoded = encoder.encode(useridpassword.getBytes());
+		req.setHeader("Authorization", "Basic " + up_encoded);
+		return req.connect();
+	}
+}
+
+/**
+ * No authentication will be done. 
+ */
+class NoAuth extends AAuthenticate {
+
+	@Override
+	public HttpURLConnection sign(HTTPRequest req) throws Exception {
+		return req.connect();
+	}
+
+	@Override
+	void init() {
+		//do nothing
+	}
+
 }

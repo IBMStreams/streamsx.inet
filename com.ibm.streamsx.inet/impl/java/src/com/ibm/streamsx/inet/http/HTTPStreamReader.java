@@ -18,8 +18,6 @@ import com.ibm.streams.operator.StreamingOutput;
 import com.ibm.streams.operator.Type.MetaType;
 import com.ibm.streams.operator.logging.LogLevel;
 import com.ibm.streams.operator.logging.TraceLevel;
-import com.ibm.streams.operator.model.InputPortSet;
-import com.ibm.streams.operator.model.InputPorts;
 import com.ibm.streams.operator.model.Libraries;
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPortSet.WindowPunctuationOutputMode;
@@ -27,7 +25,6 @@ import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
 
-@InputPorts(@InputPortSet(cardinality=0))
 @OutputPorts({@OutputPortSet(cardinality=1, optional=false, windowPunctuationOutputMode=WindowPunctuationOutputMode.Generating,
 			  description="Data received from the server will be sent on this port."),
 			  @OutputPortSet(cardinality=1, optional=true, windowPunctuationOutputMode=WindowPunctuationOutputMode.Free, 
@@ -56,12 +53,13 @@ public class HTTPStreamReader extends AbstractOperator {
 	private boolean disableCompression = false;
 
 
-	@Parameter(optional= false, description="URL to connect to")
+	@Parameter(optional= false, description="URL endpoint to connect.")
 	public void setUrl(String url) {
 		this.url = url;
 	}
 	@Parameter(optional=true, 
-			description="Valid options are \\\"oauth\\\", \\\"basic\\\" and \\\"none\\\". Default is \\\"none\\\".")
+			description="Valid options are \\\"oauth\\\", \\\"basic\\\" and \\\"none\\\". Default is \\\"none\\\"." +
+					" If the \\\"oauth\\\" option is selected, the requests will be singed using OAuth 1.0a.")
 	public void setAuthenticationType(String val) {
 		this.authType = val;
 	}
