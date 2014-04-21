@@ -36,28 +36,31 @@ import com.ibm.streams.operator.samples.patterns.TupleProducer;
  *  
  */
 
-@PrimitiveOperator(description=Receive.primDesc)
-@OutputPorts({@OutputPortSet(description=Receive.outPortDesc, cardinality=1, optional=false, windowPunctuationOutputMode=WindowPunctuationOutputMode.Free)})
+@PrimitiveOperator(description=WebSocketInject.primDesc)
+@OutputPorts({@OutputPortSet(description=WebSocketInject.outPortDesc, cardinality=1, optional=false, windowPunctuationOutputMode=WindowPunctuationOutputMode.Free)})
 @Libraries("opt/wssupport/java_websocket.jar")
 
 
 
-public class Receive extends TupleProducer {
+public class WebSocketInject extends TupleProducer {
 	final static String primDesc = 
 			" Operator recieves messages from WebSocket clients and generates a tuple which is sent to streams. " +
 			" Each received message is output as tuple. The data received is dependent upon" + 
 			" the input ports schema.";
 
 	final static String outPortDesc = 
-			"First attribute will have the message received via the WebSocket, this must be a rstring. " +
-			"Second attribute (if provided) will have the senders unique id, this must be a rstring as well." +
+			"First attribute will have the message received via the WebSocket, of type rstring. " +
+			"Second attribute (if provided) will have the senders unique id, or type rstring." +
             "Subsequent attribute(s) are allowed and will not be poplulated.";					
 	final static String parmPortDesc = 
 			"WebSocket network port that messages arrive on. The WebSocket client(s) " +
 			"use this port to transmit on.";
 	final static String parmAckDesc = 
-			"The operator sends out an ack message to all connected clients. " +
-			"An ack is transmitted after every *ackCount* messages are transmitted.";
+			"The operator sends out an ack message to all currently connected clients.  " +
+			"An ack message is sent when the (totaslNumberOfMessagesRecieved % ackCount) == 0, +" +
+			"The ack message is a in JSON format {status:'COUNT', text:<totalNumberOfMessagesReceived>}." +
+			"Default value is 0, no ack messages will be sent.";
+
 	final static String messageAttrDesc = 
 			"Input port's attribute that the data received will be stored to. " +
 			"If the port has more than one attribute this parameter is required. ";

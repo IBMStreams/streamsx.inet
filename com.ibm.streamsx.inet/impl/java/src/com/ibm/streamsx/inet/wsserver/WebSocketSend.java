@@ -37,10 +37,10 @@ import com.ibm.streams.operator.samples.patterns.TupleConsumer;
  * 
  */
 
-@PrimitiveOperator( description=Send.primDesc)
-@InputPorts({@InputPortSet(description=Send.parmPortDesc, cardinality=1, optional=false, windowingMode=WindowMode.NonWindowed)})
+@PrimitiveOperator( description=WebSocketSend.primDesc)
+@InputPorts({@InputPortSet(description=WebSocketSend.parmPortDesc, cardinality=1, optional=false, windowingMode=WindowMode.NonWindowed)})
 @Libraries("opt/wssupport/java_websocket.jar")
-public class Send extends TupleConsumer {
+public class WebSocketSend extends TupleConsumer {
 
 	final static String primDesc =
 			"Operator transmits tuples recieved on the input port via WebSocket protocol to connected clients." +			
@@ -51,7 +51,6 @@ public class Send extends TupleConsumer {
 	final static String parmPortDesc =
 			"Port that clients connect to and tuples formatted as JSON message are transmitted over.";
 
-    
 	static final String CLASS_NAME="com.ibm.streamsx.inet.wsserver";
 	private static Logger trace = Logger.getLogger(CLASS_NAME);	
 	
@@ -59,7 +58,6 @@ public class Send extends TupleConsumer {
     private int portNum;
     private Metric nMessagesSent;
     private Metric nClientsConnected;
-
     
 
     @CustomMetric(description="Number of messages sent using WebSocket", kind=Kind.COUNTER)

@@ -33,8 +33,8 @@ public class WSServer extends WebSocketServer {
 	int count = 0;
 	long totalSentCount = 0;
 	private int ackCount = 0;
-	Receive wsSource;
-	Send wsSink;	
+	WebSocketInject wsSource;
+	WebSocketSend wsSink;	
 
 	public WSServer( int port ) throws UnknownHostException {
 		super( new InetSocketAddress( port ) );
@@ -43,7 +43,7 @@ public class WSServer extends WebSocketServer {
 	 * Our primary duty is to receive messages from WS and push them onto the stream as tuples.
 	 * @param wsSource
 	 */
-	public void setWebSocketSource(Receive wsSource) {
+	public void setWebSocketSource(WebSocketInject wsSource) {
 		this.wsSource = wsSource;
 	}
 	/**
@@ -51,7 +51,7 @@ public class WSServer extends WebSocketServer {
 	 * that have connected to us.  
 	 * @param wsSink
 	 */
-	public void setWebSocketSink(Send wsSink) {
+	public void setWebSocketSink(WebSocketSend wsSink) {
 		this.wsSink = wsSink;
 		trace.log(TraceLevel.INFO,"setWebSocketSink port : " + wsSink.getPort() );                    													
 	}

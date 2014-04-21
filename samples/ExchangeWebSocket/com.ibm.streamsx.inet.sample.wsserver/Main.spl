@@ -1,8 +1,8 @@
 namespace com.ibm.streamsx.inet.sample.wsserver ;
 
 use com.ibm.streamsx.inet.rest::WebContext ;
-use com.ibm.streamsx.inet.wsserver::Receive ;
-use com.ibm.streamsx.inet.wsserver::Send ;
+use com.ibm.streamsx.inet.wsserver::WebSocketInject ;
+use com.ibm.streamsx.inet.wsserver::WebSocketSend ;
 
 /**
  * Example of using the Receive() and Send() WebSocket operators. 
@@ -24,7 +24,7 @@ composite Main {
 				contextResourceBase : getThisFileDir()+ "/../data/html" ;
 		}
 
-		(stream<rstring data> Receive_2_out0)as Receive_2 = Receive(){
+		(stream<rstring data> Receive_2_out0)as Receive_2 = WebSocketInject(){
 			param
 				port : 8081 ;
 		}
@@ -46,7 +46,7 @@ composite Main {
 		}
 		
 
-		()as Send_3 = Send(Functor_4_out0){
+		()as Send_3 = WebSocketSend(Functor_4_out0){
 			param
 				port : 8082 ;
 		}
