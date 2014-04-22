@@ -10,7 +10,7 @@
 
 	<property environment="env" />
 	<property name="streams.install" value="${env.STREAMS_INSTALL}" />
-	<property name="maven.bin" value="${env.MAVEN_BIN}" />
+	<property name="maven.bin" value="${env.M2_HOME}/bin/mvn" />
 
 	<property name="src.dir" value="impl/java/src" />
 	<property name="build.dir" value="impl/java/classes" />
@@ -22,8 +22,8 @@
 	<property name="jarfile" value="com.ibm.streamsx.inet.jar" />
 	
 	<target name="init">
-		<fail unless="env.MAVEN_BIN" 
-			message="Environment variable MAVEN_BIN not set. Please set this to point to path of the mvn binary"/>
+		<fail unless="env.M2_HOME" 
+			message="Environment variable M2_HOME not set. Please set this to point to the path of maven home directory"/>
 		<mkdir dir="${build.dir}" />
 		<mkdir dir="${lib.dir}" />
 		<mkdir dir="${impl.lib.dir}" />

@@ -35,16 +35,16 @@ import com.ibm.streams.operator.model.PrimitiveOperator;
 public class HTTPStreamReader extends AbstractOperator {
 	private String dataAttributeName = "data";
 	private HTTPStreamReaderObj reader = null;
-	private int retries = 3;
+	private int maxRetries = 3;
 	private double sleepDelay = 30;
 	private boolean hasErrorOut = false;
 	private Thread th = null;
 	private boolean shutdown = false, useBackoff = false;
 	private String url = null;
 	private String postData = null;
-	private String authType = "none", authFile = null;
+	private String authenticationType = "none", authenticationFile = null;
 	private RetryController rc = null;
-	private List<String> authProps = new ArrayList<String>();
+	private List<String> authenticationProperties = new ArrayList<String>();
 
 	static final String CLASS_NAME="com.ibm.streamsx.inet.http.HTTPStreamsReader";
 
@@ -61,22 +61,22 @@ public class HTTPStreamReader extends AbstractOperator {
 			description="Valid options are \\\"oauth\\\", \\\"basic\\\" and \\\"none\\\". Default is \\\"none\\\"." +
 					" If the \\\"oauth\\\" option is selected, the requests will be singed using OAuth 1.0a.")
 	public void setAuthenticationType(String val) {
-		this.authType = val;
+		this.authenticationType = val;
 	}
 	@Parameter(optional=true, description=
 			"Path to the properties file containing authentication information." +
 			" Path can be absolute or relative to the data directory of the application."+
 			" See the config directory for sample properties files.")
 	public void setAuthenticationFile(String val) {
-		this.authFile = val;
+		this.authenticationFile = val;
 	}
 	@Parameter(optional=true, description="Properties to override those in the authentication file.")
 	public void setAuthenticationProperty(List<String> val) {
-		authProps.addAll(val);
+		authenticationProperties.addAll(val);
 	}
 	@Parameter(optional=true, description="Maximum number of retries in case of failures/disconnects.")
 	public void setMaxRetries(int val) {
-		this.retries = val;
+		this.maxRetries = val;
 	}
 	@Parameter(optional=true, name="retryDelay", description="Wait time between retries in case of failures/disconnects.")
 	public void setSleepDelay(double val) {
@@ -103,7 +103,7 @@ public class HTTPStreamReader extends AbstractOperator {
 	@Parameter(optional=true, 
 			description="By default the client will ask the server to compress its reponse data using supported compressions (gzip, deflate). " +
 			"Setting this option to true will disable compressions. Default is false.")
-	public void setCompression(boolean val) {
+	public void setDisableCompression(boolean val) {
 		this.disableCompression = val;
 	}
 
@@ -131,12 +131,12 @@ public class HTTPStreamReader extends AbstractOperator {
 					+ MetaType.RSTRING + "\" allowed for param " + dataAttributeName + "\"");
 
 		if(useBackoff) 
-			rc=new BackoffRetryController(retries, sleepDelay);
+			rc=new BackoffRetryController(maxRetries, sleepDelay);
 		else
-			rc=new RetryController(retries, sleepDelay);
+			rc=new RetryController(maxRetries, sleepDelay);
 
-		trace.log(TraceLevel.INFO, "Using authentication type: " + authType);
-		IAuthenticate auth = AuthHelper.getAuthenticator(authType, authFile, authProps);
+		trace.log(TraceLevel.INFO, "Using authentication type: " + authenticationType);
+		IAuthenticate auth = AuthHelper.getAuthenticator(authenticationType, authenticationFile, authenticationProperties);
 
 		reader = new HTTPStreamReaderObj(this.url, auth, this, postData, disableCompression);
 		th = op.getThreadFactory().newThread(reader);
