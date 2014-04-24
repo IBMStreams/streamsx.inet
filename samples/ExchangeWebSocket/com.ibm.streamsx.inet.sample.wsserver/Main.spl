@@ -27,6 +27,7 @@ composite Main {
 		(stream<rstring data> Receive_2_out0)as Receive_2 = WebSocketInject(){
 			param
 				port : 8081 ;
+				ackCount : 10;
 		}
 		(stream<rstring data> Functor_4_out0)as Functor_4 = Functor(Receive_2_out0){
 		logic
