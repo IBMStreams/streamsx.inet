@@ -147,7 +147,7 @@ public class WebSocketSend extends TupleConsumer {
         JSONObject message = new JSONObject();
         message.put("tuples", tuples);
         trace.log(TraceLevel.INFO,"processBatch() : sending tuplesInRequest:" + tuplesInRequest);        
-        int sentCount = wsServer.sendToAll(message.toString());
+        int sentCount = wsServer.sendToAll(message);
         getnClientsConnected().setValue(sentCount);
         getnMessagesSent().setValue(wsServer.getTotalSentCount());
         return true;

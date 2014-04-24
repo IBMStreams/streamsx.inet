@@ -6,6 +6,7 @@ package com.ibm.streamsx.inet.wsserver;
 # disclosure restricted by GSA ADP Schedule Contract with
 # IBM Corp.
 */
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
@@ -87,7 +88,7 @@ public class WSServer extends WebSocketServer {
 		count++;
 		// send the number of messages received to ALL the senders.
 		if ((this.ackCount != 0) && (count % this.ackCount) == 0) {
-			statusToAll("COUNT", String.format("%sd",count));
+			statusToAll("COUNT", String.format("%d",count));
 		}
 
 		try {
@@ -112,26 +113,35 @@ public class WSServer extends WebSocketServer {
 	}
 
 	/**
-	 * Sends <var>text</var> to all currently connected WebSocket clients.
+	 * Sends <var>jsonMessage</var> to all currently connected WebSocket clients.
 	 * 
-	 * @param text
-	 *            The String to send across the network.
+	 * @param jsonMessage to transmit 
+	 *            
 	 * @throws InterruptedException
 	 *             When socket related I/O errors occur.
 	 * @return number of messages sent, thus the number of active connections.
 	 */
-	public int sendToAll( String text ) {
+	public int sendToAll( JSONObject jsonMessage ) {
 		Collection<WebSocket> con = connections();
-        Logger.getLogger(this.getClass()).trace("sendToAll()::" + text);
-		int cnt = 0;        
-		synchronized ( con ) {
-			for( WebSocket c : con ) {
-				trace.log(TraceLevel.INFO,"sendToAll()" + c.getRemoteSocketAddress().getAddress().getHostAddress() + "::" + cnt++ + " of " + con.size());                    				                    		        									
-				c.send( text );
-			}
+		String message = null;
+		try {
+			message = jsonMessage.serialize();
+			trace.log(TraceLevel.INFO,"sendToAll() : " + message);                    									
+		} catch (IOException e) {
+    		trace.log(TraceLevel.ERROR, "sendToAll() :" + jsonMessage.toString() + " err: " + e.getMessage() );
 		}
-		totalSentCount += cnt;
+		int cnt = 0;        		
+		if (message != null) {
+			synchronized ( con ) {
+				for( WebSocket c : con ) {
+					trace.log(TraceLevel.INFO,"sendToAll()" + c.getRemoteSocketAddress().getAddress().getHostAddress() + "::" + cnt++ + " of " + con.size());                    				                    		        									
+					c.send( message );
+				}
+			}
+			totalSentCount += cnt;
+		}
 		return cnt;
+		
 	}
 	/**
 	 * Get total number of messages sent: WSconnections * messages where WSConnections 
@@ -151,10 +161,10 @@ public class WSServer extends WebSocketServer {
 		JSONObject controlMessage = new JSONObject();
 		JSONObject controlBody = new JSONObject();
 		controlBody.put("status", status);
-		controlBody.put("text", text);
+		controlBody.put("value", text);
 		controlMessage.put("control", controlBody);
-		trace.log(TraceLevel.INFO,"statusToAll() : " + controlMessage.toString());                    				
-		sendToAll(controlMessage.toString());
+		sendToAll(controlMessage);
+
 	}
 	public long getClientCount() {
 		return connections().size();
