@@ -20,6 +20,11 @@ public class HTTPUtils {
 		return (HttpURLConnection)new URL(url).openConnection();
 	}
 
+	/**
+	 * Reads all the data from the incoming stream and puts the contents in a string.
+	 * @param stream
+	 * @return
+	 */
 	public static String readFromStream(InputStream stream) {
 		if(stream==null) return null;
 		StringBuffer buf = new StringBuffer();
