@@ -33,9 +33,6 @@ artifacts were left around and caused issues with the ant build.
 
 	<target name="clean" depends="cpp-clean">
 		<delete>
-		  <fileset dir="${build.dir}" includes="**/*$StreamsModel.java"/>
-		</delete>
-		<delete>
 		  <fileset dir="${src.dir}" includes="**/*$StreamsModel.java"/>
 		</delete>
 		<delete dir="${build.dir}" />

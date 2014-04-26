@@ -8,7 +8,7 @@
   <property name="toolkit" location="com.ibm.streamsx.inet"/>
   <property name="tmp" location="tmp" />
 	
-  <target name="all" depends="toolkit,samples"/>
+  <target name="all" depends="toolkit,samples,spldoc_work"/>
 
   <target name="setcommitversion">
     <!-- Create the time stamp -->
