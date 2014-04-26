@@ -8,10 +8,10 @@ package com.ibm.streamsx.inet.http;
 
 class BackoffRetryController extends RetryController {
 	
-	private int curSleepDelay = 0;
+	private double curSleepDelay = 0;
 	private int factor = 10;
 	
-	public BackoffRetryController(int maxRetries, int sleepDelay) {
+	public BackoffRetryController(int maxRetries, double sleepDelay) {
 		super(maxRetries, sleepDelay);
 		this.curSleepDelay = sleepDelay;
 	}
@@ -29,7 +29,7 @@ class BackoffRetryController extends RetryController {
 	}
 	
 	@Override
-	int getSleep() {
+	double getSleep() {
 		return curSleepDelay;
 	}	
 

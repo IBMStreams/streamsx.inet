@@ -33,6 +33,8 @@
  * packages such as [http://dojotoolkit.org|DOJO] and 
  * [http://d3js.org|D3].
  * 
+ * Meta-data for the streams connected to the operators is also available through `HTTP GET` requests,
+ * to allow JavaScript applications to self-discover the format of the data.
 */
 
 namespace com.ibm.streamsx.inet.rest;

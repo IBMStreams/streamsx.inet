@@ -1,0 +1,16 @@
+ExchangeWebSocket/1.0.0
+spl/1.1.0
+LinuxPipe/1.0.0
+com.ibm.streams.bigdata/1.1.0
+com.ibm.streams.cep/1.0.0
+com.ibm.streams.db/1.4.0
+com.ibm.streams.etl.datastage/1.0.0
+com.ibm.streams.financial/1.0.0
+com.ibm.streams.geospatial/1.1.0
+com.ibm.streams.inet/1.0.0
+com.ibm.streams.messaging/2.1.000
+com.ibm.streams.mining/1.0.0
+com.ibm.streams.rproject/1.0.100
+com.ibm.streams.text/1.1.0
+com.ibm.streams.timeseries/2.0.0
+com.ibm.streamsx.inet/1.1.0.__dev__

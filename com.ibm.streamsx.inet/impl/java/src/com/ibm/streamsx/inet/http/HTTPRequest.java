@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class HTTPRequest {
+class HTTPRequest {
 	private String url = null;
 	private Map<String, String> headers =
 			new HashMap<String, String> ();
