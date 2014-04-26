@@ -9,7 +9,14 @@
     <description>
 Support for common internet protocols.
 
+**Namespace** This toolkit separates its functionality into a number of namespaces:
+* **com.ibm.streamsx.inet**
+* **com.ibm.streamsx.inet.http** Operators that interact with external HTTP servers.
+* **com.ibm.streamsx.inet.rest** Operators that embed a HTTP server to provide REST style api to streaming data.
+* **com.ibm.streamsx.inet.wsserver** Operators that embed a WebSocket server to expose streaming data as WebSocket messages.
+
 *com.ibm.streamsx.inet.rest*
+DAN DAN
 
 This namespace includes a number of operators that embed the Jetty webserver to provide HTTP REST style api to streaming data.
 A main use is the [HTTPTupleView] operator that provides `HTTP GET` access to the contents of a stream, as JSON data.
