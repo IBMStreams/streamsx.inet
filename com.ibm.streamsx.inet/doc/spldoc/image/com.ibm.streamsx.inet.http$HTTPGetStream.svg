@@ -66,15 +66,15 @@
       ><set attributeName="visibility" from="hidden" end="sdt1.mouseout" to="visible" begin="sdt1.mouseover"
     /></g
     ><g visibility="hidden" style="stroke:none;font-style:italic;font-size:12px;font-family:&apos;Helvetica&apos;,&apos;SansSerif&apos;;"
-    ><rect x="47.65" y="43.0" width="366.63998" style="fill:rgb(230,230,255);stroke:rgb(0,0,80);" rx="2.0" ry="2.0" height="62.0"
+    ><rect x="47.65" y="43.0" width="336.96" style="fill:rgb(230,230,255);stroke:rgb(0,0,80);" rx="2.0" ry="2.0" height="62.0"
       /><text x="48.65" y="56.0"
       >Required: url / Optional: authenticationFile, </text
       ><text x="48.65" y="71.0"
       >authenticationProperty, authenticationType, backoff, </text
       ><text x="48.65" y="86.0"
-      >dataAttributeName, maxRetries, retryOnClose, sleepDelay, </text
+      >dataAttributeName, disableCompression, maxRetries, </text
       ><text x="48.65" y="101.0"
-      >usePost</text
+      >postData, retryOnClose, retryDelay</text
       ><set attributeName="visibility" from="hidden" end="sdt2.mouseout" to="visible" begin="sdt2.mouseover"
     /></g
     ><g visibility="hidden" style="stroke:none;font-style:italic;font-size:12px;font-family:&apos;Helvetica&apos;,&apos;SansSerif&apos;;"

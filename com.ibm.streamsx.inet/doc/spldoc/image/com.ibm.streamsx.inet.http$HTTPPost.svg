@@ -58,7 +58,7 @@
       ><text x="48.65" y="86.0"
       >authenticationProperty, authenticationType, maxRetries, </text
       ><text x="48.65" y="101.0"
-      >sendAsParams, sleepDelay</text
+      >sendAsParams, retryDelay</text
       ><set attributeName="visibility" from="hidden" end="sdt1.mouseout" to="visible" begin="sdt1.mouseover"
     /></g
     ><g visibility="hidden" style="stroke:none;font-style:italic;font-size:12px;font-family:&apos;Helvetica&apos;,&apos;SansSerif&apos;;"

@@ -31,7 +31,7 @@ com.ibm.streamsx.inet
 
 <div class="section">
 
-<p class="p">This operator sends incoming tuples to the specified HTTP server as part of a POST request.A single tuple will be sent as a body of one HTTP POST request.All attributes of the tuple will be serialized and sent to the server.Certain authentication modes are supported.Tuples are sent to the server one at a time in order of receipt. If the HTTP server cannot be accessed, the operation will be retried on the current thread and may temporarily block any additional tuples that arrive on the input port <strong class="ph b">Limitations</strong>: 
+<p class="p">This operator sends incoming tuples to the specified HTTP server as part of a POST request. A single tuple will be sent as a body of one HTTP POST request. All attributes of the tuple will be serialized and sent to the server.Certain authentication modes are supported. Tuples are sent to the server one at a time in order of receipt. If the HTTP server cannot be accessed, the operation will be retried on the current thread and may temporarily block any additional tuples that arrive on the input port. Data is sent in application/x-www-form-urlencoded UTF-8 encoded format. <strong class="ph b">Limitations</strong>: 
 </p>
 
 <ul class="ul">
@@ -66,7 +66,7 @@ com.ibm.streamsx.inet
  
   <dt class="dt dlterm">Parameters</dt>
 
-  <dd class="dd">This operator supports 7 parameters. (<tt class="ph tt">authenticationFile, authenticationProperty, authenticationType, maxRetries, sendAsParams, sleepDelay, url</tt>)
+  <dd class="dd">This operator supports 7 parameters. (<tt class="ph tt">authenticationFile, authenticationProperty, authenticationType, maxRetries, sendAsParams, retryDelay, url</tt>)
 </dd>
 
  
@@ -159,7 +159,7 @@ com.ibm.streamsx.inet
 
    <dd class="dd">
 
-<p class="p">Emits a tuple containing the reponse received from the server. Tuple structure must conform to the "HTTPResponse" type specified in this namespace.
+<p class="p">Emits a tuple containing the reponse received from the server. Tuple structure must conform to the <a class="xref" href="com.ibm.streamsx.inet.http$HTTPTypes$spl.html#spldoc_compilationunit____type__HTTPResponse">HTTPResponse</a> type specified in this namespace.
 </p>
 
 <p class="p"/>
@@ -351,7 +351,7 @@ This operator supports 7 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__com.ibm.streamsx.inet.http__HTTPPost__parameter_sleepDelay"><tt class="ph tt">sleepDelay</tt></dt>
+<dt class="dt dlterm" id="spldoc_operator__com.ibm.streamsx.inet.http__HTTPPost__parameter_retryDelay"><tt class="ph tt">retryDelay</tt></dt>
 
 <dd class="dd">
 <p class="p">Wait time between retries in case of failures/disconnects.
@@ -426,7 +426,7 @@ This operator supports 7 parameters.<dl class="dl">
 
   <dd class="dd"/>
 
-  <dd class="dd"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__context__dependencies__managedlibrary__libpath">Library Path</a>: <tt class="ph tt">../../impl/lib/com.ibm.streamsx.inet.rest.jar</tt></dd>
+  <dd class="dd"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__context__dependencies__managedlibrary__libpath">Library Path</a>: <tt class="ph tt">../../impl/lib/com.ibm.streamsx.inet.jar, ../../opt/downloaded/*</tt></dd>
 
  
  </dl>
