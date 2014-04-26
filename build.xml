@@ -116,7 +116,7 @@
 
   <!-- Targets to build releases -->
   <target name="release"  depends="clean,setcommitversion,create_release_bundle,revertversion"/>
-  <target name="create_release_bundle"  depends="all,spldoc_work">
+  <target name="create_release_bundle"  depends="all">
 	<mkdir dir="${tmp}" />
         <property name="releasefilename" value="${tmp}/streamx.inet.toolkits-${tkinfo.identity.version}-${DSTAMP}-${TSTAMP}.tgz"/>
     	<tar compression="gzip" longfile="gnu"
