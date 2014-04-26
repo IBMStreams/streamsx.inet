@@ -11,12 +11,12 @@
 <meta name="abstract" content="com.ibm.streamsx.inet"/>
 <meta name="description" content="com.ibm.streamsx.inet"/>
 <meta name="DC.Format" content="XHTML"/>
-<meta name="DC.Identifier" content="spldoc_toolkit__toolkit__1.1.0.commit_9b5b541"/>
+<meta name="DC.Identifier" content="spldoc_toolkit__toolkit__1.2.0.commit_e1b183b"/>
 <link rel="stylesheet" type="text/css" href="../html/commonltr.css"/>
 <link rel="stylesheet" type="text/css" href="../html/spldoc.css"/>
 <title>IBMStreams com.ibm.streamsx.inet Toolkit</title>
 </head>
-<body id="spldoc_toolkit__toolkit__1.1.0.commit_9b5b541">
+<body id="spldoc_toolkit__toolkit__1.2.0.commit_e1b183b">
 
 
 <h1 class="title topictitle1">IBMStreams com.ibm.streamsx.inet Toolkit</h1>
@@ -30,26 +30,42 @@
 <p class="p">Support for common internet protocols. 
 </p>
 
-<p class="p"><em class="ph i">com.ibm.streamsx.inet.rest</em> 
+<p class="p">This toolkit separates its functionality into a number of namespaces: 
 </p>
 
-<p class="p">This namespace includes a number of operators that embed the Jetty webserver to provide HTTP REST style api to streaming data. A main use is the <a class="xref" href="com.ibm.streamsx.inet.rest$HTTPTupleView.html">HTTPTupleView</a> operator that provides <tt class="ph tt">HTTP GET</tt> access to the contents of a stream, as JSON data. This then allows browser-based visualization of streaming data using JavaScript widgets, such as Dojo Charting. 
+<ul class="ul">
+<li class="li"> <strong class="ph b">com.ibm.streamsx.inet</strong> General purpose internet operator supporting a number of protocols. </li>
+
+<li class="li"> <strong class="ph b">com.ibm.streamsx.inet.http</strong> Operators that interact with external HTTP servers. </li>
+
+<li class="li"> <strong class="ph b">com.ibm.streamsx.inet.rest</strong> Operators that embed a HTTP server to provide REST style api to streaming data. </li>
+
+<li class="li"> <strong class="ph b">com.ibm.streamsx.inet.wsserver</strong> Operators that embed a WebSocket server to expose streaming data as WebSocket messages. </li>
+
+</ul>
+
+<p class="p"> <strong class="ph b">Third-party Libraries</strong> This toolkit embeds a number of third-party libraries under <tt class="ph tt">opt</tt>: 
 </p>
 
-<p class="p">Also provided is the ability to inject tuples into a stream using <tt class="ph tt">HTTP POST</tt> with the <a class="xref" href="com.ibm.streamsx.inet.rest$HTTPTupleInjection.html">HTTPTupleInjection</a> and <a class="xref" href="com.ibm.streamsx.inet.rest$HTTPXMLInjection.html">HTTPXMLInjection</a> operators. 
-</p>
+<ul class="ul">
+<li class="li"> Apache Commons Codec 1.4 </li>
 
-<p class="p">Meta-data for the streams connected to the operators is also available through <tt class="ph tt">HTTP GET</tt> requests, to allow JavaScript applications to self-discover the format of the data. 
-</p>
+<li class="li"> OAuth Signpost 1.2 <a class="xref" href="http://code.google.com/p/oauth-signpost/">http://code.google.com/p/oauth-signpost/</a> </li>
 
-<p class="p">Jetty 8.1.3 from Eclipse 4.2.2 is embedded in the toolkit, under <tt class="ph tt">opt/eclipse4.2.2</tt>.     
+<li class="li"> Jetty 8.1.3 from Eclipse 4.2.2 </li>
+
+<li class="li"> Java-websocket 1.3.0 <a class="xref" href="http://java-websocket.org">http://java-websocket.org</a> </li>
+
+</ul>
+
+<p class="p">     
 </p>
 
 <dl class="dl">
   
   <dt class="dt dlterm">Version</dt>
 
-  <dd class="dd">1.1.0.commit_9b5b541</dd>
+  <dd class="dd">1.2.0.commit_e1b183b</dd>
 
   
   
