@@ -10,6 +10,12 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+
 import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.OutputTuple;
 import com.ibm.streams.operator.model.OutputPortSet;
@@ -38,6 +44,9 @@ public class HTTPGetXMLContent extends PollingSingleTupleProducer {
 	private URL urlForXML;
 	// Currently hard-coded to zero.
 	private final int contentIndex = 0;
+	
+	private HttpClient client;
+	private HttpGet get;
 
 	public synchronized String getUrl() {
 		return url;
@@ -53,6 +62,10 @@ public class HTTPGetXMLContent extends PollingSingleTupleProducer {
 			throws Exception {
 		super.initialize(context);
 		createUrl();
+		client = new DefaultHttpClient();
+		get = new HttpGet(getUrl());
+		get.addHeader("Accept", "application/xml, text/xml");
+		get.addHeader("Accept-Encoding", "gzip, deflate");
 	}
 	
 	private synchronized void createUrl() throws MalformedURLException {
@@ -62,15 +75,26 @@ public class HTTPGetXMLContent extends PollingSingleTupleProducer {
 	@Override
 	protected boolean fetchSingleTuple(OutputTuple tuple) throws Exception {
 		
+		/*
 		final HttpURLConnection conn = (HttpURLConnection) urlForXML.openConnection();
 		conn.addRequestProperty("Accept", "application/xml, text/xml");
 		conn.addRequestProperty("Accept-Encoding", "gzip, deflate");
+		*/
+		
+		HttpResponse response = client.execute(get);
+		
 						
 		try {
-			final int responseCode = conn.getResponseCode();
+			//final int responseCode = conn.getResponseCode();
+			final int responseCode = response.getStatusLine().getStatusCode();
+			System.err.println("status:" + responseCode);
 			if (responseCode != HttpURLConnection.HTTP_OK)
 				return false;
-			final InputStream content = getInputStream(conn);
+			final HttpEntity entity = response.getEntity();
+			System.err.println("contentEncoding:" + entity.getContentEncoding());
+			System.err.println("contentType:" + entity.getContentType());
+			System.err.println("contentLength:" + entity.getContentLength());
+			final InputStream content = getInputStream(entity);
 			try {
 			    XML xml = ValueFactory.newXML(content);
 			    tuple.setXML(contentIndex, xml);
@@ -78,23 +102,24 @@ public class HTTPGetXMLContent extends PollingSingleTupleProducer {
 				content.close();			
 			}
 		} finally {
-			conn.disconnect();
+			get.reset();
+			//conn.disconnect();
 		}
 		
 		return true;
 	}
 	
 	//for handling compressions
-	 static InputStream getInputStream(URLConnection conn) throws IOException  {
+	 static InputStream getInputStream(HttpEntity entity) throws IOException  {
 		 
-		 final InputStream content = conn.getInputStream();
-		 final String encoding = conn.getContentEncoding();
+		 final InputStream content = entity.getContent();
+		 final String encoding = entity.getContentEncoding().getValue();
 		 if (encoding == null)
 			 return content;
 		 if ("gzip".equalsIgnoreCase(encoding))
-			 return new GZIPInputStream(conn.getInputStream());
+			 return new GZIPInputStream(content);
 		 if ("deflate".equalsIgnoreCase(encoding))
-	 		return new InflaterInputStream(conn.getInputStream(), new Inflater(true));
+	 		return new InflaterInputStream(content, new Inflater(true));
 		 throw new IOException("Unknown encoding: " + encoding);
 	  	}
 
