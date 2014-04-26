@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class HTTPResponse {
+class HTTPResponse {
 	private int responseCode = 0;
 	private String errorStreamData, outStreamData = null;
 	private Map<String, List<String>> headers = new HashMap<String, List<String>>();

@@ -6,53 +6,30 @@
 //
 package com.ibm.streamsx.inet.http;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.util.Properties;
+import java.util.List;
 
-import com.ibm.misc.BASE64Encoder;
+/**
+ * Authenticates HTTP requests using the appropriate mechanism
+ *
+ */
+interface IAuthenticate {
+	/**
+	 * This method will be invoked once before the first invocation of the "sign" method
+	 * @param propFile Properties file name containing the authentication properties
+	 * @param override List of override properties in the "name=value" format.
+	 * @throws IOException
+	 */
+	public void setProperties(String propFile, List<String> override) throws IOException ;
 
-public interface IAuthenticate {
-
-	public IAuthenticate setProperties(Properties props) ;
-
+	
+	/**
+	 * Signs request using the authentication mode, connects to the endpoint and returns the connection
+	 * @param req HTTP request object to be signed
+	 * @return 
+	 * @throws Exception
+	 */
 	public HttpURLConnection sign(HTTPRequest req) throws Exception ;
 }
 
-class BasicAuth extends AAuthenticate {
-	String userid = null, password = null;
-
-	@Override
-	public BasicAuth setProperties(Properties props)  {
-		super.setProperties(props);
-		this.userid = getRequiredProperty("userid");
-		this.password = getRequiredProperty("password");
-		if(userid == null || userid.isEmpty())
-			throw new IllegalArgumentException("A valid userid must be specified");
-		if(userid == null || userid.isEmpty())
-			throw new IllegalArgumentException("A valid password must be specified");
-		return this;
-	}
-
-	@Override
-	public HttpURLConnection sign(HTTPRequest req) throws Exception {
-		if(userid!=null && password!=null && 
-				userid.length() > 0 && password.length()>0) {
-			BASE64Encoder encoder = new BASE64Encoder();
-
-			String useridpassword = userid + ":" + password;
-			String up_encoded = encoder.encode(useridpassword.getBytes());
-
-			req.setHeader("Authorization", "Basic " + up_encoded);
-		}
-		return req.connect();
-	}
-}
-
-class NoAuth extends AAuthenticate {
-
-	@Override
-	public HttpURLConnection sign(HTTPRequest req) throws Exception {
-		return req.connect();
-	}
-
-}

@@ -1,6 +1,7 @@
 For developers of this toolkit:
 
-This toolkit uses Apache Ant 1.8 (or later).
+This toolkit uses Apache Ant 1.8 (or later) to build.
+Internally Apache Maven 3.2 (or later) and Make are used.
 
 The top-level build.xml contains two main targets:
 
