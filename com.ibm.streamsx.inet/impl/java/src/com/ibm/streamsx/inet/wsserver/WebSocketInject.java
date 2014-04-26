@@ -57,8 +57,8 @@ public class WebSocketInject extends TupleProducer {
 			"use this port to transmit on.";
 	final static String parmAckDesc = 
 			"The operator sends out an ack message to all currently connected clients.  " +
-			"An ack message is sent when the (totaslNumberOfMessagesRecieved % ackCount) == 0, +" +
-			"The ack message is a in JSON format {status:'COUNT', text:<totalNumberOfMessagesReceived>}." +
+			"An ack message is sent when the (totaslNumberOfMessagesRecieved % ackCount) == 0, " +
+			"The ack message is a in JSON format " + "\\\\{" + " status:'COUNT', text:<totalNumberOfMessagesReceived>" + "\\\\}. " +
 			"Default value is 0, no ack messages will be sent.";
 
 	final static String messageAttrDesc = 
