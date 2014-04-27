@@ -85,7 +85,6 @@ public class HTTPGetXMLContent extends PollingSingleTupleProducer {
 		
 						
 		try {
-			//final int responseCode = conn.getResponseCode();
 			final int responseCode = response.getStatusLine().getStatusCode();
 			System.err.println("status:" + responseCode);
 			if (responseCode != HttpURLConnection.HTTP_OK)
@@ -103,7 +102,6 @@ public class HTTPGetXMLContent extends PollingSingleTupleProducer {
 			}
 		} finally {
 			get.reset();
-			//conn.disconnect();
 		}
 		
 		return true;
