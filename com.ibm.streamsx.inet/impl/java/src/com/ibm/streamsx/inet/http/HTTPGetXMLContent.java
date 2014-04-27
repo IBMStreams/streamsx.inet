@@ -86,13 +86,9 @@ public class HTTPGetXMLContent extends PollingSingleTupleProducer {
 						
 		try {
 			final int responseCode = response.getStatusLine().getStatusCode();
-			System.err.println("status:" + responseCode);
 			if (responseCode != HttpURLConnection.HTTP_OK)
 				return false;
 			final HttpEntity entity = response.getEntity();
-			System.err.println("contentEncoding:" + entity.getContentEncoding());
-			System.err.println("contentType:" + entity.getContentType());
-			System.err.println("contentLength:" + entity.getContentLength());
 			final InputStream content = getInputStream(entity);
 			try {
 			    XML xml = ValueFactory.newXML(content);
