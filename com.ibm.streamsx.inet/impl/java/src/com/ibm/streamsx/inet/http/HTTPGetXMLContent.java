@@ -75,14 +75,7 @@ public class HTTPGetXMLContent extends PollingSingleTupleProducer {
 	@Override
 	protected boolean fetchSingleTuple(OutputTuple tuple) throws Exception {
 		
-		/*
-		final HttpURLConnection conn = (HttpURLConnection) urlForXML.openConnection();
-		conn.addRequestProperty("Accept", "application/xml, text/xml");
-		conn.addRequestProperty("Accept-Encoding", "gzip, deflate");
-		*/
-		
 		HttpResponse response = client.execute(get);
-		
 						
 		try {
 			final int responseCode = response.getStatusLine().getStatusCode();
