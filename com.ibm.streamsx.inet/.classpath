@@ -19,12 +19,6 @@
 	<classpathentry kind="lib" path="opt/eclipse-4.2.2/plugins/org.eclipse.jetty.webapp_8.1.3.v20120522.jar"/>
 	<classpathentry kind="lib" path="opt/eclipse-4.2.2/plugins/org.eclipse.jetty.xml_8.1.3.v20120522.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="opt/HTTPClient4.2.3/lib/commons-codec-1.6.jar"/>
-	<classpathentry kind="lib" path="opt/HTTPClient4.2.3/lib/fluent-hc-4.2.3.jar"/>
-	<classpathentry kind="lib" path="opt/HTTPClient4.2.3/lib/httpclient-4.2.3.jar"/>
-	<classpathentry kind="lib" path="opt/HTTPClient4.2.3/lib/httpclient-cache-4.2.3.jar"/>
-	<classpathentry kind="lib" path="opt/HTTPClient4.2.3/lib/httpcore-4.2.2.jar"/>
-	<classpathentry kind="lib" path="opt/HTTPClient4.2.3/lib/httpmime-4.2.3.jar"/>
 	<classpathentry kind="lib" path="opt/wssupport/java_websocket.jar"/>
 	<classpathentry kind="lib" path="opt/HTTPClient4.2.3/lib/commons-codec-1.6.jar"/>
 	<classpathentry kind="lib" path="opt/HTTPClient4.2.3/lib/fluent-hc-4.2.3.jar"/>
