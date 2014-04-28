@@ -8,7 +8,7 @@
   <property name="toolkit" location="com.ibm.streamsx.inet"/>
   <property name="tmp" location="tmp" />
 	
-  <target name="all" depends="toolkit,samples"/>
+  <target name="all" depends="toolkit,samples,spldoc_work"/>
 
   <target name="setcommitversion">
     <!-- Create the time stamp -->
@@ -51,9 +51,13 @@
   	<ant dir="${toolkit}" target="all"/>
   </target>
 
-  <target name="spldoc" depends="spldoc_work, revertversion"/>
+  <target name="spldoc" depends="setcommitversion, spldoc_work, revertversion"
+    description="Create SPLDOC with git commit hash included in the version"
+  />
 
-  <target name="spldoc_work" depends="setcommitversion, samples">
+  <target name="spldoc_work" depends="samples"
+    description="Create SPLDOC"
+  >
     <antcall target="spldoctoolkit">
        <param name="tkdir" value="${toolkit}"/>
        <param name="tktitle" value="IBMStreams ${tkinfo.identity.name} Toolkit"/>
@@ -111,7 +115,8 @@
   </target>
 
   <!-- Targets to build releases -->
-  <target name="release"  depends="clean,all,spldoc">
+  <target name="release"  depends="clean,setcommitversion,create_release_bundle,revertversion"/>
+  <target name="create_release_bundle"  depends="all">
 	<mkdir dir="${tmp}" />
         <property name="releasefilename" value="${tmp}/streamx.inet.toolkits-${tkinfo.identity.version}-${DSTAMP}-${TSTAMP}.tgz"/>
     	<tar compression="gzip" longfile="gnu"
