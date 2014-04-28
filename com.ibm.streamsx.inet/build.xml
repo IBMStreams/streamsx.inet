@@ -45,6 +45,7 @@ artifacts were left around and caused issues with the ant build.
 		<delete dir="${impl.lib.dir}" />
 		<delete dir="${downloads.dir}" />
 		<delete dir="output"/>
+		<delete dir="doc"/>
 		<delete dir="${test.run.dir}"/>
 		<delete dir="${test.build.dir}"/>
 
