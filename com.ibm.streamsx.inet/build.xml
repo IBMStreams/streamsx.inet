@@ -65,6 +65,11 @@ artifacts were left around and caused issues with the ant build.
 		        <include name="java_websocket.jar" />
 		</fileset>
 	</path>
+	<path id="cp.http.client">
+		<fileset dir="opt/HTTPClient4.2.3/lib">
+			<include name="*.jar" />
+		</fileset>
+        </path>
 
 	<path id="cp.downloads">
 		<fileset dir="${downloads.dir}"/>
@@ -73,6 +78,7 @@ artifacts were left around and caused issues with the ant build.
 	<path id="cp.manifest">
 		<path refid="cp.eclipse.jetty" />
 		<path refid="cp.wssocket" />
+		<path refid="cp.http.client" />
 		<path refid="cp.downloads" />
 	</path>
 

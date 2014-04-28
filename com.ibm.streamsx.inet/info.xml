@@ -19,6 +19,7 @@ This toolkit separates its functionality into a number of namespaces:
 **Third-party Libraries** This toolkit embeds a number of third-party libraries under `opt`:
 
 * Apache Commons Codec 1.4
+* Apache HTTP Client 4.2.3
 * OAuth Signpost 1.2 [http://code.google.com/p/oauth-signpost/]
 * Jetty 8.1.3 from Eclipse 4.2.2
 * Java-websocket 1.3.0 [http://java-websocket.org]
