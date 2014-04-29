@@ -30,6 +30,11 @@ createGrid = function() {
            if (attrs[i].type === 'timestamp') {
                 cells[i].formatter = localTimestampString;
            }
+           if (attrs[i].type === 'int64') {
+               // If this looks like a TimeMillis based upon the attribute name
+               if (attrs[i].name.toLowerCase().indexOf("time") != -1)
+                   cells[i].formatter = localTimeMillisString;
+           }
            else if (attrs[i].type === 'float32' || attrs[i].type === 'float64') {
                cells[i].formatter = function(x) { return x.toFixed(2);};
                cells[i].datatype = "number";
