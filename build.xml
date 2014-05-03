@@ -6,7 +6,7 @@
   <property environment="env" />
   <property name="streams.install" value="${env.STREAMS_INSTALL}" />
   <property name="toolkit" location="com.ibm.streamsx.inet"/>
-  <property name="tmp" location="tmp" />
+  <property name="release.base" location="release-${ant.project.name}-" />
 	
   <target name="all" depends="toolkit,samples,spldoc_work"/>
 
@@ -42,8 +42,10 @@
 
   <target name="clean" depends="cleansamples"
         description="clean up" >
+        <delete includeemptydirs="true">
+          <fileset dir="${basedir}" includes="release-*/"/>
+        </delete>
   	<ant dir="${toolkit}" target="clean"/>
-        <delete dir="${tmp}"/>
   </target>
 
   <target name="toolkit"
@@ -117,8 +119,9 @@
   <!-- Targets to build releases -->
   <target name="release"  depends="clean,setcommitversion,create_release_bundle,revertversion"/>
   <target name="create_release_bundle"  depends="all">
-	<mkdir dir="${tmp}" />
-        <property name="releasefilename" value="${tmp}/streamx.inet.toolkits-${tkinfo.identity.version}-${DSTAMP}-${TSTAMP}.tgz"/>
+        <property name="release.dir" location="${release.base}${commithash}" />
+	<mkdir dir="${release.dir}" />
+        <property name="releasefilename" value="${release.dir}/streamx.inet.toolkits-${tkinfo.identity.version}-${DSTAMP}-${TSTAMP}.tgz"/>
     	<tar compression="gzip" longfile="gnu"
              destfile="${releasefilename}"
     	     basedir="${basedir}"
