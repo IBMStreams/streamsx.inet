@@ -45,6 +45,7 @@ artifacts were left around and caused issues with the ant build.
 		<delete dir="${impl.lib.dir}" />
 		<delete dir="${downloads.dir}" />
 		<delete dir="output"/>
+		<delete dir="doc"/>
 		<delete dir="${test.run.dir}"/>
 		<delete dir="${test.build.dir}"/>
 
@@ -113,6 +114,7 @@ artifacts were left around and caused issues with the ant build.
 	<target name="compile" depends="init, maven-deps">
 		<javac srcdir="${src.dir}" destdir="${build.dir}" debug="true"
 			includeantruntime="no"
+                        target="1.6" source="1.6"
 			excludes="com/ibm/streamsx/inet/rest/test/**">
 			<classpath>
 				<path refid="cp.compile" />
