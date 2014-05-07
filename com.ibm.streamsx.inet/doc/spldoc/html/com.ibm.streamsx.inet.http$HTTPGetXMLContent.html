@@ -31,7 +31,7 @@ com.ibm.streamsx.inet
 
 <div class="section">
 
-<p class="p">Periodically connects to an HTTP endpoint to GET XML content as a single tuple. The XML content is assigned  to the first attribute in the output tuple which must be of type <tt class="ph tt">xml</tt>.
+<p class="p">Periodically connects to an HTTP endpoint to GET XML content as a single tuple. The XML content is assigned  to the first attribute in the output tuple which must be of type <tt class="ph tt">xml</tt>.The URL can have a single query parameter updated using the <tt class="ph tt">updateParameter</tt> parameter.When set the URL query string will be modified to set the named parameter to a new value.The default action is to set it to the number of milliseconds since the 1970 epoch.
 </p>
 
 </div>
@@ -61,14 +61,14 @@ com.ibm.streamsx.inet
  
   <dt class="dt dlterm">Parameters</dt>
 
-  <dd class="dd">This operator supports 4 parameters. (<tt class="ph tt">initDelay, iterations, period, url</tt>)
+  <dd class="dd">This operator supports 6 parameters. (<tt class="ph tt">initDelay, iterations, period, updateParameter, updateParameterFromContent, url</tt>)
 </dd>
 
  
  
   <dt class="dt dlterm">Metrics</dt>
 
-  <dd class="dd">This operator does not report any metrics.</dd>
+  <dd class="dd">This operator reports  1 metrics.</dd>
 
  
 </dl>
@@ -143,7 +143,7 @@ com.ibm.streamsx.inet
 
 <div class="section">
 <p class="p splhead-1"><strong class="ph b"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters">Parameters</a></strong></p>
-This operator supports 4 parameters.<dl class="dl">
+This operator supports 6 parameters.<dl class="dl">
 
 <dt class="dt dlterm" id="spldoc_operator__com.ibm.streamsx.inet.http__HTTPGetXMLContent__parameter_initDelay"><tt class="ph tt">initDelay</tt></dt>
 
@@ -238,6 +238,68 @@ This operator supports 4 parameters.<dl class="dl">
 
 
 
+<dt class="dt dlterm" id="spldoc_operator__com.ibm.streamsx.inet.http__HTTPGetXMLContent__parameter_updateParameter"><tt class="ph tt">updateParameter</tt></dt>
+
+<dd class="dd">
+<p class="p">URL query parameter to update based upon content in a successful request.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm" id="spldoc_operator__com.ibm.streamsx.inet.http__HTTPGetXMLContent__parameter_updateParameterFromContent"><tt class="ph tt">updateParameterFromContent</tt></dt>
+
+<dd class="dd">
+<p class="p">Update the query parameter set in <tt class="ph tt">updateParameter</tt> from the value of this XPath expression against the returned content.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
 <dt class="dt dlterm" id="spldoc_operator__com.ibm.streamsx.inet.http__HTTPGetXMLContent__parameter_url"><tt class="ph tt">url</tt></dt>
 
 <dd class="dd">
@@ -268,6 +330,26 @@ This operator supports 4 parameters.<dl class="dl">
 </dd>
 
 
+</dl>
+
+</div>
+
+<div class="section">
+<p class="p splhead-1"><strong class="ph b"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__context__metrics">Metrics</a></strong></p>
+<dl class="dl">
+  
+    <dt class="dt dlterm"><tt class="ph tt">nFailedRequests</tt> - <a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__context__metrics_kind_counter">Counter</a></dt>
+
+    <dd class="dd">
+
+<p class="p">Number of HTTP requests that failed, did not return response 200.
+</p>
+
+     <p class="p"/>
+
+     </dd>
+
+  
 </dl>
 
 </div>

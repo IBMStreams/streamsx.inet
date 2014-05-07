@@ -43,10 +43,10 @@ com.ibm.streamsx.inet
 <p class="p">Data can be injected into a stream through  <a class="xref" href="com.ibm.streamsx.inet.rest$HTTPTupleInjection.html">HTTPTupleInjection</a> and <a class="xref" href="com.ibm.streamsx.inet.rest$HTTPXMLInjection.html">HTTPXMLInjection</a> operators. Each operators extracts data from an <tt class="ph tt">HTTP POST</tt> and submits a tuple on an output port. 
 </p>
 
-<p class="p"><a class="xref" href="com.ibm.streamsx.inet.rest$WebContext.html">WebContext</a> provides a mechanism to serve files at a fixed web context, a fixed path relative to the root URL of the web server. 
+<p class="p"><a class="xref" href="com.ibm.streamsx.inet.rest$WebContext.html">WebContext</a> provides a mechanism to serve files at a fixed web context, a fixed path relative to the root URL of the web server. Note that all the operators also support a fixed context using the <tt class="ph tt">context</tt> and <tt class="ph tt">contextResourceBase</tt> operator parameters.  
 </p>
 
-<p class="p">Multiple operators share a single web-server by being colocated in the same partition (fused in the same proccessing element). This allows operators to expose streams through the same webserver without having to be connected in the SPL graph. 
+<p class="p">Multiple operators share a single web-server by being partition colocated in the same partition (fused in the same proccessing element). This allows operators to expose streams through the same webserver without having to be connected in the SPL graph. 
 </p>
 
 <p class="p">Overall, these set of operators allow a complete web-application to be self-contained within an SPL application. In addition to the operators the webserver will serve up HTML and Javascript files. Javascript can be used with the JSON data provided by <a class="xref" href="com.ibm.streamsx.inet.rest$HTTPTupleView.html">HTTPTupleView</a> to visual live data using graphical packages such as <a class="xref" href="http://dojotoolkit.org">DOJO</a> and  <a class="xref" href="http://d3js.org">D3</a>. 
@@ -54,6 +54,16 @@ com.ibm.streamsx.inet
 
 <p class="p">Meta-data for the streams connected to the operators is also available through <tt class="ph tt">HTTP GET</tt> requests, to allow JavaScript applications to self-discover the format of the data. 
 </p>
+
+<p class="p">These fixed contexts are provided by the operators: 
+</p>
+
+<ul class="ul">
+<li class="li"> <tt class="ph tt">streamsx.inet.resources</tt> Something </li>
+
+<li class="li"> <tt class="ph tt">streamsx.inet.dojo</tt> The Dojo Javascript library located at <tt class="ph tt">$STREAMS_INSTALL/ext/dojo</tt>.  </li>
+
+</ul>
 
 </div>
 
