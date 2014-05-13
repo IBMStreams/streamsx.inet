@@ -171,10 +171,9 @@ public class WebSocketInject extends TupleProducer {
      */
     public void produceTuples(String msg, String id) throws Exception  {
         final StreamingOutput<OutputTuple> out = getOutput(0);
-        
         OutputTuple tuple = out.newTuple();
         // Set attributes in tuple
-        if (attrMsgName == null) { // only once 
+        if (attrMsgName == null) { // only once  ]
         	if (out.getStreamSchema().getAttributeCount() == 1) { // port only 1 attribute        	
         		attrMsgTypeName = out.getStreamSchema().getAttribute(0).getType().getLanguageType();                
         		attrMsgName = out.getStreamSchema().getAttribute(0).getName();
@@ -186,24 +185,25 @@ public class WebSocketInject extends TupleProducer {
         			throw new IllegalArgumentException("MessageAttribute note specified, must be specified if port has more than 1 attribute.");        			        			
         		}
         		attrMsgName = messageAttrName;
-
-        		attrIdName = senderIdAttrName;
+        		attrIdName  = senderIdAttrName;
+        		
         		if (attrIdName != null) {
         			if (out.getStreamSchema().getAttribute(attrIdName) == null) {        		
         			   throw new IllegalArgumentException("No such attribute named '" + attrIdName + "'.");        			        			        			
         			}
-            		if (out.getStreamSchema().getAttribute(attrIdName).getType() != Type.MetaType.RSTRING) {        			
+            		if (out.getStreamSchema().getAttribute(attrIdName).getType().getMetaType() != Type.MetaType.RSTRING) {
             			String typeString = out.getStreamSchema().getAttribute(attrIdName).getType().getLanguageType();             			
-            			throw new IllegalArgumentException("Attibute '" + attrMsgName + "' type must be rstring, found '" + typeString +"'.");
+            			throw new IllegalArgumentException("Attribute '" + attrIdName + "' type must be 'rstring', found '" + typeString +"'.");
             		}        			
         		}
         	}
     		if (out.getStreamSchema().getAttribute(attrMsgName) == null) {
     			throw new IllegalArgumentException("No such attribute named '" + attrMsgName + "' found.");        			        			        			
     		}
+
     		if (out.getStreamSchema().getAttribute(attrMsgName).getType().getMetaType() != Type.MetaType.RSTRING) {
         		String typeString = out.getStreamSchema().getAttribute(attrMsgName).getType().getLanguageType();        	    			
-        		throw new IllegalArgumentException("Attribute '" + attrMsgName + "' type must be rstring, found '" + typeString +"'.");
+        		throw new IllegalArgumentException("Attribute '" + attrMsgName + "' type must be 'rstring', found '" + typeString +"'.");
         	}
         } // done with first time check 
         if (attrIdName != null) { 
