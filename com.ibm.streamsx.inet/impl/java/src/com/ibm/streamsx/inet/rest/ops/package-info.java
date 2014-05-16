@@ -1,3 +1,8 @@
+/*
+ Licensed Materials - Property of IBM
+ Copyright IBM Corp. 2014 
+*/
+
 /**
  * New functionality can be added without changing the existing code by
  * adding three items:

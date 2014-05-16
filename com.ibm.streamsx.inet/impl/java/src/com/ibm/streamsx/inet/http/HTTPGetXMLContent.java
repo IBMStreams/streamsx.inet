@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2014, International Business Machines Corporation
+ * All Rights Reserved.
+ */
 package com.ibm.streamsx.inet.http;
 
 import java.io.IOException;

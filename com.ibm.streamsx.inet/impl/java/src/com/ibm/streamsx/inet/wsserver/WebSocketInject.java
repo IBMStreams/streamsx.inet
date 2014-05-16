@@ -1,9 +1,6 @@
 /*
 # Licensed Materials - Property of IBM
 # Copyright IBM Corp. 2013, 2013
-# US Government Users Restricted Rights - Use, duplication or
-# disclosure restricted by GSA ADP Schedule Contract with
-# IBM Corp.
 */
 package com.ibm.streamsx.inet.wsserver;
 import org.apache.log4j.Logger;

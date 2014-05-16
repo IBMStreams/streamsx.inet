@@ -1,9 +1,6 @@
 /*
 # Licensed Materials - Property of IBM
-# Copyright IBM Corp. 2011, 2012  
-# US Government Users Restricted Rights - Use, duplication or
-# disclosure restricted by GSA ADP Schedule Contract with
-# IBM Corp.
+# Copyright IBM Corp. 2011, 2014
 */
 package com.ibm.streamsx.inet.rest.servlets;
 
