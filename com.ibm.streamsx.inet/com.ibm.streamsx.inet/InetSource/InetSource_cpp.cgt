@@ -98,13 +98,13 @@ using namespace std;
 #include <streams_boost/algorithm/string.hpp>
 using namespace streams_boost;
 
-#include "URIHelper.h"
-#include "InetResource.h"
-
-using namespace com_ibm_streams_adapters;
 
 #include <limits.h>
 #include <stdlib.h>
+
+@include "InetRetrieverCpp.cgt";
+@include "URIHelperCpp.cgt";
+
 
 MY_OPERATOR::MY_OPERATOR()
   : MY_BASE_OPERATOR(), 
