@@ -1,10 +1,7 @@
 package com.ibm.streamsx.inet.wsserver;
 /*
 # Licensed Materials - Property of IBM
-# Copyright IBM Corp. 2013, 2013
-# US Government Users Restricted Rights - Use, duplication or
-# disclosure restricted by GSA ADP Schedule Contract with
-# IBM Corp.
+# Copyright IBM Corp. 2013, 2014
 */
 import java.util.Iterator;
 import java.util.Queue;

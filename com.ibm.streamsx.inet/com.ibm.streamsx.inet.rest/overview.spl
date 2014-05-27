@@ -18,10 +18,12 @@
  *
  * [WebContext] provides a mechanism to serve files
  * at a fixed web context, a fixed path relative to the
- * root URL of the web server.
+ * root URL of the web server. Note that all the operators
+ * also support a fixed context using the `context` and
+ * `contextResourceBase` operator parameters. 
  *
  * Multiple operators share a single web-server by being
- * colocated in the same partition (fused in the same proccessing element).
+ * partition colocated in the same partition (fused in the same proccessing element).
  * This allows operators to expose streams through the same webserver
  * without having to be connected in the SPL graph.
  *
@@ -35,6 +37,10 @@
  * 
  * Meta-data for the streams connected to the operators is also available through `HTTP GET` requests,
  * to allow JavaScript applications to self-discover the format of the data.
+ * 
+ * These fixed contexts are provided by the operators:
+ * * `streamsx.inet.resources` Something
+ * * `streamsx.inet.dojo` The Dojo Javascript library located at `$STREAMS_INSTALL/ext/dojo`. 
 */
 
 namespace com.ibm.streamsx.inet.rest;

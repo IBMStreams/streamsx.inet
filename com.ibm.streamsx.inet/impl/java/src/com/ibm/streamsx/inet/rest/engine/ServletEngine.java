@@ -1,9 +1,6 @@
 /*
 # Licensed Materials - Property of IBM
 # Copyright IBM Corp. 2011, 2014  
-# US Government Users Restricted Rights - Use, duplication or
-# disclosure restricted by GSA ADP Schedule Contract with
-# IBM Corp.
 */
 package com.ibm.streamsx.inet.rest.engine;
 
@@ -155,9 +152,14 @@ public class ServletEngine implements ServletEngineMBean {
         String impl_lib_jar = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         File toolkitRoot = new File(impl_lib_jar).getParentFile().getParentFile().getParentFile();
         
-        File toolkitResource = new File(toolkitRoot, "opt/resources");
+        File toolkitResource = new File(toolkitRoot, "opt/resources");        
+        addStaticContext(null, "streamsx.inet.resources", toolkitResource.getAbsolutePath());
         
-        addStaticContext(null, "com.ibm.streamsx.inet", toolkitResource.getAbsolutePath());
+        String streamsInstall = System.getenv("STREAMS_INSTALL");
+        if (streamsInstall != null) {
+            File dojo = new File(streamsInstall, "ext/dojo");        
+            addStaticContext(null, "streamsx.inet.dojo", dojo.getAbsolutePath());       	
+        }
     }
     
 	private ThreadPoolExecutor newContextThreadPoolExecutor(OperatorContext context) {

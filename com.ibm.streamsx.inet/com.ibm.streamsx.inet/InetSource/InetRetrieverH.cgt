@@ -8,21 +8,7 @@
 //
 // Class Description:
 //
-// Provides a self-managing wrapper class for common CURL functions
-
-#ifndef InetRetriever_H_
-#define InetRetriever_H_
-
-#include <iostream>
-#include <sstream>
-#include <string>
-
-extern "C"
-  {
-#include<curl/curl.h>
-  }
-
-namespace com_ibm_streams_adapters {
+// Mean to be included in CGT file.
 
   /*
    * This class interacts with the cURL library, holding the contents of the file being retrieved and providing
@@ -124,6 +110,3 @@ private:
 
   }; // Class InetRetriever
 
-}
-
-#endif /* InetRetriever_H_ */
