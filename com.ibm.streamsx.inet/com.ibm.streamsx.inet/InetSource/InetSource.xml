@@ -23,9 +23,8 @@
           </cmn:managedLibrary>
         </library>
         <library>
-          <cmn:description>inet-tk-lib</cmn:description>
+          <cmn:description>messages</cmn:description>
           <cmn:managedLibrary>
-            <cmn:lib>streams-tk-inet</cmn:lib>
             <cmn:includePath>../../impl/cpp/include</cmn:includePath>
           </cmn:managedLibrary>
         </library>

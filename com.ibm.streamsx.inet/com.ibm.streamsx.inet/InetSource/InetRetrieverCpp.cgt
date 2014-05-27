@@ -5,22 +5,11 @@
 *******************************************************************************
 */
 
-static const char* IBM_COPYRIGHT(void) __attribute__ ((used));
-static const char* IBM_COPYRIGHT(void) { return 
-" Copyright 2013 IBM Corporation                                    "
-"                                                                   "
-" Licensed under the Apache License, Version 2.0 (the License);     "
-" You may not use this file except in compliance with the License.  "
-" You may obtain a copy of the License at                           "
-"                                                                   "
-" http://www.apache.org/licenses/LICENSE-2.0                        ";
-}
+// This file contains the source for InetRetriever.
+// As it references MY_OPERATOR, it's meant to be included in a cgt file.
 
-#include <InetRetriever.h>
 
-using namespace com_ibm_streams_adapters;
-
-InetRetriever::InetRetriever(const std::string& targURL) throw(int) :
+MY_OPERATOR::InetRetriever::InetRetriever(const std::string& targURL) throw(int) :
   _targetURL(targURL)
   {
     reset();
@@ -49,17 +38,17 @@ InetRetriever::InetRetriever(const std::string& targURL) throw(int) :
     curl_easy_setopt(_curlHandle, CURLOPT_FILETIME, 1);
   }
 
-InetRetriever::~InetRetriever()
+MY_OPERATOR::InetRetriever::~InetRetriever()
   {
     curl_easy_cleanup(_curlHandle);
   }
 
-std::string InetRetriever::targetURL() const
+std::string MY_OPERATOR::InetRetriever::targetURL() const
   {
     return _targetURL;
   }
 
-std::string InetRetriever::fetch() throw(CURLcode)
+std::string MY_OPERATOR::InetRetriever::fetch() throw(CURLcode)
   {
     _curlBuffer.clear();
     _dataCameBack = false;
@@ -192,7 +181,7 @@ std::string InetRetriever::fetch() throw(CURLcode)
     return result;
   }
 
-void InetRetriever::reset()
+void MY_OPERATOR::InetRetriever::reset()
   {
     _bytesTransferredTotal = _bytesTransferredLastFetch = 0;
     _curlBuffer.clear();
@@ -201,57 +190,57 @@ void InetRetriever::reset()
     _dataCameBack = false;
   }
 
-std::string InetRetriever::lastknownContents() const
+std::string MY_OPERATOR::InetRetriever::lastknownContents() const
   {
     return _fileCache;
   }
 
-size_t InetRetriever::bytesTransferredTotal()
+size_t MY_OPERATOR::InetRetriever::bytesTransferredTotal()
   {
     return _bytesTransferredTotal;
   }
 
-size_t InetRetriever::bytesTransferredLastFetch()
+size_t MY_OPERATOR::InetRetriever::bytesTransferredLastFetch()
   {
     return _bytesTransferredLastFetch;
   }
 
-void InetRetriever::enableCurlTrace()
+void MY_OPERATOR::InetRetriever::enableCurlTrace()
   {
     curl_easy_setopt(_curlHandle, CURLOPT_VERBOSE, 1);
   }
 
-void InetRetriever::disableCurlTrace()
+void MY_OPERATOR::InetRetriever::disableCurlTrace()
   {
     curl_easy_setopt(_curlHandle, CURLOPT_VERBOSE, 0);
   }
 
-void InetRetriever::incrementalFetch()
+void MY_OPERATOR::InetRetriever::incrementalFetch()
   {
     _incrementalFetch = true;
   }
 
-void InetRetriever::incrementalFetch(bool whether)
+void MY_OPERATOR::InetRetriever::incrementalFetch(bool whether)
   {
     _incrementalFetch = whether;
   }
 
-void InetRetriever::ignoreLastModTime()
+void MY_OPERATOR::InetRetriever::ignoreLastModTime()
   {
     _ignoreLastModTime = true;
   }
 
-void InetRetriever::ignoreLastModTime(bool whether)
+void MY_OPERATOR::InetRetriever::ignoreLastModTime(bool whether)
   {
     _ignoreLastModTime = whether;
   }
 
-CURL* InetRetriever::curlHandle()
+CURL* MY_OPERATOR::InetRetriever::curlHandle()
   {
     return _curlHandle;
   }
 
-size_t InetRetriever::consumeData_static(void* buffer, const size_t recSize,
+size_t MY_OPERATOR::InetRetriever::consumeData_static(void* buffer, const size_t recSize,
     const size_t numRecs, void* objPtr)
   {
     // Adapt the static callback from cURL to a non-static member function of this object instance
@@ -259,7 +248,7 @@ size_t InetRetriever::consumeData_static(void* buffer, const size_t recSize,
         numRecs);
   }
 
-size_t InetRetriever::consumeData(const void* data, const size_t recSize,
+size_t MY_OPERATOR::InetRetriever::consumeData(const void* data, const size_t recSize,
     const size_t numRecs)
 // Note: this method might be invoked many times by curl during a single fetch.  Each invocation
 // supplies a chunk of the fetched data, and this method must assemble all the chunks.

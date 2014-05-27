@@ -6,6 +6,7 @@ impl/nl/include/*.h
 # !foo.pm
 
 /com.ibm.streamsx.inet/doc/
+/com.ibm.streamsx.inet/impl/nl/InetResource.dat
 
 samples/*/output
 samples/*/toolkit.xml

@@ -7,82 +7,14 @@
 
 // Class Description:
 //
-// Implements a helper for parsing and identifying what an URI refers to
+// Contains the code for URIHelper, which is used by the InetSource operator.  This
+// file is meant to be included in a CGT file and cannot be compiled standalone.
 
-#ifndef URIHELPER_H
-#define URIHELPER_H
-#include<map>
-#include<sstream>
-
-namespace com_ibm_streams_adapters {
-
-typedef std::map<std::string, std::string> URIQueryComponentsNVP_t;
-typedef std::map<std::string, std::string>::iterator URIQueryComponentsNVP_it_t;
-typedef std::map<std::string, std::string>::const_iterator URIQueryComponentsNVP_cit_t;
-
-/// Return the input string with spaces suffixing it being removed
-/// @param str input string
-/// @param t character to be removed from right side of input string
-/// @return input string without spaces suffixing it
-inline std::string rtrim(const std::string& source,
-  const std::string& t=" ") {
-  std::string str=source;
-  return str.erase(str.find_last_not_of(t)+1);
-}
-
-/// Return the input string with spaces prefixing it being removed
-/// @param str input string
-/// @param t character to be removed from left side of input string
-/// @return input string without spaces prefixing it
-inline std::string ltrim(const std::string& source,
-  const std::string & t = " " ) {
-  std::string str = source;
-  return str.erase (0,source.find_first_not_of(t));
-}
-
-/// Return the input string with spaces suffixing and prefixing it being
-/// removed
-/// @param str input string
-/// @param t character to be removed from left and right sides of input string
-/// @return input string without spaces prefixing and suffixing it
-inline std::string trim(const std::string& source,
-  const std::string& t=" ") {
-  std::string str=source;
-  return ltrim(rtrim(str,t),t);
-}
-
-
-/// Tokenize a string
-/// @param str string to be tokenized
-/// @param tokens vector with the list of tokens
-/// @param delimiters string with the characters delimiting each token
-/// @param keepEmptyTokens keep empty tokens
-void tokenize(const std::string& str, std::vector<std::string>& tokens,
-              const std::string& delimiter, bool keepEmptyTokens) ;
-
-/// Converts a string to a different (numerical) type
-/// @param t converted value
-/// @param s input string
-template <class T> void fromString(T& t, const std::string& s) {
-  if (s.empty()) {
-    t=static_cast<T>(0);
-  }
-  else {
-    std::istringstream iss(s);
-    iss >> t;
-    if (iss.fail())
-      //THROW(FailedConversion,"string '" << s << "' conversion failed");
-      throw std::exception();
-    if (!iss.eof())
-      throw std::exception();
-      //      THROW(SpuriousCharacterFound,"string '" << s << "' contains spurious character");
-  }
-}
 
 class URIQueryComponents {
   public:
     URIQueryComponentsNVP_t nameValuePairs;
-  protected:
+  public:
     /// Print internal state to an output stream
     /// @param o output stream
     void print(std::ostream& o) const;
@@ -154,6 +86,15 @@ class URIHelper {
       return qc.nameValuePairs;
     };
 
+
+    /// Tokenize a string
+    /// @param str string to be tokenized
+    /// @param tokens vector with the list of tokens
+    /// @param delimiters string with the characters delimiting each token
+    /// @param keepEmptyTokens keep empty tokens
+    void tokenize(const std::string& str, std::vector<std::string>& tokens,
+              const std::string& delimiter, bool keepEmptyTokens) ;
+
     /// Destructor
     ~URIHelper(void) {};
   protected:
@@ -180,8 +121,9 @@ class URIHelper {
 
     /// Print internal state to an output stream
     /// @param o output stream
+    public: 
     void print(std::ostream& o) const;
-
+    protected: 
     ProtocolType proto;
     std::string protocol;
     std::string userinfo;
@@ -195,7 +137,3 @@ class URIHelper {
     static const char* URIREGEX;
     friend std::ostream& operator<< (std::ostream& o, const URIHelper& uri);
 };
-
-}
-
-#endif
