@@ -65,6 +65,8 @@ public:
   void disableCurlTrace();
 
   std::string targetURL() const;
+  // Returns true if the URL was updated, false if it stayed the same.
+  bool updateURL(std::string newURL);
 
   void ignoreLastModTime();
   void ignoreLastModTime(bool whether);
