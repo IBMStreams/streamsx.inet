@@ -48,6 +48,16 @@ std::string MY_OPERATOR::InetRetriever::targetURL() const
     return _targetURL;
   }
 
+bool MY_OPERATOR::InetRetriever::updateURL(std::string newURL) {
+    if (newURL != _targetURL) {
+        reset();
+        _targetURL = newURL;
+        curl_easy_setopt(_curlHandle, CURLOPT_URL, newURL.c_str());
+        return true;
+    }
+    return false;
+  }
+
 std::string MY_OPERATOR::InetRetriever::fetch() throw(CURLcode)
   {
     _curlBuffer.clear();

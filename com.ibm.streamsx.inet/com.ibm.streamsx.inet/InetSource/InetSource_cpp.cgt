@@ -108,25 +108,46 @@ using namespace streams_boost;
 
 MY_OPERATOR::MY_OPERATOR()
   : MY_BASE_OPERATOR(), 
+    relFileProtocol("file:///"),
+    absFileProtocol("file:////"),
     retrievers_(),
+    retCodeCounts_(),
     uris_(<%=(($parameter = $model->getParameterByName("URIList"))?SPL::CodeGen::getParameterCppInitializer($parameter):"")%>), 
     inputLinesPerRecord_(<%=(($parameter = $model->getParameterByName("inputLinesPerRecord"))?SPL::CodeGen::getParameterCppInitializer($parameter):1)%>), 
     intraRecordPadValue_(<%=(($parameter = $model->getParameterByName("intraRecordPadValue"))?SPL::CodeGen::getParameterCppInitializer($parameter):"\" \"")%>), 
     fetchInterval_(<%=(($parameter = $model->getParameterByName("fetchInterval"))?SPL::CodeGen::getParameterCppInitializer($parameter):600.0)%>), 
     punctPerFetch_(<%=(($parameter = $model->getParameterByName("punctPerFetch"))?SPL::CodeGen::getParameterCppInitializer($parameter):'false')%>), 
 <% if($outputTypeIsList) { %>
-    emitTuplePerRecordCount_(<%=($emitTuplePerRecordCount?SPL::CodeGen::getParameterCppInitializer($emitTuplePerRecordCount):0)%>)
+    emitTuplePerRecordCount_(<%=($emitTuplePerRecordCount?SPL::CodeGen::getParameterCppInitializer($emitTuplePerRecordCount):0),%>),
 <% } else { %>
-    emitTuplePerRecordCount_(1)
+    emitTuplePerRecordCount_(1),
 <% } %>
+   dynamicURL_(<%=($model->getParameterByName("URIList")->getValueAt(0)->hasSideEffects()?"true":"false")%>)
 {
-  string relFileProtocol = string("file:///");
-  string absFileProtocol = string("file:////");
+  relFileProtocol = string("file:///");
+  absFileProtocol = string("file:////");
 
   for(int i=0; i<uris_.getSize(); ++i)
   {
-    string iURI = string(uris_[i]);
+    string iURI = checkURI(uris_[i]);
+    
+    SPLAPPTRC(L_DEBUG, "Using " << iURI << "' as the input URI...","InetSource");
 
+      InetRetriever* retriever = new InetRetriever(iURI);
+<% if($incrementalFetch) { %>
+      retriever->incrementalFetch(<%=$incrementalFetch%>);
+<% } %>
+<% if($unconditionalFetch) { %>
+      retriever->ignoreLastModTime(<%=$unconditionalFetch%>);
+<% } %>
+      
+      std::pair<int, uint32_t> retcodeCount (0, 0);
+      retrievers_.push_back(retriever);
+      retCodeCounts_.push_back(retcodeCount);
+  }
+}
+
+std::string MY_OPERATOR::checkURI(std::string iURI) {
     URIHelper uri;
     try
     {
@@ -173,28 +194,14 @@ MY_OPERATOR::MY_OPERATOR()
       iURI = string(relFileProtocol);
       iURI.append(inputFileName);
     }
-    SPLAPPTRC(L_DEBUG, "Using " << iURI << "' as the input URI...","InetSource");
-
-      InetRetriever* retriever = new InetRetriever(iURI);
-<% if($incrementalFetch) { %>
-      retriever->incrementalFetch(<%=$incrementalFetch%>);
-<% } %>
-<% if($unconditionalFetch) { %>
-      retriever->ignoreLastModTime(<%=$unconditionalFetch%>);
-<% } %>
-      
-      std::pair<int, uint32_t> retcodeCount (0, 0);
-      std::pair<InetRetriever*, std::pair<int, uint32_t> > retrieverPair (retriever, retcodeCount);
-      retrievers_.insert(retrieverPair);
-  }
+    return iURI;
 }
 
 MY_OPERATOR::~MY_OPERATOR() 
 {
-  tr1::unordered_map<InetRetriever*, std::pair<int, uint32_t> >::iterator it;
-  for(it=retrievers_.begin(); it!=retrievers_.end(); it++)
+  for(std::size_t i = 0; i < retrievers_.size(); i++)
   {
-    InetRetriever* retriever = it->first;
+    InetRetriever* retriever = retrievers_.at(i);
     delete retriever;
   }
 }
@@ -232,10 +239,25 @@ void MY_OPERATOR::process(uint32_t idx)
 
   while(!getPE().getShutdownRequested())
   {
-    tr1::unordered_map<InetRetriever*, std::pair<int, uint32_t> >::iterator it;
-    for(it=retrievers_.begin(); it!=retrievers_.end() && !getPE().getShutdownRequested(); it++)
+    if (dynamicURL_) {
+        // There are <%=$model->getParameterByName("URIList")->getNumberOfValues()%> values for this parameter.
+        SPL::list<SPL::rstring> newURI = <%=($model->getParameterByName("URIList")->getValueAt(0)->getCppExpression())%>;
+        
+        // Update the URL for the next fetch.
+        for (std::size_t i = 0; i < retrievers_.size() ; i++)  {
+            if (retrievers_.at(i)->updateURL(checkURI(newURI.at(i)))) {
+             SPLAPPTRC(L_INFO, "URL " << i << " updated to " << retrievers_.at(i)->targetURL(), "InetSource");
+            }
+            else {
+                SPLAPPTRC(L_DEBUG,"URL " << i << " re-evaluated, but is unchanged ", "InetSource");
+            }
+        }
+
+    }
+    // now fetch.
+    for(std::size_t i = 0; i < retrievers_.size() && !getPE().getShutdownRequested(); i++)
     {
-      InetRetriever* retriever = it->first;
+      InetRetriever* retriever = retrievers_.at(i);
 
       // Fetch file contents from this URI and place in an istringstream retrieval buffer, to enable parsing into lines
       try
@@ -246,9 +268,9 @@ void MY_OPERATOR::process(uint32_t idx)
       }
       catch(CURLcode rc)
       {
+        std::pair<int,uint32_t> & retcodeCount = retCodeCounts_.at(i);
         // Keep track of how many times in a row a given retriever has issued the same return code
         // This avoids filling up the log with repetitive messages.
-        std::pair<int, uint32_t> retcodeCount = it->second;
         if (retcodeCount.first == rc)
         {
           (retcodeCount.second)++;
@@ -258,7 +280,6 @@ void MY_OPERATOR::process(uint32_t idx)
           retcodeCount.first = rc;
           retcodeCount.second = 1;
         }
-        it->second = retcodeCount;
         
         SPL::rstring msg;
         if (retcodeCount.second < 10)
@@ -266,7 +287,7 @@ void MY_OPERATOR::process(uint32_t idx)
           msg = INET_NONZERO_LIBCURL_RC(retriever->targetURL(), rc, string(curl_easy_strerror(rc)));
           SPLAPPLOG(L_WARN, msg, "InetSource");
         }
-        else if (retcodeCount.second % 10 == 0) {
+        else if (retCodeCounts_.at(i).second % 10 == 0) {
           msg = INET_NONZERO_LIBCURL_RC_REPEATED(retriever->targetURL(), rc, string(curl_easy_strerror(rc)), retcodeCount.second);
           SPLAPPLOG(L_WARN, msg, "InetSource");
         }
