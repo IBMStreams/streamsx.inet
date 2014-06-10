@@ -1,0 +1,74 @@
+/*
+*******************************************************************************
+* Copyright (C) 2014, International Business Machines Corporation. 
+* All Rights Reserved. *
+*******************************************************************************
+*/
+
+namespace com.ibm.streamsx.inet.sample;
+
+use com.ibm.streamsx.inet::InetSource;
+
+/**
+ * This function helps us create URLs that are different every fetch.  
+ * As used in the application, it usually returns two KJFKs and then
+ * one KNYCs.  The 10 in the function below is related to the 
+ * 10 in the fetchInterval in the GetWeatherDynamic composite. 
+ * 
+ */ 
+stateful rstring getLocation() {
+    int64 seconds = getSeconds(getTimestamp());
+    if ((seconds/(int64)10) % (int64)3 != (int64)0) {
+        return "KJFK";
+    }
+    else {
+        return "KNYC";
+    }
+}
+
+/**
+ * Demonstrates the use of re-evaluated URLS with the Inetsource operator.
+ * The URL list in this case is a single URL, but it contains a call to 
+ * getLocation().  getLocation is a a stateful function, so depending on when 
+ * it is called, it gives different results.
+ *
+ * The URL is evaluated before every fetch. If the URL has changed, information
+ * about the last modification time is discarded.  
+ *
+ * If you run this application, you'll see lines like
+ * <code> result: 000 SAUS70 KWBC 271900 RRX MTRJFK METAR KJFK 271951Z 19007KT 10SM FEW038 SCT060 SCT100 BKN160 BKN250 26/17 A2980 RMK AO2 RAB1853E36 SLP092 P0000 T02560167 </code>
+ * alternating with 
+ * <code>result: 000 SAUS80 KWBC 272000 MTRNYC METAR KNYC 271951Z AUTO 25008G15KT 10SM SCT120 28/15 A2982 RMK AO2 SLP087 T02830150</code>
+ * (notice the KJFK, and KNYC 8th field).
+ * 
+ * In particular, the order of events:
+ * First URL, with KJFK is fetched, and result line is printed.
+ * Second URL, with KJFK is computed, but the URL has not changed, so we check last modified time before sending results.  Last modified time is prior to the last fetch, so no results are printed.
+ * Third URL, with KYNC is computed.  The URL has now changed, so last modified time is irrelevant, and a result is printed.
+ * Fourth URL, wiht KJFK is computed.  The URL has now changed, so last modified time is irrelevant, and a result is printed.
+ * Fifth URL, with KJFK is computed, but the URL has not changed...
+ */
+ 
+composite GetWeatherDynamic
+{
+  graph
+    stream<list<rstring> result> Result = InetSource()
+    {
+      //param URIList : ["http://www.weather.gov/alerts-beta/us.atom"];
+      param URIList : ["http://w1.weather.gov/data/METAR/"+getLocation()+".1.txt"];
+            incrementalFetch : true;
+            inputLinesPerRecord : 5u;
+            fetchInterval : 10.0;
+            emitTuplePerURI : true;
+    } 
+
+    () as Writer = Custom(Result)
+    {
+      logic
+        onTuple Result:
+        {
+          printString("result: " + result[0] + "\n");
+        } 
+    }
+    config tracing: debug;
+}

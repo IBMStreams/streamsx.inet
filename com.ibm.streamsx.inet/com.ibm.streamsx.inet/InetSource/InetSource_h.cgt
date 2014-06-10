@@ -97,6 +97,9 @@ public:
   // notify port readiness
   void allPortsReady(); 
 
+  // check the URI to make sure it's valid; also handle relative and absolute paths.
+  std::string checkURI(std::string inURI);
+
   // notify termination
   void prepareToShutdown(); 
 
@@ -105,14 +108,17 @@ public:
     
 private:
   // members
-  std::tr1::unordered_map<InetRetriever*, std::pair<int, uint32_t> > retrievers_;
+  std::string relFileProtocol;
+  std::string absFileProtocol;
+  std::vector<InetRetriever*> retrievers_;
+  std::vector<std::pair<int,uint32_t> > retCodeCounts_;
   SPL::list<SPL::rstring> uris_;
   uint32_t inputLinesPerRecord_;
   SPL::rstring intraRecordPadValue_;
   SPL::float64 fetchInterval_;
   bool punctPerFetch_;
   uint32_t emitTuplePerRecordCount_;
-
+  bool dynamicURL_;
   MY_OPERATOR(const MY_OPERATOR& op);
   MY_OPERATOR& operator=(const MY_OPERATOR& op);
 }; 
