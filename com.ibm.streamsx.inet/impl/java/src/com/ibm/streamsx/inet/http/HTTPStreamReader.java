@@ -7,15 +7,19 @@
 package com.ibm.streamsx.inet.http;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import com.ibm.streams.operator.AbstractOperator;
 import com.ibm.streams.operator.OperatorContext;
+import com.ibm.streams.operator.OperatorContext.ContextCheck;
 import com.ibm.streams.operator.OutputTuple;
 import com.ibm.streams.operator.StreamingData;
 import com.ibm.streams.operator.StreamingOutput;
 import com.ibm.streams.operator.Type.MetaType;
+import com.ibm.streams.operator.compile.OperatorContextChecker;
 import com.ibm.streams.operator.logging.LogLevel;
 import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.model.Libraries;
@@ -36,12 +40,12 @@ public class HTTPStreamReader extends AbstractOperator {
 	private String dataAttributeName = "data";
 	private HTTPStreamReaderObj reader = null;
 	private int maxRetries = 3;
-	private double sleepDelay = 30;
+	private double retryDelay = 30;
 	private boolean hasErrorOut = false;
 	private Thread th = null;
 	private boolean shutdown = false, useBackoff = false;
 	private String url = null;
-	private String postData = null;
+	private List<String> postData = new ArrayList<String>();
 	private String authenticationType = "none", authenticationFile = null;
 	private RetryController rc = null;
 	private List<String> authenticationProperties = new ArrayList<String>();
@@ -51,7 +55,6 @@ public class HTTPStreamReader extends AbstractOperator {
 	private static Logger trace = Logger.getLogger(CLASS_NAME);
 	private boolean retryOnClose = false;
 	private boolean disableCompression = false;
-
 
 	@Parameter(optional= false, description="URL endpoint to connect to.")
 	public void setUrl(String url) {
@@ -78,14 +81,15 @@ public class HTTPStreamReader extends AbstractOperator {
 	public void setMaxRetries(int val) {
 		this.maxRetries = val;
 	}
-	@Parameter(optional=true, name="retryDelay", description="Wait time between retries in case of failures/disconnects.")
-	public void setSleepDelay(double val) {
-		this.sleepDelay = val;
+	@Parameter(optional=true, description="Wait time between retries in case of failures/disconnects.")
+	public void setRetryDelay(double val) {
+		this.retryDelay = val;
 	}
 	@Parameter(optional=true, 
-			description="The value for this parameter will be sent to the server as a POST request body.")
-	public void setPostData(String val) {
-		this.postData = val;
+			description="The value for this parameter will be sent to the server as a POST request body." +
+					" The value is expected to be in \\\"key=value\\\" format. ")
+	public void setPostData(List<String> val) {
+		this.postData.addAll(val);
 	}
 	@Parameter(optional=true, description="Use a backoff function for increasing the wait time between retries. " +
 			"Wait times increase by a factor of 10. Default is false")
@@ -107,7 +111,13 @@ public class HTTPStreamReader extends AbstractOperator {
 		this.disableCompression = val;
 	}
 
-
+	@ContextCheck(compile=true)
+	public static boolean checkAuthParams(OperatorContextChecker occ) {
+		return occ.checkDependentParameters("authenticationFile", "authenticationType")
+				&& occ.checkDependentParameters("authenticationProperty", "authenticationType")
+				;
+	}
+	
 	@Override
 	public void initialize(OperatorContext op) throws Exception {
 		super.initialize(op);
@@ -130,15 +140,27 @@ public class HTTPStreamReader extends AbstractOperator {
 			throw new Exception("Only types \"" + MetaType.USTRING + "\" and \"" 
 					+ MetaType.RSTRING + "\" allowed for param " + dataAttributeName + "\"");
 
-		if(useBackoff) 
-			rc=new BackoffRetryController(maxRetries, sleepDelay);
-		else
-			rc=new RetryController(maxRetries, sleepDelay);
 
+		Map<String, String> postDataParams = null; 
+		if(postData != null && postData.size() > 0 ) {
+			postDataParams = new HashMap<String, String>();
+			for(String value : postData) {
+				int loc = value.indexOf("=");
+				if(loc == -1 || loc >= value.length()-1)
+					throw new Exception("Value of \"postData\" parameter not as expected: " + value);
+				postDataParams.put(value.substring(0, loc), value.substring(loc+1, value.length()));
+			}
+		}
+		
+		if(useBackoff) 
+			rc=new BackoffRetryController(maxRetries, retryDelay);
+		else
+			rc=new RetryController(maxRetries, retryDelay);
+		
 		trace.log(TraceLevel.INFO, "Using authentication type: " + authenticationType);
 		IAuthenticate auth = AuthHelper.getAuthenticator(authenticationType, authenticationFile, authenticationProperties);
 
-		reader = new HTTPStreamReaderObj(this.url, auth, this, postData, disableCompression);
+		reader = new HTTPStreamReaderObj(this.url, auth, this, postDataParams, disableCompression);
 		th = op.getThreadFactory().newThread(reader);
 		th.setDaemon(false);
 	}

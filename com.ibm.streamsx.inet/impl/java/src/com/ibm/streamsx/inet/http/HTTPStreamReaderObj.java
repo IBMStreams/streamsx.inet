@@ -7,15 +7,8 @@
 package com.ibm.streamsx.inet.http;
 
 import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URLConnection;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.Inflater;
-import java.util.zip.InflaterInputStream;
+import java.util.Map;
 
 import com.ibm.streamsx.inet.http.HTTPRequest.RequestType;
 
@@ -50,10 +43,12 @@ class HTTPStreamReaderObj implements Runnable
 	private boolean shutdown = false;
 	private HTTPRequest req = null;
 	private IAuthenticate auth = null;
-	private String postData = null;
+	private Map<String, String> postData = null;
 	private HTTPStreamReader reader = null;
 	
-	public HTTPStreamReaderObj(String url, IAuthenticate auth, HTTPStreamReader reader, String postD, boolean disableCompression) 
+	public HTTPStreamReaderObj(String url, IAuthenticate auth, 
+			HTTPStreamReader reader,  Map<String, String> postD, 
+			boolean disableCompression) 
 			throws Exception 	{
 		this.auth = auth;
 		this.reader = reader;
@@ -68,54 +63,29 @@ class HTTPStreamReaderObj implements Runnable
 		else {
 			req.setHeader("Accept-Encoding", "identity");
 		}
+		req.setParams(postData);
 	}
 	
-	//for handling compressions
-	static InputStream getInputStream(URLConnection conn) throws IOException {
-		
-		if(conn.getContentEncoding()!=null) { 
-			if(conn.getContentEncoding().toLowerCase().indexOf("gzip") != -1)
-				return new GZIPInputStream(conn.getInputStream());
-			else if(conn.getContentEncoding().toLowerCase().indexOf("deflate") != -1)
-				return new InflaterInputStream(conn.getInputStream(), new Inflater(true));
-		}
-		return conn.getInputStream();
-	}
-
 
 	public String getUrl() {
 		return req.getUrl();
 	}
 	
-	public URLConnection newConnection() throws Exception 	{
-		HttpURLConnection streamconnection = auth.sign(req);
-		if(postData != null) {
-			OutputStreamWriter writer = new OutputStreamWriter(streamconnection.getOutputStream());
-			writer.write(postData);
-			writer.flush();
-		}
+	public HTTPResponse newConnection() throws Exception 	{
+		HTTPResponse resp = req.sendRequest(auth);
 
-		if(streamconnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-			HTTPException e = 
-					new HTTPException(streamconnection.getResponseCode(), 
-							readFromStream(streamconnection.getErrorStream()));
-			try {
-				e.setData(readFromStream(streamconnection.getInputStream()));
-			} catch (Exception e1)  {
-				//dont care
-			}
-
-			throw e;
+		if(resp.getResponseCode() != HTTPResponse.HTTP_OK) {
+			throw new HTTPException(resp.getResponseCode(), resp.getErrorStreamData());
 		}
-		return streamconnection;
+		return resp;
 	}
 
 
 	public void sendRequest() throws Exception 	{
 		while(!shutdown) {
 			try {
-				URLConnection urlConnection = newConnection();
-				in = new BufferedReader(new InputStreamReader(getInputStream(urlConnection)));
+				HTTPResponse resp = newConnection();
+				in = new BufferedReader(new InputStreamReader(resp.getInputStream()));
 				reader.connectionSuccess();
 				String inputLine = null;
 				while (!shutdown && ((inputLine = in.readLine()) != null)) {
@@ -137,17 +107,6 @@ class HTTPStreamReaderObj implements Runnable
 		}
 	}
 
-	static String readFromStream(InputStream is) throws IOException {
-		if(is==null) return "null";
-		BufferedReader br = new BufferedReader(new InputStreamReader(is));
-		String inputLine = null;
-		StringBuffer sb = new StringBuffer();
-		while (((inputLine = br.readLine()) != null)) {
-			sb.append(inputLine);
-		}
-		return sb.toString();
-	}
-
 	public void shutdown() throws Exception 	{
 		shutdown = true;
 		if(in != null){
@@ -162,7 +121,6 @@ class HTTPStreamReaderObj implements Runnable
 		try {
 			sendRequest();
 		}catch(Exception e) {
-			e.printStackTrace();
 			System.exit(1);
 		}
 	}

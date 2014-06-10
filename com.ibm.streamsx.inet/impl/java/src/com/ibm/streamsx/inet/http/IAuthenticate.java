@@ -7,7 +7,6 @@
 package com.ibm.streamsx.inet.http;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.util.List;
 
 /**
@@ -27,9 +26,9 @@ interface IAuthenticate {
 	/**
 	 * Signs request using the authentication mode, connects to the endpoint and returns the connection
 	 * @param req HTTP request object to be signed
-	 * @return 
 	 * @throws Exception
 	 */
-	public HttpURLConnection sign(HTTPRequest req) throws Exception ;
+	public void sign(HTTPRequest req) throws Exception ;
+	
 }
 
