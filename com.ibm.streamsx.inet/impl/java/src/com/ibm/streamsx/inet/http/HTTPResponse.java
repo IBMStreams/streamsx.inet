@@ -18,8 +18,9 @@ class HTTPResponse {
 	public static final int HTTP_OK = 200;
 	
 	private int responseCode = 0;
-	private String errorStreamData = null;
+	private String errorStreamData = null, outStreamData =null;
 	private HttpResponse resp = null;
+	private boolean gotOutStream = false;
 	public HTTPResponse(HttpResponse resp) {
 		this.resp = resp;
 		responseCode = resp.getStatusLine().getStatusCode();
@@ -34,21 +35,26 @@ class HTTPResponse {
 		return errorStreamData;
 	}
 	
-	public String getContentEncoding() {
-		return resp.getEntity().getContentEncoding().getValue();
-	}
-
 	public String getOutStreamData() throws IllegalStateException, IOException {
-		return HTTPUtils.readFromStream(getInputStream());
+		if(!gotOutStream) {
+			outStreamData = HTTPUtils.readFromStream(getInputStream());
+			gotOutStream = true;
+		}
+		return outStreamData;
 	}
 	
 	public InputStream getInputStream() throws IllegalStateException, IOException {
 		InputStream is = resp.getEntity().getContent();
-		if(getContentEncoding()!=null) { 
-			String enc = getContentEncoding().toLowerCase();
-			if(enc.indexOf("gzip") != -1)
+		String enc = null;
+		
+		if(resp.getEntity().getContentEncoding() != null)
+			enc = resp.getEntity().getContentEncoding().getValue();
+		
+		if(enc!=null) { 
+			String encLC = enc.toLowerCase();
+			if(encLC.indexOf("gzip") != -1)
 				return new GZIPInputStream(is);
-			else if(enc.indexOf("deflate") != -1)
+			else if(encLC.indexOf("deflate") != -1)
 				return new InflaterInputStream(is, new Inflater(true));
 		}
 		return is;

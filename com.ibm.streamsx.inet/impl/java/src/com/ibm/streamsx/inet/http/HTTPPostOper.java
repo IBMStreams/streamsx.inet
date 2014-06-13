@@ -133,7 +133,6 @@ public class HTTPPostOper extends AbstractOperator
 	@Override
 	public synchronized void process(StreamingInput<Tuple> stream, Tuple tuple) throws Exception {
 		rc.readSuccess();
-
 		StreamSchema schema = stream.getStreamSchema();
 
 		HTTPRequest req = new HTTPRequest(url);
@@ -160,11 +159,13 @@ public class HTTPPostOper extends AbstractOperator
 		Throwable t = null;
 		while(true) {
 			try {
-				if(trace.isLoggable(TraceLevel.INFO))
-					trace.log(TraceLevel.INFO, "Sending request: " + req.toString());
+				if(trace.isLoggable(TraceLevel.TRACE))
+					trace.log(TraceLevel.TRACE, "Sending request: " + req.toString());
 				
 				resp = req.sendRequest(auth);
 				
+				if(trace.isLoggable(TraceLevel.TRACE))
+					trace.log(TraceLevel.TRACE, "Got response: " + resp.toString());
 				rc.readSuccess();
 				break;
 			}catch(Exception e) {
