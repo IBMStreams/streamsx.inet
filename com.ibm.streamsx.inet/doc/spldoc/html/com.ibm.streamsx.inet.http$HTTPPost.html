@@ -31,13 +31,8 @@ com.ibm.streamsx.inet
 
 <div class="section">
 
-<p class="p">This operator sends incoming tuples to the specified HTTP server as part of a POST request. A single tuple will be sent as a body of one HTTP POST request. All attributes of the tuple will be serialized and sent to the server.Certain authentication modes are supported. Tuples are sent to the server one at a time in order of receipt. If the HTTP server cannot be accessed, the operation will be retried on the current thread and may temporarily block any additional tuples that arrive on the input port. Data is sent in application/x-www-form-urlencoded UTF-8 encoded format. <strong class="ph b">Limitations</strong>: 
+<p class="p">This operator sends incoming tuples to the specified HTTP server as part of a POST request. A single tuple will be sent as a body of one HTTP POST request. All attributes of the tuple will be serialized and sent to the server. Certain authentication modes are supported. Tuples are sent to the server one at a time in order of receipt. If the HTTP server cannot be accessed, the operation will be retried on the current thread and may temporarily block any additional tuples that arrive on the input port. By default, the data is sent in application/x-www-form-urlencoded UTF-8 encoded format.
 </p>
-
-<ul class="ul">
-<li class="li"> Nested attributes are not individually accessed and serialized. Only the top level attributes are serialized individually. </li>
-
-</ul>
 
 </div>
 
@@ -66,7 +61,7 @@ com.ibm.streamsx.inet
  
   <dt class="dt dlterm">Parameters</dt>
 
-  <dd class="dd">This operator supports 7 parameters. (<tt class="ph tt">authenticationFile, authenticationProperty, authenticationType, maxRetries, sendAsParams, retryDelay, url</tt>)
+  <dd class="dd">This operator supports 7 parameters. (<tt class="ph tt">authenticationFile, authenticationProperty, authenticationType, headerContentType, maxRetries, retryDelay, url</tt>)
 </dd>
 
  
@@ -289,6 +284,37 @@ This operator supports 7 parameters.<dl class="dl">
 
 
 
+<dt class="dt dlterm" id="spldoc_operator__com.ibm.streamsx.inet.http__HTTPPost__parameter_headerContentType"><tt class="ph tt">headerContentType</tt></dt>
+
+<dd class="dd">
+<p class="p">Set the content type of the HTTP request.  If the value is set to "application/json" then the entire tuple is sent in JSON format.  Default is "application/x-www-form-urlencoded". Note that if a value other than the above mentioned ones is specified, the input stream can only have a single attribute.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
 <dt class="dt dlterm" id="spldoc_operator__com.ibm.streamsx.inet.http__HTTPPost__parameter_maxRetries"><tt class="ph tt">maxRetries</tt></dt>
 
 <dd class="dd">
@@ -320,37 +346,6 @@ This operator supports 7 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__com.ibm.streamsx.inet.http__HTTPPost__parameter_sendAsParams"><tt class="ph tt">sendAsParams</tt></dt>
-
-<dd class="dd">
-<p class="p">Send data as parameters in the "name=value" format. Otherwise only values are sent. Default is false
-</p>
-<dl class="dl">
-
- <dt class="dt dlterm">Properties </dt>
-
- <dd class="dd">
-  <ul class="sl simple">
-  <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
-  </li>
-
-     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
-     </li>
-
-     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
-     </li>
-
-  </ul>
-
- </dd>
-
-
-</dl>
-
-</dd>
-
-
-
 <dt class="dt dlterm" id="spldoc_operator__com.ibm.streamsx.inet.http__HTTPPost__parameter_retryDelay"><tt class="ph tt">retryDelay</tt></dt>
 
 <dd class="dd">
@@ -362,7 +357,7 @@ This operator supports 7 parameters.<dl class="dl">
 
  <dd class="dd">
   <ul class="sl simple">
-  <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: int32
+  <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: float64
   </li>
 
      <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1

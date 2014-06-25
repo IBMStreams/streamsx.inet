@@ -61,7 +61,7 @@ com.ibm.streamsx.inet
  
   <dt class="dt dlterm">Parameters</dt>
 
-  <dd class="dd">This operator supports 11 parameters. (<tt class="ph tt">authenticationFile, authenticationProperty, authenticationType, backoff, dataAttributeName, disableCompression, maxRetries, postData, retryOnClose, retryDelay, url</tt>)
+  <dd class="dd">This operator supports 11 parameters. (<tt class="ph tt">authenticationFile, authenticationProperty, authenticationType, backoff, dataAttributeName, disableCompression, maxRetries, postData, retryDelay, retryOnClose, url</tt>)
 </dd>
 
  
@@ -399,7 +399,7 @@ This operator supports 11 parameters.<dl class="dl">
 <dt class="dt dlterm" id="spldoc_operator__com.ibm.streamsx.inet.http__HTTPGetStream__parameter_postData"><tt class="ph tt">postData</tt></dt>
 
 <dd class="dd">
-<p class="p">The value for this parameter will be sent to the server as a POST request body.
+<p class="p">The value for this parameter will be sent to the server as a POST request body. The value is expected to be in "key=value" format. 
 </p>
 <dl class="dl">
 
@@ -408,6 +408,34 @@ This operator supports 11 parameters.<dl class="dl">
  <dd class="dd">
   <ul class="sl simple">
   <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm" id="spldoc_operator__com.ibm.streamsx.inet.http__HTTPGetStream__parameter_retryDelay"><tt class="ph tt">retryDelay</tt></dt>
+
+<dd class="dd">
+<p class="p">Wait time between retries in case of failures/disconnects.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: float64
   </li>
 
      <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
@@ -439,37 +467,6 @@ This operator supports 11 parameters.<dl class="dl">
  <dd class="dd">
   <ul class="sl simple">
   <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
-  </li>
-
-     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
-     </li>
-
-     <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
-     </li>
-
-  </ul>
-
- </dd>
-
-
-</dl>
-
-</dd>
-
-
-
-<dt class="dt dlterm" id="spldoc_operator__com.ibm.streamsx.inet.http__HTTPGetStream__parameter_retryDelay"><tt class="ph tt">retryDelay</tt></dt>
-
-<dd class="dd">
-<p class="p">Wait time between retries in case of failures/disconnects.
-</p>
-<dl class="dl">
-
- <dt class="dt dlterm">Properties </dt>
-
- <dd class="dd">
-  <ul class="sl simple">
-  <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: float64
   </li>
 
      <li class="sli"><a class="xref" href="OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1

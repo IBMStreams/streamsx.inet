@@ -52,13 +52,13 @@
       ><set attributeName="visibility" from="hidden" end="sdt0.mouseout" to="visible" begin="sdt0.mouseover"
     /></g
     ><g visibility="hidden" style="stroke:none;font-style:italic;font-size:12px;font-family:&apos;Helvetica&apos;,&apos;SansSerif&apos;;"
-    ><rect x="47.65" y="58.0" width="348.62" style="fill:rgb(230,230,255);stroke:rgb(0,0,80);" rx="2.0" ry="2.0" height="47.0"
+    ><rect x="47.65" y="58.0" width="400.55997" style="fill:rgb(230,230,255);stroke:rgb(0,0,80);" rx="2.0" ry="2.0" height="47.0"
       /><text x="48.65" y="71.0"
       >Required: url / Optional: authenticationFile, </text
       ><text x="48.65" y="86.0"
-      >authenticationProperty, authenticationType, maxRetries, </text
+      >authenticationProperty, authenticationType, headerContentType, </text
       ><text x="48.65" y="101.0"
-      >sendAsParams, retryDelay</text
+      >maxRetries, retryDelay</text
       ><set attributeName="visibility" from="hidden" end="sdt1.mouseout" to="visible" begin="sdt1.mouseover"
     /></g
     ><g visibility="hidden" style="stroke:none;font-style:italic;font-size:12px;font-family:&apos;Helvetica&apos;,&apos;SansSerif&apos;;"
