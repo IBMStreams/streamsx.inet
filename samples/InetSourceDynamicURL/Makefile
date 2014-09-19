@@ -1,4 +1,4 @@
-# Copyright (C) 2011,2013,2014, International Business Machines Corporation. 
+# Copyright (C) 2011,2014, International Business Machines Corporation. 
 # All Rights Reserved.
 
 .PHONY: all standalone distributed clean 
