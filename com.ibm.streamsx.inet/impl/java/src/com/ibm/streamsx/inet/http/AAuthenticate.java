@@ -78,7 +78,7 @@ class BasicAuth extends AAuthenticate {
 	public void sign(HTTPRequest req) throws Exception {
 		BASE64Encoder encoder = new BASE64Encoder();
 		String up_encoded = encoder.encode(useridpassword.getBytes());
-		req.setHeader("Authorization", "Basic " + up_encoded);
+		req.getReq().setHeader("Authorization", "Basic " + up_encoded);
 	}
 }
 
