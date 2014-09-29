@@ -6,8 +6,8 @@
  xmlns:info="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo">
  <info:identity>
    <info:name>HttpStreamRead</info:name>
-   <info:description>Sample demonstrating InetSource</info:description>
-   <info:version>1.0.0</info:version>
+   <info:description>Demonstrates how to use the HTTPGetStream operator</info:description>
+   <info:version>1.0.1</info:version>
    <info:requiredProductVersion>2.0.0</info:requiredProductVersion>
  </info:identity>
  <info:dependencies>
