@@ -61,7 +61,7 @@ composite SimpleInject {
 		param
 		  port: 8080;
                   context: "wct";
-                  contextResourceBase: getThisFileDir() + "/../opt/wctest";
+                  contextResourceBase: "opt/wctest";
 		config
 	    // Ensure the operators are in a single PE to have a single web-server
 	    placement: partitionColocation("jetty8080");
