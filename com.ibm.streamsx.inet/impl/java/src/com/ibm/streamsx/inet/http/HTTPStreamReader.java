@@ -6,6 +6,7 @@
 //
 package com.ibm.streamsx.inet.http;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,9 +68,10 @@ public class HTTPStreamReader extends AbstractOperator {
 		this.authenticationType = val;
 	}
 	@Parameter(optional=true, description=
-			"Path to the properties file containing authentication information." +
-			" Path can be absolute or relative to the data directory of the application."+
-			" See the config directory for sample properties files.")
+			"Path to the properties file containing authentication information. " +
+			"Authentication file is recommended to be stored in the application_dir/etc directory. " +
+			"Path of this file can be absolute or relative, if relative path is specified then it is relative to the application directory. "+
+			"See http_auth_basic.properties in the toolkits etc directory for a sample of basic authentication properties.")
 	public void setAuthenticationFile(String val) {
 		this.authenticationFile = val;
 	}
@@ -158,7 +160,11 @@ public class HTTPStreamReader extends AbstractOperator {
 			rc=new RetryController(maxRetries, retryDelay);
 		
 		trace.log(TraceLevel.INFO, "Using authentication type: " + authenticationType);
-		IAuthenticate auth = AuthHelper.getAuthenticator(authenticationType, authenticationFile, authenticationProperties);
+		if(authenticationFile != null) {
+            authenticationFile = authenticationFile.trim();
+        }
+        URI baseConfigURI = op.getPE().getApplicationDirectory().toURI();
+		IAuthenticate auth = AuthHelper.getAuthenticator(authenticationType, PathConversionHelper.convertToAbsPath(baseConfigURI, authenticationFile), authenticationProperties);
 
 		reader = new HTTPStreamReaderObj(this.url, auth, this, postDataParams, disableCompression);
 		th = op.getThreadFactory().newThread(reader);
