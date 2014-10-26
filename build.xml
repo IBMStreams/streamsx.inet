@@ -8,7 +8,7 @@
   <property name="toolkit" location="com.ibm.streamsx.inet"/>
   <property name="release.base" location="release-${ant.project.name}-" />
 	
-  <target name="all" depends="toolkit,samples,spldoc_work"/>
+  <target name="all" depends="toolkit,samples, spldoc_work, toolkitIndexOnly"/>
 
   <target name="setcommitversion">
     <!-- Create the time stamp -->
@@ -52,6 +52,11 @@
         description="Build any code and index the toolkit." >
   	<ant dir="${toolkit}" target="all"/>
   </target>
+  
+  <target name="toolkitIndexOnly" description="Index the toolkit.">
+  		<ant dir="${toolkit}" target="cleanToolkitxml" /> 
+        <ant dir="${toolkit}" target="cpp" /> 
+  </target> 	
 
   <target name="spldoc" depends="setcommitversion, spldoc_work, revertversion"
     description="Create SPLDOC with git commit hash included in the version"
@@ -117,7 +122,7 @@
   </target>
 
   <!-- Targets to build releases -->
-  <target name="release"  depends="clean,setcommitversion,create_release_bundle,revertversion"/>
+  <target name="release"  depends="clean,setcommitversion,create_release_bundle,revertversion,toolkitIndexOnly"/>
   <target name="create_release_bundle"  depends="all">
         <property name="release.dir" location="${release.base}${commithash}" />
 	<mkdir dir="${release.dir}" />

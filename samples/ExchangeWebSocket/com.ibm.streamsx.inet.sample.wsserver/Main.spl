@@ -21,7 +21,7 @@ composite Main {
 			param
 				port : 8080 ;
 				context : "html" ;
-				contextResourceBase : getThisFileDir()+ "/../data/html" ;
+				contextResourceBase : "opt/html" ;
 		}
 
 		(stream<rstring data> Receive_2_out0)as Receive_2 = WebSocketInject(){
