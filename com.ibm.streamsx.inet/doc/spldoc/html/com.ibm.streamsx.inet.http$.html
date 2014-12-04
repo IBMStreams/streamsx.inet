@@ -27,7 +27,7 @@
 
 <div class="section">
 <p class="p">
-<a class="xref" href="toolkit.html" title="com.ibm.streamsx.inet">
+<a class="xref" href="toolkit.html">
 com.ibm.streamsx.inet
 </a>
 -&gt; com.ibm.streamsx.inet.http</p>
@@ -40,10 +40,16 @@ com.ibm.streamsx.inet
 <li class="sli"><strong class="ph b"><a class="xref" href="com.ibm.streamsx.inet.http$HTTPGetStream.html">HTTPGetStream</a></strong>: Connects to an HTTP endpoint, reads "chunks" of data and sends it to the output port.
 </li>
 
+<li class="sli"><strong class="ph b"><a class="xref" href="com.ibm.streamsx.inet.http$HTTPGetStreamSource.html">HTTPGetStreamSource</a></strong>: Connects to an HTTP endpoint, reads "chunks" of data and sends it to the output port.Every line read from the HTTP server endpoint is sent as a single tuple.If a connection is closed by the server, a punctuation will be sent on port 0.Certain authentication modes are supported.
+</li>
+
 <li class="sli"><strong class="ph b"><a class="xref" href="com.ibm.streamsx.inet.http$HTTPGetXMLContent.html">HTTPGetXMLContent</a></strong>: Periodically connects to an HTTP endpoint to GET XML content as a single tuple.
 </li>
 
 <li class="sli"><strong class="ph b"><a class="xref" href="com.ibm.streamsx.inet.http$HTTPPost.html">HTTPPost</a></strong>: This operator sends incoming tuples to the specified HTTP server as part of a POST request.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="com.ibm.streamsx.inet.http$HTTPPostSink.html">HTTPPostSink</a></strong>: This operator sends incoming tuples to the specified HTTP server as part of a POST request.A single tuple will be sent as a body of one HTTP POST request.All attributes of the tuple will be serialized and sent to the server.Certain authentication modes are supported.Tuples are sent to the server one at a time in order of receipt. If the HTTP server cannot be accessed, the operation will be retried on the current thread and may temporarily block any additional tuples that arrive on the input port <strong class="ph b">Limitations</strong>:  Nested attributes are not individually accessed and serialized. Only the top level attributes are serialized individually. 
 </li>
 
 </ul>

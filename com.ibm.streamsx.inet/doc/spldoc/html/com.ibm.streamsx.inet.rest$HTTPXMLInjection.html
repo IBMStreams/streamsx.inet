@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="toolkit.html" title="com.ibm.streamsx.inet">
+<a class="xref" href="toolkit.html">
 com.ibm.streamsx.inet
 </a>
 -&gt; <a class="xref" href="com.ibm.streamsx.inet.rest$.html">com.ibm.streamsx.inet.rest</a>-&gt; HTTPXMLInjection</p>
@@ -249,14 +249,14 @@ This operator supports 3 parameters.<dl class="dl">
 <dt class="dt dlterm" id="spldoc_operator__com.ibm.streamsx.inet.rest__HTTPXMLInjection__parameter_contextResourceBase"><tt class="ph tt">contextResourceBase</tt></dt>
 
 <dd class="dd">
-<p class="p">Directory location of resources that will be available through the the URL context defined by the parameter <tt class="ph tt">context</tt>. Typically used to allow a toolkit to provide a set of resources in a fixed location. A path within the toolkit is obtained using the SPL function <tt class="ph tt">getThisFileDir()</tt>. Thus a composite in the file <em class="ph i">maps.spl</em> in the namespace directory <tt class="ph tt">com.acme.streams.apps.map</tt> might have the following setting to map <tt class="ph tt">http://127.0.0.1:8080/maps</tt> to <tt class="ph tt">opt/html/mapinfo</tt> in the toolkit. 
+<p class="p">Directory location of resources that will be available through the the URL context defined by the parameter <tt class="ph tt">context</tt>. Typically used to allow a toolkit to provide a set of resources in a fixed location. The set of resources is recommended to be stored in the application_dir/opt directory, which is automatically included in the bundle by default. Path of this directory can be absolute or relative, if relative path is specified then it is relative to the application directory. A set of default resources is included in the toolkit directory under ToolkitDir/opt/resources and will be loaded by the operator. This default resources can be viewed at <tt class="ph tt">http://hostname:8080/streamsx.inet.resources</tt>. A path within the application is obtained using the SPL function <tt class="ph tt">getThisToolkitDir()</tt>. Thus a composite in the file <em class="ph i">maps.spl</em> in the namespace directory <tt class="ph tt">com.acme.streams.apps.map</tt> might have the following setting to map <tt class="ph tt">http://127.0.0.1:8080/maps</tt> to <tt class="ph tt">opt/resources/mapinfo</tt> in the application. 
 </p>
 
 <div class="p">
 <pre class="pre codeblock">
 param
   context: “maps”
-  contextResourceBase: getThisFileDir() + “/../opt/html/mapinfo”
+  contextResourceBase: getThisToolkitDir() + “/opt/resources/mapinfo”
 </pre>
 
 

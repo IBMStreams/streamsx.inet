@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<srcCode:sourceModel xmlns:srcCode="http://www.ibm.com/xmlns/prod/streams/spl/sourceCode" xmlns:common="http://www.ibm.com/xmlns/prod/streams/spl/common" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <srcCode:sourceFile uri="com.ibm.streamsx.inet.sample.rest/SimpleInject.spl">
+    <srcCode:compilationUnit>
+      <srcCode:splNamespace column="11" line="8" name="com.ibm.streamsx.inet.sample.rest"/>
+      <srcCode:useDirectives>
+        <srcCode:useDirective column="5" line="10" namespaceName="com.ibm.streamsx.inet.rest" tail="::*"/>
+      </srcCode:useDirectives>
+      <srcCode:definitions>
+        <srcCode:compositeDefinition endColumn="1" endLine="72" startColumn="1" startLine="12">
+          <srcCode:compositeHead column="1" line="37" name="SimpleInject">
+            <srcCode:splDoc>
+              <srcCode:description>
+                <srcCode:description>Simple example of an using [HTTPTupleInjection] to feed tuples
+into Stream InjectedTuples which are then visible through
+the windowed [HTTPTupleView] operator.
+
+Tuples are injected using the form input at: [http://127.0.0.1:8080/InjectedTuples/ports/output/0/form]
+
+or a POST to [http://127.0.0.1:8080/InjectedTuples/ports/output/0/inject]
+
+And then are visible as a JSON object [http://127.0.0.1:8080/InjectView/ports/input/0/tuples]
+
+This fixed URL shows information for all ports available through URLs
+in the HTTP server [http://127.0.0.1:8080/ports/info]
+
+These URLs show the meta data for the ports using a JSON object:
+* [http://127.0.0.1:8080/InjectedTuples/ports/output/0/info] - Output port for the injected tuples.
+* [http://127.0.0.1:8080/InjectView/ports/input/0/info] - Input port to [HTTPTupleView].
+
+To compile this example:
+
+    cd com.ibm.ssb.inet
+    sc -T -M com.ibm.ssb.inet.rest.examples::SimpleInject
+    output/bin/standalone
+Point browser to [http://127.0.0.1:8080]
+</srcCode:description>
+              </srcCode:description>
+            </srcCode:splDoc>
+          </srcCode:compositeHead>
+          <srcCode:compositeBody>
+            <srcCode:graph>
+              <srcCode:operatorInvocation>
+                <srcCode:operatorInvocationHead column="8" line="41" operatorName="HTTPTupleInjection">
+                  <srcCode:outputs>
+                    <srcCode:output column="81" index="0" line="40" streamName="InjectedTuples" type="ustring a_ustring, rstring b_rstring, int32 c_int32, float32 d_float32"/>
+                  </srcCode:outputs>
+                </srcCode:operatorInvocationHead>
+                <srcCode:operatorInvocationBody>
+                  <srcCode:parameters>
+                    <srcCode:parameter column="5" line="43" name="port">
+                      <srcCode:value expr="8080"/>
+                    </srcCode:parameter>
+                  </srcCode:parameters>
+                  <srcCode:configs>
+                    <srcCode:config column="6" line="46" name="placement">
+                      <srcCode:option column="17" line="46" value="partitionColocation">
+                        <srcCode:parameter value="&quot;jetty8080&quot;"/>
+                      </srcCode:option>
+                    </srcCode:config>
+                  </srcCode:configs>
+                </srcCode:operatorInvocationBody>
+              </srcCode:operatorInvocation>
+              <srcCode:operatorInvocation>
+                <srcCode:operatorInvocationHead column="8" invocationAlias="InjectView" line="50" operatorName="HTTPTupleView">
+                  <srcCode:inputs>
+                    <srcCode:input column="35" index="0" line="50">
+                      <srcCode:istream column="35" line="50" name="InjectedTuples"/>
+                    </srcCode:input>
+                  </srcCode:inputs>
+                </srcCode:operatorInvocationHead>
+                <srcCode:operatorInvocationBody>
+                  <srcCode:windows>
+                    <srcCode:window column="10" line="51" partitioned="false" portName="InjectedTuples" windowType="sliding">
+                      <srcCode:evictionPolicy column="35" kind="count" line="51" size="10"/>
+                      <srcCode:triggerPolicy column="46" kind="count" line="51" size="1"/>
+                    </srcCode:window>
+                  </srcCode:windows>
+                  <srcCode:parameters>
+                    <srcCode:parameter column="5" line="53" name="port">
+                      <srcCode:value expr="8080"/>
+                    </srcCode:parameter>
+                  </srcCode:parameters>
+                  <srcCode:configs>
+                    <srcCode:config column="6" line="56" name="placement">
+                      <srcCode:option column="17" line="56" value="partitionColocation">
+                        <srcCode:parameter value="&quot;jetty8080&quot;"/>
+                      </srcCode:option>
+                    </srcCode:config>
+                  </srcCode:configs>
+                </srcCode:operatorInvocationBody>
+              </srcCode:operatorInvocation>
+              <srcCode:operatorInvocation>
+                <srcCode:operatorInvocationHead column="8" invocationAlias="WCT" line="60" operatorName="WebContext"/>
+                <srcCode:operatorInvocationBody>
+                  <srcCode:parameters>
+                    <srcCode:parameter column="5" line="62" name="port">
+                      <srcCode:value expr="8080"/>
+                    </srcCode:parameter>
+                    <srcCode:parameter column="19" line="63" name="context">
+                      <srcCode:value expr="&quot;wct&quot;"/>
+                    </srcCode:parameter>
+                    <srcCode:parameter column="19" line="64" name="contextResourceBase">
+                      <srcCode:value expr="&quot;opt/wctest&quot;"/>
+                    </srcCode:parameter>
+                  </srcCode:parameters>
+                  <srcCode:configs>
+                    <srcCode:config column="6" line="67" name="placement">
+                      <srcCode:option column="17" line="67" value="partitionColocation">
+                        <srcCode:parameter value="&quot;jetty8080&quot;"/>
+                      </srcCode:option>
+                    </srcCode:config>
+                  </srcCode:configs>
+                </srcCode:operatorInvocationBody>
+              </srcCode:operatorInvocation>
+            </srcCode:graph>
+          </srcCode:compositeBody>
+        </srcCode:compositeDefinition>
+      </srcCode:definitions>
+    </srcCode:compilationUnit>
+  </srcCode:sourceFile>
+
+</srcCode:sourceModel>
