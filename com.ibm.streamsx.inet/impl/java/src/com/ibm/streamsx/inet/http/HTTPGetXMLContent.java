@@ -31,6 +31,7 @@ import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPortSet.WindowPunctuationOutputMode;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
+import com.ibm.streams.operator.model.Icons;
 import com.ibm.streams.operator.samples.patterns.PollingSingleTupleProducer;
 import com.ibm.streams.operator.types.ValueFactory;
 import com.ibm.streams.operator.types.XML;
@@ -45,6 +46,7 @@ import com.ibm.streams.operator.types.XML;
 @OutputPortSet(cardinality=1,windowPunctuationOutputMode=WindowPunctuationOutputMode.Free,
     description="Content of the HTTP GET request as an XML attribute. Each successful HTTP request that returns a " +
                  "single well-formed XML document results in a submitted tuple with an XML attribute containing the returned content.")
+@Icons(location32="impl/java/icons/HTTPGetXMLContent_32.gif", location16="impl/java/icons/HTTPGetXMLContent_16.gif")
 public class HTTPGetXMLContent extends PollingSingleTupleProducer {
 	
 	static final String DESC = "Periodically connects to an HTTP endpoint to GET XML content as a single tuple. " +

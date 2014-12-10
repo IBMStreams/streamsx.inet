@@ -9,12 +9,14 @@ package com.ibm.streamsx.inet.rest.ops;
 
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
+import com.ibm.streams.operator.model.Icons;
 
 /**
  * Operator without any ports that simply defines a webcontext.
  *
  */
 @PrimitiveOperator(description=WebContext.DESC)
+@Icons(location32="impl/java/icons/WebContext_32.gif", location16="impl/java/icons/WebContext_16.gif")
 public class WebContext extends ServletOperator {
 
 	/*

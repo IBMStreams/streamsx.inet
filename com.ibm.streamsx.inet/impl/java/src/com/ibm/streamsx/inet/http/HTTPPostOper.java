@@ -35,6 +35,7 @@ import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
+import com.ibm.streams.operator.model.Icons;
 import com.ibm.streamsx.inet.http.HTTPRequest.RequestType;
 
 @InputPorts(@InputPortSet(cardinality=1, 
@@ -44,6 +45,7 @@ import com.ibm.streamsx.inet.http.HTTPRequest.RequestType;
 		     "Tuple structure must conform to the [HTTPResponse] type specified in this namespace."))
 @PrimitiveOperator(name="HTTPPost", description=HTTPPostOper.DESC)
 @Libraries(value={"opt/downloaded/*"})
+@Icons(location32="impl/java/icons/HTTPPost_32.gif", location16="impl/java/icons/HTTPPost_16.gif")
 public class HTTPPostOper extends AbstractOperator  
 {
 	static final String CLASS_NAME="com.ibm.streamsx.inet.http.HTTPPostOper";

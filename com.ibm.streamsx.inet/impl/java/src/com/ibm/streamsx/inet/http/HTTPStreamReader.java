@@ -29,15 +29,18 @@ import com.ibm.streams.operator.model.OutputPortSet.WindowPunctuationOutputMode;
 import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
+import com.ibm.streams.operator.model.Icons;
 
 @OutputPorts({@OutputPortSet(cardinality=1, optional=false, windowPunctuationOutputMode=WindowPunctuationOutputMode.Generating,
 			  description="Data received from the server will be sent on this port."),
 			  @OutputPortSet(cardinality=1, optional=true, windowPunctuationOutputMode=WindowPunctuationOutputMode.Free, 
 			  description="Error information will be sent out on this port including the response code and any message recieved from the server. " +
 			  		"Tuple structure must conform to the [HTTPResponse] type specified in this namespace.")})
-@PrimitiveOperator(name="HTTPGetStream", description=HTTPStreamReader.DESC)
+@PrimitiveOperator(name=HTTPStreamReader.opName, description=HTTPStreamReader.DESC)
 @Libraries(value={"opt/downloaded/*"})
+@Icons(location32="impl/java/icons/"+HTTPStreamReader.opName+"_32.gif", location16="impl/java/icons/"+HTTPStreamReader.opName+"_16.gif")
 public class HTTPStreamReader extends AbstractOperator {
+    static final String opName = "HTTPGetStream";
 	private String dataAttributeName = "data";
 	private HTTPStreamReaderObj reader = null;
 	private int maxRetries = 3;

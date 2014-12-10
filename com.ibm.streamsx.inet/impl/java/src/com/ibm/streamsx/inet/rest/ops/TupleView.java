@@ -10,8 +10,9 @@ import com.ibm.streams.operator.model.InputPortSet.WindowPunctuationInputMode;
 import com.ibm.streams.operator.model.InputPorts;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
+import com.ibm.streams.operator.model.Icons;
 
-@PrimitiveOperator(name="HTTPTupleView", description=TupleView.DESC)
+@PrimitiveOperator(name=TupleView.opName, description=TupleView.DESC)
 // Require at least one input port
 @InputPorts({
 	@InputPortSet(cardinality=1,windowingMode=WindowMode.Windowed,windowPunctuationInputMode=WindowPunctuationInputMode.WindowBound,
@@ -19,9 +20,10 @@ import com.ibm.streams.operator.model.PrimitiveOperator;
 	@InputPortSet(optional=true,windowingMode=WindowMode.Windowed,windowPunctuationInputMode=WindowPunctuationInputMode.WindowBound,
 			description="Optional windowed input ports whose tuples will be available using a HTTP GET request a URL with the corresponding port index.")
 	})
+@Icons(location32="impl/java/icons/"+TupleView.opName+"_32.gif", location16="impl/java/icons/"+TupleView.opName+"_16.gif")
 
 public class TupleView extends ServletOperator {
-	
+    static final String opName = "HTTPTupleView";
 	// Parameter setters just to define the parameters in the SPL operator model.
 	@Parameter(optional=true, cardinality=-1, description="Names of attributes to partition the window by")
 	public void setPartitionKey(String[] attributeNames) {}
