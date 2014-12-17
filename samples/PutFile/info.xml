@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<info:toolkitInfoModel xmlns:common="http://www.ibm.com/xmlns/prod/streams/spl/common" xmlns:info="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo">
+  <info:identity>
+    <info:name>FTPTransferProject.PutFile</info:name>
+    <info:description>This sample demonstrates the use of the FTPPutFile operator</info:description>
+    <info:version>1.0.0</info:version>
+    <info:requiredProductVersion>3.2.1.0</info:requiredProductVersion>
+  </info:identity>
+  <info:dependencies/>
+</info:toolkitInfoModel>
