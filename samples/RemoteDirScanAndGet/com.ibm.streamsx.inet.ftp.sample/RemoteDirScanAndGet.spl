@@ -1,6 +1,10 @@
 /* Copyright (C) 2013-2014, International Business Machines Corporation */
 /* All Rights Reserved */
 
+namespace com.ibm.streamsx.inet.ftp.sample;
+
+use com.ibm.streamsx.inet.ftp::*;
+
 /**
  * This sample demonstrates the usage of the telco FTP toolkit.
  * This sample uses the FTPReader operator and the FTPCommand operator.
@@ -21,10 +25,6 @@
  * @param $verbosityBinFile the verbosity for the binary file transfer operator
  * @param $verbosityCommand the verbosity for the command execution operator
  */
-namespace com.ibm.streamsx.inet.ftp.sample;
-
-use com.ibm.streamsx.inet.ftp::*;
-
 composite RemoteDirScanAndGet {
 	param
 		expression<Protocol> $protocol : (Protocol)getSubmissionTimeValue("protocol", "ftp");

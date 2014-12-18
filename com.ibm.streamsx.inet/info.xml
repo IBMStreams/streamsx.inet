@@ -12,6 +12,7 @@ Support for common internet protocols.
 This toolkit separates its functionality into a number of namespaces:
 
 * **com.ibm.streamsx.inet** General purpose internet operator supporting a number of protocols.
+* **com.ibm.streamsx.ftp** Operators that interact with external FTP servers.
 * **com.ibm.streamsx.inet.http** Operators that interact with external HTTP servers.
 * **com.ibm.streamsx.inet.rest** Operators that embed a HTTP server to provide REST style api to streaming data.
 * **com.ibm.streamsx.inet.wsserver** Operators that embed a WebSocket server to expose streaming data as WebSocket messages.

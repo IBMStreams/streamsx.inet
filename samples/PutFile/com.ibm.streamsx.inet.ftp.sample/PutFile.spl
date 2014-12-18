@@ -1,6 +1,13 @@
 /* Copyright (C) 2013-2014, International Business Machines Corporation */
 /* All Rights Reserved */
 
+namespace com.ibm.streamsx.inet.ftp.sample;
+
+use com.ibm.streamsx.inet.ftp::*;
+//use com.ibm.streams.teda.file::*;
+//use com.ibm.streams.teda.internal.fileutils::*;
+use spl.file::*;
+
 /**
  * This sample demonstrates the usage of the telco FTP toolkit.
  * This sample uses the FTPFupFile operator to put a file from the local file system to an FTP server. 
@@ -17,15 +24,6 @@
  * @param $password the password
  * @param $verbosity the verbosity for the FTPPutFile operator
  */
-
-namespace com.ibm.streamsx.inet.ftp.sample;
-
-use com.ibm.streamsx.inet.ftp::*;
-//use com.ibm.streams.teda.file::*;
-//use com.ibm.streams.teda.internal.fileutils::*;
-use spl.file::*;
-
-
 composite PutFile {
 	param
 		expression<Protocol> $protocol : (Protocol)getSubmissionTimeValue("protocol", "ftp");
