@@ -19,6 +19,7 @@ import com.ibm.streams.operator.model.OutputPortSet.WindowPunctuationOutputMode;
 import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
+import com.ibm.streams.operator.model.Icons;
 import com.ibm.streams.operator.samples.patterns.TupleProducer;
 
 /* TODO - enable ability to specify the network device the operator listens on */
@@ -36,8 +37,7 @@ import com.ibm.streams.operator.samples.patterns.TupleProducer;
 @PrimitiveOperator(description=WebSocketInject.primDesc)
 @OutputPorts({@OutputPortSet(description=WebSocketInject.outPortDesc, cardinality=1, optional=false, windowPunctuationOutputMode=WindowPunctuationOutputMode.Free)})
 @Libraries("opt/wssupport/java_websocket.jar")
-
-
+@Icons(location32="impl/java/icons/WebSocketInject_32.gif", location16="impl/java/icons/WebSocketInject_16.gif")
 
 public class WebSocketInject extends TupleProducer {
 	final static String primDesc = 
