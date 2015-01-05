@@ -23,21 +23,28 @@ import com.ibm.streams.operator.Type.MetaType;
 import com.ibm.streams.operator.compile.OperatorContextChecker;
 import com.ibm.streams.operator.logging.LogLevel;
 import com.ibm.streams.operator.logging.TraceLevel;
+import com.ibm.streams.operator.model.Icons;
 import com.ibm.streams.operator.model.Libraries;
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPortSet.WindowPunctuationOutputMode;
 import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
+import com.ibm.streams.operator.state.ConsistentRegionContext;
 
 @OutputPorts({@OutputPortSet(cardinality=1, optional=false, windowPunctuationOutputMode=WindowPunctuationOutputMode.Generating,
 			  description="Data received from the server will be sent on this port."),
 			  @OutputPortSet(cardinality=1, optional=true, windowPunctuationOutputMode=WindowPunctuationOutputMode.Free, 
 			  description="Error information will be sent out on this port including the response code and any message recieved from the server. " +
 			  		"Tuple structure must conform to the [HTTPResponse] type specified in this namespace.")})
-@PrimitiveOperator(name="HTTPGetStream", description=HTTPStreamReader.DESC)
+@PrimitiveOperator(name=HTTPStreamReader.OPER_NAME, description=HTTPStreamReader.DESC)
 @Libraries(value={"opt/downloaded/*"})
+@Icons(location32="impl/java/icons/"+HTTPStreamReader.OPER_NAME+"_32.gif", location16="impl/java/icons/"+HTTPStreamReader.OPER_NAME+"_16.gif")
 public class HTTPStreamReader extends AbstractOperator {
+
+	static final String CLASS_NAME= "com.ibm.streamsx.inet.http.HTTPStreamsReader";
+	static final String OPER_NAME = "HTTPGetStream";
+    
 	private String dataAttributeName = "data";
 	private HTTPStreamReaderObj reader = null;
 	private int maxRetries = 3;
@@ -50,8 +57,6 @@ public class HTTPStreamReader extends AbstractOperator {
 	private String authenticationType = "none", authenticationFile = null;
 	private RetryController rc = null;
 	private List<String> authenticationProperties = new ArrayList<String>();
-
-	static final String CLASS_NAME="com.ibm.streamsx.inet.http.HTTPStreamsReader";
 
 	private static Logger trace = Logger.getLogger(CLASS_NAME);
 	private boolean retryOnClose = false;
@@ -118,6 +123,17 @@ public class HTTPStreamReader extends AbstractOperator {
 		return occ.checkDependentParameters("authenticationFile", "authenticationType")
 				&& occ.checkDependentParameters("authenticationProperty", "authenticationType")
 				;
+	}
+	
+	//consistent region checks
+	@ContextCheck(compile = true)
+	public static void checkInConsistentRegion(OperatorContextChecker checker) {
+		ConsistentRegionContext consistentRegionContext = 
+				checker.getOperatorContext().getOptionalContext(ConsistentRegionContext.class);
+		
+		if(consistentRegionContext != null) {
+			checker.setInvalidContext( HTTPStreamReader.OPER_NAME + " operator cannot be used inside consistent region.", new String[] {});
+		}
 	}
 	
 	@Override
@@ -266,7 +282,9 @@ public class HTTPStreamReader extends AbstractOperator {
 			" Every line read from the HTTP server endpoint is sent as a single tuple." +
 			" If a connection is closed by the server, a WINDOW punctuation will be sent on port 0." +
 			" Supported Authentications: Basic Authentication, OAuth 1.0a." +
-			" Supported Compressions: Gzip, Deflate."
+			" Supported Compressions: Gzip, Deflate." +
+			"\\n\\n** Behavior in a Consistent Region **" + 
+			"\\nThis operator cannot be used inside a consistent region."
 			;
 }
 
