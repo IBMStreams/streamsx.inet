@@ -11,13 +11,15 @@ CFLAGS= -fPIC -I impl/cpp/include -I $(CURL_INCLUDE_DIR) -I $(STREAMS_INSTALL)/i
 BIN_DIR=impl/cpp/bin
 LDFLAGS=-shared
 
-all: toolkit.xml
+all: build toolkit.xml
 
 toolkit.xml:
 	spl-make-toolkit -i .
 
+build:
+	cd impl; make -f Makefile.libftp build
+
 clean:
 	spl-make-toolkit -c -i .
-
-
+	cd impl; make -f Makefile.libftp clean
 
