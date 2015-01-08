@@ -10,7 +10,7 @@ args=-t ../../com.ibm.streamsx.inet
 ns=com.ibm.streamsx.inet.http.tests
 outputdir=./output
 
-tests=HTTPStreamBasicFunctionTestMain HTTPStreamBadUrlTestMain HTTPStreamConsistentRegionFailMain
+tests=HTTPStreamBasicFunctionTestMain HTTPStreamBadUrlTestMain HTTPStreamConsistentRegionFailMain HTTPPostBasicFunctionTestMain HTTPPostConsistentRegionFailMain
 
 rntest=./scripts/testRunner.sh
 ftest=./scripts/expectFail.sh

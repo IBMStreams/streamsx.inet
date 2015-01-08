@@ -24,3 +24,32 @@ composite HTTPStreamConsistentRegionFailMain {
 		}
 		() as JCPOp = JobControlPlane() {}
 }
+
+
+composite HTTPPostConsistentRegionFailMain {
+	param
+		expression<rstring> $baseUrl : getSubmissionTimeValue("baseUrl");		
+		                                                                                      
+	graph
+		
+		stream<rstring name> InputStream = Beacon() {
+			param
+				iterations : 1;
+			output InputStream : name = "myname";
+		}	
+		
+		@consistent(trigger=periodic, period=10.0)
+		stream<com.ibm.streamsx.inet.http::HTTPResponse> HTTPPostResponse
+			= com.ibm.streamsx.inet.http::HTTPPost(InputStream) {
+			param
+				url : $baseUrl + "/streamtest/streamtest"; 
+		}
+		
+		() as SinkOp = FileSink(HTTPPostResponse) {
+		   param
+			file : "somefile.dat";
+		}
+		
+		() as JCPOp = JobControlPlane() {}
+	
+}
