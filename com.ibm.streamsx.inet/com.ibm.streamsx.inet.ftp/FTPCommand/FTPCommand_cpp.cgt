@@ -1,0 +1,217 @@
+/* Copyright (C) 2013-2014, International Business Machines Corporation */
+/* All Rights Reserved */
+
+/* Additional includes go here */
+#include <cstring>
+#include <cstdlib>
+
+<%
+	my $hasPasswordStream = $model->getNumberOfInputPorts() == 2;
+	my $hasErrorStream = $model->getNumberOfOutputPorts() == 2;
+	
+	my $protocol     = $model->getParameterByName("protocol")->getValueAt(0)->getCppExpression();
+	my $protocolType = $model->getParameterByName("protocol")->getValueAt(0)->getCppType();
+	
+	my $hasCloseConnectionMode = $model->getParameterByName("connectionCloseMode");
+	my $closeConnectionMode;
+	my $closeConnectionModeType;
+	if ($hasCloseConnectionMode) {
+		$closeConnectionMode = $hasCloseConnectionMode->getValueAt(0)->getCppExpression();
+		$closeConnectionModeType = $hasCloseConnectionMode->getValueAt(0)->getCppType();
+	}
+	print "//closeConnectionMode : $closeConnectionMode\n";
+	print "//closeConnectionModeType : $closeConnectionModeType\n";
+	
+	my $host = $model->getParameterByName("host")->getValueAt(0)->getCppExpression();
+	print "//host : $host\n";
+	my $path = $model->getParameterByName("path")->getValueAt(0)->getCppExpression();
+	print "//path : $path\n";
+	
+	my $username = $model->getParameterByName("username")->getValueAt(0)->getCppExpression();
+	my $password = $model->getParameterByName("password");
+	$password = $password->getValueAt(0)->getCppExpression() if ($password);
+	print "//password : $password\n";
+
+	my $command = $model->getParameterByName("command")->getValueAt(0)->getSPLExpression();
+	my $commandCpp = $model->getParameterByName("command")->getValueAt(0)->getCppExpression();
+	print "//command   =$command\n";
+	print "//commandCpp=$commandCpp\n";
+	
+	my $filename = $model->getParameterByName("filename");
+	$filename = $filename->getValueAt(0)->getCppExpression() if ($filename);
+	my $filenameTo = $model->getParameterByName("filenameTo");
+	$filenameTo = $filenameTo->getValueAt(0)->getCppExpression() if ($filenameTo);
+	
+	my $curlVerbose = $model->getParameterByName("curlVerbose");
+	$curlVerbose = $curlVerbose ? $curlVerbose->getValueAt(0)->getCppExpression() : "false";
+	print "//curlVerbose $curlVerbose\n";
+	
+	my $sendStatisticsOnError = $model->getParameterByName("sendStatisticsOnError");
+	$sendStatisticsOnError = $sendStatisticsOnError ? $sendStatisticsOnError->getValueAt(0)->getSPLExpression : "true";
+	print "//sendStatisticsOnError=$sendStatisticsOnError\n";
+
+	# scan output functions verify operator model
+	my $mainOutputPort = $model->getOutputPortAt(0);
+	my $errorOutputPort;
+	if ($hasErrorStream) {
+		$errorOutputPort = $model->getOutputPortAt(1);
+		if (1 != $errorOutputPort->getNumberOfAttributes()) {
+			SPL::CodeGen::exitln("The error output port must have one attribute of type rstring", $errorOutputPort->getSourceLocation());
+		}
+		if (!SPL::CodeGen::Type::isRString($errorOutputPort->getAttributeAt(0)->getSPLType())) {
+			SPL::CodeGen::exitln("The error output port must have one attribute of type rstring", $errorOutputPort->getSourceLocation());
+		}
+	}
+%>
+
+<%SPL::CodeGen::implementationPrologue($model);%>
+
+using namespace com::ibm::streamsx::inet::ftp;
+// Constructor
+MY_OPERATOR::MY_OPERATOR() :
+	mutex(),
+	shutdown(false)
+{
+	FTPWrapper::TransmissionProtocolLiteral tpl = static_cast<FTPWrapper::TransmissionProtocolLiteral>(<%=$protocol%>.getIndex());
+	FTPWrapper::CloseConnectionMode cm = FTPWrapper::never;
+<%	if ($hasCloseConnectionMode) { %>
+		cm = static_cast<FTPWrapper::CloseConnectionMode>(<%=$closeConnectionMode%>.getIndex());
+<%	} %>
+	SPLAPPTRC(L_INFO, "Work with protocol:" << FTPWrapper::toString(tpl) << " closeConnectionMode=" << FTPWrapper::toString(cm), debugAspect);
+
+	wrapper = new FTPCommandWrapper(cm, tpl, <%=$curlVerbose%>, FTPWrapper::create, debugAspect);
+}
+
+// Destructor
+MY_OPERATOR::~MY_OPERATOR() {
+	delete wrapper;
+}
+
+// Notify pending shutdown
+void MY_OPERATOR::prepareToShutdown() {
+	// This is an asynchronous call
+	shutdown = true;
+	wrapper->prepareToShutdown();
+}
+
+// Tuple processing for non mutating ports
+void MY_OPERATOR::process(Tuple const & tuple, uint32_t port) {
+	SPLLOG(L_TRACE, "process(" << tuple << ", " << port << ")", debugAspect);
+
+	AutoPortMutex apm(mutex, *this);
+
+	switch (port) {
+	case 0 : {
+		IPort0Type const & iport$0 = static_cast<IPort0Type const &> (tuple);
+
+<%		unless ($hasPasswordStream) { %>
+			//set credentials
+			wrapper->setUsername(<%=$username%>);
+<%			if ($password) { %>
+				wrapper->setPassword(<%=$password%>);
+<%			} %>
+<%		} %>
+
+		wrapper->clearCommand();
+		wrapper->setHost(<%=$host%>);
+		wrapper->setPath(<%=$path%>);
+		wrapper->setCommand(<%=$commandCpp%>);
+<%		if ($filename) {%>
+			wrapper->setArg1(<%=$filename%>);
+<%		}%>
+<%		if ($filenameTo) { %>
+			wrapper->setArg2(<%=$filenameTo%>);
+<%		} %>
+
+		//perform operation
+		bool sendStatistics = false;
+		bool success;
+		if (wrapper->perform()) {
+			success = true;
+			SPLLOG(L_DEBUG, "operation well performed", debugAspect);
+			sendStatistics = true;
+		} else {
+			success = false;
+<%			if ($sendStatisticsOnError eq "true") {%>
+				sendStatistics = true;
+<%			} %>
+			sendError(wrapper->getError(), iport$0);
+		}
+
+		//send the output tuple
+		if (sendStatistics) {
+<%			# generate the initializer for the tuple
+			my $init = "";
+			my $numAttrs = $mainOutputPort->getNumberOfAttributes();
+			for (my $i = 0; $i < $numAttrs; $i++) {
+				my $attr = $mainOutputPort->getAttributeAt($i);
+				my $aName = $attr->getName();
+				if ($attr->hasAssignmentWithOutputFunction()) {
+					my $of = $attr->getAssignmentOutputFunctionName();
+					if ($of eq "Result") {
+						$init .= "SPL::rstring(wrapper->getResult())";
+					} elsif ($of eq "Success") {
+						$init .= "SPL::boolean(success)";
+					} elsif ($of eq "Url") {
+						$init .= "SPL::rstring(wrapper->getUrl())";
+					} elsif ($of eq "NoCommands") {
+						$init .= "SPL::uint64(wrapper->getNoTransfers())";
+					} elsif ($of eq "NoFailures") {
+						$init .= "SPL::uint64(wrapper->getNoTransferFailures())";
+					} elsif ($of eq "AsIs") {
+						$init .= SPL::CodeGenHelper::ensureValue ($attr->getSPLType(), $attr->getAssignmentValue()->getCppExpression());
+					}
+				} else {
+					$init .= SPL::CodeGenHelper::ensureValue ($attr->getSPLType(), $attr->getAssignmentValue()->getCppExpression());
+				}
+				$init .= ",\n" if $i < $numAttrs-1;
+			}
+%>
+			//submit output
+			OPort0Type otuple(<%=$init%>);
+			submit(otuple, 0);
+		}
+		break;
+	}
+<%	if ($hasPasswordStream) { %>
+		case 1 : {
+			IPort1Type const & iport$1 = static_cast<IPort1Type const &> (tuple);
+			//set credentials
+			wrapper->setUsername(<%=$username%>);
+<%			if ($password) {%>
+				wrapper->setPassword(<%=$password%>);
+<%			} %>
+		};
+<%	} %>
+	}
+}
+
+// Punctuation processing
+void MY_OPERATOR::process(Punctuation const & punctuation, uint32_t port) {
+	AutoPortMutex apm(mutex, *this);
+	if(Punctuation::WindowMarker == punctuation) {
+		SPLLOG(L_DEBUG, "got a punct WindowMarker from port " << port, debugAspect);
+		if (0 == port) {
+			wrapper->onPunct();
+			submit(SPL::Punctuation(SPL::Punctuation::WindowMarker), 0);
+		}
+	} else {
+		SPLLOG(L_DEBUG, "got a punct FinalMarker from port " << port, debugAspect);
+	}
+}
+
+void MY_OPERATOR::sendError(SPL::rstring const & reason, IPort0Type const & iport$0) {
+	SPL::rstring r2 = reason + " url:" + wrapper->getUrl() + " command:" + wrapper->getCommand() + " " + wrapper->getArg1() + " " + wrapper->getArg2();
+	SPLLOG(L_ERROR, r2, debugAspect);
+<% if ($hasErrorStream) { %>
+	SPL::timestamp t = SPL::Functions::Time::getTimestamp();
+	SPL::rstring err2 = SPL::Functions::Time::ctime(t) + " " + r2;
+	OPort1Type otuple(err2);
+	submit(otuple, 1);
+<% } %>
+}
+
+SPL::rstring MY_OPERATOR::debugAspect("FTPCommand");
+
+<%SPL::CodeGen::implementationEpilogue($model);%>
+
