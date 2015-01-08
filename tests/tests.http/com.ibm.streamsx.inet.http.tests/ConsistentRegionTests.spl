@@ -1,0 +1,26 @@
+//
+// *******************************************************************************
+// * Copyright (C)2014, International Business Machines Corporation and *
+// * others. All Rights Reserved. *
+// *******************************************************************************
+//
+namespace com.ibm.streamsx.inet.http.tests;
+
+composite HTTPStreamConsistentRegionFailMain {
+	param
+		expression<rstring> $baseUrl : getSubmissionTimeValue("baseUrl");
+	type
+		HTTPStreamType = rstring httpString;
+	graph
+		@consistent(trigger=periodic, period=10.0)
+		stream<HTTPStreamType> HTTPStream
+			= com.ibm.streamsx.inet.http::HTTPGetStream() {
+			param
+				url : $baseUrl + "/streamtest/streamtest?dataCount=10"; 
+		}
+		() as SinkOp = FileSink(HTTPStream) {
+		   param
+			file : "somefile.dat";
+		}
+		() as JCPOp = JobControlPlane() {}
+}
