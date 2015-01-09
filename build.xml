@@ -127,7 +127,7 @@
   <target name="create_release_bundle"  depends="all">
         <property name="release.dir" location="${release.base}${commithash}" />
 	<mkdir dir="${release.dir}" />
-        <property name="releasefilename" value="${release.dir}/streamx.inet.toolkits-${tkinfo.identity.version}-${DSTAMP}-${TSTAMP}.tgz"/>
+        <property name="releasefilename" value="${release.dir}/streamsx.inet.toolkits-${tkinfo.identity.version}-${DSTAMP}-${TSTAMP}.tgz"/>
     	<tar compression="gzip" longfile="gnu"
              destfile="${releasefilename}"
     	     basedir="${basedir}"
