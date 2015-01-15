@@ -7,6 +7,8 @@
   <property name="streams.install" value="${env.STREAMS_INSTALL}" />
   <property name="toolkit" location="com.ibm.streamsx.inet"/>
   <property name="release.base" location="release-${ant.project.name}-" />
+  <property name="toolkit.test" location="tests" />
+
 	
   <target name="all" depends="toolkit,samples, spldoc_work, toolkitIndexOnly"/>
 
@@ -86,8 +88,9 @@
   </target>
   
   <!-- Test targets -->
-  <target name="tests">
+  <target name="tests" depends="toolkit">
      <ant dir="${toolkit}" target="test"/>
+     <ant dir="${toolkit.test}" target="all"/>
   </target>
 
 
