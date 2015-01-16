@@ -5,6 +5,11 @@
 <%SPL::CodeGen::implementationPrologue($model);%>
 
 <%
+  my $ccContext = $model->getContext()->getOptionalContext("ConsistentRegion");
+  if (defined $ccContext) {
+    SPL::CodeGen::exitln("InetSource operator is not allowed in a consistent region");
+  }
+
   my $oport = $model->getOutputPortAt(0);
   my $oportAttr = $oport->getAttributeAt(0);
   my $oportSPLType = $oportAttr->getSPLType();
