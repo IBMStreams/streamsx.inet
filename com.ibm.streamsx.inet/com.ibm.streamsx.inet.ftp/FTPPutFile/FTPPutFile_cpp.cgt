@@ -204,8 +204,14 @@ void MY_OPERATOR::process(Tuple const & tuple, uint32_t port) {
 				writer->setPassword(<%=$password%>);
 <%			} %>
 <%		} %>
-
-		writer->setLocalFilename(<%=$localFilename%>);
+		const rstring localFilename(<%=$localFilename%>);
+		
+		if (localFilename[0] == '/') {
+		   writer->setLocalFilename(localFilename);
+		}
+		else {
+		     writer->setLocalFilename(Functions::Utility::dataDirectory()+"/"+<%=$localFilename%>);
+		}
 		writer->setHost(<%=$host%>);
 		writer->setPath(<%=$path%>);
 <%		if ($filename) {%>
