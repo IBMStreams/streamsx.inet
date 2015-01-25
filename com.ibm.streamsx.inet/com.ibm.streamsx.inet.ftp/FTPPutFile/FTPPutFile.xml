@@ -192,7 +192,7 @@ In case of sftp the path is always an absolute path.
       </parameter>
       <parameter>
         <name>localFilename</name>
-        <description>The name of the file to be transferred in the local file system.</description>
+        <description>The name of the file to be transferred in the local file system.  If relative, the path is relative to the data directory.</description>
         <optional>false</optional>
         <rewriteAllowed>true</rewriteAllowed>
         <expressionMode>Expression</expressionMode>
