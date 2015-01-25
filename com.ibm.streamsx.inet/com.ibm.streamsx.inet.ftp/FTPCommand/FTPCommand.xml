@@ -10,9 +10,10 @@ All Rights Reserved
   xsi:schemaLocation="http://www.ibm.com/xmlns/prod/streams/spl/operator operatorModel.xsd">
   <cppOperatorModel>
     <context>
-      <description>
-This command operator is able to execute a ftp command at remote host via FTP, FTPS or SFTP protocol. 
-Possible commands are : none, del, rm, rmdir ,mkdir, rename, modificationTime, pwd. The command modificationTime is not possible in sftp protocol. 
+      <description docHref="doc/${nl}/spldoc/html/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.ftp$FTPCommand.html">
+The `FTPCommand` operator can run an **ftp** command at a remote host by using the FTP, FTPS, or SFTP protocols. 
+Possible commands are: **none**, **del**, **rm**, **rmdir**, **mkdir**, **rename**, **modificationTime**, and **pwd**. 
+The **modificationTime** is not possible in the SFTP protocol. 
 The command string and the command arguments are received from port 0.
       </description>
       <iconUri size="16">ftpCommand_16.gif</iconUri>
