@@ -5,6 +5,10 @@
 <%SPL::CodeGen::implementationPrologue($model);%>
 
 <%
+  my $ccContext = $model->getContext()->getOptionalContext("ConsistentRegion");
+  if (defined $ccContext) {
+    SPL::CodeGen::exitln("InetSource operator is not allowed in a consistent region");
+  }
   my $oport = $model->getOutputPortAt(0);
   my $oportAttr = $oport->getAttributeAt(0);
   my $oportSPLType = $oportAttr->getSPLType();
@@ -112,7 +116,6 @@ MY_OPERATOR::MY_OPERATOR()
     absFileProtocol("file:////"),
     retrievers_(),
     retCodeCounts_(),
-    uris_(<%=(($parameter = $model->getParameterByName("URIList"))?SPL::CodeGen::getParameterCppInitializer($parameter):"")%>), 
     inputLinesPerRecord_(<%=(($parameter = $model->getParameterByName("inputLinesPerRecord"))?SPL::CodeGen::getParameterCppInitializer($parameter):1)%>), 
     intraRecordPadValue_(<%=(($parameter = $model->getParameterByName("intraRecordPadValue"))?SPL::CodeGen::getParameterCppInitializer($parameter):"\" \"")%>), 
     fetchInterval_(<%=(($parameter = $model->getParameterByName("fetchInterval"))?SPL::CodeGen::getParameterCppInitializer($parameter):600.0)%>), 
@@ -124,13 +127,10 @@ MY_OPERATOR::MY_OPERATOR()
 <% } %>
    dynamicURL_(<%=($model->getParameterByName("URIList")->getValueAt(0)->hasSideEffects()?"true":"false")%>)
 {
-  relFileProtocol = string("file:///");
-  absFileProtocol = string("file:////");
 
-  for(int i=0; i<uris_.getSize(); ++i)
-  {
-    string iURI = checkURI(uris_[i]);
-    
+}
+
+void MY_OPERATOR::addRetriever(const std::string&  iURI) {
     SPLAPPTRC(L_DEBUG, "Using " << iURI << "' as the input URI...","InetSource");
 
       InetRetriever* retriever = new InetRetriever(iURI);
@@ -140,14 +140,13 @@ MY_OPERATOR::MY_OPERATOR()
 <% if($unconditionalFetch) { %>
       retriever->ignoreLastModTime(<%=$unconditionalFetch%>);
 <% } %>
-      
       std::pair<int, uint32_t> retcodeCount (0, 0);
       retrievers_.push_back(retriever);
       retCodeCounts_.push_back(retcodeCount);
-  }
+     
 }
 
-std::string MY_OPERATOR::checkURI(std::string iURI) {
+std::string MY_OPERATOR::checkURI(const std::string & iURI) {
     URIHelper uri;
     try
     {
@@ -191,10 +190,13 @@ std::string MY_OPERATOR::checkURI(std::string iURI) {
         inputFileName.append("/").append(iFileName);
       }
 
-      iURI = string(relFileProtocol);
-      iURI.append(inputFileName);
+      std::string newURI(relFileProtocol);
+      newURI.append(inputFileName);
+      return newURI;
     }
-    return iURI;
+    else {
+        return iURI;
+    }
 }
 
 MY_OPERATOR::~MY_OPERATOR() 
@@ -237,13 +239,25 @@ void MY_OPERATOR::process(uint32_t idx)
   getPE().blockUntilShutdownRequest(<%=$initDelay%>);
 <% } %>
 
+
+  
+  bool firstTime = true;
   while(!getPE().getShutdownRequested())
   {
-    if (dynamicURL_) {
-        // There are <%=$model->getParameterByName("URIList")->getNumberOfValues()%> values for this parameter.
-        SPL::list<SPL::rstring> newURI = <%=($model->getParameterByName("URIList")->getValueAt(0)->getCppExpression())%>;
-        
-        // Update the URL for the next fetch.
+    if (dynamicURL_ || firstTime) {
+    firstTime = false;
+         SPL::list<SPL::rstring> newURI = <%=($model->getParameterByName("URIList")->getValueAt(0)->getCppExpression())%>; 
+	// delete retrievers we won't need.
+	while (retrievers_.size() > newURI.size()) {
+	      	// save it so we can delete it.
+		InetRetriever* last = retrievers_.back();
+		retrievers_.erase(retrievers_.end() -1, retrievers_.end());
+		retCodeCounts_.erase(retCodeCounts_.end() -1, retCodeCounts_.end());
+		delete last;	
+	}
+
+       
+       // If there's a retriever, re-use it.
         for (std::size_t i = 0; i < retrievers_.size() ; i++)  {
             if (retrievers_.at(i)->updateURL(checkURI(newURI.at(i)))) {
              SPLAPPTRC(L_INFO, "URL " << i << " updated to " << retrievers_.at(i)->targetURL(), "InetSource");
@@ -252,7 +266,10 @@ void MY_OPERATOR::process(uint32_t idx)
                 SPLAPPTRC(L_DEBUG,"URL " << i << " re-evaluated, but is unchanged ", "InetSource");
             }
         }
-
+	// here we need to add a retriever.
+	for (std::size_t i = retrievers_.size(); i < newURI.size(); i++) {
+	    addRetriever(checkURI(newURI.at(i)));
+	}
     }
     // now fetch.
     for(std::size_t i = 0; i < retrievers_.size() && !getPE().getShutdownRequested(); i++)

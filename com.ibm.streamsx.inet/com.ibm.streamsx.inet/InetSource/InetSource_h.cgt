@@ -98,13 +98,18 @@ public:
   void allPortsReady(); 
 
   // check the URI to make sure it's valid; also handle relative and absolute paths.
-  std::string checkURI(std::string inURI);
+  std::string checkURI(const std::string & inURI);
 
   // notify termination
   void prepareToShutdown(); 
 
   // processing for source and threaded operators   
   void process(uint32_t idx);
+  
+  /// add a retriever to the reiver list.  Assumes the URI has already been
+  /// checked
+  void addRetriever(const std::string & iURI);
+
     
 private:
   // members
@@ -112,7 +117,6 @@ private:
   std::string absFileProtocol;
   std::vector<InetRetriever*> retrievers_;
   std::vector<std::pair<int,uint32_t> > retCodeCounts_;
-  SPL::list<SPL::rstring> uris_;
   uint32_t inputLinesPerRecord_;
   SPL::rstring intraRecordPadValue_;
   SPL::float64 fetchInterval_;
