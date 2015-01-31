@@ -36,7 +36,7 @@ import com.ibm.streams.operator.samples.patterns.TupleProducer;
 
 @PrimitiveOperator(description=WebSocketInject.primDesc)
 @OutputPorts({@OutputPortSet(description=WebSocketInject.outPortDesc, cardinality=1, optional=false, windowPunctuationOutputMode=WindowPunctuationOutputMode.Free)})
-@Libraries("opt/wssupport/java_websocket.jar")
+@Libraries("opt/wssupport/Java-WebSocket-1.3.0.jar")
 @Icons(location32="impl/java/icons/WebSocketInject_32.gif", location16="impl/java/icons/WebSocketInject_16.gif")
 
 public class WebSocketInject extends TupleProducer {
