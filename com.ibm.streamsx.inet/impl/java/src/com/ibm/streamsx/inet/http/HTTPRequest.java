@@ -20,7 +20,6 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -90,7 +89,7 @@ class HTTPRequest {
 	 */
 	public void setParams(String value) throws Exception {
 		if(value != null) {
-			entity = new StringEntity(value, Charset.forName("UTF-8"));
+			entity = new StringEntity(value, Charset.forName("UTF-8").toString());
 		}
 	}
 
@@ -102,13 +101,14 @@ class HTTPRequest {
 	 */
 	public HTTPResponse sendRequest(IAuthenticate auth) throws Exception {
 		HttpClient client = new DefaultHttpClient();
-		URIBuilder uri = new URIBuilder(url);
+		//URIBuilder uri = new URIBuilder(url);
+		//URL url = new URL(url);
 		if(type == RequestType.GET) {
-			HttpGet get = new HttpGet(uri.build());
+			HttpGet get = new HttpGet(url);
 			req=get;
 		}
 		else {
-			HttpPost post = new HttpPost(uri.build());
+			HttpPost post = new HttpPost(url);
 			if(entity != null)
 				post.setEntity(entity);				
 			req = post;
