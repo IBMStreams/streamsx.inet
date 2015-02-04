@@ -14,7 +14,7 @@ if [ -z "$ex" ]; then
     exit 1
 fi
 
-ret=$($ex | grep TEST_ERROR)
+ret=$($ex 2>&1 | grep TEST_ERROR)
 
 if [ ! -z "$ret" ]; then
     echo "ERROR: Test Failed"
