@@ -101,8 +101,6 @@ class HTTPRequest {
 	 */
 	public HTTPResponse sendRequest(IAuthenticate auth) throws Exception {
 		HttpClient client = new DefaultHttpClient();
-		//URIBuilder uri = new URIBuilder(url);
-		//URL url = new URL(url);
 		if(type == RequestType.GET) {
 			HttpGet get = new HttpGet(url);
 			req=get;
