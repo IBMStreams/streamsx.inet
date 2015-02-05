@@ -22,40 +22,40 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.0.0.commit_bbf22f8</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet</a> &gt; InetSource</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.0.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet</a> &gt; InetSource</p>
 
 </div>
 
 <div class="section">
 
-<p class="p">The InetSource operator periodically retrieves text-based data from remote locations on an Internet or intranet network and generates a stream from those contents. This operator can also be used to stream the contents of local files. The InetSource operator shares some characteristics with the FileSource operator from the IBM® Streams Processing Language (SPL) standard toolkit, but it provides more functions. The two operators differ in the following ways:
-</p>
-
-<div class="p">
+<div class="p">The <tt class="ph tt">InetSource</tt> operator periodically retrieves text-based data from remote locations on an internet or intranet network and generates a stream from those contents. This operator can also be used to stream the contents of local files. The <tt class="ph tt">InetSource</tt> operator shares some characteristics with the <tt class="ph tt">FileSource</tt> operator from the IBM Streams Processing Language (SPL) standard toolkit, but it provides more functions.  The two operators differ in the following ways:
 <ul class="ul">
-<li class="li"> The FileSource operator reads from local files. In addition to reading local files, the InetSource operator supports remote reading of files by using HTTP, HTTPS, and FTP.</li>
+<li class="li"> The <tt class="ph tt">FileSource</tt> operator reads from local files.   In addition to reading local files, the <tt class="ph tt">InetSource</tt> operator supports remote reading of files by using HTTP, HTTPS, and FTP.</li>
 
-<li class="li"> By default, the FileSource operator reads its target input only once. The InetSource operator periodically checks the target files for updates on a user-controllable schedule. In addition, you can choose to use the InetSource operator to either stream out of the entire target file contents on each read, or stream out only the additions to the contents of the target file since the previous read.</li>
+<li class="li"> By default, the <tt class="ph tt">FileSource</tt> operator reads its target input only once.    The <tt class="ph tt">InetSource</tt> operator periodically checks the target files for updates on a user-controllable schedule.   In addition, you can choose to use the <tt class="ph tt">InetSource</tt> operator to either stream out of the entire target file contents on each read,   or stream out only the additions to the contents of the target file since the previous read.</li>
 
-<li class="li"> The FileSource operator supports a single target for reading, while the InetSource operator can support multiple targets. The URI of each target can use any of the supported protocols (HTTP, HTTPS, FTP, FTPS, or FILE) and a mix of these protocols. An example of multi-target reading is in the <tt class="ph tt">WeatherConditions.spl</tt> file within the Commodity Purchasing Sample Application, where 24 HTTP-based URLs are simultaneously monitored for changes.</li>
+<li class="li"> The <tt class="ph tt">FileSource</tt> operator supports a single target for reading, while the <tt class="ph tt">InetSource</tt> operator can support multiple targets.   The URI of each target can use any of the supported protocols (HTTP, HTTPS, FTP, FTPS, or FILE) and a mix of these protocols.   An example of multi-target reading is in the <tt class="ph tt">WeatherConditions.spl</tt> file within the Commodity Purchasing Sample Application,   where 24 HTTP-based URLs are simultaneously monitored for changes.</li>
 
 </ul>
 
 </div>
 
-<p class="p">The output stream schema can contain exactly one attribute of either rstring or list&lt;rstring&gt; data types. The output stream of the InetSource operator can be fed into a Functor operator with custom logic to parse the rstring data into any number of SPL types. For more information and examples, see the <tt class="ph tt">WeatherConditions.spl</tt> file within the Commodity Purchasing Sample Application.
+<p class="p">The output stream schema can contain exactly one attribute of either rstring or list&lt;rstring&gt; data types. The output stream of the <tt class="ph tt">InetSource</tt> operator can be fed into a <tt class="ph tt">Functor</tt> operator with custom logic to parse the rstring data into any number of SPL types. For more information and examples, see the <tt class="ph tt">WeatherConditions.spl</tt> file  within the Commodity Purchasing Sample Application.
 </p>
 
-<p class="p"><strong class="ph b">Note:</strong> The InetSource operator uses the open source libcurl library to enable data transfer for various protocols, including HTTP, HTTPS, FTP, and FTPS. Proxy support can be enabled by configuring the <strong class="ph b">http_proxy</strong>, <strong class="ph b">HTTPS_PROXY</strong>, <strong class="ph b">FTP_PROXY</strong>, and <strong class="ph b">ALL_PROXY</strong> environment variables as described on the curl man page at the following link: <a class="xref" href="http://curl.haxx.se/docs/manpage.html">http://curl.haxx.se/docs/manpage.html</a>.
+<p class="p"><strong class="ph b">Note:</strong> The <tt class="ph tt">InetSource</tt> operator uses the open source libcurl library to enable data transfer for various protocols, including HTTP, HTTPS, FTP, and FTPS. Proxy support can be enabled by configuring the <strong class="ph b">http_proxy</strong>, <strong class="ph b">HTTPS_PROXY</strong>, <strong class="ph b">FTP_PROXY</strong>, and <strong class="ph b">ALL_PROXY</strong> environment variables as described on the curl man page at the following link: <a class="xref" href="http://curl.haxx.se/docs/manpage.html">http://curl.haxx.se/docs/manpage.html</a>.
 </p>
+
+  <dl class="dl"><dt class="dt dlterm"><a class="xref" href="op$com.ibm.streamsx.inet$InetSource$1.html">Examples</a>
+</dt>
+<dd class="dd">This example demonstrates how to use the <tt class="ph tt">InetSource</tt> operator.
+</dd>
+</dl>
 
 </div>
 
 <div class="section splprimop">
-<object type="image/svg+xml" data="../../image/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet$InetSource.svg" width="672" height="112">
-<span>Primitive operator image not displayed. Problem loading file: ../../image/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet$InetSource.svg
-</span>
-</object>
+  <embed class="image" src="../../image/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet$InetSource.svg" width="672" height="112"/>
 </div>
 
 <div class="section"><h2 class="title sectiontitle splhead-1">Summary</h2>
