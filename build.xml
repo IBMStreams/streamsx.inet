@@ -64,7 +64,7 @@
     description="Create SPLDOC with git commit hash included in the version"
   />
 
-  <target name="spldoc_work" depends="samples"
+  <target name="spldoc_work" depends="samples,setcommitversion"
     description="Create SPLDOC"
   >
     <antcall target="spldoctoolkit">
