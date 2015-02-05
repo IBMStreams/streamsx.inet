@@ -57,7 +57,7 @@
   
   <target name="toolkitIndexOnly" description="Index the toolkit.">
   		<ant dir="${toolkit}" target="cleanToolkitxml" /> 
-        <ant dir="${toolkit}" target="cpp" /> 
+        <ant dir="${toolkit}" target="indextoolkit" /> 
   </target> 	
 
   <target name="spldoc" depends="setcommitversion, spldoc_work, revertversion"
