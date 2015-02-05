@@ -54,12 +54,6 @@
 
 
 
-  <dt class="dt dlterm"><a class="xref" href="../tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.http$HTTPGetStreamSource.html">HTTPGetStreamSource</a></dt>
-
-  <dd class="dd">Connects to an HTTP endpoint, reads "chunks" of data and sends it to the output port.Every line read from the HTTP server endpoint is sent as a single tuple.If a connection is closed by the server, a punctuation will be sent on port 0.Certain authentication modes are supported.</dd>
-
-
-
   <dt class="dt dlterm"><a class="xref" href="../tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.http$HTTPGetXMLContent.html">HTTPGetXMLContent</a></dt>
 
   <dd class="dd">Periodically connects to an HTTP endpoint to GET XML content as a single tuple.</dd>
@@ -69,12 +63,6 @@
   <dt class="dt dlterm"><a class="xref" href="../tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.http$HTTPPost.html">HTTPPost</a></dt>
 
   <dd class="dd">This operator sends incoming tuples to the specified HTTP server as part of a POST request.</dd>
-
-
-
-  <dt class="dt dlterm"><a class="xref" href="../tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.http$HTTPPostSink.html">HTTPPostSink</a></dt>
-
-  <dd class="dd">This operator sends incoming tuples to the specified HTTP server as part of a POST request.A single tuple will be sent as a body of one HTTP POST request.All attributes of the tuple will be serialized and sent to the server.Certain authentication modes are supported.Tuples are sent to the server one at a time in order of receipt.</dd>
 
 
 
