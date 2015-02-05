@@ -2,7 +2,7 @@
  * Copyright (C) 2014, International Business Machines Corporation
  * All Rights Reserved.
  */
-package com.ibm.streamsx.inet.http;
+package com.ibm.streamsx.inet.httpxml;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
