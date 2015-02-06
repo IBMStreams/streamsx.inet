@@ -33,6 +33,9 @@ The output stream of the `InetSource` operator can be fed into a `Functor` opera
 into any number of SPL types. For more information and examples, see the `WeatherConditions.spl` file 
 within the Commodity Purchasing Sample Application.
 
+**Consistent Region Behavior**
+This operator is cannot be used in a consistent region.
+
 **Note:** The `InetSource` operator uses the open source libcurl library to enable data transfer for various protocols,
 including HTTP, HTTPS, FTP, and FTPS. Proxy support can be enabled by configuring the **http_proxy**, **HTTPS_PROXY**, **FTP_PROXY**,
 and **ALL_PROXY** environment variables as described on the curl man page at the following link: [http://curl.haxx.se/docs/manpage.html].
