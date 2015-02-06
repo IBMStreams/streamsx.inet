@@ -36,7 +36,8 @@ artifacts were left around and caused issues with the ant build.
 		<mkdir dir="${downloads.dir}" />
 	</target>
 
-	<target name="clean" depends="cpp-clean">
+	<!-- SPREE <target name="clean" depends="cpp-clean"> -->
+	<target name="clean">
 		<delete>
 			<fileset dir="${src.dir}" includes="**/*$StreamsModel.java" />
 		</delete>
@@ -76,9 +77,9 @@ artifacts were left around and caused issues with the ant build.
 	</path>
 
 	<path id="cp.manifest">
-		<path refid="cp.eclipse.jetty" />
+		<!-- SPREE <path refid="cp.eclipse.jetty" />
 		<path refid="cp.wssocket" />
-		<path refid="cp.http.client" />
+		<path refid="cp.http.client" />-->
 		<path refid="cp.downloads" />
 	</path>
 
@@ -87,7 +88,8 @@ artifacts were left around and caused issues with the ant build.
 		<path refid="cp.manifest" />
 	</path>
 
-	<target name="all" depends="jar,cpp,indextoolkit" />
+	<!-- SPREE <target name="all" depends="jar,cpp,indextoolkit" /> -->
+	<target name="all" depends="jar,indextoolkit" />
 
 	<target name="cpp">
 		<exec executable="make" failonerror="true" dir="impl">
@@ -106,7 +108,8 @@ artifacts were left around and caused issues with the ant build.
 	</target>
 
 	  
-  <target name="indextoolkit" depends="jar,cpp">
+  <!-- SPREE <target name="indextoolkit" depends="jar,cpp"> -->
+	<target name="indextoolkit" depends="jar">
      <echo message="Tookit to index: ${basedir}"/>
      <exec executable="${streams.install}/bin/spl-make-toolkit">
         <arg value="--directory"/>
