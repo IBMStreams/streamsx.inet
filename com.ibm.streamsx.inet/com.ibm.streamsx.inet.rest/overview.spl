@@ -1,0 +1,47 @@
+/**
+ * A set of operators using HTTP REST apis to interact with
+ * streaming data.
+ *
+ * These operators all embed an instance of Eclipse Jetty
+ * to provide an web-server embedded within the operator.
+ * 
+ * Access to streaming data is provided through
+ * the [HTTPTupleView] and [HTTPXMLView] operators.
+ * These two operators support `HTTP GET` requests
+ * to fetch the latest version of the streaming data in
+ * the operator's state.
+ *
+ * Data can be injected into a stream through 
+ * [HTTPTupleInjection] and [HTTPXMLInjection] operators.
+ * Each operators extracts data from an `HTTP POST` and
+ * submits a tuple on an output port.
+ *
+ * [WebContext] provides a mechanism to serve files
+ * at a fixed web context, a fixed path relative to the
+ * root URL of the web server. Note that all the operators
+ * also support a fixed context using the `context` and
+ * `contextResourceBase` operator parameters. 
+ *
+ * Multiple operators share a single web-server by being
+ * partition colocated in the same partition (fused in the same proccessing element).
+ * This allows operators to expose streams through the same webserver
+ * without having to be connected in the SPL graph.
+ *
+ * Overall, these set of operators allow a complete web-application
+ * to be self-contained within an SPL application. In addition to
+ * the operators the webserver will serve up HTML and Javascript
+ * files. Javascript can be used with the JSON data provided
+ * by [HTTPTupleView] to visual live data using graphical
+ * packages such as [http://dojotoolkit.org|DOJO] and 
+ * [http://d3js.org|D3].
+ * 
+ * Meta-data for the streams connected to the operators is also available through `HTTP GET` requests,
+ * to allow JavaScript applications to self-discover the format of the data.
+ * 
+ * These fixed contexts are provided by the operators:
+ * * `streamsx.inet.resources` Something
+ * * `streamsx.inet.dojo` The Dojo Javascript library located at `$STREAMS_INSTALL/ext/dojo`. 
+*/
+
+namespace com.ibm.streamsx.inet.rest;
+
