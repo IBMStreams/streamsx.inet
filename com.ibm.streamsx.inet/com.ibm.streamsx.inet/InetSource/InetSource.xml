@@ -33,7 +33,7 @@ The output stream of the `InetSource` operator can be fed into a `Functor` opera
 into any number of SPL types. For more information and examples, see the `WeatherConditions.spl` file 
 within the Commodity Purchasing Sample Application.
 
-**Consistent Region Behavior**
+**Behavior in a consistent region**
 This operator is cannot be used in a consistent region.
 
 **Note:** The `InetSource` operator uses the open source libcurl library to enable data transfer for various protocols,
