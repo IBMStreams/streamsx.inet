@@ -1,4 +1,4 @@
-#Thu Feb 05 15:06:16 EST 2015
+#Thu Mar 12 23:08:17 EDT 2015
 copytosourcelist=
 hreftargetslist=tk$InetSourceSample/ns$com.ibm.streamsx.inet.sample.xml,toolkits/toolkits.xml,tk$InetSourceSample/tk$InetSourceSample.xml
 fullditatopicfile=fullditatopic.list
@@ -38,7 +38,7 @@ codereffile=coderef.list
 codereflist=
 user.input.file.listfile=usr.input.file.list
 uplevels=
-user.input.dir=/homes/hny2/hildrum/github/IBMStreams/streamsx.inet/samples/InetSource/doc/spldoc/dita
+user.input.dir=/homes/hny2/hildrum/cleaninet/streamsx.inet/samples/InetSource/doc/spldoc/dita
 conrefpushfile=conrefpush.list
 tempdirToinputmapdir.relative.value=
 flagimagefile=flagimage.list

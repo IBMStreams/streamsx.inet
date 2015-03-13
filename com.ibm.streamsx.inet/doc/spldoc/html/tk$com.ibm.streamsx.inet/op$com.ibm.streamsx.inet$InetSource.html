@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.0.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet</a> &gt; InetSource</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.5.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet</a> &gt; InetSource</p>
 
 </div>
 
@@ -41,6 +41,9 @@
 </div>
 
 <p class="p">The output stream schema can contain exactly one attribute of either rstring or list&lt;rstring&gt; data types. The output stream of the <tt class="ph tt">InetSource</tt> operator can be fed into a <tt class="ph tt">Functor</tt> operator with custom logic to parse the rstring data into any number of SPL types. For more information and examples, see the <tt class="ph tt">WeatherConditions.spl</tt> file  within the Commodity Purchasing Sample Application.
+</p>
+
+<p class="p"><strong class="ph b">Consistent Region Behavior</strong> This operator is cannot be used in a consistent region.
 </p>
 
 <p class="p"><strong class="ph b">Note:</strong> The <tt class="ph tt">InetSource</tt> operator uses the open source libcurl library to enable data transfer for various protocols, including HTTP, HTTPS, FTP, and FTPS. Proxy support can be enabled by configuring the <strong class="ph b">http_proxy</strong>, <strong class="ph b">HTTPS_PROXY</strong>, <strong class="ph b">FTP_PROXY</strong>, and <strong class="ph b">ALL_PROXY</strong> environment variables as described on the curl man page at the following link: <a class="xref" href="http://curl.haxx.se/docs/manpage.html">http://curl.haxx.se/docs/manpage.html</a>.

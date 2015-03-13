@@ -1,4 +1,4 @@
-#Thu Feb 05 15:06:03 EST 2015
+#Thu Mar 12 23:08:04 EDT 2015
 copytosourcelist=
 hreftargetslist=tk$HTTPTupleInjectAndView/ns$com.ibm.streamsx.inet.sample.rest.xml,toolkits/toolkits.xml,tk$HTTPTupleInjectAndView/tk$HTTPTupleInjectAndView.xml
 fullditatopicfile=fullditatopic.list
@@ -38,7 +38,7 @@ codereffile=coderef.list
 codereflist=
 user.input.file.listfile=usr.input.file.list
 uplevels=
-user.input.dir=/homes/hny2/hildrum/github/IBMStreams/streamsx.inet/samples/HTTPTupleInjectAndView/doc/spldoc/dita
+user.input.dir=/homes/hny2/hildrum/cleaninet/streamsx.inet/samples/HTTPTupleInjectAndView/doc/spldoc/dita
 conrefpushfile=conrefpush.list
 tempdirToinputmapdir.relative.value=
 flagimagefile=flagimage.list
