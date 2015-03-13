@@ -2,7 +2,7 @@
  * Copyright (C) 2014, International Business Machines Corporation
  * All Rights Reserved.
  */
-package com.ibm.streamsx.inet.http;
+package com.ibm.streamsx.inet.httpxml;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +40,7 @@ import com.ibm.streams.operator.types.XML;
  * HTTP GET of application/xml content.
  *
  */
-@PrimitiveOperator(description=HTTPGetXMLContent.DESC)
+@PrimitiveOperator(description=HTTPGetXMLContent.DESC, namespace="com.ibm.streamsx.inet.http")
 // Can't create a control port because TupleConsumer has process as final.
 // @InputPortSet(optional=true, cardinality=1, controlPort=true, description="Control port to change the URL used for the HTTP GET.")
 @OutputPortSet(cardinality=1,windowPunctuationOutputMode=WindowPunctuationOutputMode.Free,

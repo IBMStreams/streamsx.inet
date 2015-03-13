@@ -10,9 +10,9 @@ All Rights Reserved
   xsi:schemaLocation="http://www.ibm.com/xmlns/prod/streams/spl/operator operatorModel.xsd">
   <cppOperatorModel>
     <context>
-      <description>
-Put File operator is able to put a local file to a remote host via FTP, FTPS or SFTP protocol. 
-Optionally the file may re-named after complete transfer.</description>
+      <description docHref="doc/${nl}/spldoc/html/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.ftp$FTPPutFile.html">
+The `FTPPutFile` operator can put a local file on a remote host by using FTP, FTPS, or SFTP protocols. 
+You can optionally rename the file after you complete the transfer.</description>
       <iconUri size="16">ftpPutFile_16.gif</iconUri>
       <iconUri size="32">ftpPutFile_32.gif</iconUri>
       <!-- some optional elements
@@ -192,7 +192,7 @@ In case of sftp the path is always an absolute path.
       </parameter>
       <parameter>
         <name>localFilename</name>
-        <description>The name of the file to be transferred in the local file system.</description>
+        <description>The name of the file to be transferred in the local file system.  If relative, the path is relative to the data directory.</description>
         <optional>false</optional>
         <rewriteAllowed>true</rewriteAllowed>
         <expressionMode>Expression</expressionMode>

@@ -57,14 +57,14 @@
   
   <target name="toolkitIndexOnly" description="Index the toolkit.">
   		<ant dir="${toolkit}" target="cleanToolkitxml" /> 
-        <ant dir="${toolkit}" target="cpp" /> 
+        <ant dir="${toolkit}" target="indextoolkit" /> 
   </target> 	
 
   <target name="spldoc" depends="setcommitversion, spldoc_work, revertversion"
     description="Create SPLDOC with git commit hash included in the version"
   />
 
-  <target name="spldoc_work" depends="samples"
+  <target name="spldoc_work" depends="samples,setcommitversion"
     description="Create SPLDOC"
   >
     <antcall target="spldoctoolkit">
@@ -100,6 +100,7 @@
      <exec executable="${streams.install}/bin/spl-make-toolkit">
         <arg value="--directory"/>
         <arg value="${basedir}"/>
+        <arg value="-m"/>
      </exec>
   </target>
   <target name="cleantoolkit">

@@ -11,17 +11,49 @@
   operatorModel.xsd">
   <cppOperatorModel>
     <context>
-      <description docHref="doc/${nl}/doc/inetsourceoperator.html">
-The InetSource operator periodically retrieves text-based data from remote locations on an Internet or intranet network and generates a stream from those contents. This operator can also be used to stream the contents of local files. The InetSource operator shares some characteristics with the FileSource operator from the IBM® Streams Processing Language (SPL) standard toolkit, but it provides more functions. The two operators differ in the following ways:
+      <description docHref="doc/${nl}/spldoc/html/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet$InetSource.html">
+The `InetSource` operator periodically retrieves text-based data from remote locations on an internet or intranet network
+and generates a stream from those contents. This operator can also be used to stream the contents of local files.
+The `InetSource` operator shares some characteristics with the `FileSource` operator from the IBM Streams Processing Language (SPL)
+standard toolkit, but it provides more functions. 
+The two operators differ in the following ways:
+* The `FileSource` operator reads from local files.
+  In addition to reading local files, the `InetSource` operator supports remote reading of files by using HTTP, HTTPS, and FTP.
+* By default, the `FileSource` operator reads its target input only once. 
+  The `InetSource` operator periodically checks the target files for updates on a user-controllable schedule.
+  In addition, you can choose to use the `InetSource` operator to either stream out of the entire target file contents on each read,
+  or stream out only the additions to the contents of the target file since the previous read.
+* The `FileSource` operator supports a single target for reading, while the `InetSource` operator can support multiple targets.
+  The URI of each target can use any of the supported protocols (HTTP, HTTPS, FTP, FTPS, or FILE) and a mix of these protocols.
+  An example of multi-target reading is in the `WeatherConditions.spl` file within the Commodity Purchasing Sample Application,
+  where 24 HTTP-based URLs are simultaneously monitored for changes.
 
-* The FileSource operator reads from local files. In addition to reading local files, the InetSource operator supports remote reading of files by using HTTP, HTTPS, and FTP.
-* By default, the FileSource operator reads its target input only once. The InetSource operator periodically checks the target files for updates on a user-controllable schedule. In addition, you can choose to use the InetSource operator to either stream out of the entire target file contents on each read, or stream out only the additions to the contents of the target file since the previous read.
-* The FileSource operator supports a single target for reading, while the InetSource operator can support multiple targets. The URI of each target can use any of the supported protocols (HTTP, HTTPS, FTP, FTPS, or FILE) and a mix of these protocols. An example of multi-target reading is in the `WeatherConditions.spl` file within the Commodity Purchasing Sample Application, where 24 HTTP-based URLs are simultaneously monitored for changes.
+The output stream schema can contain exactly one attribute of either rstring or list&lt;rstring&gt; data types.
+The output stream of the `InetSource` operator can be fed into a `Functor` operator with custom logic to parse the rstring data
+into any number of SPL types. For more information and examples, see the `WeatherConditions.spl` file 
+within the Commodity Purchasing Sample Application.
 
-The output stream schema can contain exactly one attribute of either rstring or list&lt;rstring&gt; data types. The output stream of the InetSource operator can be fed into a Functor operator with custom logic to parse the rstring data into any number of SPL types. For more information and examples, see the `WeatherConditions.spl` file within the Commodity Purchasing Sample Application.
+**Consistent Region Behavior**
+This operator is cannot be used in a consistent region.
 
-**Note:** The InetSource operator uses the open source libcurl library to enable data transfer for various protocols, including HTTP, HTTPS, FTP, and FTPS. Proxy support can be enabled by configuring the **http_proxy**, **HTTPS_PROXY**, **FTP_PROXY**, and **ALL_PROXY** environment variables as described on the curl man page at the following link: [http://curl.haxx.se/docs/manpage.html].
-      </description>
+**Note:** The `InetSource` operator uses the open source libcurl library to enable data transfer for various protocols,
+including HTTP, HTTPS, FTP, and FTPS. Proxy support can be enabled by configuring the **http_proxy**, **HTTPS_PROXY**, **FTP_PROXY**,
+and **ALL_PROXY** environment variables as described on the curl man page at the following link: [http://curl.haxx.se/docs/manpage.html].
+
++ Examples
+
+This example demonstrates how to use the `InetSource` operator.
+
+    stream &lt;rstring metarObsRecord&gt; WxObservations = InetSource (){
+      param
+        URIList:
+        ["http://weather.noaa.gov/pub/data/observations/meta/cycles/07Z.TXT",
+        "http://weather.noaa.gov/pub/data/observations/meta/cycles/08Z.TXT"];
+        initDelay: 5.0;
+        incrementalFetch: true;
+        fetchIntervalSeconds: 60u;
+    }
+</description>
       <iconUri size="16">InetSource_16.gif</iconUri>
       <iconUri size="32">InetSource_32.gif</iconUri>
       <customLiterals/>

@@ -7,9 +7,10 @@
 <%
   my $ccContext = $model->getContext()->getOptionalContext("ConsistentRegion");
   if (defined $ccContext) {
-    SPL::CodeGen::exitln("InetSource operator is not allowed in a consistent region");
+    SPL::CodeGen::exitln("The following operator is not supported in a consistent region: InetSource.");
   }
-  my $oport = $model->getOutputPortAt(0);
+  
+my $oport = $model->getOutputPortAt(0);
   my $oportAttr = $oport->getAttributeAt(0);
   my $oportSPLType = $oportAttr->getSPLType();
 

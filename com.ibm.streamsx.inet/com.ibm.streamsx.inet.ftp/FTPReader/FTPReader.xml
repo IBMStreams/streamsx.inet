@@ -10,13 +10,14 @@ All Rights Reserved
   xsi:schemaLocation="http://www.ibm.com/xmlns/prod/streams/spl/operator operatorModel.xsd">
   <cppOperatorModel>
     <context>
-      <description>
-This source operator is able to scan a director at a remote host 
-or a may receive files from a remote host via FTP, FTPS or SFTP protocol.
-If the operator works as a directory scanner, the content of the directory may be received line by line. 
-Separate output functions are available to get dedicated information of the directory in specialized output functions like 
-file name, size, date..
-If the operator works as file source, the content of the file may be delivered either in binary format as `blob` or in text format line by line.
+      <description docHref="doc/${nl}/spldoc/html/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.ftp$FTPReader.html">
+The `FTPReader` operator is a source operator that can scan a directory at a remote host
+or receive files from a remote host by using the FTP, FTPS, or SFTP protocols.
+If the operator works as a directory scanner, the contents of the directory can be received line by line. 
+Separate output functions are available to get dedicated information about the directory in specialized output functions like 
+file name, size, or date.
+
+If the operator works as file source, the content of the file can be delivered either in binary format as a `blob` or in text format line by line.
       </description>
       <iconUri size="16">ftpReader_16.gif</iconUri>
       <iconUri size="32">ftpReader_32.gif</iconUri>
