@@ -31,6 +31,7 @@ import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
 import com.ibm.streams.operator.state.ConsistentRegionContext;
+import com.ibm.streamsx.inet.http.HTTPPostOper;
 
 @OutputPorts({@OutputPortSet(cardinality=1, optional=false, windowPunctuationOutputMode=WindowPunctuationOutputMode.Generating,
 			  description="Data received from the server will be sent on this port."),
@@ -283,8 +284,8 @@ public class HTTPStreamReader extends AbstractOperator {
 			" If a connection is closed by the server, a WINDOW punctuation will be sent on port 0." +
 			" Supported Authentications: Basic Authentication, OAuth 1.0a." +
 			" Supported Compressions: Gzip, Deflate." +
-			"\\n\\n** Behavior in a Consistent Region **" + 
-			"\\nThis operator cannot be used inside a consistent region."
+	                HTTPPostOper.CONSISTENT_CUT_INTRODUCER+
+			"This operator cannot be used inside a consistent region."
 			;
 }
 
