@@ -1,9 +1,6 @@
 /*
 # Licensed Materials - Property of IBM
 # Copyright IBM Corp. 2013, 2013
-# US Government Users Restricted Rights - Use, duplication or
-# disclosure restricted by GSA ADP Schedule Contract with
-# IBM Corp.
 */
 package com.ibm.streamsx.inet.wsserver;
 import org.apache.log4j.Logger;
@@ -22,6 +19,7 @@ import com.ibm.streams.operator.model.OutputPortSet.WindowPunctuationOutputMode;
 import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
+import com.ibm.streams.operator.model.Icons;
 import com.ibm.streams.operator.samples.patterns.TupleProducer;
 
 /* TODO - enable ability to specify the network device the operator listens on */
@@ -38,9 +36,8 @@ import com.ibm.streams.operator.samples.patterns.TupleProducer;
 
 @PrimitiveOperator(description=WebSocketInject.primDesc)
 @OutputPorts({@OutputPortSet(description=WebSocketInject.outPortDesc, cardinality=1, optional=false, windowPunctuationOutputMode=WindowPunctuationOutputMode.Free)})
-@Libraries("opt/wssupport/java_websocket.jar")
-
-
+@Libraries("opt/wssupport/Java-WebSocket-1.3.0.jar")
+@Icons(location32="impl/java/icons/WebSocketInject_32.gif", location16="impl/java/icons/WebSocketInject_16.gif")
 
 public class WebSocketInject extends TupleProducer {
 	final static String primDesc = 
@@ -171,10 +168,9 @@ public class WebSocketInject extends TupleProducer {
      */
     public void produceTuples(String msg, String id) throws Exception  {
         final StreamingOutput<OutputTuple> out = getOutput(0);
-        
         OutputTuple tuple = out.newTuple();
         // Set attributes in tuple
-        if (attrMsgName == null) { // only once 
+        if (attrMsgName == null) { // only once  ]
         	if (out.getStreamSchema().getAttributeCount() == 1) { // port only 1 attribute        	
         		attrMsgTypeName = out.getStreamSchema().getAttribute(0).getType().getLanguageType();                
         		attrMsgName = out.getStreamSchema().getAttribute(0).getName();
@@ -186,24 +182,25 @@ public class WebSocketInject extends TupleProducer {
         			throw new IllegalArgumentException("MessageAttribute note specified, must be specified if port has more than 1 attribute.");        			        			
         		}
         		attrMsgName = messageAttrName;
-
-        		attrIdName = senderIdAttrName;
+        		attrIdName  = senderIdAttrName;
+        		
         		if (attrIdName != null) {
         			if (out.getStreamSchema().getAttribute(attrIdName) == null) {        		
         			   throw new IllegalArgumentException("No such attribute named '" + attrIdName + "'.");        			        			        			
         			}
-            		if (out.getStreamSchema().getAttribute(attrIdName).getType() != Type.MetaType.RSTRING) {        			
+            		if (out.getStreamSchema().getAttribute(attrIdName).getType().getMetaType() != Type.MetaType.RSTRING) {
             			String typeString = out.getStreamSchema().getAttribute(attrIdName).getType().getLanguageType();             			
-            			throw new IllegalArgumentException("Attibute '" + attrMsgName + "' type must be rstring, found '" + typeString +"'.");
+            			throw new IllegalArgumentException("Attribute '" + attrIdName + "' type must be 'rstring', found '" + typeString +"'.");
             		}        			
         		}
         	}
     		if (out.getStreamSchema().getAttribute(attrMsgName) == null) {
     			throw new IllegalArgumentException("No such attribute named '" + attrMsgName + "' found.");        			        			        			
     		}
+
     		if (out.getStreamSchema().getAttribute(attrMsgName).getType().getMetaType() != Type.MetaType.RSTRING) {
         		String typeString = out.getStreamSchema().getAttribute(attrMsgName).getType().getLanguageType();        	    			
-        		throw new IllegalArgumentException("Attribute '" + attrMsgName + "' type must be rstring, found '" + typeString +"'.");
+        		throw new IllegalArgumentException("Attribute '" + attrMsgName + "' type must be 'rstring', found '" + typeString +"'.");
         	}
         } // done with first time check 
         if (attrIdName != null) { 

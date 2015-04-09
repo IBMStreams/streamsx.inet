@@ -1,9 +1,6 @@
 /*
 # Licensed Materials - Property of IBM
 # Copyright IBM Corp. 2011, 2014 
-# US Government Users Restricted Rights - Use, duplication or
-# disclosure restricted by GSA ADP Schedule Contract with
-# IBM Corp.
 */
 package com.ibm.streamsx.inet.rest.ops;
 
@@ -21,10 +18,12 @@ import com.ibm.streams.operator.compile.OperatorContextChecker;
 import com.ibm.streams.operator.model.InputPortSet;
 import com.ibm.streams.operator.model.InputPortSet.WindowMode;
 import com.ibm.streams.operator.model.PrimitiveOperator;
+import com.ibm.streams.operator.model.Icons;
 
 @PrimitiveOperator(name="HTTPXMLView", description=XMLView.DESC)
 @InputPortSet(cardinality=1,windowingMode=WindowMode.NonWindowed,
 			description="Input port whose first XML attribute will be available using a HTTP GET request with a URL using port index 0.")
+@Icons(location32="impl/java/icons/HTTPXMLView_32.gif", location16="impl/java/icons/HTTPXMLView_16.gif")
 public class XMLView extends ServletOperator {
 	
 	private final Map<Integer, Object[]> portData = Collections.synchronizedMap(new HashMap<Integer, Object[]>());

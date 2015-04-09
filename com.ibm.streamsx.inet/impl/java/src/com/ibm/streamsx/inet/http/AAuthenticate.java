@@ -8,7 +8,6 @@ package com.ibm.streamsx.inet.http;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Properties;
 
@@ -25,11 +24,11 @@ abstract class AAuthenticate implements IAuthenticate {
 		}
 		if(overrideProps != null && overrideProps.size() >0 ) {
 			for(String value : overrideProps) {
-				String [] arr = value.split("=");
-				if(arr.length < 2) 
+				int loc = value.indexOf("=");
+				if(loc == -1) 
 					throw new IllegalArgumentException("Invalid property: " + value);
-				String name = arr[0];
-				String v = value.substring(arr[0].length()+1, value.length());
+				String name = value.substring(0, loc);
+				String v = value.substring(loc+1, value.length());
 				prop.setProperty(name, v);
 			}
 		}
@@ -76,11 +75,10 @@ class BasicAuth extends AAuthenticate {
 	}
 
 	@Override
-	public HttpURLConnection sign(HTTPRequest req) throws Exception {
+	public void sign(HTTPRequest req) throws Exception {
 		BASE64Encoder encoder = new BASE64Encoder();
 		String up_encoded = encoder.encode(useridpassword.getBytes());
-		req.setHeader("Authorization", "Basic " + up_encoded);
-		return req.connect();
+		req.getReq().setHeader("Authorization", "Basic " + up_encoded);
 	}
 }
 
@@ -90,13 +88,12 @@ class BasicAuth extends AAuthenticate {
 class NoAuth extends AAuthenticate {
 
 	@Override
-	public HttpURLConnection sign(HTTPRequest req) throws Exception {
-		return req.connect();
+	public void sign(HTTPRequest req) throws Exception {
+		//noop
 	}
 
 	@Override
 	void init() {
 		//do nothing
 	}
-
 }

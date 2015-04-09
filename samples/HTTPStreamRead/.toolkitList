@@ -1,0 +1,7 @@
+HttpStreamRead/1.0.0
+spl/1.1.0
+ExchangeWebSocket/1.0.0
+HTTPTupleInjectAndView/1.0.0
+InetSourceDynamicURL/1.0.0
+InetSourceSample/1.0.0
+com.ibm.streamsx.inet/1.2.1.__dev__

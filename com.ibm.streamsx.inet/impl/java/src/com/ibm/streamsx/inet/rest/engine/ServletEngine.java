@@ -1,14 +1,12 @@
 /*
 # Licensed Materials - Property of IBM
 # Copyright IBM Corp. 2011, 2014  
-# US Government Users Restricted Rights - Use, duplication or
-# disclosure restricted by GSA ADP Schedule Contract with
-# IBM Corp.
 */
 package com.ibm.streamsx.inet.rest.engine;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,6 +37,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 
 import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.StreamingData;
+import com.ibm.streamsx.inet.http.PathConversionHelper;
 import com.ibm.streamsx.inet.rest.servlets.ExposedPortsInfo;
 import com.ibm.streamsx.inet.rest.servlets.PortInfo;
 import com.ibm.streamsx.inet.rest.setup.ExposedPort;
@@ -152,11 +151,13 @@ public class ServletEngine implements ServletEngineMBean {
         		new ExposedPortsInfo(exposedPorts)), "/info");       
         addHandler(portsIntro);
         
-        String impl_lib_jar = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
-        File toolkitRoot = new File(impl_lib_jar).getParentFile().getParentFile().getParentFile();
+       // String impl_lib_jar = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+       // File toolkitRoot = new File(impl_lib_jar).getParentFile().getParentFile().getParentFile();
         
-        File toolkitResource = new File(toolkitRoot, "opt/resources");        
-        addStaticContext(null, "streamsx.inet.resources", toolkitResource.getAbsolutePath());
+        // making a abs path by combining toolkit directory with the opt/resources dir
+        URI baseToolkitDir = context.getToolkitDirectory().toURI();
+        //File toolkitResource = new File(toolkitRoot, "opt/resources");        
+        addStaticContext(null, "streamsx.inet.resources", PathConversionHelper.convertToAbsPath(baseToolkitDir, "opt/resources"));
         
         String streamsInstall = System.getenv("STREAMS_INSTALL");
         if (streamsInstall != null) {
@@ -228,7 +229,9 @@ public class ServletEngine implements ServletEngineMBean {
 	    if ("".equals(resourceBase))
             throw new IllegalArgumentException("Parameter " + CONTEXT_RESOURCE_BASE_PARAM + " cannot be empty");
 
-	    return addStaticContext(context, ctxName, resourceBase);
+	 // Convert resourceBase file path to absPath if it is relative, if relative, it should be relative to application directory.
+        URI baseConfigURI = context.getPE().getApplicationDirectory().toURI();
+	    return addStaticContext(context, ctxName, PathConversionHelper.convertToAbsPath(baseConfigURI, resourceBase));
 	}
 
     private ServletContextHandler addStaticContext(OperatorContext opContext, String ctxName, String resourceBase) throws Exception {
@@ -260,9 +263,12 @@ public class ServletEngine implements ServletEngineMBean {
         ResourceHandler resource_handler = new ResourceHandler();
         resource_handler.setWelcomeFiles(new String[] { "index.html" });
 
-        File html = new File(startingContext.getPE().getDataDirectory()
-                .getAbsolutePath(), "html");
-        resource_handler.setResourceBase(html.getAbsolutePath());
+       // File html = new File(startingContext.getPE().getDataDirectory()
+       //         .getAbsolutePath(), "html");
+        
+        URI baseResourceURI = startingContext.getPE().getApplicationDirectory().toURI();
+        
+        resource_handler.setResourceBase(PathConversionHelper.convertToAbsPath(baseResourceURI, "opt/html"));
         // handlers.addHandler(resource_handler);
         
         HandlerList topLevelhandlers = new HandlerList();

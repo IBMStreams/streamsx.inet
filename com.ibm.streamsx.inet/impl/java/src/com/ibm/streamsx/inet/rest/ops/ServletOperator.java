@@ -1,9 +1,6 @@
 /*
 # Licensed Materials - Property of IBM
 # Copyright IBM Corp. 2011, 2014  
-# US Government Users Restricted Rights - Use, duplication or
-# disclosure restricted by GSA ADP Schedule Contract with
-# IBM Corp.
 */
 package com.ibm.streamsx.inet.rest.ops;
 
@@ -96,12 +93,17 @@ public abstract class ServletOperator extends AbstractOperator {
 	
 	static final String CRB_DESC = "Directory location of resources that will be available through " + 
 			"the the URL context defined by the parameter `context`. Typically used to allow a toolkit to provide a " + 
-			"set of resources in a fixed location. A path within the toolkit is obtained using the SPL " + 
-			"function `getThisFileDir()`. Thus a composite in the file *maps.spl* in the " + 
+			"set of resources in a fixed location. The set of resources is recommended to be stored in the application_dir/opt directory, " +
+			"which is automatically included in the bundle by default. " +
+			"Path of this directory can be absolute or relative, if relative path is specified then it is relative to the application directory. " +
+			"A set of default resources is included in the toolkit directory under ToolkitDir/opt/resources and will be loaded by the operator. " +
+			"This default resources can be viewed at `http://hostname:8080/streamsx.inet.resources`. " +
+			"A path within the application is obtained using the SPL " + 
+			"function `getThisToolkitDir()`. Thus a composite in the file *maps.spl* in the " + 
 			"namespace directory `com.acme.streams.apps.map` might have the following " + 
-			"setting to map `http://127.0.0.1:8080/maps` to `opt/html/mapinfo` in the toolkit.\\n" + 
+			"setting to map `http://127.0.0.1:8080/maps` to `opt/resources/mapinfo` in the application.\\n" + 
 			"\\n" + 
 			"    param\\n" + 
 			"      context: “maps”\\n" + 
-			"      contextResourceBase: getThisFileDir() + “/../opt/html/mapinfo”\\n";
+			"      contextResourceBase: getThisToolkitDir() + “/opt/resources/mapinfo”\\n";
 }

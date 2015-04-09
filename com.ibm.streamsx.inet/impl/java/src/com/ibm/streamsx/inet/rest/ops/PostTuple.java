@@ -1,21 +1,20 @@
 /*
 # Licensed Materials - Property of IBM
 # Copyright IBM Corp. 2011, 2014 
-# US Government Users Restricted Rights - Use, duplication or
-# disclosure restricted by GSA ADP Schedule Contract with
-# IBM Corp.
 */
 package com.ibm.streamsx.inet.rest.ops;
 
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.PrimitiveOperator;
+import com.ibm.streams.operator.model.Icons;
 
 @PrimitiveOperator(name="HTTPTupleInjection", description=PostTuple.DESC)
 @OutputPorts({@OutputPortSet(cardinality=1,
    description="Emits a tuple for each POST request on the inject URL with port index 0"),
    @OutputPortSet(optional=true,
    description="Optional additional ports that emit a tuple for each POST request on the inject URL with the corresponding port index")})
+@Icons(location32="impl/java/icons/HTTPTupleInjection_32.gif", location16="impl/java/icons/HTTPTupleInjection_16.gif")
 public class PostTuple extends ServletOperator {
 	
 	static final String DESC =

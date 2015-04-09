@@ -1,6 +1,6 @@
 /*
 # Licensed Materials - Property of IBM
-# Copyright IBM Corp. 2011, 2012 
+# Copyright IBM Corp. 2011, 2014 
 # US Government Users Restricted Rights - Use, duplication or
 # disclosure restricted by GSA ADP Schedule Contract with
 # IBM Corp.
@@ -61,7 +61,7 @@ composite SimpleInject {
 		param
 		  port: 8080;
                   context: "wct";
-                  contextResourceBase: getThisFileDir() + "/../opt/wctest";
+                  contextResourceBase: "opt/wctest";
 		config
 	    // Ensure the operators are in a single PE to have a single web-server
 	    placement: partitionColocation("jetty8080");

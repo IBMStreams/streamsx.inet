@@ -6,52 +6,62 @@
 //
 package com.ibm.streamsx.inet.http;
 
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import com.ibm.streams.operator.AbstractOperator;
 import com.ibm.streams.operator.OperatorContext;
+import com.ibm.streams.operator.OperatorContext.ContextCheck;
 import com.ibm.streams.operator.OutputTuple;
 import com.ibm.streams.operator.StreamingData;
 import com.ibm.streams.operator.StreamingOutput;
 import com.ibm.streams.operator.Type.MetaType;
+import com.ibm.streams.operator.compile.OperatorContextChecker;
 import com.ibm.streams.operator.logging.LogLevel;
 import com.ibm.streams.operator.logging.TraceLevel;
+import com.ibm.streams.operator.model.Icons;
 import com.ibm.streams.operator.model.Libraries;
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPortSet.WindowPunctuationOutputMode;
 import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
+import com.ibm.streams.operator.state.ConsistentRegionContext;
+import com.ibm.streamsx.inet.http.HTTPPostOper;
 
 @OutputPorts({@OutputPortSet(cardinality=1, optional=false, windowPunctuationOutputMode=WindowPunctuationOutputMode.Generating,
 			  description="Data received from the server will be sent on this port."),
 			  @OutputPortSet(cardinality=1, optional=true, windowPunctuationOutputMode=WindowPunctuationOutputMode.Free, 
 			  description="Error information will be sent out on this port including the response code and any message recieved from the server. " +
 			  		"Tuple structure must conform to the [HTTPResponse] type specified in this namespace.")})
-@PrimitiveOperator(name="HTTPGetStream", description=HTTPStreamReader.DESC)
+@PrimitiveOperator(name=HTTPStreamReader.OPER_NAME, description=HTTPStreamReader.DESC)
 @Libraries(value={"opt/downloaded/*"})
+@Icons(location32="impl/java/icons/"+HTTPStreamReader.OPER_NAME+"_32.gif", location16="impl/java/icons/"+HTTPStreamReader.OPER_NAME+"_16.gif")
 public class HTTPStreamReader extends AbstractOperator {
+
+	static final String CLASS_NAME= "com.ibm.streamsx.inet.http.HTTPStreamsReader";
+	static final String OPER_NAME = "HTTPGetStream";
+    
 	private String dataAttributeName = "data";
 	private HTTPStreamReaderObj reader = null;
 	private int maxRetries = 3;
-	private double sleepDelay = 30;
+	private double retryDelay = 30;
 	private boolean hasErrorOut = false;
 	private Thread th = null;
 	private boolean shutdown = false, useBackoff = false;
 	private String url = null;
-	private String postData = null;
+	private List<String> postData = new ArrayList<String>();
 	private String authenticationType = "none", authenticationFile = null;
 	private RetryController rc = null;
 	private List<String> authenticationProperties = new ArrayList<String>();
 
-	static final String CLASS_NAME="com.ibm.streamsx.inet.http.HTTPStreamsReader";
-
 	private static Logger trace = Logger.getLogger(CLASS_NAME);
 	private boolean retryOnClose = false;
 	private boolean disableCompression = false;
-
 
 	@Parameter(optional= false, description="URL endpoint to connect to.")
 	public void setUrl(String url) {
@@ -64,9 +74,10 @@ public class HTTPStreamReader extends AbstractOperator {
 		this.authenticationType = val;
 	}
 	@Parameter(optional=true, description=
-			"Path to the properties file containing authentication information." +
-			" Path can be absolute or relative to the data directory of the application."+
-			" See the config directory for sample properties files.")
+			"Path to the properties file containing authentication information. " +
+			"Authentication file is recommended to be stored in the application_dir/etc directory. " +
+			"Path of this file can be absolute or relative, if relative path is specified then it is relative to the application directory. "+
+			"See http_auth_basic.properties in the toolkits etc directory for a sample of basic authentication properties.")
 	public void setAuthenticationFile(String val) {
 		this.authenticationFile = val;
 	}
@@ -78,14 +89,15 @@ public class HTTPStreamReader extends AbstractOperator {
 	public void setMaxRetries(int val) {
 		this.maxRetries = val;
 	}
-	@Parameter(optional=true, name="retryDelay", description="Wait time between retries in case of failures/disconnects.")
-	public void setSleepDelay(double val) {
-		this.sleepDelay = val;
+	@Parameter(optional=true, description="Wait time between retries in case of failures/disconnects.")
+	public void setRetryDelay(double val) {
+		this.retryDelay = val;
 	}
 	@Parameter(optional=true, 
-			description="The value for this parameter will be sent to the server as a POST request body.")
-	public void setPostData(String val) {
-		this.postData = val;
+			description="The value for this parameter will be sent to the server as a POST request body." +
+					" The value is expected to be in \\\"key=value\\\" format. ")
+	public void setPostData(List<String> val) {
+		this.postData.addAll(val);
 	}
 	@Parameter(optional=true, description="Use a backoff function for increasing the wait time between retries. " +
 			"Wait times increase by a factor of 10. Default is false")
@@ -107,7 +119,24 @@ public class HTTPStreamReader extends AbstractOperator {
 		this.disableCompression = val;
 	}
 
-
+	@ContextCheck(compile=true)
+	public static boolean checkAuthParams(OperatorContextChecker occ) {
+		return occ.checkDependentParameters("authenticationFile", "authenticationType")
+				&& occ.checkDependentParameters("authenticationProperty", "authenticationType")
+				;
+	}
+	
+	//consistent region checks
+	@ContextCheck(compile = true)
+	public static void checkInConsistentRegion(OperatorContextChecker checker) {
+		ConsistentRegionContext consistentRegionContext = 
+				checker.getOperatorContext().getOptionalContext(ConsistentRegionContext.class);
+		
+		if(consistentRegionContext != null) {
+			checker.setInvalidContext( HTTPStreamReader.OPER_NAME + " operator cannot be used inside a consistent region.", new String[] {});
+		}
+	}
+	
 	@Override
 	public void initialize(OperatorContext op) throws Exception {
 		super.initialize(op);
@@ -130,15 +159,31 @@ public class HTTPStreamReader extends AbstractOperator {
 			throw new Exception("Only types \"" + MetaType.USTRING + "\" and \"" 
 					+ MetaType.RSTRING + "\" allowed for param " + dataAttributeName + "\"");
 
+
+		Map<String, String> postDataParams = null; 
+		if(postData != null && postData.size() > 0 ) {
+			postDataParams = new HashMap<String, String>();
+			for(String value : postData) {
+				int loc = value.indexOf("=");
+				if(loc == -1 || loc >= value.length()-1)
+					throw new Exception("Value of \"postData\" parameter not as expected: " + value);
+				postDataParams.put(value.substring(0, loc), value.substring(loc+1, value.length()));
+			}
+		}
+		
 		if(useBackoff) 
-			rc=new BackoffRetryController(maxRetries, sleepDelay);
+			rc=new BackoffRetryController(maxRetries, retryDelay);
 		else
-			rc=new RetryController(maxRetries, sleepDelay);
-
+			rc=new RetryController(maxRetries, retryDelay);
+		
 		trace.log(TraceLevel.INFO, "Using authentication type: " + authenticationType);
-		IAuthenticate auth = AuthHelper.getAuthenticator(authenticationType, authenticationFile, authenticationProperties);
+		if(authenticationFile != null) {
+            authenticationFile = authenticationFile.trim();
+        }
+        URI baseConfigURI = op.getPE().getApplicationDirectory().toURI();
+		IAuthenticate auth = AuthHelper.getAuthenticator(authenticationType, PathConversionHelper.convertToAbsPath(baseConfigURI, authenticationFile), authenticationProperties);
 
-		reader = new HTTPStreamReaderObj(this.url, auth, this, postData, disableCompression);
+		reader = new HTTPStreamReaderObj(this.url, auth, this, postDataParams, disableCompression);
 		th = op.getThreadFactory().newThread(reader);
 		th.setDaemon(false);
 	}
@@ -238,7 +283,9 @@ public class HTTPStreamReader extends AbstractOperator {
 			" Every line read from the HTTP server endpoint is sent as a single tuple." +
 			" If a connection is closed by the server, a WINDOW punctuation will be sent on port 0." +
 			" Supported Authentications: Basic Authentication, OAuth 1.0a." +
-			" Supported Compressions: Gzip, Deflate."
+			" Supported Compressions: Gzip, Deflate." +
+	                HTTPPostOper.CONSISTENT_CUT_INTRODUCER+
+			"This operator cannot be used inside a consistent region."
 			;
 }
 

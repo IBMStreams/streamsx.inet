@@ -3,12 +3,90 @@
 # All Rights Reserved.
 %>
 #include <vector>
-#include "InetRetriever.h"
+#include<map>
+#include<sstream>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <InetResource.h>
+
+extern "C"
+  {
+#include<curl/curl.h>
+  }
+
+
+
 
 <%SPL::CodeGen::headerPrologue($model);%>
 
+
+
+
+typedef std::map<std::string, std::string> URIQueryComponentsNVP_t;
+typedef std::map<std::string, std::string>::iterator URIQueryComponentsNVP_it_t;
+typedef std::map<std::string, std::string>::const_iterator URIQueryComponentsNVP_cit_t;
+
+/// Return the input string with spaces suffixing it being removed
+/// @param str input string
+/// @param t character to be removed from right side of input string
+/// @return input string without spaces suffixing it
+inline std::string rtrim(const std::string& source,
+  const std::string& t=" ") {
+  std::string str=source;
+  return str.erase(str.find_last_not_of(t)+1);
+}
+
+/// Return the input string with spaces prefixing it being removed
+/// @param str input string
+/// @param t character to be removed from left side of input string
+/// @return input string without spaces prefixing it
+inline std::string ltrim(const std::string& source,
+  const std::string & t = " " ) {
+  std::string str = source;
+  return str.erase (0,source.find_first_not_of(t));
+}
+
+/// Return the input string with spaces suffixing and prefixing it being
+/// removed
+/// @param str input string
+/// @param t character to be removed from left and right sides of input string
+/// @return input string without spaces prefixing and suffixing it
+inline std::string trim(const std::string& source,
+  const std::string& t=" ") {
+  std::string str=source;
+  return ltrim(rtrim(str,t),t);
+}
+
+
+
+/// Converts a string to a different (numerical) type
+/// @param t converted value
+/// @param s input string
+template <class T> void fromString(T& t, const std::string& s) {
+  if (s.empty()) {
+    t=static_cast<T>(0);
+  }
+  else {
+    std::istringstream iss(s);
+    iss >> t;
+    if (iss.fail())
+      //THROW(FailedConversion,"string '" << s << "' conversion failed");
+      throw std::exception();
+    if (!iss.eof())
+      throw std::exception();
+      //      THROW(SpuriousCharacterFound,"string '" << s << "' contains spurious character");
+  }
+}
+
 class MY_OPERATOR : public MY_BASE_OPERATOR 
 {
+public:
+
+@include "InetRetrieverH.cgt";
+@include "URIHelperH.cgt";
+
+
 public:
   // constructor
   MY_OPERATOR();
@@ -19,22 +97,32 @@ public:
   // notify port readiness
   void allPortsReady(); 
 
+  // check the URI to make sure it's valid; also handle relative and absolute paths.
+  std::string checkURI(const std::string & inURI);
+
   // notify termination
   void prepareToShutdown(); 
 
   // processing for source and threaded operators   
   void process(uint32_t idx);
+  
+  /// add a retriever to the reiver list.  Assumes the URI has already been
+  /// checked
+  void addRetriever(const std::string & iURI);
+
     
 private:
   // members
-  std::tr1::unordered_map<com_ibm_streams_adapters::InetRetriever*, std::pair<int, uint32_t> > retrievers_;
-  SPL::list<SPL::rstring> uris_;
+  std::string relFileProtocol;
+  std::string absFileProtocol;
+  std::vector<InetRetriever*> retrievers_;
+  std::vector<std::pair<int,uint32_t> > retCodeCounts_;
   uint32_t inputLinesPerRecord_;
   SPL::rstring intraRecordPadValue_;
   SPL::float64 fetchInterval_;
   bool punctPerFetch_;
   uint32_t emitTuplePerRecordCount_;
-
+  bool dynamicURL_;
   MY_OPERATOR(const MY_OPERATOR& op);
   MY_OPERATOR& operator=(const MY_OPERATOR& op);
 }; 
