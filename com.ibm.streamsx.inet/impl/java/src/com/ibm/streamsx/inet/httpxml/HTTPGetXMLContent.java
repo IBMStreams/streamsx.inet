@@ -13,6 +13,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -171,7 +172,10 @@ public class HTTPGetXMLContent extends PollingSingleTupleProducer {
 	 static InputStream getInputStream(HttpEntity entity) throws IOException  {
 		 
 		 final InputStream content = entity.getContent();
-		 final String encoding = entity.getContentEncoding().getValue();
+                 final Header contentEncodingHdr = entity.getContentEncoding();
+                 if (contentEncodingHdr == null)
+                      return content;
+		 final String encoding = contentEncodingHdr.getValue();
 		 if (encoding == null)
 			 return content;
 		 if ("gzip".equalsIgnoreCase(encoding))
