@@ -1,6 +1,8 @@
 createMarkerLayer = function(map) {
     var markerLayer = new OpenLayers.Layer.Markers("Markers");
-    map.addLayer(markerLayer);    
+    // var markerLayer = new OpenLayers.Layer.Vector("Markers");
+    map.addLayer(markerLayer);
+    
     return markerLayer;
 }
 
@@ -42,6 +44,22 @@ getMarkerIcon = function(markerLayer, markerType) {
     return null;
 }
 
+tupleShowPopup = function() {
+   
+       var popupmsg = this.spltuple.note;
+       if (popupmsg == undefined)
+          popupmsg =  this.id;
+              
+       var popup = new OpenLayers.Popup.FramedCloud(
+              "Popup" + this.id,            
+              this.lonlat,
+              null, popupmsg, this.icon, false, null);
+                        
+       this.map.addPopup(popup, true);
+       
+       this.events.register('mouseout', this, function() { popup.destroy();} );           
+       //    function() {setTimeout( function() { if (this.popup != null) {popup.destroy();} this.popup = null;  }, 2000)});
+}
 
 addMarkersToLayer = function(markerLayer, markers, response) {
 
@@ -70,12 +88,17 @@ addMarkersToLayer = function(markerLayer, markers, response) {
        longLat.transform(espg4326, mapProjection);	
 
        var marker = new OpenLayers.Marker(longLat, icon);
+       marker.id = id;
+       marker.spltuple = tuple;
        markerLayer.addMarker(marker);
+       marker.map = markerLayer.map;
        newMarkers[id] = marker;
        
        if (i == 0 && markerLayer.map.getCenter() == undefined) {
            markerLayer.map.setCenter(longLat, 10);
        }
+       
+       marker.events.register('mouseover', marker, tupleShowPopup);     
     }
     
     // Remove any markers for which there was no new value.

@@ -43,13 +43,16 @@
  * * `streamsx.inet.dojo` The Dojo Javascript library located at `$STREAMS_INSTALL/ext/dojo`. 
  * 
  * [HTTPTupleView] provides automatic visualization of tuples on its input ports.
- * These are available through the URL `streamsx.ient.resources/dojo/viewall.html`,
- * which provides a table containing links for all the ports connected to all HTTPTupleView
- * operators using the same Jetty webserver: The columns in the tabe are:
+ * These are available through the URL `streamsx.ient.resources/dojo/viewall.html`.
+ * 
+ * This provides a table containing links for all the ports connected to all HTTPTupleView
+ * operators using the same Jetty webserver: The columns in the table are:
  * * *Info* - Link to the JSON meta data about the port, including the names and types of the attributes.
  * * *Live Table* - Link to a live table of the current viewable data. Some automatic formatting is applied based upon the name and type of an attribute.
  * * *Live Table (Raw)* - Link to a live table of the current viewable data, with no formatting.
  * * *JSON Data* - Link that provides the raw JSON data.
+ * This tables use the Dojo Javascript library from the Steams install, and thus do
+ * not require external internet connectivity.
 */
 
 namespace com.ibm.streamsx.inet.rest;

@@ -52,6 +52,18 @@ html,body,#map-canvas {
 			// create marker layer
 			var markerLayer = createMarkerLayer(map);
 			
+			/*
+			var control = new OpenLayers.Control.SelectFeature(markerLayer, {
+			
+			   hover: true,
+               highlightOnly: true,
+               renderIntent: "temporary",
+               eventListeners: { featurehighlighted: tupleShowPopup, 
+                                 featureunhighlighted: tupleDestroyPopup } });
+            map.addControl(control);
+            control.activate();
+            */
+			
 			var markers = {};
 			
 			function _addMarkersToMap(response) {
