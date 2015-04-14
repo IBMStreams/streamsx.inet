@@ -48,7 +48,7 @@ tupleShowPopup = function() {
    
        var popupmsg = this.spltuple.note;
        if (popupmsg == undefined)
-          popupmsg =  this.id;
+          popupmsg = 'id=' + this.id + ' ' + JSON.stringify(this.spltuple);
               
        var popup = new OpenLayers.Popup.FramedCloud(
               "Popup" + this.id,            
