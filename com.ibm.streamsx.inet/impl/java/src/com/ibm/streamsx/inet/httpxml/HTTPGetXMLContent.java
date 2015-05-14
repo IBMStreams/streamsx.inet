@@ -2,7 +2,7 @@
  * Copyright (C) 2014, International Business Machines Corporation
  * All Rights Reserved.
  */
-package com.ibm.streamsx.inet.http;
+package com.ibm.streamsx.inet.httpxml;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +13,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -31,6 +32,7 @@ import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPortSet.WindowPunctuationOutputMode;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
+import com.ibm.streams.operator.model.Icons;
 import com.ibm.streams.operator.samples.patterns.PollingSingleTupleProducer;
 import com.ibm.streams.operator.types.ValueFactory;
 import com.ibm.streams.operator.types.XML;
@@ -39,12 +41,13 @@ import com.ibm.streams.operator.types.XML;
  * HTTP GET of application/xml content.
  *
  */
-@PrimitiveOperator(description=HTTPGetXMLContent.DESC)
+@PrimitiveOperator(description=HTTPGetXMLContent.DESC, namespace="com.ibm.streamsx.inet.http")
 // Can't create a control port because TupleConsumer has process as final.
 // @InputPortSet(optional=true, cardinality=1, controlPort=true, description="Control port to change the URL used for the HTTP GET.")
 @OutputPortSet(cardinality=1,windowPunctuationOutputMode=WindowPunctuationOutputMode.Free,
     description="Content of the HTTP GET request as an XML attribute. Each successful HTTP request that returns a " +
                  "single well-formed XML document results in a submitted tuple with an XML attribute containing the returned content.")
+@Icons(location32="impl/java/icons/HTTPGetXMLContent_32.gif", location16="impl/java/icons/HTTPGetXMLContent_16.gif")
 public class HTTPGetXMLContent extends PollingSingleTupleProducer {
 	
 	static final String DESC = "Periodically connects to an HTTP endpoint to GET XML content as a single tuple. " +
@@ -169,7 +172,10 @@ public class HTTPGetXMLContent extends PollingSingleTupleProducer {
 	 static InputStream getInputStream(HttpEntity entity) throws IOException  {
 		 
 		 final InputStream content = entity.getContent();
-		 final String encoding = entity.getContentEncoding().getValue();
+                 final Header contentEncodingHdr = entity.getContentEncoding();
+                 if (contentEncodingHdr == null)
+                      return content;
+		 final String encoding = contentEncodingHdr.getValue();
 		 if (encoding == null)
 			 return content;
 		 if ("gzip".equalsIgnoreCase(encoding))

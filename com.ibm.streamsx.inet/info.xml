@@ -1,32 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright (C) 2010,2012-2014, International Business Machines Corporation -->
 <!-- All Rights Reserved                                                   -->
-<toolkitInfoModel 
-    xmlns="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-    xsi:schemaLocation="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo toolkitInfoModel.xsd">
+<toolkitInfoModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo" xsi:schemaLocation="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo toolkitInfoModel.xsd">
   <identity>
     <name>com.ibm.streamsx.inet</name>
     <description>
-Support for common internet protocols.
+The Internet Toolkit provides support for common internet protocols.
 
 This toolkit separates its functionality into a number of namespaces:
+* com.ibm.streamsx.inet: General purpose internet operator supporting a number of protocols.
+* com.ibm.streamsx.inet.http: Operators that interact with external HTTP servers.
 
-* **com.ibm.streamsx.inet** General purpose internet operator supporting a number of protocols.
-* **com.ibm.streamsx.inet.http** Operators that interact with external HTTP servers.
-* **com.ibm.streamsx.inet.rest** Operators that embed a HTTP server to provide REST style api to streaming data.
-* **com.ibm.streamsx.inet.wsserver** Operators that embed a WebSocket server to expose streaming data as WebSocket messages.
++ Developing and running applications that use the Internet Toolkit
 
-**Third-party Libraries** This toolkit embeds a number of third-party libraries under `opt`:
+To create applications that use the Internet Toolkit, you must configure either Streams Studio
+or the SPL compiler to be aware of the location of the toolkit. 
 
-* Apache Commons Codec 1.4
-* Apache HTTP Client 4.2.3
-* OAuth Signpost 1.2 [http://code.google.com/p/oauth-signpost/]
-* Jetty 8.1.3 from Eclipse 4.2.2
-* Java-websocket 1.3.0 [http://java-websocket.org]
+# Before you begin
 
+Install IBM InfoSphere Streams. Configure the product environment variables by entering the following command: 
+    source product-installation-root-directory/4.0.0.0/bin/streamsprofile.sh
+
+# About this task
+
+After the location of the toolkit is communicated to the compiler, the SPL artifacts that are specified
+in the toolkit can be used by an application. The application can include a use directive to bring the necessary namespaces into scope.
+Alternatively, you can fully qualify the operators that are provided by toolkit with their namespaces as prefixes.
+
+# Procedure
+
+1. Configure the SPL compiler to find the toolkit root directory. Use one of the following methods:
+  * Set the **STREAMS_SPLPATH** environment variable to the root directory of a toolkit
+    or multiple toolkits (with : as a separator).  For example:
+      export STREAMS_SPLPATH=$STREAMS_INSTALL/toolkits/com.ibm.streamsx.inet
+  * Specify the **-t** or **--spl-path** command parameter when you run the **sc** command. For example:
+      sc -t $STREAMS_INSTALL/toolkits/com.ibm.streamsx.inet -M MyMain
+    where MyMain is the name of the SPL main composite.
+    **Note**: These command parameters override the **STREAMS_SPLPATH** environment variable.
+  * Add the toolkit location in InfoSphere Streams Studio.
+2. Develop your application. To avoid the need to fully qualify the operators, add a use directive in your application. 
+  * For example, you can add the following clause in your SPL source file:
+      use com.ibm.streamsx.inet::*;
+      use com.ibm.streamsx.inet.http::*;
+    You can also specify a use clause for individual operators by replacing the asterisk (\*) with the operator name. For example: 
+      use com.ibm.streamsx.inet::InetSource;
+3. Build your application.  You can use the **sc** command or Streams Studio.  
+4. Start the InfoSphere Streams instance. 
+5. Run the application. You can submit the application as a job by using the **streamtool submitjob** command or by using Streams Studio. 
     </description>
-    <version>2.0.0.__dev__</version>
-    <requiredProductVersion>3.2</requiredProductVersion>
+    <version>2.5.0</version>
+    <requiredProductVersion>4.0.0.0</requiredProductVersion>
   </identity>
   <dependencies/>
   <resources>

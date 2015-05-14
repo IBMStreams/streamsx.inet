@@ -7,6 +7,8 @@
   <property name="streams.install" value="${env.STREAMS_INSTALL}" />
   <property name="toolkit" location="com.ibm.streamsx.inet"/>
   <property name="release.base" location="release-${ant.project.name}-" />
+  <property name="toolkit.test" location="tests" />
+
 	
   <target name="all" depends="toolkit,samples, spldoc_work, toolkitIndexOnly"/>
 
@@ -55,14 +57,14 @@
   
   <target name="toolkitIndexOnly" description="Index the toolkit.">
   		<ant dir="${toolkit}" target="cleanToolkitxml" /> 
-        <ant dir="${toolkit}" target="cpp" /> 
+        <ant dir="${toolkit}" target="indextoolkit" /> 
   </target> 	
 
   <target name="spldoc" depends="setcommitversion, spldoc_work, revertversion"
     description="Create SPLDOC with git commit hash included in the version"
   />
 
-  <target name="spldoc_work" depends="samples"
+  <target name="spldoc_work" depends="samples,setcommitversion"
     description="Create SPLDOC"
   >
     <antcall target="spldoctoolkit">
@@ -86,8 +88,9 @@
   </target>
   
   <!-- Test targets -->
-  <target name="tests">
+  <target name="tests" depends="toolkit">
      <ant dir="${toolkit}" target="test"/>
+     <ant dir="${toolkit.test}" target="all"/>
   </target>
 
 
@@ -97,6 +100,7 @@
      <exec executable="${streams.install}/bin/spl-make-toolkit">
         <arg value="--directory"/>
         <arg value="${basedir}"/>
+        <arg value="-m"/>
      </exec>
   </target>
   <target name="cleantoolkit">
@@ -106,6 +110,7 @@
         <arg value="--directory"/>
         <arg value="${basedir}"/>
      </exec>
+     <delete dir="${basedir}/output" quiet="true"/>
   </target>
   <target name="spldoctoolkit">
      <property name="tkdir" value="${basedir}"/>
@@ -126,7 +131,7 @@
   <target name="create_release_bundle"  depends="all">
         <property name="release.dir" location="${release.base}${commithash}" />
 	<mkdir dir="${release.dir}" />
-        <property name="releasefilename" value="${release.dir}/streamx.inet.toolkits-${tkinfo.identity.version}-${DSTAMP}-${TSTAMP}.tgz"/>
+        <property name="releasefilename" value="${release.dir}/streamsx.inet.toolkits-${tkinfo.identity.version}-${DSTAMP}-${TSTAMP}.tgz"/>
     	<tar compression="gzip" longfile="gnu"
              destfile="${releasefilename}"
     	     basedir="${basedir}"

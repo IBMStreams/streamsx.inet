@@ -18,16 +18,17 @@ import com.ibm.json.java.JSONObject;
 import com.ibm.streams.operator.AbstractOperator;
 import com.ibm.streams.operator.Attribute;
 import com.ibm.streams.operator.OperatorContext;
+import com.ibm.streams.operator.OperatorContext.ContextCheck;
 import com.ibm.streams.operator.OutputTuple;
 import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.StreamingInput;
 import com.ibm.streams.operator.StreamingOutput;
 import com.ibm.streams.operator.Tuple;
-import com.ibm.streams.operator.OperatorContext.ContextCheck;
 import com.ibm.streams.operator.compile.OperatorContextChecker;
 import com.ibm.streams.operator.encoding.EncodingFactory;
 import com.ibm.streams.operator.encoding.JSONEncoding;
 import com.ibm.streams.operator.logging.TraceLevel;
+import com.ibm.streams.operator.model.Icons;
 import com.ibm.streams.operator.model.InputPortSet;
 import com.ibm.streams.operator.model.InputPorts;
 import com.ibm.streams.operator.model.Libraries;
@@ -35,6 +36,7 @@ import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
+import com.ibm.streams.operator.state.ConsistentRegionContext;
 import com.ibm.streamsx.inet.http.HTTPRequest.RequestType;
 
 @InputPorts(@InputPortSet(cardinality=1, 
@@ -42,12 +44,14 @@ import com.ibm.streamsx.inet.http.HTTPRequest.RequestType;
 @OutputPorts(@OutputPortSet(cardinality=1, optional=true, 
 			description="Emits a tuple containing the reponse received from the server. " +
 		     "Tuple structure must conform to the [HTTPResponse] type specified in this namespace."))
-@PrimitiveOperator(name="HTTPPost", description=HTTPPostOper.DESC)
+@PrimitiveOperator(name=HTTPPostOper.OPER_NAME, description=HTTPPostOper.DESC)
 @Libraries(value={"opt/downloaded/*"})
+@Icons(location32="impl/java/icons/HTTPPost_32.gif", location16="impl/java/icons/HTTPPost_16.gif")
 public class HTTPPostOper extends AbstractOperator  
 {
 	static final String CLASS_NAME="com.ibm.streamsx.inet.http.HTTPPostOper";
-	
+	static final String OPER_NAME = "HTTPPost";
+        public static final String CONSISTENT_CUT_INTRODUCER="\\n\\n**Behavior in a consistent region**\\n\\n";
 	
 	static final String 
 			MIME_JSON = "application/json",  
@@ -106,7 +110,18 @@ public class HTTPPostOper extends AbstractOperator
 		this.headerContentType = val;
 	}
 	
-
+	//consistent region checks
+	@ContextCheck(compile = true)
+	public static void checkInConsistentRegion(OperatorContextChecker checker) {
+		ConsistentRegionContext consistentRegionContext = 
+				checker.getOperatorContext().getOptionalContext(ConsistentRegionContext.class);
+		
+		if(consistentRegionContext != null && consistentRegionContext.isStartOfRegion()) {
+			checker.setInvalidContext( HTTPPostOper.OPER_NAME + " operator cannot be placed at the start of a consistent region.", 
+					new String[] {});
+		}
+	}
+	
 	@Override
 	public void initialize(OperatorContext op) throws Exception  {
 		super.initialize(op);    
@@ -246,7 +261,9 @@ public class HTTPPostOper extends AbstractOperator
 			" Certain authentication modes are supported." +
 			" Tuples are sent to the server one at a time in order of receipt. If the HTTP server cannot be accessed, the operation" +
 			" will be retried on the current thread and may temporarily block any additional tuples that arrive on the input port." +
-			" By default, the data is sent in application/x-www-form-urlencoded UTF-8 encoded format." 
+			" By default, the data is sent in application/x-www-form-urlencoded UTF-8 encoded format."  +
+	    CONSISTENT_CUT_INTRODUCER +
+			"\\nThis operator cannot be placed at the start of a consistent region."
 		;
 
 }
