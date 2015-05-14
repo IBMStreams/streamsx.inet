@@ -7,7 +7,7 @@ ifeq ($(STREAMS_INSTALL),)
 $(error error: environment variable STREAMS_INSTALL has to be set)
 endif
 
-STREAMS_INET_TOOLKIT ?=../../com.ibm.streamsx.inet
+STREAMS_INET_TOOLKIT ?=../../com.ibm.streamsx.inet:${STREAMS_INSTALL}/toolkits/com.ibm.streamsx.inet
 SPLC_FLAGS?=
 SPLC_FLAGS+= -a -t $(STREAMS_INET_TOOLKIT)
 SPLC = $(STREAMS_INSTALL)/bin/sc
