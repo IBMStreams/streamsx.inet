@@ -42,7 +42,7 @@ const char* MY_OPERATOR::URIHelper::URIREGEX=
   /* protocol (opt) */ \
   "^(([[:alpha:]][[:alnum:]+.-]*):)?" \
   /* userinfo (opt) */ \
-  "//(([[:alnum:]_.!~*\'();:&=+$,-]*)@)?" \
+  "//(([[:alnum:]@_.!~*\'();:&=+$,-]*)@)?" \
   /* hostname (opt) */ \
   "(((([[:alnum:]]|[[:alnum:]][[:alnum:]-]*[[:alnum:]])\\.)*" \
   "([[:alpha:]]|[[:alpha:]][[:alnum:]-]*[[:alnum:]]))\\.?|" \
