@@ -227,9 +227,9 @@ public class HTTPPostOper extends AbstractOperator
 			if(resp.getErrorStreamData()!=null)
 				otup.setString("errorMessage", resp.getErrorStreamData());
 	
-			if(resp.getOutStreamData() != null) {
-				otup.setString("data", resp.getOutStreamData());
-				otup.setInt("dataSize", resp.getOutStreamData().length());
+			if(resp.getOutputData() != null) {
+				otup.setString("data", resp.getOutputData());
+				otup.setInt("dataSize", resp.getOutputData().length());
 			}
 	
 			otup.setInt("responseCode", resp.getResponseCode());
