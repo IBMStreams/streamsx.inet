@@ -38,6 +38,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.StreamingData;
 import com.ibm.streamsx.inet.http.PathConversionHelper;
+import com.ibm.streamsx.inet.rest.ops.PostTuple;
 import com.ibm.streamsx.inet.rest.servlets.ExposedPortsInfo;
 import com.ibm.streamsx.inet.rest.servlets.PortInfo;
 import com.ibm.streamsx.inet.rest.setup.ExposedPort;
@@ -231,7 +232,7 @@ public class ServletEngine implements ServletEngineMBean {
 
 	 // Convert resourceBase file path to absPath if it is relative, if relative, it should be relative to application directory.
         URI baseConfigURI = context.getPE().getApplicationDirectory().toURI();
-	    return addStaticContext(context, ctxName, PathConversionHelper.convertToAbsPath(baseConfigURI, resourceBase));
+        return addStaticContext(context, ctxName, PathConversionHelper.convertToAbsPath(baseConfigURI, resourceBase));
 	}
 
     private ServletContextHandler addStaticContext(OperatorContext opContext, String ctxName, String resourceBase) throws Exception {
@@ -340,6 +341,14 @@ public class ServletEngine implements ServletEngineMBean {
         	     ports.setAttribute("operator.conduit", conduit);
 
         	trace.info("Ports context: " + ports.getContextPath());
+        	
+            if (context.getParameterNames().contains(PostTuple.MAX_CONTENT_SIZE_PARAM)) {
+            	int maxContentSize = Integer.parseInt(context.getParameterValues(PostTuple.MAX_CONTENT_SIZE_PARAM).get(0)) * 1000;
+            	if (maxContentSize > 0) {
+            		trace.info("Maximum content size for context: " + ports.getContextPath() + " increased to " + maxContentSize);
+            		ports.setMaxFormContentSize(maxContentSize);
+            	}
+            }
         }
         
         // Automatically add info servlet for all output and input ports

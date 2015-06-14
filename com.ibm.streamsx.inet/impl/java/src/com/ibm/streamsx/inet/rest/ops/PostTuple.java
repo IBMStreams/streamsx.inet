@@ -4,10 +4,13 @@
 */
 package com.ibm.streamsx.inet.rest.ops;
 
+import com.ibm.streams.operator.OperatorContext.ContextCheck;
+import com.ibm.streams.operator.compile.OperatorContextChecker;
+import com.ibm.streams.operator.model.Icons;
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPorts;
+import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
-import com.ibm.streams.operator.model.Icons;
 
 @PrimitiveOperator(name="HTTPTupleInjection", description=PostTuple.DESC)
 @OutputPorts({@OutputPortSet(cardinality=1,
@@ -39,9 +42,36 @@ public class PostTuple extends ServletOperator {
 			"* *context path*`/`*base operator name* - When the `context` parameter is set.\\n" +
 			"* *full operator name* - When the `context` parameter is **not** set.\\n" +
 			"\\n" + 
+			"**Maximum Content Size**:\\n" +
+			"Jetty limits the amount of data that can post back from a browser " +
+			"or other client to this operator. This helps protect the operator against " +
+			"denial of service attacks by malicious clients sending huge amounts of data. " +
+			"The default limit is 200K bytes, a client will receive an HTTP 500 error response code if it " +
+			"tries to POST too much data. The limit may be increased using the `maxContentSize` parameter.\\n" +
+			"\\n" +
 			"**Limitations**:\\n" + 
 			"* Error handling is limited, incorrect URLs can crash the application.\\n" + 
 			"* Not all SPL data types are supported. String, signed integer and float types are supported for POST parameters. Output port may contain other types but will be set\\n" + 
 			"to their default values.\\n" + 
 			"* No security access is provided to the data. This is mainly aimed at demos.";
+	
+	
+	public static final String MAX_CONTEXT_SIZE_DESC =
+			"Change the maximum HTTP POST content size (K bytes) allowed by this operator." +
+			"Jetty limits the amount of data that can posted from a browser " +
+			"or other client to the operator. This helps protect the operator against " +
+			"denial of service attacks by malicious clients sending huge amounts of data. " +
+			"The default maximum size Jetty permits is 200K bytes, thus the default value for this parameter is 200. " +
+			"For example, to increase to 500,000 bytes set maxContentSize to 500." +
+			"See [https://wiki.eclipse.org/Jetty/Howto/Configure_Form_Size]";
+	
+	public static final String MAX_CONTENT_SIZE_PARAM = "maxContentSize";
+	
+	/*
+	 * The ServletEngine accesses all parameters through the operator
+	 * context, as that is an object that is not specific to each
+	 * operator's class loader.
+	 */
+	@Parameter(optional=true, description=MAX_CONTEXT_SIZE_DESC)
+	public void setMaxContentSize(int maxContentSize) {}		
 }
