@@ -35,7 +35,7 @@ class HTTPResponse {
 		return errorStreamData;
 	}
 	
-	public String getOutStreamData() throws IllegalStateException, IOException {
+	public String getOutputData() throws IllegalStateException, IOException {
 		if(!gotOutStream) {
 			outStreamData = HTTPUtils.readFromStream(getInputStream());
 			gotOutStream = true;
@@ -44,7 +44,10 @@ class HTTPResponse {
 	}
 	
 	public InputStream getInputStream() throws IllegalStateException, IOException {
+		if(resp == null || resp.getEntity() == null) return null;
 		InputStream is = resp.getEntity().getContent();
+		if(is == null) return null;
+		
 		String enc = null;
 		
 		if(resp.getEntity().getContentEncoding() != null)
