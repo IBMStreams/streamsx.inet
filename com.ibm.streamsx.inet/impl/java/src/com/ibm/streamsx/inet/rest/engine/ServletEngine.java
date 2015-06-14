@@ -36,6 +36,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 
 import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.StreamingData;
+import com.ibm.streamsx.inet.rest.ops.PostTuple;
 import com.ibm.streamsx.inet.rest.servlets.ExposedPortsInfo;
 import com.ibm.streamsx.inet.rest.servlets.PortInfo;
 import com.ibm.streamsx.inet.rest.setup.ExposedPort;
@@ -331,6 +332,14 @@ public class ServletEngine implements ServletEngineMBean {
         	     ports.setAttribute("operator.conduit", conduit);
 
         	trace.info("Ports context: " + ports.getContextPath());
+        	
+            if (context.getParameterNames().contains(PostTuple.MAX_CONTENT_SIZE_PARAM)) {
+            	int maxContentSize = Integer.parseInt(context.getParameterValues(PostTuple.MAX_CONTENT_SIZE_PARAM).get(0)) * 1000;
+            	if (maxContentSize > 0) {
+            		trace.info("Maximum content size for context: " + ports.getContextPath() + " increased to " + maxContentSize);
+            		ports.setMaxFormContentSize(maxContentSize);
+            	}
+            }
         }
         
         // Automatically add info servlet for all output and input ports

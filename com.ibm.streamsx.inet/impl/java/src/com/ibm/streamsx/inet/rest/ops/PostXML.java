@@ -11,6 +11,7 @@ import com.ibm.streams.operator.Type.MetaType;
 import com.ibm.streams.operator.compile.OperatorContextChecker;
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPorts;
+import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
 
 @PrimitiveOperator(name="HTTPXMLInjection", description=PostXML.DESC)
@@ -48,8 +49,22 @@ public class PostXML extends ServletOperator {
 			"* *context path*`/`*base operator name* - When the `context` parameter is set.\\n" +
 			"* *full operator name* - When the `context` parameter is **not** set.\\n" +
 			"\\n" + 
+			"**Maximum Content Size**:\\n" +
+			"Jetty limits the amount of data that can post back from a browser " +
+			"or other client to this operator. This helps protect the operator against " +
+			"denial of service attacks by malicious clients sending huge amounts of data. " +
+			"The default limit is 200K bytes, a client will receive an HTTP 500 error response code if it " +
+			"tries to POST too much data. The limit may be increased using the `maxContentSize` parameter.\\n" +
+			"\\n" +
 			"**Limitations**:\\n" + 
 			"* Error handling is limited, incorrect URLs can crash the application.\\n" + 
 			"* No security access is provided to the data. This is mainly aimed at demos.";
 
+	/*
+	 * The ServletEngine accesses all parameters through the operator
+	 * context, as that is an object that is not specific to each
+	 * operator's class loader.
+	 */
+	@Parameter(optional=true, description=PostTuple.MAX_CONTEXT_SIZE_DESC)
+	public void setMaxContentSize(int maxContentSize) {}	
 }
