@@ -61,7 +61,7 @@ public class InjectJSONTest {
 	}
 	
 	@Test
-	public void testBadSchemaSecondPort() throws Exception {
+	public void testBadSchemaFirstPort() throws Exception {
 		OperatorGraph graph = OperatorGraphFactory.newGraph();
 		OperatorInvocation<PostJSON> op = graph.addOperator(PostJSON.class);
 		op.addOutput("tuple<int32 a>");
