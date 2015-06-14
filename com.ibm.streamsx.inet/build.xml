@@ -146,8 +146,7 @@ artifacts were left around and caused issues with the ant build.
 				<path refid="cp.streams" />
 			</classpath>
 		</javac>
-	
-		  <junit printsummary="yes" haltonfailure="yes" >
+		  <junit printsummary="yes" haltonfailure="yes" fork="yes" >
 		      <classpath>
 		        <pathelement location="${test.build.dir}"/>
 		        <pathelement location="${impl.lib.dir}/${jarfile}"/>

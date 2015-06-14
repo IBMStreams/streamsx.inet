@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ibm.streams.operator.Attribute;
 import com.ibm.streams.operator.OutputTuple;
 import com.ibm.streams.operator.StreamingOutput;
 
@@ -28,9 +29,16 @@ public class InjectJSON extends HttpServlet {
 	private static final long serialVersionUID = 3189619562362906581L;
 	
 	private final StreamingOutput<OutputTuple> port;
+	private final int attributeIndex;
 	
 	public InjectJSON(StreamingOutput<OutputTuple> port) {
 		this.port = port;
+
+		Attribute jsonString = port.getStreamSchema().getAttribute("jsonString");
+		if (jsonString != null)
+			attributeIndex = jsonString.getIndex();
+		else
+			attributeIndex = 0;
 	}
 	
 	@Override
@@ -60,7 +68,7 @@ public class InjectJSON extends HttpServlet {
 		br.close();
 
 		OutputTuple tuple = port.newTuple();
-		tuple.setString(0, sb.toString());
+		tuple.setString(attributeIndex, sb.toString());
 		try {
 			port.submit(tuple);
 		} catch (Exception e) {
