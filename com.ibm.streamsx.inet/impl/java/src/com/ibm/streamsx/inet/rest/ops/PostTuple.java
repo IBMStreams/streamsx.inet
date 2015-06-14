@@ -62,8 +62,7 @@ public class PostTuple extends ServletOperator {
 			"or other client to the operator. This helps protect the operator against " +
 			"denial of service attacks by malicious clients sending huge amounts of data. " +
 			"The default maximum size Jetty permits is 200K bytes, thus the default value for this parameter is 200. " +
-			"For example, to increase to 500,000 bytes set maxContentSize to 500." +
-			"See [https://wiki.eclipse.org/Jetty/Howto/Configure_Form_Size]";
+			"For example, to increase to 500,000 bytes set maxContentSize to 500.";
 	
 	public static final String MAX_CONTENT_SIZE_PARAM = "maxContentSize";
 	
