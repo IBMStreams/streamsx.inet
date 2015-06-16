@@ -17,6 +17,11 @@ fmtAutoTableLink = function(cp) {
   return '<a href="autotable.html?info=' + cp.info + '&json=' + cp.tuples  + '&raw=false">Live Data</a>';
 }
 
+mapLink = function(cp) {
+    return '<a href="../openlayers/simplemap.html?json=' + cp.tuples  + '">Live Map</a>';
+}
+
+
 createGrid = function() {
  require(["dojox/grid/DataGrid", "dojo/number", "dojo/store/Memory", "dojo/data/ObjectStore"],
    function(DataGrid, number, Memory, ObjectStore) {
@@ -29,7 +34,8 @@ createGrid = function() {
       { name: "Info", field: "_info", formatter: fmtLink},
       { name: "Live Table", field: "contextPaths", formatter: fmtAutoTableLink},
       { name: "Live Table (Raw)", field: "contextPaths", formatter: rawAutoTableLink},
-      { name: "JSON Data", field: "_json", formatter: fmtLink}
+      { name: "JSON Data", field: "_json", formatter: fmtLink},
+      { name: "Live Map", field: "contextPaths", formatter: mapLink}
     ]];
 
   var ports = portInfo.exposedPorts;
@@ -71,7 +77,18 @@ createGrid = function() {
     <base target="_top">
 	</head>
 	<body class="claro" onload="createGrid()">
-		<h1 style="text-align:center">Auto Live Tables</h1>
-		<div id="alltables" ></div>
+		<h1 style="text-align:center">Auto Visualization</h1>
+		<div id="alltables" ></div>	
+		<h3>Live Map visualization</h3>
+		<em>Live Map visualization uses Open Layer JavaScript
+		mapping library and requires external internet connectivity to access it.</em>
+		<P>
+		A stream is only viewable as a map if it includes these fields:
+		<UL>
+		<LI>id - A unique identifier for the object being mapped.</LI>
+		<LI>float64 longitude - Longitude of the objects location.</LI>
+		<LI>float64 latitude - Latitude of the objects location.</LI>
+		</UL>
+		</P>
 	</body>
 </html>
