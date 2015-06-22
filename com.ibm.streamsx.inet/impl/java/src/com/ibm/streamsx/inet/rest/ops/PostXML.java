@@ -9,6 +9,7 @@ import com.ibm.streams.operator.OperatorContext.ContextCheck;
 import com.ibm.streams.operator.StreamingOutput;
 import com.ibm.streams.operator.Type.MetaType;
 import com.ibm.streams.operator.compile.OperatorContextChecker;
+import com.ibm.streams.operator.model.Icons;
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.PrimitiveOperator;
@@ -33,7 +34,7 @@ public class PostXML extends ServletOperator {
 	}
 	
 	static final String DESC =
-			"Embeds a Jetty web server to allow HTTP POST requests to submit a tuple on " + 
+			"Embeds a Jetty web server to allow HTTP or HTTPS POST requests to submit a tuple on " + 
 			"its output ports. Each output port corresponds to a unique URL comprising the operator name " + 
 			"and the port index.\\n" + 
 			"\\n" + 
@@ -50,5 +51,5 @@ public class PostXML extends ServletOperator {
 			"\\n" + 
 			"**Limitations**:\\n" + 
 			"* Error handling is limited, incorrect URLs can crash the application.\\n" + 
-			"* No security access is provided to the data. This is mainly aimed at demos.";
+			"* By default no security access is provided to the data, HTTPS must be explicitly configured.";
 }
