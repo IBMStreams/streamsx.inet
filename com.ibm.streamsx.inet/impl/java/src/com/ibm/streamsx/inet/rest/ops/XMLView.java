@@ -15,10 +15,10 @@ import com.ibm.streams.operator.StreamingInput;
 import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.Type.MetaType;
 import com.ibm.streams.operator.compile.OperatorContextChecker;
+import com.ibm.streams.operator.model.Icons;
 import com.ibm.streams.operator.model.InputPortSet;
 import com.ibm.streams.operator.model.InputPortSet.WindowMode;
 import com.ibm.streams.operator.model.PrimitiveOperator;
-import com.ibm.streams.operator.model.Icons;
 
 @PrimitiveOperator(name="HTTPXMLView", description=XMLView.DESC)
 @InputPortSet(cardinality=1,windowingMode=WindowMode.NonWindowed,
@@ -67,9 +67,9 @@ public class XMLView extends ServletOperator {
 		portData.put(port.getPortNumber(), new Object[] {tuple.getXML(attributeIndex), System.currentTimeMillis()});
 	}
 	
-	static final String DESC = "REST HTTP API to view tuples from windowed input ports.\\n" + 
-			"Embeds a Jetty web server to provide HTTP REST access to the first XML attribute of the last tuple received by " + 
-			"the input port window." +
+	static final String DESC = "REST API to view tuples from input ports.\\n" + 
+			"Embeds a Jetty web server to provide HTTP or HTTPS REST access to the first XML attribute of the last tuple received by " + 
+			"the input port." +
 			"\\n" +
 			"The URLs defined by this operator are:\\n" +
 			"* *prefix*`/ports/input/`*port index*`/attribute` - Returns the value of the XML attribute (content type `application/xml`).\\n" +
@@ -81,6 +81,6 @@ public class XMLView extends ServletOperator {
 			"The input port schema must contain an XML attribute whose value will be made available through the `/tuple` URL.\\n" + 
 			"\\n" + 
 			"**Limitations**:\\n" + 
-			"* No security access is provided to the data or applications. This is mainly aimed at demos.\\n";
+			"* By default no security access is provided to the data, HTTPS must be explicitly configured.\\n";
 
 }

@@ -4,13 +4,13 @@
 */
 package com.ibm.streamsx.inet.rest.ops;
 
+import com.ibm.streams.operator.model.Icons;
 import com.ibm.streams.operator.model.InputPortSet;
 import com.ibm.streams.operator.model.InputPortSet.WindowMode;
 import com.ibm.streams.operator.model.InputPortSet.WindowPunctuationInputMode;
 import com.ibm.streams.operator.model.InputPorts;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
-import com.ibm.streams.operator.model.Icons;
 
 @PrimitiveOperator(name=TupleView.opName, description=TupleView.DESC)
 // Require at least one input port
@@ -28,7 +28,7 @@ public class TupleView extends ServletOperator {
 	@Parameter(optional=true, cardinality=-1, description="Names of attributes to partition the window by")
 	public void setPartitionKey(String[] attributeNames) {}
 	
-	static final String DESC = "REST HTTP API to view tuples from windowed input ports.\\n" + 
+	static final String DESC = "REST HTTP or HTTPS API to view tuples from windowed input ports.\\n" + 
 			"Embeds a Jetty web server to provide HTTP REST access to the collection of tuples in " + 
 			"the input port window at the time of the last eviction for tumbling windows, " + 
 			"or last trigger for sliding windows." +
@@ -69,5 +69,5 @@ public class TupleView extends ServletOperator {
 			"\\n" + 
 			"**Limitations**:\\n" + 
 			"* Error handling is limited, incorrect URLs can crash the application, e.g. providing the wrong number of partition values.\\n" + 
-			"* No security access is provided to the data or applications. This is mainly aimed at demos.\\n";
+			"* By default no security access is provided to the data, HTTPS must be explicitly configured.\\n";
 }

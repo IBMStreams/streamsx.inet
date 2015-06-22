@@ -7,9 +7,9 @@
 */
 package com.ibm.streamsx.inet.rest.ops;
 
+import com.ibm.streams.operator.model.Icons;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
-import com.ibm.streams.operator.model.Icons;
 
 /**
  * Operator without any ports that simply defines a webcontext.
@@ -27,9 +27,8 @@ public class WebContext extends ServletOperator {
 	@Parameter(description=CRB_DESC)
 	public void setContextResourceBase(String base) {}
 	
-	static final String DESC = "Embeds a Jetty web server to provide HTTP REST access to files defined by the `context` and `contextResourceBase` parameters.\\n" + 
+	static final String DESC = "Embeds a Jetty web server to provide HTTP or HTTPS REST access to files defined by the `context` and `contextResourceBase` parameters.\\n" + 
 			"**Limitations**:\\n" + 
-			" * No security access is provided to the served files or applications. This is mainly aimed " + 
-			"at demos.";
+			" * By default no security access is provided to the data, HTTPS must be explicitly configured.";
 
 }
