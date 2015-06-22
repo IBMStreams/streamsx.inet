@@ -4,8 +4,6 @@
 */
 package com.ibm.streamsx.inet.rest.ops;
 
-import com.ibm.streams.operator.OperatorContext.ContextCheck;
-import com.ibm.streams.operator.compile.OperatorContextChecker;
 import com.ibm.streams.operator.model.Icons;
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPorts;

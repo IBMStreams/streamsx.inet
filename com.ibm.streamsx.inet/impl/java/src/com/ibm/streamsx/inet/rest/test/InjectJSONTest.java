@@ -15,6 +15,8 @@ import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
@@ -146,6 +148,53 @@ public class InjectJSONTest {
 
 		testableGraph.shutdown().get();
 	}
+	
+	@Test
+	public void testBigInjectFails() throws Exception {	
+		// Make an JSON POST request with an 800KB+ JSON object
+		_testBigInject(800);
+	}
+	
+	public void _testBigInject(int nk) throws Exception {
+		OperatorGraph graph = OperatorGraphFactory.newGraph();
+
+		// Declare a HTTPJSONInjection operator
+		OperatorInvocation<PostJSON> op = graph.addOperator(PostJSON.class);
+		op.setIntParameter("port", 8083);
+		
+		OutputPortDeclaration injectedTuples = op.addOutput("tuple<rstring jsonString>");
+		
+		// Create the testable version of the graph
+		JavaTestableGraph testableGraph = new JavaOperatorTester()
+				.executable(graph);
+		
+		MostRecent<Tuple> mrt = new MostRecent<Tuple>();
+		testableGraph.registerStreamHandler(injectedTuples, mrt);
+
+		// Execute the initialization of operators within graph.
+		testableGraph.initialize().get().allPortsReady().get();
+		
+		assertNull(mrt.getMostRecentTuple());
+		
+		URL postTuple = new URL("http://" + InetAddress.getLocalHost().getHostName() + ":8083/" + op.getName() + "/ports/output/0/inject");
+		
+		try {
+
+
+			Random r = new Random();
+			char[] chars = new char[nk * 1000];
+			for (int i = 0; i < chars.length; i++) {
+				chars[i] = (char) ('a' + (char) r.nextInt(26));
+			}
+			String s = new String(chars);
+			JSONObject j = new JSONObject();
+			j.put("bigString", s);
+			postJSONAndTest(postTuple, j, mrt);
+		} finally {
+
+			testableGraph.shutdown().get();
+		}
+	}
 
 	
 	private static void postJSONAndTest(URL postTuple, JSONObject json, MostRecent<Tuple> mrt) throws IOException {
@@ -154,6 +203,7 @@ public class InjectJSONTest {
 		conn.setDoOutput(true);
 	    conn.setRequestProperty("Content-Type", "application/json");
 	    conn.setRequestProperty("Content-Length", String.valueOf(dataBytes.length));
+	    System.out.println(String.valueOf(dataBytes.length));
 	    OutputStream out = conn.getOutputStream();
 	    out.write(dataBytes);
 	    out.flush();
