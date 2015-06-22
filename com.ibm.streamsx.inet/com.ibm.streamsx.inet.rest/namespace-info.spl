@@ -43,7 +43,7 @@
  * * `streamsx.inet.dojo` The Dojo Javascript library located at `$STREAMS_INSTALL/ext/dojo`. 
  * 
  * [HTTPTupleView] provides automatic visualization of tuples on its input ports.
- * These are available through the URL `streamsx.ient.resources/dojo/viewall.html`.
+ * These are available through the URL `streamsx.inet.resources/dojo/viewall.html`.
  * 
  * This provides a table containing links for all the ports connected to all HTTPTupleView
  * operators using the same Jetty webserver: The columns in the table are:
