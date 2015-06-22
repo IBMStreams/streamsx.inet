@@ -14,10 +14,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.util.Arrays;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
 
@@ -31,7 +28,6 @@ import com.ibm.streams.flow.javaprimitives.JavaOperatorTester;
 import com.ibm.streams.flow.javaprimitives.JavaTestableGraph;
 import com.ibm.streams.operator.Tuple;
 import com.ibm.streamsx.inet.rest.ops.PostJSON;
-import com.ibm.streamsx.inet.rest.ops.PostTuple;
 
 public class InjectJSONTest {
 	
@@ -203,7 +199,6 @@ public class InjectJSONTest {
 		conn.setDoOutput(true);
 	    conn.setRequestProperty("Content-Type", "application/json");
 	    conn.setRequestProperty("Content-Length", String.valueOf(dataBytes.length));
-	    System.out.println(String.valueOf(dataBytes.length));
 	    OutputStream out = conn.getOutputStream();
 	    out.write(dataBytes);
 	    out.flush();
