@@ -29,14 +29,17 @@ import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
+import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.StreamingData;
 import com.ibm.streamsx.inet.rest.ops.PostTuple;
+import com.ibm.streamsx.inet.rest.ops.Functions;
 import com.ibm.streamsx.inet.rest.servlets.ExposedPortsInfo;
 import com.ibm.streamsx.inet.rest.servlets.PortInfo;
 import com.ibm.streamsx.inet.rest.setup.ExposedPort;
@@ -59,6 +62,11 @@ public class ServletEngine implements ServletEngineMBean {
 
 	public static final String CONTEXT_RESOURCE_BASE_PARAM = "contextResourceBase";
     public static final String CONTEXT_PARAM = "context";
+    
+    public static final String SSL_CERT_ALIAS_PARAM = "certificateAlias";
+    public static final String SSL_KEYSTORE_PARAM = "keyStore";
+    public static final String SSL_KEYSTORE_PASSWORD_PARAM = "keyStorePassword";
+    public static final String SSL_KEY_PASSWORD_PARAM = "keyPassword";
 
     public static ServletEngineMBean getServletEngine(OperatorContext context) throws Exception {
 		
@@ -91,6 +99,7 @@ public class ServletEngine implements ServletEngineMBean {
 	private boolean stopped;
     
     private final Server server;
+    private boolean isSSL;
     private final ContextHandlerCollection handlers;
     private final Map<String, ServletContextHandler> contexts = Collections.synchronizedMap(
             new HashMap<String, ServletContextHandler>());
@@ -104,11 +113,11 @@ public class ServletEngine implements ServletEngineMBean {
        
         server = new Server();
         handlers = new ContextHandlerCollection();
-
-        SelectChannelConnector connector0 = new SelectChannelConnector();
-        connector0.setPort(portNumber);
-        connector0.setMaxIdleTime(30000);
-        server.addConnector(connector0);
+        
+        if (context.getParameterNames().contains(SSL_CERT_ALIAS_PARAM))
+            setHTTPSConnector(context, server, portNumber);
+        else
+            setHTTPConnector(context, server, portNumber);
         
         server.setThreadPool(new ThreadPool() {
 
@@ -161,6 +170,52 @@ public class ServletEngine implements ServletEngineMBean {
             File dojo = new File(streamsInstall, "ext/dojo");        
             addStaticContext(null, "streamsx.inet.dojo", dojo.getAbsolutePath());       	
         }
+    }
+    
+    /**
+     * Setup an HTTP connector.
+     */
+    private void setHTTPConnector(OperatorContext context, Server server, int portNumber) {
+        SelectChannelConnector connector = new SelectChannelConnector();
+        connector.setPort(portNumber);
+        connector.setMaxIdleTime(30000);
+        server.addConnector(connector);
+    }
+    
+    /**
+     * Setup an HTTPS connector.
+     */
+    private void setHTTPSConnector(OperatorContext context, Server server, int portNumber) {
+        SslContextFactory sslContextFactory = new SslContextFactory();
+        
+        String keyStorePath = context.getParameterValues(SSL_KEYSTORE_PARAM).get(0);
+        File keyStorePathFile = new File(keyStorePath);
+        if (!keyStorePathFile.isAbsolute())
+            keyStorePathFile = new File(context.getPE().getApplicationDirectory(), keyStorePath);
+        sslContextFactory.setKeyStorePath(keyStorePathFile.getAbsolutePath());
+        
+        String keyStorePassword = context.getParameterValues(SSL_KEYSTORE_PASSWORD_PARAM).get(0);
+        sslContextFactory.setKeyStorePassword(Functions.obfuscate(keyStorePassword));
+        
+        String keyPassword;
+        if (context.getParameterNames().contains(SSL_KEY_PASSWORD_PARAM))
+            keyPassword = context.getParameterValues(SSL_KEY_PASSWORD_PARAM).get(0);
+        else
+            keyPassword = keyStorePassword;
+   
+        sslContextFactory.setKeyManagerPassword(Functions.obfuscate(keyPassword));
+               
+        sslContextFactory.setAllowRenegotiate(false);
+        sslContextFactory.setIncludeProtocols("TLSv1.2", "TLSv1.1");
+        sslContextFactory.setExcludeProtocols("SSLv3");
+        
+        SslSelectChannelConnector connector = new SslSelectChannelConnector(sslContextFactory);
+        
+        connector.setPort(portNumber);
+        connector.setMaxIdleTime(30000);
+        server.addConnector(connector); 
+        
+        isSSL = true;
     }
     
 	private ThreadPoolExecutor newContextThreadPoolExecutor(OperatorContext context) {
