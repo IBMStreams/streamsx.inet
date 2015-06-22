@@ -61,9 +61,8 @@ public class PostJSON extends ServletOperator {
 			"\\nThe *prefix* for the URLs is:\\n" +
 			"* *context path*`/`*base operator name* - When the `context` parameter is set.\\n" +
 			"* *full operator name* - When the `context` parameter is **not** set.\\n" +
-			"\\n" + 
+			"\\n" +
 			"**Limitations**:\\n" + 
 			"* Error handling is limited, incorrect URLs can crash the application.\\n" + 
 			"* No security access is provided to the data. This is mainly aimed at demos.";
-
 }
