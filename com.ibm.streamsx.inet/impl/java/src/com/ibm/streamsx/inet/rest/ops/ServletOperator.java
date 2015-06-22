@@ -68,10 +68,27 @@ public abstract class ServletOperator extends AbstractOperator {
 	@Parameter(optional=true, description=CRB_DESC)
 	public void setContextResourceBase(String base) {}
 	
+	@Parameter(optional=true)
+	public void setCertificateAlias(String ca) {}
+	@Parameter(optional=true)
+	public void setKeyStore(String ks) {}
+	@Parameter(optional=true)
+	public void setKeyStorePassword(String ksp) {}
+	@Parameter(optional=true)
+	public void setKeyPassword(String kp) {}
+	
 	@ContextCheck
 	public static void checkContextParameters(OperatorContextChecker checker) {	
 		checker.checkDependentParameters("context", "contextResourceBase");
 		checker.checkDependentParameters("contextResourceBase", "context");
+		
+		checker.checkDependentParameters(ServletEngine.SSL_CERT_ALIAS_PARAM,
+		        ServletEngine.SSL_KEYSTORE_PARAM,
+		        ServletEngine.SSL_KEYSTORE_PASSWORD_PARAM);
+		
+		checker.checkDependentParameters(ServletEngine.SSL_KEY_PASSWORD_PARAM,
+		        ServletEngine.SSL_CERT_ALIAS_PARAM);
+		
 	}
 	
 	static final String CONTEXT_DESC = "Define a URL context path that maps to the resources defined by" + 
