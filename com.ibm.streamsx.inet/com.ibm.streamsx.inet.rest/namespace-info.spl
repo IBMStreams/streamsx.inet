@@ -43,7 +43,7 @@
  * * `streamsx.inet.dojo` The Dojo Javascript library located at `$STREAMS_INSTALL/ext/dojo`. 
  * 
  * [HTTPTupleView] provides automatic visualization of tuples on its input ports.
- * These are available through the URL `streamsx.ient.resources/dojo/viewall.html`.
+ * These are available through the URL `streamsx.inet.resources/dojo/viewall.html`.
  * 
  * This provides a table containing links for all the ports connected to all HTTPTupleView
  * operators using the same Jetty webserver: The columns in the table are:
@@ -53,6 +53,40 @@
  * * *JSON Data* - Link that provides the raw JSON data.
  * This tables use the Dojo Javascript library from the Steams install, and thus do
  * not require external internet connectivity.
+ *
+ * + HTTPS Support
+ * Overview of HTTP and HTTPS support for
+ * `com.ibm.streamsx.inet.rest` operators.
+ * # HTTP Support
+ * By default the REST operators provide open ports with no authentication
+ * or encryption. This mode is useful for development, testing, proof-of-concept
+ * applications and demonstrations. The only configuration is
+ * the port number for the HTTP server, which defaults to 8080.
+ * # HTTPS Support
+ * HTTPS (SSL/TLS encryption) is supported for all of the operators in
+ * `com.ibm.streamsx.inet.rest`. To use HTTPS, the operators are
+ * configured to use a certificate from a Java key store. Specifying a
+ * certificate enables HTTPS, using TLSv1.2, TLSv1.1 or TLSv1.0.
+ * A certificate is specified using these parameters:
+ * * `keyStore` - URL to the key store containing the certificate. If a relative file path then it is taken as relative to the application directory.
+ * * `keyStorePassword` - Password to the key store.
+ * * `certificateAlias` - Alias of the certificate to use in the key store.
+ * * `keyPassword` - Password to the certificate. If not provided, defaults to the value of `keyStorePassword`.
+ *
+ * All password parameters accept the Jetty obfuscated password style,
+ * which provides protection from casual viewing only. If the password
+ * values starts with `OBF:` then it is assumed to be already obfuscated,
+ * otherwise it is obfuscated before being passed to Jetty. The
+ * Jetty utility `org.eclipse.jetty.util.security.Password` may be
+ * used to obfuscate passwords, for example when passing them as
+ * submission time values. In addition the SPL function [obfuscate(T)]
+ * is provided as an option to obfuscate values.
+ *
+ * The port number can be specified, and defaults to 8080.
+ *
+ * Note that a single Jetty instance (potentially shared by multiple
+ * operators) either uses HTTPS or HTTP, not both.
+ *
 */
 
 namespace com.ibm.streamsx.inet.rest;

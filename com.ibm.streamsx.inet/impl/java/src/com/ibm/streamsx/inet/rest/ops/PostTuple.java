@@ -19,7 +19,7 @@ import com.ibm.streams.operator.model.PrimitiveOperator;
 public class PostTuple extends ServletOperator {
 	
 	static final String DESC =
-			"Embeds a Jetty web server to allow HTTP POST requests to submit a tuple on " + 
+			"Embeds a Jetty web server to allow HTTP or HTTPS POST requests to submit a tuple on " + 
 			"its output ports. Each output port corresponds to a unique URL comprising the operator name " + 
 			"and the port index.\\n" + 
 			"\\n" + 
@@ -51,7 +51,7 @@ public class PostTuple extends ServletOperator {
 			"* Error handling is limited, incorrect URLs can crash the application.\\n" + 
 			"* Not all SPL data types are supported. String, signed integer and float types are supported for POST parameters. Output port may contain other types but will be set\\n" + 
 			"to their default values.\\n" + 
-			"* No security access is provided to the data. This is mainly aimed at demos.";
+			"* By default no security access is provided to the data, HTTPS must be explicitly configured.";
 	
 	
 	public static final String MAX_CONTEXT_SIZE_DESC =
