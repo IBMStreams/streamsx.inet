@@ -68,7 +68,8 @@ public abstract class ServletOperator extends AbstractOperator {
 	@Parameter(optional=true, description=CRB_DESC)
 	public void setContextResourceBase(String base) {}
 	
-	@Parameter(optional=true, description="Alias of the certificate to use in the key store.")
+	@Parameter(optional=true, description="Alias of the certificate to use in the key store. "
+	        + "When this parameter is set all connections use HTTPS.")
 	public void setCertificateAlias(String ca) {}
 	@Parameter(optional=true, description="URL to the key store containing the certificate. "
 	        + "If a relative file path then it is taken as relative to the application directory.")
@@ -77,6 +78,14 @@ public abstract class ServletOperator extends AbstractOperator {
 	public void setKeyStorePassword(String ksp) {}
 	@Parameter(optional=true, description="Password to the certificate. If not provided, defaults to the value of `keyStorePassword`.")
 	public void setKeyPassword(String kp) {}
+	
+        @Parameter(optional = true, description = "URL to the trust store containing client certificates. "
+            + "If a relative file path then it is taken as relative to the application directory. "
+            + "When this parameter is set, client authentication is required.")
+        public void setTrustStore(String ks) {}
+
+        @Parameter(optional = true, description = "Password to the trust store.")
+        public void setTrustStorePassword(String ksp) {}
 	
 	@ContextCheck
 	public static void checkContextParameters(OperatorContextChecker checker) {	
@@ -89,6 +98,10 @@ public abstract class ServletOperator extends AbstractOperator {
 		
 		checker.checkDependentParameters(ServletEngine.SSL_KEY_PASSWORD_PARAM,
 		        ServletEngine.SSL_CERT_ALIAS_PARAM);
+		
+                checker.checkDependentParameters(ServletEngine.SSL_TRUSTSTORE_PARAM,
+                        ServletEngine.SSL_TRUSTSTORE_PASSWORD_PARAM,
+                        ServletEngine.SSL_CERT_ALIAS_PARAM);
 		
 	}
 	
