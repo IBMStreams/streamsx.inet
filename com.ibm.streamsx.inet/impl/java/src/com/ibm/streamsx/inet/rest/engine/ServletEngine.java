@@ -40,8 +40,8 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.StreamingData;
 import com.ibm.streamsx.inet.http.PathConversionHelper;
-import com.ibm.streamsx.inet.rest.ops.PostTuple;
 import com.ibm.streamsx.inet.rest.ops.Functions;
+import com.ibm.streamsx.inet.rest.ops.PostTuple;
 import com.ibm.streamsx.inet.rest.servlets.ExposedPortsInfo;
 import com.ibm.streamsx.inet.rest.servlets.PortInfo;
 import com.ibm.streamsx.inet.rest.setup.ExposedPort;
@@ -69,6 +69,9 @@ public class ServletEngine implements ServletEngineMBean {
     public static final String SSL_KEYSTORE_PARAM = "keyStore";
     public static final String SSL_KEYSTORE_PASSWORD_PARAM = "keyStorePassword";
     public static final String SSL_KEY_PASSWORD_PARAM = "keyPassword";
+    
+    public static final String SSL_TRUSTSTORE_PARAM = "trustStore";
+    public static final String SSL_TRUSTSTORE_PASSWORD_PARAM = "trustStorePassword";
 
     public static ServletEngineMBean getServletEngine(OperatorContext context) throws Exception {
 		
@@ -212,6 +215,19 @@ public class ServletEngine implements ServletEngineMBean {
         sslContextFactory.setAllowRenegotiate(false);
         sslContextFactory.setIncludeProtocols("TLSv1.2", "TLSv1.1");
         sslContextFactory.setExcludeProtocols("SSLv3");
+        
+        String trustStorePath = context.getParameterValues(SSL_TRUSTSTORE_PARAM).get(0);
+        if (trustStorePath != null) {
+            sslContextFactory.setNeedClientAuth(true);
+            File trustStorePathFile = new File(trustStorePath);
+            if (!trustStorePathFile.isAbsolute())
+                trustStorePathFile = new File(context.getPE().getApplicationDirectory(), trustStorePath);
+            
+            sslContextFactory.setTrustStore(trustStorePath);
+            
+            String trustStorePassword = context.getParameterValues(SSL_TRUSTSTORE_PASSWORD_PARAM).get(0);
+            sslContextFactory.setTrustStorePassword(Functions.obfuscate(trustStorePassword));
+        }
         
         SslSelectChannelConnector connector = new SslSelectChannelConnector(sslContextFactory);
         

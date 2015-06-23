@@ -86,6 +86,10 @@
  *
  * Note that a single Jetty instance (potentially shared by multiple
  * operators) either uses HTTPS or HTTP, not both.
+ * # Certificate client authentication
+ * Once HTTPS is enabled, then certificate client authentication is enabled by using these parameters:
+ * * `trustStore` - URL to the key store containing trusted client certificates. If a relative file path then it is taken as relative to the application directory.
+ * * `trustStorePassword` - Password to the trust store.
  *
 */
 
