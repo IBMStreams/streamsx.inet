@@ -212,8 +212,8 @@ public class ServletEngine implements ServletEngineMBean {
         sslContextFactory.setIncludeProtocols("TLSv1.2", "TLSv1.1");
         sslContextFactory.setExcludeProtocols("SSLv3");
         
-        String trustStorePath = context.getParameterValues(SSL_TRUSTSTORE_PARAM).get(0);
-        if (trustStorePath != null) {
+        if (context.getParameterNames().contains(SSL_TRUSTSTORE_PARAM)) {
+            String trustStorePath = context.getParameterValues(SSL_TRUSTSTORE_PARAM).get(0);
             sslContextFactory.setNeedClientAuth(true);
             File trustStorePathFile = new File(trustStorePath);
             if (!trustStorePathFile.isAbsolute())
