@@ -18,12 +18,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ibm.json.java.JSON;
 import com.ibm.json.java.JSONArray;
 import com.ibm.json.java.JSONObject;
 import com.ibm.json.java.OrderedJSONObject;
 import com.ibm.streams.operator.Attribute;
 import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.Tuple;
+import com.ibm.streams.operator.Type;
 import com.ibm.streams.operator.encoding.EncodingFactory;
 import com.ibm.streams.operator.encoding.JSONEncoding;
 import com.ibm.streams.operator.types.RString;
@@ -172,15 +174,32 @@ public class AccessWindowContents extends HttpServlet {
         out.println(jsonTuples.serialize());
     }
     
-    public static JSONObject tuple2JSON(JSONEncoding<JSONObject,JSONArray>  encoding, Tuple tuple) {
+    public static JSONObject tuple2JSON(JSONEncoding<JSONObject,JSONArray>  encoding, Tuple tuple) throws IOException {
         
         return tuple2JSON(encoding, tuple.getStreamSchema(), tuple);
     }
+    
+    // Standard SPL JSON schema
+    private static final StreamSchema JSON_SCHEMA = Type.Factory.getStreamSchema("tuple<rstring jsonString>");
+    
+    // Standard SPL JSON attribute
+    private static final Attribute JSON_ATTR = JSON_SCHEMA.getAttribute(0);
 
-    public static JSONObject tuple2JSON(JSONEncoding<JSONObject,JSONArray>  encoding, Iterable<Attribute> attributes, Tuple tuple) {
+    /**
+     * Convert the set of attributes to JSON.
+     * If any attribute is rstring jsonString then assume
+     * it is serialized JSON and add it in as JSON (not a string value).
+     */
+    public static JSONObject tuple2JSON(JSONEncoding<JSONObject,JSONArray>  encoding, Iterable<Attribute> attributes, Tuple tuple)
+        throws IOException
+    {
         JSONObject jsonTuple = new OrderedJSONObject();
         for (Attribute attr : attributes) {
-            Object o = encoding.getAttributeObject(tuple, attr);
+            Object o;
+            if (JSON_ATTR.same(attr))
+                o = JSON.parse(tuple.getString(attr.getIndex()));
+            else
+                o = encoding.getAttributeObject(tuple, attr);
             jsonTuple.put(attr.getName(), o);
         }
         return jsonTuple;

@@ -40,7 +40,7 @@ public class TupleView extends ServletOperator {
 			"* *context path*`/`*base operator name* - When the `context` parameter is set.\\n" +
 			"* *full operator name* - When the `context` parameter is **not** set.\\n" +
 			"\\n" + 
-			"The `/json` URL accepts these optional query parameters:\\n" + 
+			"The `/tuples` URL accepts these optional query parameters:\\n" + 
 			"* `partition` – When the window is partitioned defines the partition to be extracted from the window. When partitionKey contains multiple attributes, partition must contain the same number of values as attributes and in the same order, e.g. `?partition=John&amp;partition=Smith`. " + 
 			"would match the SPL partitionKey setting of: `partitionKey: “firstName”, “lastName”;`. When a window is partitioned and no partition query parameter is provided the data for all partitions is returned.\\n" + 
 			"* `attribute` – Restricts the returned data to the named attributes. Data is returned in the order the attribute names are provided. When not provided, all attributes in the input tuples are returned. E.g. `?format=json&amp;attribute=lastName&amp;attribute=city` will return only the `lastName` and `city` attributes in that order with `lastName` first.\\n" + 
@@ -49,7 +49,10 @@ public class TupleView extends ServletOperator {
 			"The fixed URL `/ports/info` returns meta-data (using JSON) about all of the Streams ports that have associated URLs.\\n" + 
 			"\\n" + 
 			"Tuples are converted to JSON using " + 
-			"the `JSONEncoding` support added in Streams 3.0 to the Java Operator API.\\n" + 
+			"the `JSONEncoding` support from the Streams Java Operator API,\\n" + 
+			"except for any attribute that is `rstring jsonString`, then it is assumed" +
+			"that the value is serialized JSON and it is placed into the tuple's" +
+			"JSON object as its deserialzied JSON with key `jsonString`.\\n" +
 			"\\n" + 
 			"`HTTPTupleView`, [HTTPTupleInjection], [HTTPXMLInjection] and [WebContext] embed a Jetty webserver and " + 
 			"all operator invocations in an SPL application that are co-located/fused in same partition (PE) " + 
