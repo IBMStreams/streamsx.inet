@@ -50,9 +50,9 @@ public class TupleView extends ServletOperator {
 			"\\n" + 
 			"Tuples are converted to JSON using " + 
 			"the `JSONEncoding` support from the Streams Java Operator API,\\n" + 
-			"except for any attribute that is `rstring jsonString`, then it is assumed" +
-			"that the value is serialized JSON and it is placed into the tuple's" +
-			"JSON object as its deserialzied JSON with key `jsonString`.\\n" +
+			"except for any attribute that is `rstring jsonString`, then it is assumed " +
+			"that the value is serialized JSON and it is placed into the tuple's " +
+			"JSON object as its deserialized JSON with key `jsonString`.\\n" +
 			"\\n" + 
 			"`HTTPTupleView`, [HTTPTupleInjection], [HTTPXMLInjection] and [WebContext] embed a Jetty webserver and " + 
 			"all operator invocations in an SPL application that are co-located/fused in same partition (PE) " + 
