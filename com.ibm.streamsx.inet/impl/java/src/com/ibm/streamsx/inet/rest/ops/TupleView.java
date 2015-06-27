@@ -41,17 +41,21 @@ public class TupleView extends ServletOperator {
 			"* *full operator name* - When the `context` parameter is **not** set.\\n" +
 			"\\n" + 
 			"The `/tuples` URL accepts these optional query parameters:\\n" + 
-			"* `partition` – When the window is partitioned defines the partition to be extracted from the window. When partitionKey contains multiple attributes, partition must contain the same number of values as attributes and in the same order, e.g. `?partition=John&amp;partition=Smith`. " + 
+			"* `partition` – When the window is partitioned defines the partition to be extracted from the window. When partitionKey contains multiple attributes, partition must contain the same number of values as attributes and in the same order, e.g. `?partition=John&partition=Smith`. " + 
 			"would match the SPL partitionKey setting of: `partitionKey: “firstName”, “lastName”;`. When a window is partitioned and no partition query parameter is provided the data for all partitions is returned.\\n" + 
-			"* `attribute` – Restricts the returned data to the named attributes. Data is returned in the order the attribute names are provided. When not provided, all attributes in the input tuples are returned. E.g. `?format=json&amp;attribute=lastName&amp;attribute=city` will return only the `lastName` and `city` attributes in that order with `lastName` first.\\n" + 
-			"* `suppress` – Suppresses the named attributes from the output. When not provided, no attributes are suppressed. suppress is applied after applying the query parameter attribute. E.g. `?suppress=firstName&amp;suppress=lastName` will not include lastName or firstName in the returned data.\\n" + 
+			"* `attribute` – Restricts the returned data to the named attributes. Data is returned in the order the attribute names are provided. When not provided, all attributes in the input tuples are returned. E.g. `?format=json&attribute=lastName&attribute=city` will return only the `lastName` and `city` attributes in that order with `lastName` first.\\n" + 
+			"* `suppress` – Suppresses the named attributes from the output. When not provided, no attributes are suppressed. suppress is applied after applying the query parameter attribute. E.g. `?suppress=firstName&suppress=lastName` will not include lastName or firstName in the returned data.\\n" +
+			"These parameters are ignored if the input port's schema is `tuple<rstring jsonString>`.\\n" +
 			"\\n" + 
 			"The fixed URL `/ports/info` returns meta-data (using JSON) about all of the Streams ports that have associated URLs.\\n" + 
 			"\\n" + 
 			"Tuples are converted to JSON using " + 
 			"the `JSONEncoding` support from the Streams Java Operator API,\\n" + 
-			"except for any attribute that is `rstring jsonString`, then it is assumed " +
-			"that the value is serialized JSON and it is placed into the tuple's " +
+			"except for: \\n" +
+			"* If the input port's schema is `tuple<rstring jsonString>` then value is taken as is serialized JSON " +
+			" and the resultant JSON object is returned as the tuple's JSON value.\\n" +
+			"* Within a tuple any attribute that is `rstring jsonString`, then the value is taken as " +
+			"serialized JSON and it is placed into the tuple's " +
 			"JSON object as its deserialized JSON with key `jsonString`.\\n" +
 			"\\n" + 
 			"`HTTPTupleView`, [HTTPTupleInjection], [HTTPXMLInjection] and [WebContext] embed a Jetty webserver and " + 

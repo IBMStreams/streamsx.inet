@@ -40,11 +40,14 @@ public class AccessWindowContents extends HttpServlet {
 	
 	private final WindowContentsAtTrigger<Tuple> windowContents;
 	private final StreamSchema schema;
+	// Is the schema tuple<rstring jsonString> which is JSON_SCHEMA
+	private final boolean isPureJson;
 	private final JSONEncoding<JSONObject,JSONArray> jsonEncoding = EncodingFactory.getJSONEncoding();
 
 	public AccessWindowContents(WindowContentsAtTrigger<Tuple> windowContents) {
 		this.windowContents = windowContents;
 		schema = windowContents.getInput().getStreamSchema();
+		isPureJson = JSON_SCHEMA.equals(schema);
 	}
 	
     @Override
@@ -59,57 +62,69 @@ public class AccessWindowContents extends HttpServlet {
 
         action(request, response);
 	}
+ 
 
-	private void action(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-	    
-	    Object partition = getPartitionObject(request);
-	    
-	    Iterable<Attribute> attributes;
-	    
-	    String[] selectAttributesA = request.getParameterValues("attribute");
-	    if (selectAttributesA == null) {
-	        attributes = schema;
-	    } else {
-	        
-            List<Attribute> la = new ArrayList<Attribute>(selectAttributesA.length);           
-            
-	        for (String name : selectAttributesA) {
-	            if (schema.getAttributeIndex(name) != -1)
-	                la.add(schema.getAttribute(name));  
-	        }
-	        attributes = la;
-	    }
-	    
-	    String[] suppressA = request.getParameterValues("suppress");
-	       
-        if (suppressA != null) {
-            Set<String> suppress = new HashSet<String>();
-            Collections.addAll(suppress, suppressA);
-            List<Attribute> la = new ArrayList<Attribute>(
-                    schema.getAttributeCount());
+    private void action(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-            for (Attribute attr : attributes) {
-                if (!suppress.contains(attr.getName()))
-                    la.add(attr);
+        Object partition = getPartitionObject(request);
+
+        Iterable<Attribute> attributes = null;
+
+        // If the input type is pure JSON (rstring jsonString)
+        // then return the JSON object as-is, not as 
+        // an attribute with key jsonString.
+        if (!isPureJson) {
+
+            String[] selectAttributesA = request
+                    .getParameterValues("attribute");
+            if (selectAttributesA == null) {
+                attributes = schema;
+            } else {
+
+                List<Attribute> la = new ArrayList<Attribute>(
+                        selectAttributesA.length);
+
+                for (String name : selectAttributesA) {
+                    if (schema.getAttributeIndex(name) != -1)
+                        la.add(schema.getAttribute(name));
+                }
+                attributes = la;
             }
-            attributes = la;
+
+            String[] suppressA = request.getParameterValues("suppress");
+
+            if (suppressA != null) {
+                Set<String> suppress = new HashSet<String>();
+                Collections.addAll(suppress, suppressA);
+                List<Attribute> la = new ArrayList<Attribute>(
+                        schema.getAttributeCount());
+
+                for (Attribute attr : attributes) {
+                    if (!suppress.contains(attr.getName()))
+                        la.add(attr);
+                }
+                attributes = la;
+            }
         }
-	    		
-		final List<Tuple> tuples = windowContents.getWindowContents(partition);
 
-		response.setCharacterEncoding("UTF-8");
-		PrintWriter out = response.getWriter();
-		response.setHeader("Cache-Control",
-				"no-cache, no-store, must-revalidate");
-		response.setStatus(HttpServletResponse.SC_OK);
-		
-		response.setContentType("application/json");
-		formatJSON(out, tuples, attributes); 
+        final List<Tuple> tuples = windowContents.getWindowContents(partition);
 
-		out.flush();
-		out.close();
-	}
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
+        response.setHeader("Cache-Control",
+                "no-cache, no-store, must-revalidate");
+        response.setStatus(HttpServletResponse.SC_OK);
+
+        response.setContentType("application/json");
+        if (isPureJson)
+            formatPureJSON(out, tuples);
+        else
+            formatJSON(out, tuples, attributes);
+
+        out.flush();
+        out.close();
+    }
 	
 	private Object getPartitionObject(HttpServletRequest request) throws ServletException {
    
@@ -165,13 +180,25 @@ public class AccessWindowContents extends HttpServlet {
 
 
     protected void formatJSON(PrintWriter out, List<Tuple> tuples, Iterable<Attribute> attributes) throws IOException {
-        JSONArray jsonTuples = new JSONArray();
+        JSONArray jsonTuples = new JSONArray(tuples.size());
         for (Tuple tuple : tuples) {
             JSONObject jsonTuple = tuple2JSON(jsonEncoding, attributes, tuple);
             jsonTuples.add(jsonTuple);
         }
         
         out.println(jsonTuples.serialize());
+    }
+    
+    protected void formatPureJSON(PrintWriter out, List<Tuple> tuples) throws IOException {
+        assert isPureJson;
+
+        JSONArray jsonTuples = new JSONArray(tuples.size());
+        for (Tuple tuple : tuples) {
+            
+            jsonTuples.add(JSON.parse(tuple.getString(0)));
+        }
+        
+        out.println(jsonTuples.serialize());       
     }
     
     public static JSONObject tuple2JSON(JSONEncoding<JSONObject,JSONArray>  encoding, Tuple tuple) throws IOException {
