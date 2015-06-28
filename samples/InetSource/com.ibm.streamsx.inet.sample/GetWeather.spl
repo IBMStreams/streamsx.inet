@@ -18,7 +18,7 @@ use com.ibm.streamsx.inet::InetSource;
  * result: 2014/03/25 23:45 K14Y 252345Z AUTO 29007KT 10SM BKN041 M06/M15 A3014 RMK AO2
  * result: 2014/03/26 01:51 K14Y 260151Z AUTO 00000KT 10SM CLR M10/M15 A3012 RMK AO2
  */
-composite GetWeather
+public composite GetWeather
 {
   graph
     stream<list<rstring> result> Result = InetSource()

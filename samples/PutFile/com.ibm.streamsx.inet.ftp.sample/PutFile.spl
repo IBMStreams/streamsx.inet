@@ -24,7 +24,7 @@ use spl.file::*;
  * @param $password the password
  * @param $verbosity the verbosity for the FTPPutFile operator
  */
-composite PutFile {
+public composite PutFile {
 	param
 		expression<Protocol> $protocol : (Protocol)getSubmissionTimeValue("protocol", "ftp");
 		expression<rstring> $host : getSubmissionTimeValue("host", "localhost");

@@ -12,7 +12,7 @@ use com.ibm.streamsx.inet.http::*;
 /**
  * This sample connects to the specified URL and prints the streaming data.
  */
-composite HTTPStreamSample
+public composite HTTPStreamSample
 {
   graph
     stream<rstring data> Result = HTTPGetStream()

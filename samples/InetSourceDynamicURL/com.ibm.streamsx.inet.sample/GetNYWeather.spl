@@ -64,7 +64,7 @@ return ["http://w1.weather.gov/data/METAR/KNYC.1.txt"];
  * about the last modification time is discarded.  
  */
  
-composite GetWeatherDynamic
+public composite GetWeatherDynamic
 {
   graph
     stream<list<rstring> result> Result = InetSource()
