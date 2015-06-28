@@ -81,9 +81,13 @@ Zs74ysbG8CLNRgYzdzMSyv4AVnYY2u7xW+IAAAAASUVORK5CYII="
       ><set attributeName="visibility" from="hidden" end="sdt0.mouseout" to="visible" begin="sdt0.mouseover"
     /></g
     ><g visibility="hidden" style="stroke:none;font-style:italic;font-size:12px;font-family:&apos;Helvetica&apos;,&apos;SansSerif&apos;;"
-    ><rect x="47.65" y="88.0" width="277.59998" style="fill:rgb(230,230,255);stroke:rgb(0,0,80);" rx="2.0" ry="2.0" height="17.0"
-      /><text x="48.65" y="101.0"
-      >Optional: context, contextResourceBase, port</text
+    ><rect x="47.65" y="58.0" width="369.81998" style="fill:rgb(230,230,255);stroke:rgb(0,0,80);" rx="2.0" ry="2.0" height="47.0"
+      /><text x="48.65" y="71.0"
+      >Optional: certificateAlias, context, contextResourceBase, </text
+      ><text x="48.65" y="86.0"
+      >keyPassword, keyStore, keyStorePassword, port, trustStore, </text
+      ><text x="48.65" y="101.0"
+      >trustStorePassword</text
       ><set attributeName="visibility" from="hidden" end="sdt1.mouseout" to="visible" begin="sdt1.mouseover"
     /></g
     ><g visibility="hidden" style="stroke:none;font-style:italic;font-size:12px;font-family:&apos;Helvetica&apos;,&apos;SansSerif&apos;;"

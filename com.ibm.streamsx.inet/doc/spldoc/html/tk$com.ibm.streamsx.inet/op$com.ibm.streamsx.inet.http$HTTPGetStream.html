@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.5.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.http.html">com.ibm.streamsx.inet.http</a> &gt; HTTPGetStream</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.6.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.http.html">com.ibm.streamsx.inet.http</a> &gt; HTTPGetStream</p>
 
 </div>
 
@@ -31,7 +31,10 @@
 <p class="p">Connects to an HTTP endpoint, reads "chunks" of data and sends it to the output port. Every line read from the HTTP server endpoint is sent as a single tuple. If a connection is closed by the server, a WINDOW punctuation will be sent on port 0. Supported Authentications: Basic Authentication, OAuth 1.0a. Supported Compressions: Gzip, Deflate.
 </p>
 
-<p class="p">** Behavior in a Consistent Region **  This operator cannot be used inside a consistent region.
+<p class="p"><strong class="ph b">Behavior in a consistent region</strong>
+</p>
+
+<p class="p">This operator cannot be used inside a consistent region.
 </p>
 
 </div>

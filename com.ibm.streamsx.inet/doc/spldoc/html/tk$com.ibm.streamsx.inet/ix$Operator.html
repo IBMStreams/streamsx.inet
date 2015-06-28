@@ -7,22 +7,22 @@
 <meta name="copyright" content="(C) Copyright 2005"/>
 <meta name="DC.rights.owner" content="(C) Copyright 2005"/>
 <meta name="DC.Type" content="reference"/>
-<meta name="DC.Title" content="Operators: com.ibm.streamsx.inet 2.5.0"/>
+<meta name="DC.Title" content="Operators: com.ibm.streamsx.inet 2.6.0"/>
 <meta name="DC.Format" content="XHTML"/>
 <meta name="DC.Identifier" content="spldoc_index"/>
 <link rel="stylesheet" type="text/css" href="../../html/commonltr.css"/>
 <link rel="stylesheet" type="text/css" href="../../html/spldoc.css"/>
-<title>Operators: com.ibm.streamsx.inet 2.5.0</title>
+<title>Operators: com.ibm.streamsx.inet 2.6.0</title>
 </head>
 <body id="spldoc_index">
 
 
-<h1 class="title topictitle1">Operators: com.ibm.streamsx.inet 2.5.0</h1>
+<h1 class="title topictitle1">Operators: com.ibm.streamsx.inet 2.6.0</h1>
 
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.5.0</a> &gt; Operators</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.6.0</a> &gt; Operators</p>
 
 </div>
 
@@ -48,6 +48,12 @@
 
 
 
+  <dt class="dt dlterm"><a class="xref" href="op$com.ibm.streamsx.inet.http$HTTPGetJSONContent.html">HTTPGetJSONContent</a></dt>
+
+  <dd class="dd">Periodically connects to an HTTP endpoint to GET JSON content as a single tuple.</dd>
+
+
+
   <dt class="dt dlterm"><a class="xref" href="op$com.ibm.streamsx.inet.http$HTTPGetStream.html">HTTPGetStream</a></dt>
 
   <dd class="dd">Connects to an HTTP endpoint, reads "chunks" of data and sends it to the output port.</dd>
@@ -60,6 +66,12 @@
 
 
 
+  <dt class="dt dlterm"><a class="xref" href="op$com.ibm.streamsx.inet.rest$HTTPJSONInjection.html">HTTPJSONInjection</a></dt>
+
+  <dd class="dd">Embeds a Jetty web server to allow HTTP or HTTPS POST requests with mime type <tt class="ph tt">application/json</tt> to submit a tuple on its output ports.</dd>
+
+
+
   <dt class="dt dlterm"><a class="xref" href="op$com.ibm.streamsx.inet.http$HTTPPost.html">HTTPPost</a></dt>
 
   <dd class="dd">This operator sends incoming tuples to the specified HTTP server as part of a POST request.</dd>
@@ -68,25 +80,25 @@
 
   <dt class="dt dlterm"><a class="xref" href="op$com.ibm.streamsx.inet.rest$HTTPTupleInjection.html">HTTPTupleInjection</a></dt>
 
-  <dd class="dd">Embeds a Jetty web server to allow HTTP POST requests to submit a tuple on its output ports.</dd>
+  <dd class="dd">Embeds a Jetty web server to allow HTTP or HTTPS POST requests to submit a tuple on its output ports.</dd>
 
 
 
   <dt class="dt dlterm"><a class="xref" href="op$com.ibm.streamsx.inet.rest$HTTPTupleView.html">HTTPTupleView</a></dt>
 
-  <dd class="dd">REST HTTP API to view tuples from windowed input ports.</dd>
+  <dd class="dd">REST HTTP or HTTPS API to view tuples from windowed input ports.</dd>
 
 
 
   <dt class="dt dlterm"><a class="xref" href="op$com.ibm.streamsx.inet.rest$HTTPXMLInjection.html">HTTPXMLInjection</a></dt>
 
-  <dd class="dd">Embeds a Jetty web server to allow HTTP POST requests to submit a tuple on its output ports.</dd>
+  <dd class="dd">Embeds a Jetty web server to allow HTTP or HTTPS POST requests to submit a tuple on its output ports.</dd>
 
 
 
   <dt class="dt dlterm"><a class="xref" href="op$com.ibm.streamsx.inet.rest$HTTPXMLView.html">HTTPXMLView</a></dt>
 
-  <dd class="dd">REST HTTP API to view tuples from windowed input ports.</dd>
+  <dd class="dd">REST API to view tuples from input ports.</dd>
 
 
 
@@ -98,7 +110,7 @@
 
   <dt class="dt dlterm"><a class="xref" href="op$com.ibm.streamsx.inet.rest$WebContext.html">WebContext</a></dt>
 
-  <dd class="dd">Embeds a Jetty web server to provide HTTP REST access to files defined by the <tt class="ph tt">context</tt> and <tt class="ph tt">contextResourceBase</tt> parameters.</dd>
+  <dd class="dd">Embeds a Jetty web server to provide HTTP or HTTPS REST access to files defined by the <tt class="ph tt">context</tt> and <tt class="ph tt">contextResourceBase</tt> parameters.</dd>
 
 
 

@@ -22,13 +22,13 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.5.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.rest.html">com.ibm.streamsx.inet.rest</a> &gt; HTTPXMLView</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.6.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.rest.html">com.ibm.streamsx.inet.rest</a> &gt; HTTPXMLView</p>
 
 </div>
 
 <div class="section">
 
-<div class="p">REST HTTP API to view tuples from windowed input ports. Embeds a Jetty web server to provide HTTP REST access to the first XML attribute of the last tuple received by the input port window. The URLs defined by this operator are:
+<div class="p">REST API to view tuples from input ports. Embeds a Jetty web server to provide HTTP or HTTPS REST access to the first XML attribute of the last tuple received by the input port. The URLs defined by this operator are:
 <ul class="ul">
 <li class="li"> <em class="ph i">prefix</em><tt class="ph tt">/ports/input/</tt><em class="ph i">port index</em><tt class="ph tt">/attribute</tt> - Returns the value of the XML attribute (content type <tt class="ph tt">application/xml</tt>).</li>
 
@@ -53,7 +53,7 @@
 
 <div class="p"><strong class="ph b">Limitations</strong>:
 <ul class="ul">
-<li class="li"> No security access is provided to the data or applications. This is mainly aimed at demos. </li>
+<li class="li"> By default no security access is provided to the data, HTTPS must be explicitly configured. </li>
 
 </ul>
 
@@ -83,14 +83,14 @@
  
   <dt class="dt dlterm">Parameters</dt>
 
-  <dd class="dd">This operator supports 3 parameters. (<tt class="ph tt">context, contextResourceBase, port</tt>)
+  <dd class="dd">This operator supports 9 parameters. (<tt class="ph tt">certificateAlias, context, contextResourceBase, keyPassword, keyStore, keyStorePassword, port, trustStore, trustStorePassword</tt>)
 </dd>
 
  
  
   <dt class="dt dlterm">Metrics</dt>
 
-  <dd class="dd">This operator does not report any metrics.</dd>
+  <dd class="dd">This operator reports 2 metrics.</dd>
 
  
 </dl>
@@ -153,7 +153,38 @@
 
 <div class="section">
 <p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters">Parameters</a></strong></p>
-This operator supports 3 parameters.<dl class="dl">
+This operator supports 9 parameters.<dl class="dl">
+
+<dt class="dt dlterm" id="spldoc_operator__parameter_certificateAlias"><tt class="ph tt">certificateAlias</tt></dt>
+
+<dd class="dd">
+<p class="p">Alias of the certificate to use in the key store. When this parameter is set all connections use HTTPS.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
 
 <dt class="dt dlterm" id="spldoc_operator__parameter_context"><tt class="ph tt">context</tt></dt>
 
@@ -233,6 +264,99 @@ param
 
 
 
+<dt class="dt dlterm" id="spldoc_operator__parameter_keyPassword"><tt class="ph tt">keyPassword</tt></dt>
+
+<dd class="dd">
+<p class="p">Password to the certificate. If not provided, defaults to the value of <tt class="ph tt">keyStorePassword</tt>.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm" id="spldoc_operator__parameter_keyStore"><tt class="ph tt">keyStore</tt></dt>
+
+<dd class="dd">
+<p class="p">URL to the key store containing the certificate. If a relative file path then it is taken as relative to the application directory.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm" id="spldoc_operator__parameter_keyStorePassword"><tt class="ph tt">keyStorePassword</tt></dt>
+
+<dd class="dd">
+<p class="p">Password to the key store.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
 <dt class="dt dlterm" id="spldoc_operator__parameter_port"><tt class="ph tt">port</tt></dt>
 
 <dd class="dd">
@@ -263,6 +387,101 @@ param
 </dd>
 
 
+
+<dt class="dt dlterm" id="spldoc_operator__parameter_trustStore"><tt class="ph tt">trustStore</tt></dt>
+
+<dd class="dd">
+<p class="p">URL to the trust store containing client certificates. If a relative file path then it is taken as relative to the application directory. When this parameter is set, client authentication is required.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm" id="spldoc_operator__parameter_trustStorePassword"><tt class="ph tt">trustStorePassword</tt></dt>
+
+<dd class="dd">
+<p class="p">Password to the trust store.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+</dl>
+
+</div>
+
+<div class="section">
+<p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__metrics">Metrics</a></strong></p>
+<dl class="dl">
+  
+    <dt class="dt dlterm"><tt class="ph tt">https</tt> - <a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__metrics_kind_gauge">Gauge</a></dt>
+
+    <dd class="dd">
+
+<p class="p">Jetty SSL/TLS status: 0=HTTP, 1=HTTPS
+</p>
+
+     <p class="p"/>
+
+     </dd>
+
+  
+  
+    <dt class="dt dlterm"><tt class="ph tt">serverPort</tt> - <a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__metrics_kind_gauge">Gauge</a></dt>
+
+    <dd class="dd">
+
+<p class="p">Jetty (HTTP/HTTPS) server port
+</p>
+
+     <p class="p"/>
+
+     </dd>
+
+  
 </dl>
 
 </div>
