@@ -18,12 +18,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ibm.json.java.JSON;
 import com.ibm.json.java.JSONArray;
 import com.ibm.json.java.JSONObject;
 import com.ibm.json.java.OrderedJSONObject;
 import com.ibm.streams.operator.Attribute;
 import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.Tuple;
+import com.ibm.streams.operator.Type;
 import com.ibm.streams.operator.encoding.EncodingFactory;
 import com.ibm.streams.operator.encoding.JSONEncoding;
 import com.ibm.streams.operator.types.RString;
@@ -38,11 +40,14 @@ public class AccessWindowContents extends HttpServlet {
 	
 	private final WindowContentsAtTrigger<Tuple> windowContents;
 	private final StreamSchema schema;
+	// Is the schema tuple<rstring jsonString> which is JSON_SCHEMA
+	private final boolean isPureJson;
 	private final JSONEncoding<JSONObject,JSONArray> jsonEncoding = EncodingFactory.getJSONEncoding();
 
 	public AccessWindowContents(WindowContentsAtTrigger<Tuple> windowContents) {
 		this.windowContents = windowContents;
 		schema = windowContents.getInput().getStreamSchema();
+		isPureJson = JSON_SCHEMA.equals(schema);
 	}
 	
     @Override
@@ -57,57 +62,69 @@ public class AccessWindowContents extends HttpServlet {
 
         action(request, response);
 	}
+ 
 
-	private void action(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-	    
-	    Object partition = getPartitionObject(request);
-	    
-	    Iterable<Attribute> attributes;
-	    
-	    String[] selectAttributesA = request.getParameterValues("attribute");
-	    if (selectAttributesA == null) {
-	        attributes = schema;
-	    } else {
-	        
-            List<Attribute> la = new ArrayList<Attribute>(selectAttributesA.length);           
-            
-	        for (String name : selectAttributesA) {
-	            if (schema.getAttributeIndex(name) != -1)
-	                la.add(schema.getAttribute(name));  
-	        }
-	        attributes = la;
-	    }
-	    
-	    String[] suppressA = request.getParameterValues("suppress");
-	       
-        if (suppressA != null) {
-            Set<String> suppress = new HashSet<String>();
-            Collections.addAll(suppress, suppressA);
-            List<Attribute> la = new ArrayList<Attribute>(
-                    schema.getAttributeCount());
+    private void action(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-            for (Attribute attr : attributes) {
-                if (!suppress.contains(attr.getName()))
-                    la.add(attr);
+        Object partition = getPartitionObject(request);
+
+        Iterable<Attribute> attributes = null;
+
+        // If the input type is pure JSON (rstring jsonString)
+        // then return the JSON object as-is, not as 
+        // an attribute with key jsonString.
+        if (!isPureJson) {
+
+            String[] selectAttributesA = request
+                    .getParameterValues("attribute");
+            if (selectAttributesA == null) {
+                attributes = schema;
+            } else {
+
+                List<Attribute> la = new ArrayList<Attribute>(
+                        selectAttributesA.length);
+
+                for (String name : selectAttributesA) {
+                    if (schema.getAttributeIndex(name) != -1)
+                        la.add(schema.getAttribute(name));
+                }
+                attributes = la;
             }
-            attributes = la;
+
+            String[] suppressA = request.getParameterValues("suppress");
+
+            if (suppressA != null) {
+                Set<String> suppress = new HashSet<String>();
+                Collections.addAll(suppress, suppressA);
+                List<Attribute> la = new ArrayList<Attribute>(
+                        schema.getAttributeCount());
+
+                for (Attribute attr : attributes) {
+                    if (!suppress.contains(attr.getName()))
+                        la.add(attr);
+                }
+                attributes = la;
+            }
         }
-	    		
-		final List<Tuple> tuples = windowContents.getWindowContents(partition);
 
-		response.setCharacterEncoding("UTF-8");
-		PrintWriter out = response.getWriter();
-		response.setHeader("Cache-Control",
-				"no-cache, no-store, must-revalidate");
-		response.setStatus(HttpServletResponse.SC_OK);
-		
-		response.setContentType("application/json");
-		formatJSON(out, tuples, attributes); 
+        final List<Tuple> tuples = windowContents.getWindowContents(partition);
 
-		out.flush();
-		out.close();
-	}
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
+        response.setHeader("Cache-Control",
+                "no-cache, no-store, must-revalidate");
+        response.setStatus(HttpServletResponse.SC_OK);
+
+        response.setContentType("application/json");
+        if (isPureJson)
+            formatPureJSON(out, tuples);
+        else
+            formatJSON(out, tuples, attributes);
+
+        out.flush();
+        out.close();
+    }
 	
 	private Object getPartitionObject(HttpServletRequest request) throws ServletException {
    
@@ -163,7 +180,7 @@ public class AccessWindowContents extends HttpServlet {
 
 
     protected void formatJSON(PrintWriter out, List<Tuple> tuples, Iterable<Attribute> attributes) throws IOException {
-        JSONArray jsonTuples = new JSONArray();
+        JSONArray jsonTuples = new JSONArray(tuples.size());
         for (Tuple tuple : tuples) {
             JSONObject jsonTuple = tuple2JSON(jsonEncoding, attributes, tuple);
             jsonTuples.add(jsonTuple);
@@ -172,15 +189,44 @@ public class AccessWindowContents extends HttpServlet {
         out.println(jsonTuples.serialize());
     }
     
-    public static JSONObject tuple2JSON(JSONEncoding<JSONObject,JSONArray>  encoding, Tuple tuple) {
+    protected void formatPureJSON(PrintWriter out, List<Tuple> tuples) throws IOException {
+        assert isPureJson;
+
+        JSONArray jsonTuples = new JSONArray(tuples.size());
+        for (Tuple tuple : tuples) {
+            
+            jsonTuples.add(JSON.parse(tuple.getString(0)));
+        }
+        
+        out.println(jsonTuples.serialize());       
+    }
+    
+    public static JSONObject tuple2JSON(JSONEncoding<JSONObject,JSONArray>  encoding, Tuple tuple) throws IOException {
         
         return tuple2JSON(encoding, tuple.getStreamSchema(), tuple);
     }
+    
+    // Standard SPL JSON schema
+    private static final StreamSchema JSON_SCHEMA = Type.Factory.getStreamSchema("tuple<rstring jsonString>");
+    
+    // Standard SPL JSON attribute
+    private static final Attribute JSON_ATTR = JSON_SCHEMA.getAttribute(0);
 
-    public static JSONObject tuple2JSON(JSONEncoding<JSONObject,JSONArray>  encoding, Iterable<Attribute> attributes, Tuple tuple) {
+    /**
+     * Convert the set of attributes to JSON.
+     * If any attribute is rstring jsonString then assume
+     * it is serialized JSON and add it in as JSON (not a string value).
+     */
+    public static JSONObject tuple2JSON(JSONEncoding<JSONObject,JSONArray>  encoding, Iterable<Attribute> attributes, Tuple tuple)
+        throws IOException
+    {
         JSONObject jsonTuple = new OrderedJSONObject();
         for (Attribute attr : attributes) {
-            Object o = encoding.getAttributeObject(tuple, attr);
+            Object o;
+            if (JSON_ATTR.same(attr))
+                o = JSON.parse(tuple.getString(attr.getIndex()));
+            else
+                o = encoding.getAttributeObject(tuple, attr);
             jsonTuple.put(attr.getName(), o);
         }
         return jsonTuple;

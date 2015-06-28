@@ -19,9 +19,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
 import javax.management.JMX;
+import javax.management.MBeanRegistration;
+import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
+import javax.management.MBeanServerDelegate;
+import javax.management.MBeanServerNotification;
+import javax.management.Notification;
+import javax.management.NotificationListener;
 import javax.management.ObjectName;
+import javax.management.relation.MBeanServerNotificationFilter;
 
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
@@ -39,6 +47,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 
 import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.StreamingData;
+import com.ibm.streams.operator.management.OperatorManagement;
 import com.ibm.streamsx.inet.http.PathConversionHelper;
 import com.ibm.streamsx.inet.rest.ops.Functions;
 import com.ibm.streamsx.inet.rest.ops.PostTuple;
@@ -56,7 +65,7 @@ import com.ibm.streamsx.inet.rest.setup.OperatorServletSetup;
  * Supports multiple servlet engines within the same PE,
  * one per defined port.
  */
-public class ServletEngine implements ServletEngineMBean {
+public class ServletEngine implements ServletEngineMBean, MBeanRegistration {
 	
     static Logger trace = Logger.getLogger(ServletEngine.class.getName());
 	
@@ -87,7 +96,7 @@ public class ServletEngine implements ServletEngineMBean {
         synchronized (syncMe) {
             if (!mbs.isRegistered(jetty)) {
                 try {
-                    mbs.registerMBean(new ServletEngine(context, portNumber),
+                    mbs.registerMBean(new ServletEngine(jetty, context, portNumber),
                             jetty);
                 } catch (InstanceAlreadyExistsException infe) {
                 }
@@ -104,15 +113,18 @@ public class ServletEngine implements ServletEngineMBean {
 	private boolean stopped;
     
     private final Server server;
+    private final ObjectName myObjectName;
     private boolean isSSL;
+    // Jetty port.
+    private int localPort;
     private final ContextHandlerCollection handlers;
     private final Map<String, ServletContextHandler> contexts = Collections.synchronizedMap(
             new HashMap<String, ServletContextHandler>());
     
     private final List<ExposedPort> exposedPorts = Collections.synchronizedList(new ArrayList<ExposedPort>());
    
-    private ServletEngine(OperatorContext context, int portNumber) throws Exception {
-        
+    private ServletEngine(ObjectName myObjectName, OperatorContext context, int portNumber) throws Exception {
+        this.myObjectName = myObjectName;
 		this.startingContext = context;                
         tpe = newContextThreadPoolExecutor(context);
        
@@ -123,6 +135,7 @@ public class ServletEngine implements ServletEngineMBean {
             setHTTPSConnector(context, server, portNumber);
         else
             setHTTPConnector(context, server, portNumber);
+        context.getMetrics().getCustomMetric("https").setValue(isSSL ? 1 : 0);
         
         server.setThreadPool(new ThreadPool() {
 
@@ -362,6 +375,9 @@ public class ServletEngine implements ServletEngineMBean {
 
         t.setDaemon(false);
         t.start();
+        
+        localPort = server.getConnectors()[0].getLocalPort();
+        startingContext.getMetrics().getCustomMetric("serverPort").setValue(localPort);
     }
     
    
@@ -452,5 +468,52 @@ public class ServletEngine implements ServletEngineMBean {
     public static class OperatorWebAppContext extends WebAppContext {
         public OperatorWebAppContext() {
         }
+    }
+
+    @Override
+    public void postDeregister() {
+    }
+
+    /**
+     * On PE shutdown unregister this MBean, allows unit tests
+     * to have multiple executions in the same JVM.
+     */
+    @Override
+    public void postRegister(Boolean registrationDone) {
+        
+        MBeanServerNotificationFilter unregisterPe = new MBeanServerNotificationFilter();
+        unregisterPe.disableAllTypes();
+        unregisterPe.disableAllTypes();
+        unregisterPe.enableObjectName(OperatorManagement.getPEName());
+        unregisterPe.enableType(MBeanServerNotification.UNREGISTRATION_NOTIFICATION);
+        
+        try {
+            ManagementFactory.getPlatformMBeanServer().addNotificationListener(
+                    MBeanServerDelegate.DELEGATE_NAME, new NotificationListener() {
+                        
+                        @Override
+                        public void handleNotification(Notification notification, Object handback) {
+                            try {
+                                ManagementFactory.getPlatformMBeanServer().unregisterMBean(myObjectName);
+                            } catch (MBeanRegistrationException e) {
+                                ;
+                            } catch (InstanceNotFoundException e) {
+                                ;
+                            }
+                        }
+                    }, unregisterPe, null);
+        } catch (InstanceNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void preDeregister() throws Exception {
+    }
+
+    @Override
+    public ObjectName preRegister(MBeanServer server, ObjectName name)
+            throws Exception {
+        return null;
     }
 }

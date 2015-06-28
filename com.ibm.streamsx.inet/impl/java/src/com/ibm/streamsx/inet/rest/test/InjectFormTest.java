@@ -9,7 +9,6 @@ import static org.junit.Assert.assertNull;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLEncoder;
 
@@ -33,7 +32,7 @@ public class InjectFormTest {
 
 		// Declare a beacon operator
 		OperatorInvocation<PostTuple> op = graph.addOperator(PostTuple.class);
-		op.setIntParameter("port", 8081);
+		op.setIntParameter("port", 0);
 		
 		OutputPortDeclaration injectedTuples = op.addOutput("tuple<int32 a, rstring b>");
 		
@@ -50,7 +49,7 @@ public class InjectFormTest {
 		assertNull(mrt.getMostRecentTuple());
 		
 		// Make an empty POST request which submits a default tuple.
-		URL postTuple = new URL("http://" + InetAddress.getLocalHost().getHostName() + ":8081/" + op.getName() + "/ports/output/0/inject");
+		URL postTuple = new URL(TupleViewTest.getJettyURLBase(testableGraph, op) + "/" + op.getName() + "/ports/output/0/inject");
 		HttpURLConnection conn = (HttpURLConnection) postTuple.openConnection(); 
 		conn.setDoOutput(true);
 		assertEquals(HttpURLConnection.HTTP_NO_CONTENT, conn.getResponseCode());
