@@ -8,6 +8,9 @@ import com.ibm.streams.operator.AbstractOperator;
 import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.OperatorContext.ContextCheck;
 import com.ibm.streams.operator.compile.OperatorContextChecker;
+import com.ibm.streams.operator.metrics.Metric;
+import com.ibm.streams.operator.metrics.Metric.Kind;
+import com.ibm.streams.operator.model.CustomMetric;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streamsx.inet.rest.engine.ServletEngine;
 import com.ibm.streamsx.inet.rest.engine.ServletEngineMBean;
@@ -86,6 +89,18 @@ public abstract class ServletOperator extends AbstractOperator {
 
         @Parameter(optional = true, description = "Password to the trust store.")
         public void setTrustStorePassword(String ksp) {}
+        
+        // Creates a metric that the ServletEngine will fill in.
+        private Metric serverPort;
+        @CustomMetric(description="Jetty (HTTP/HTTPS) server port", kind=Kind.GAUGE)
+        public void setServerPort(Metric metric) {this.serverPort = metric;}
+        public Metric getServerPort() { return serverPort; }
+
+        // Creates a metric that the ServletEngine will fill in.
+        private Metric https;
+        @CustomMetric(description="Jetty SSL/TLS status: 0=HTTP, 1=HTTPS", kind=Kind.GAUGE)
+        public void setHttps(Metric metric) {this.https = metric;}
+        public Metric getHttps() { return https; }
 	
 	@ContextCheck
 	public static void checkContextParameters(OperatorContextChecker checker) {	

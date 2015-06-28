@@ -156,7 +156,7 @@ public class InjectJSONTest {
 
 		// Declare a HTTPJSONInjection operator
 		OperatorInvocation<PostJSON> op = graph.addOperator(PostJSON.class);
-		op.setIntParameter("port", 8083);
+		op.setIntParameter("port", 0);
 		
 		OutputPortDeclaration injectedTuples = op.addOutput("tuple<rstring jsonString>");
 		
@@ -172,7 +172,7 @@ public class InjectJSONTest {
 		
 		assertNull(mrt.getMostRecentTuple());
 		
-		URL postTuple = new URL("http://" + InetAddress.getLocalHost().getHostName() + ":8083/" + op.getName() + "/ports/output/0/inject");
+		URL postTuple = new URL(TupleViewTest.getJettyURLBase(testableGraph, op) + "/" + op.getName() + "/ports/output/0/inject");
 		
 		try {
 
