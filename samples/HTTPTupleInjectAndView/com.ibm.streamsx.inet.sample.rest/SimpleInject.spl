@@ -10,9 +10,9 @@ namespace com.ibm.streamsx.inet.sample.rest;
 use com.ibm.streamsx.inet.rest::*;
 
 /**
- * Simple example of an using [HTTPTupleInjection] to feed tuples
+ * Simple example of an using `com.ibm.streamsx.inet.rest.HTTPTupleInjection` to feed tuples
  * into Stream InjectedTuples which are then visible through
- * the windowed [HTTPTupleView] operator.
+ * the windowed `com.ibm.streamsx.ient.rest.HTTPTupleView` operator.
  * 
  * Tuples are injected using the form input at: [http://127.0.0.1:8080/InjectedTuples/ports/output/0/form]
  * 
@@ -25,7 +25,7 @@ use com.ibm.streamsx.inet.rest::*;
  *
  * These URLs show the meta data for the ports using a JSON object:
  * * [http://127.0.0.1:8080/InjectedTuples/ports/output/0/info] - Output port for the injected tuples.
- * * [http://127.0.0.1:8080/InjectView/ports/input/0/info] - Input port to [HTTPTupleView].
+ * * [http://127.0.0.1:8080/InjectView/ports/input/0/info] - Input port to `HTTPTupleView`.
  * 
  * To compile this example:
  * 
@@ -34,7 +34,7 @@ use com.ibm.streamsx.inet.rest::*;
  *     output/bin/standalone
  * Point browser to [http://127.0.0.1:8080]
  */
-composite SimpleInject {
+public composite SimpleInject {
 	
 	graph
 	stream<ustring a_ustring, rstring b_rstring, int32 c_int32, float32 d_float32> InjectedTuples

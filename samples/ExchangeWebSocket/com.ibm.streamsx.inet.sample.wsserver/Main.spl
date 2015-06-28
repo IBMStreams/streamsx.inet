@@ -15,7 +15,7 @@ use com.ibm.streamsx.inet.wsserver::WebSocketSend ;
  * 7) Move cursor into Gray box, move up/down to send data.
  */
 
-composite Main {
+public composite Main {
 	graph
 		()as WebContext_1 = WebContext(){
 			param

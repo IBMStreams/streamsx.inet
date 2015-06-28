@@ -25,7 +25,7 @@ use com.ibm.streamsx.inet.ftp::*;
  * @param $verbosityBinFile the verbosity for the binary file transfer operator
  * @param $verbosityCommand the verbosity for the command execution operator
  */
-composite RemoteDirScanAndGet {
+public composite RemoteDirScanAndGet {
 	param
 		expression<Protocol> $protocol : (Protocol)getSubmissionTimeValue("protocol", "ftp");
 		expression<rstring> $host : getSubmissionTimeValue("host", "localhost");
