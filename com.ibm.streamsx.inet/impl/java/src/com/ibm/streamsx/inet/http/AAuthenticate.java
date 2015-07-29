@@ -8,6 +8,7 @@ package com.ibm.streamsx.inet.http;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Properties;
 
@@ -76,7 +77,7 @@ class BasicAuth extends AAuthenticate {
 
 	@Override
 	public void sign(HTTPRequest req) throws Exception {
-		String up_encoded = DatatypeConverter.printBase64Binary(useridpassword.getBytes());
+		String up_encoded = DatatypeConverter.printBase64Binary(useridpassword.getBytes(StandardCharsets.UTF_8));
 		req.getReq().setHeader("Authorization", "Basic " + up_encoded);
 	}
 }
