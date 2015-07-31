@@ -77,7 +77,7 @@ class BasicAuth extends AAuthenticate {
 
 	@Override
 	public void sign(HTTPRequest req) throws Exception {
-		String up_encoded = DatatypeConverter.printBase64Binary(useridpassword.getBytes(StandardCharsets.UTF_8));
+		String up_encoded = DatatypeConverter.printBase64Binary(useridpassword.getBytes(StandardCharsets.US_ASCII));
 		req.getReq().setHeader("Authorization", "Basic " + up_encoded);
 	}
 }
