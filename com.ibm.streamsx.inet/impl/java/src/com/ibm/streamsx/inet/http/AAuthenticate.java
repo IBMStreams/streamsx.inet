@@ -8,10 +8,11 @@ package com.ibm.streamsx.inet.http;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Properties;
 
-import com.ibm.misc.BASE64Encoder;
+import javax.xml.bind.DatatypeConverter;
 
 abstract class AAuthenticate implements IAuthenticate {
 
@@ -76,8 +77,7 @@ class BasicAuth extends AAuthenticate {
 
 	@Override
 	public void sign(HTTPRequest req) throws Exception {
-		BASE64Encoder encoder = new BASE64Encoder();
-		String up_encoded = encoder.encode(useridpassword.getBytes());
+		String up_encoded = DatatypeConverter.printBase64Binary(useridpassword.getBytes(StandardCharsets.US_ASCII));
 		req.getReq().setHeader("Authorization", "Basic " + up_encoded);
 	}
 }
