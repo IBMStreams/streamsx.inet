@@ -6,6 +6,8 @@ package com.ibm.streamsx.inet.http;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.apache.http.HttpEntity;
@@ -35,6 +37,7 @@ public abstract class AbstractHTTPGetContent<A> extends
             .getLogger("com.ibm.streamsx.inet.http");
 
     private String url;
+    private List<String> extraHeaders;
 
     private HttpClient client;
     protected URIBuilder builder;
@@ -52,6 +55,11 @@ public abstract class AbstractHTTPGetContent<A> extends
     @Parameter(description = "URL to HTTP GET content from.")
     public void setUrl(String url) {
         this.url = url;
+    }
+    
+    @Parameter(optional = true, description = "Extra headers to send with request, format is \\\"Header-Name: value\\\"")
+    public void setExtraHeaders(List<String> extraHeaders) {
+    	this.extraHeaders = extraHeaders;
     }
 
     public Metric getnFailedRequests() {
@@ -85,6 +93,11 @@ public abstract class AbstractHTTPGetContent<A> extends
                     .getIndex();
         else
             contentAttributeIndex = defaultContentAttributeIndex();
+        
+        Map<String, String> extraHeaderMap = HTTPUtils.getHeaderMap(extraHeaders);
+        for(Map.Entry<String, String> header : extraHeaderMap.entrySet()) {
+            get.setHeader(header.getKey(), header.getValue());
+        }
     }
 
     protected abstract String acceptedContentTypes();

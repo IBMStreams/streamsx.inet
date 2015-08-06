@@ -73,6 +73,8 @@ public class HTTPPostOper extends AbstractOperator
 	
 	private String headerContentType = MIME_FORM;
 
+	private List<String> extraHeaders = new ArrayList<String>();
+
 	@Parameter(optional= false, description="URL to connect to")
 	public void setUrl(String url) {
 		this.url = url;
@@ -108,6 +110,10 @@ public class HTTPPostOper extends AbstractOperator
 			" Note that if a value other than the above mentioned ones is specified, the input stream can only have a single attribute.")
 	public void setHeaderContentType(String val) {
 		this.headerContentType = val;
+	}
+	@Parameter(optional=true, description="Extra headers to send with request, format is \\\"Header-Name: value\\\".")
+	public void setExtraHeaders(List<String> val) {
+		this.extraHeaders = val;
 	}
 	
 	//consistent region checks
@@ -173,6 +179,11 @@ public class HTTPPostOper extends AbstractOperator
 		}
 		else {
 			req.setParams(tuple.getObject(schema.getAttribute(0).getName()).toString());
+		}
+
+		Map<String, String> headerMap = HTTPUtils.getHeaderMap(extraHeaders);
+		for(Map.Entry<String, String> header : headerMap.entrySet()) {
+			req.setHeader(header.getKey(), header.getValue());
 		}
 
 		HTTPResponse resp = null;
