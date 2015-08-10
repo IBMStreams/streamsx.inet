@@ -24,6 +24,18 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
+import java.security.cert.X509Certificate;
+import java.security.SecureRandom;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.impl.conn.SingleClientConnManager;
+import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
+
 class HTTPRequest {
 
 	static final String 
@@ -100,7 +112,32 @@ class HTTPRequest {
 	 * @throws Exception
 	 */
 	public HTTPResponse sendRequest(IAuthenticate auth) throws Exception {
-		HttpClient client = new DefaultHttpClient();
+		SSLContext sslContext = SSLContext.getInstance("SSL");
+		sslContext.init(null, new TrustManager[] {
+			new X509TrustManager() {
+				public X509Certificate[] getAcceptedIssuers() {
+					System.out.println("getAcceptedIssuers =============");
+					return null;
+				}
+				public void checkClientTrusted(X509Certificate[] certs, String authType) {
+					System.out.println("checkClientTrusted =============");
+				}
+				public void checkServerTrusted(X509Certificate[] certs, String authType) {
+					System.out.println("checkServerTrusted =============");
+				}
+			}
+		}, new SecureRandom());
+
+		SSLSocketFactory sf = new SSLSocketFactory(sslContext);
+		sf.setHostnameVerifier(new AllowAllHostnameVerifier());
+		Scheme httpsScheme = new Scheme("https", sf, 443);
+		SchemeRegistry schemeRegistry = new SchemeRegistry();
+		schemeRegistry.register(httpsScheme);
+
+		// apache HttpClient version >4.2 should use BasicClientConnectionManager
+		ClientConnectionManager cm = new SingleClientConnManager(schemeRegistry);
+
+		HttpClient client = new DefaultHttpClient(cm);
 		if(type == RequestType.GET) {
 			HttpGet get = new HttpGet(url);
 			req=get;
