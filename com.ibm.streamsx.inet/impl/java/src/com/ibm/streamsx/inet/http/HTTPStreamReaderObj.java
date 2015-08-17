@@ -48,7 +48,7 @@ class HTTPStreamReaderObj implements Runnable
 	
 	public HTTPStreamReaderObj(String url, IAuthenticate auth, 
 			HTTPStreamReader reader,  Map<String, String> postD, 
-			boolean disableCompression) 
+			boolean disableCompression, boolean insecure) 
 			throws Exception 	{
 		this.auth = auth;
 		this.reader = reader;
@@ -64,6 +64,8 @@ class HTTPStreamReaderObj implements Runnable
 			req.setHeader("Accept-Encoding", "identity");
 		}
 		req.setParams(postData);
+		
+		req.setInsecure(insecure);
 	}
 	
 
