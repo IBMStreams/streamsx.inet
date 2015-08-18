@@ -62,6 +62,7 @@ public class HTTPStreamReader extends AbstractOperator {
 	private static Logger trace = Logger.getLogger(CLASS_NAME);
 	private boolean retryOnClose = false;
 	private boolean disableCompression = false;
+	private boolean acceptAllCertificates = false;
 
 	@Parameter(optional= false, description="URL endpoint to connect to.")
 	public void setUrl(String url) {
@@ -117,6 +118,12 @@ public class HTTPStreamReader extends AbstractOperator {
 			"Setting this option to true will disable compressions. Default is false.")
 	public void setDisableCompression(boolean val) {
 		this.disableCompression = val;
+	}
+	@Parameter(optional=true, 
+			description="Accept all SSL certificates, even those that are self-signed. " +
+			"Setting this option will allow potentially insecure connections. Default is false.")
+	public void setAcceptAllCertificates(boolean val) {
+		this.acceptAllCertificates = val;
 	}
 
 	@ContextCheck(compile=true)
@@ -183,7 +190,7 @@ public class HTTPStreamReader extends AbstractOperator {
         URI baseConfigURI = op.getPE().getApplicationDirectory().toURI();
 		IAuthenticate auth = AuthHelper.getAuthenticator(authenticationType, PathConversionHelper.convertToAbsPath(baseConfigURI, authenticationFile), authenticationProperties);
 
-		reader = new HTTPStreamReaderObj(this.url, auth, this, postDataParams, disableCompression);
+		reader = new HTTPStreamReaderObj(this.url, auth, this, postDataParams, disableCompression, acceptAllCertificates);
 		th = op.getThreadFactory().newThread(reader);
 		th.setDaemon(false);
 	}

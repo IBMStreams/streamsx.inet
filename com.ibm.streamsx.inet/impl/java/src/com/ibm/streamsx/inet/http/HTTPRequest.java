@@ -24,6 +24,20 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
+import java.security.cert.X509Certificate;
+import java.security.SecureRandom;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.impl.conn.BasicClientConnectionManager;
+import org.apache.http.impl.conn.SingleClientConnManager;
+
 class HTTPRequest {
 
 	static final String 
@@ -41,6 +55,8 @@ class HTTPRequest {
 
 	private HttpUriRequest req = null;
 	private HttpEntity entity = null;
+	
+	private boolean insecure = false;
 
 	public HTTPRequest(String url) {
 		this.url =  url;
@@ -64,6 +80,14 @@ class HTTPRequest {
 
 	HttpUriRequest getReq() {
 		return req;
+	}
+	
+	public boolean isInsecure() {
+		return insecure;
+	}
+	
+	public void setInsecure(boolean insecure) {
+		this.insecure = insecure;
 	}
 
 	/**
@@ -100,7 +124,14 @@ class HTTPRequest {
 	 * @throws Exception
 	 */
 	public HTTPResponse sendRequest(IAuthenticate auth) throws Exception {
-		HttpClient client = new DefaultHttpClient();
+		HttpClient client;
+		if(insecure) {
+			client = getHttpClientWithNoSSLValidation();
+		}
+		else {
+			client = new DefaultHttpClient();
+		}
+		
 		if(type == RequestType.GET) {
 			HttpGet get = new HttpGet(url);
 			req=get;
@@ -122,6 +153,32 @@ class HTTPRequest {
 		auth.sign(this);
 		
 		return new HTTPResponse(client.execute(req));
+	}
+	
+	private HttpClient getHttpClientWithNoSSLValidation() throws Exception {
+		SSLContext sslContext = SSLContext.getInstance("SSL");
+		sslContext.init(null, new TrustManager[] {
+			new X509TrustManager() {
+				public X509Certificate[] getAcceptedIssuers() {
+					return null;
+				}
+				public void checkClientTrusted(X509Certificate[] certs, String authType) {
+				}
+				public void checkServerTrusted(X509Certificate[] certs, String authType) {
+				}
+			}
+		}, new SecureRandom());
+
+		//SSLSocketFactory sf = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+		SSLSocketFactory sf = new SSLSocketFactory(sslContext);
+		sf.setHostnameVerifier(new AllowAllHostnameVerifier());
+		Scheme httpsScheme = new Scheme("https", 443, sf);
+		SchemeRegistry schemeRegistry = new SchemeRegistry();
+		schemeRegistry.register(httpsScheme);
+
+		ClientConnectionManager cm = new SingleClientConnManager(schemeRegistry);
+
+		return new DefaultHttpClient(cm);
 	}
 
 
