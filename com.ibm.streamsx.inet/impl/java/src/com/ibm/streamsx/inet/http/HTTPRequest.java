@@ -126,7 +126,7 @@ class HTTPRequest {
 	public HTTPResponse sendRequest(IAuthenticate auth) throws Exception {
 		HttpClient client;
 		if(insecure) {
-			client = getHttpClientWithNoSecurity();
+			client = getHttpClientWithNoSSLValidation();
 		}
 		else {
 			client = new DefaultHttpClient();
@@ -155,7 +155,7 @@ class HTTPRequest {
 		return new HTTPResponse(client.execute(req));
 	}
 	
-	private HttpClient getHttpClientWithNoSecurity() throws Exception {
+	private HttpClient getHttpClientWithNoSSLValidation() throws Exception {
 		SSLContext sslContext = SSLContext.getInstance("SSL");
 		sslContext.init(null, new TrustManager[] {
 			new X509TrustManager() {
