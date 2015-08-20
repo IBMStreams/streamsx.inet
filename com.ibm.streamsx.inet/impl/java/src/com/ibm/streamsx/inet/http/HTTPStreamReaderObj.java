@@ -84,13 +84,7 @@ class HTTPStreamReaderObj implements Runnable
 	public void sendRequest() throws Exception 	{
 		while(!shutdown) {
 			try {
-				HTTPResponse resp = newConnection();
-				in = new BufferedReader(new InputStreamReader(resp.getInputStream()));
-				reader.connectionSuccess();
-				String inputLine = null;
-				while (!shutdown && ((inputLine = in.readLine()) != null)) {
-					reader.processNewLine(inputLine);
-				}
+				sendSingleRequest();
 				if(shutdown || !reader.connectionClosed())
 					break;
 			}catch(Exception e) {
@@ -104,6 +98,16 @@ class HTTPStreamReaderObj implements Runnable
 				}catch(Exception e) {}
 				in = null;
 			}
+		}
+	}
+
+	public void sendSingleRequest() throws Exception {
+		HTTPResponse resp = newConnection();
+		in = new BufferedReader(new InputStreamReader(resp.getInputStream()));
+		reader.connectionSuccess();
+		String inputLine = null;
+		while (!shutdown && ((inputLine = in.readLine()) != null)) {
+			reader.processNewLine(inputLine);
 		}
 	}
 

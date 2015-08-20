@@ -18,12 +18,16 @@ import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.OperatorContext.ContextCheck;
 import com.ibm.streams.operator.OutputTuple;
 import com.ibm.streams.operator.StreamingData;
+import com.ibm.streams.operator.StreamingInput;
 import com.ibm.streams.operator.StreamingOutput;
+import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.Type.MetaType;
 import com.ibm.streams.operator.compile.OperatorContextChecker;
 import com.ibm.streams.operator.logging.LogLevel;
 import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.model.Icons;
+import com.ibm.streams.operator.model.InputPortSet;
+import com.ibm.streams.operator.model.InputPorts;
 import com.ibm.streams.operator.model.Libraries;
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPortSet.WindowPunctuationOutputMode;
@@ -33,6 +37,9 @@ import com.ibm.streams.operator.model.PrimitiveOperator;
 import com.ibm.streams.operator.state.ConsistentRegionContext;
 import com.ibm.streamsx.inet.http.HTTPPostOper;
 
+@InputPorts(@InputPortSet(cardinality=1, optional=true,
+			  description="Each incoming tuple will initiate a request. The contents of tuple are ignored. " +
+			  		"If an input port is present, the operator makes requests only when an incoming tuple is processed."))
 @OutputPorts({@OutputPortSet(cardinality=1, optional=false, windowPunctuationOutputMode=WindowPunctuationOutputMode.Generating,
 			  description="Data received from the server will be sent on this port."),
 			  @OutputPortSet(cardinality=1, optional=true, windowPunctuationOutputMode=WindowPunctuationOutputMode.Free, 
@@ -50,6 +57,7 @@ public class HTTPStreamReader extends AbstractOperator {
 	private HTTPStreamReaderObj reader = null;
 	private int maxRetries = 3;
 	private double retryDelay = 30;
+	private boolean hasInputPort = false;
 	private boolean hasErrorOut = false;
 	private Thread th = null;
 	private boolean shutdown = false, useBackoff = false;
@@ -140,6 +148,11 @@ public class HTTPStreamReader extends AbstractOperator {
 	@Override
 	public void initialize(OperatorContext op) throws Exception {
 		super.initialize(op);
+		
+		if(op.getNumberOfStreamingInputs() == 1) {
+			hasInputPort = true;
+			trace.log(TraceLevel.INFO, "Activator input port is enabled");
+		}
 
 		if(op.getNumberOfStreamingOutputs() == 2) {
 			hasErrorOut = true;
@@ -184,15 +197,23 @@ public class HTTPStreamReader extends AbstractOperator {
 		IAuthenticate auth = AuthHelper.getAuthenticator(authenticationType, PathConversionHelper.convertToAbsPath(baseConfigURI, authenticationFile), authenticationProperties);
 
 		reader = new HTTPStreamReaderObj(this.url, auth, this, postDataParams, disableCompression);
-		th = op.getThreadFactory().newThread(reader);
-		th.setDaemon(false);
+		if(!hasInputPort) {
+			th = op.getThreadFactory().newThread(reader);
+			th.setDaemon(false);
+		}
+	}
+	
+	@Override
+	public synchronized void process(StreamingInput<Tuple> stream, Tuple tuple) throws Exception {
+		reader.sendSingleRequest();
 	}
 
 
 	@Override
 	public void allPortsReady() throws Exception {
 		trace.log(TraceLevel.INFO, "URL: " + reader.getUrl());
-		th.start();
+		if(!hasInputPort)
+			th.start();
 	}
 
 	@Override
