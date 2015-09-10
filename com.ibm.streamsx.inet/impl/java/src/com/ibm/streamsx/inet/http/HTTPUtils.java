@@ -12,6 +12,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class HTTPUtils {
 
@@ -38,5 +41,16 @@ public class HTTPUtils {
 			//ignore
 		}
 		return buf.toString();
+	}
+
+	public static Map<String, String> getHeaderMap(List<String> headers) {
+		Map<String, String> headerMap = new HashMap<String, String>(headers.size());
+		for(String header : headers) {
+			String[] headerParts = header.split(":\\s*", 2);
+			String headerName = headerParts[0];
+			String headerValue = headerParts[1];
+			headerMap.put(headerName, headerValue);
+		}
+		return headerMap;
 	}
 }
