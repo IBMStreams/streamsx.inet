@@ -38,6 +38,7 @@ class HTTPRequest {
 
 	public static enum RequestType {GET, POST};
 	private RequestType type = RequestType.GET;
+	private boolean insecure = false;
 
 	private HttpUriRequest req = null;
 	private HttpEntity entity = null;
@@ -64,6 +65,14 @@ class HTTPRequest {
 
 	HttpUriRequest getReq() {
 		return req;
+	}
+
+	public boolean isInsecure() {
+		return insecure;
+	}
+
+	public void setInsecure(boolean insecure) {
+		this.insecure = insecure;
 	}
 
 	/**
@@ -100,7 +109,14 @@ class HTTPRequest {
 	 * @throws Exception
 	 */
 	public HTTPResponse sendRequest(IAuthenticate auth) throws Exception {
-		HttpClient client = new DefaultHttpClient();
+		HttpClient client;
+		if(insecure) {
+			client = HTTPUtils.getHttpClientWithNoSSLValidation();
+		}
+		else {
+			client = new DefaultHttpClient();
+		}
+		
 		if(type == RequestType.GET) {
 			HttpGet get = new HttpGet(url);
 			req=get;
@@ -123,8 +139,6 @@ class HTTPRequest {
 		
 		return new HTTPResponse(client.execute(req));
 	}
-
-
 
 	@Override
 	public String toString() {

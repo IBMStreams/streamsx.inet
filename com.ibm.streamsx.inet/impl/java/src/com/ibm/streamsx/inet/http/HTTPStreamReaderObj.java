@@ -48,7 +48,8 @@ class HTTPStreamReaderObj implements Runnable
 	
 	public HTTPStreamReaderObj(String url, IAuthenticate auth, 
 			HTTPStreamReader reader,  Map<String, String> postD, 
-			boolean disableCompression, Map<String, String> extraHeaders) 
+			boolean disableCompression, Map<String, String> extraHeaders,
+			boolean insecure) 
 			throws Exception 	{
 		this.auth = auth;
 		this.reader = reader;
@@ -67,6 +68,7 @@ class HTTPStreamReaderObj implements Runnable
 			req.setHeader(header.getKey(), header.getValue());
 		}
 		req.setParams(postData);
+		req.setInsecure(insecure);
 	}
 	
 
