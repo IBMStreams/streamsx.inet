@@ -72,6 +72,7 @@ public class HTTPPostOper extends AbstractOperator
 	private List<String> authenticationProperties = new ArrayList<String>();
 	
 	private String headerContentType = MIME_FORM;
+	private boolean acceptAllCertificates = false;
 
 	private List<String> extraHeaders = new ArrayList<String>();
 
@@ -111,9 +112,16 @@ public class HTTPPostOper extends AbstractOperator
 	public void setHeaderContentType(String val) {
 		this.headerContentType = val;
 	}
-	@Parameter(optional=true, description="Extra headers to send with request, format is \\\"Header-Name: value\\\".")
+	@Parameter(optional=true,
+			description="Extra headers to send with request, format is \\\"Header-Name: value\\\".")
 	public void setExtraHeaders(List<String> val) {
 		this.extraHeaders = val;
+	}
+	@Parameter(optional=true, 
+			description="Accept all SSL certificates, even those that are self-signed. " +
+			"Setting this option will allow potentially insecure connections. Default is false.")
+	public void setAcceptAllCertificates(boolean val) {
+		this.acceptAllCertificates = val;
 	}
 	
 	//consistent region checks
@@ -165,6 +173,7 @@ public class HTTPPostOper extends AbstractOperator
 		HTTPRequest req = new HTTPRequest(url);
 		req.setHeader("Content-Type", headerContentType);
 		req.setType(RequestType.POST);
+		req.setInsecure(acceptAllCertificates);
 
 		if(headerContentType.equals(MIME_FORM)) {
 			Map<String, String> params = new HashMap<String, String>();

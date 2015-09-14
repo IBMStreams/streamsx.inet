@@ -15,6 +15,21 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import org.apache.http.client.HttpClient;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.BasicClientConnectionManager;
 
 public class HTTPUtils {
 
@@ -52,5 +67,29 @@ public class HTTPUtils {
 			headerMap.put(headerName, headerValue);
 		}
 		return headerMap;
+	}
+	
+	public static HttpClient getHttpClientWithNoSSLValidation() throws Exception {
+		SSLContext sslContext = SSLContext.getInstance("SSL");
+		sslContext.init(null, new TrustManager[] {
+			new X509TrustManager() {
+				public X509Certificate[] getAcceptedIssuers() {
+					return null;
+				}
+				public void checkClientTrusted(X509Certificate[] certs, String authType) {
+				}
+				public void checkServerTrusted(X509Certificate[] certs, String authType) {
+				}
+			}
+		}, new SecureRandom());
+
+		SSLSocketFactory sf = new SSLSocketFactory(sslContext, new AllowAllHostnameVerifier());
+		Scheme httpsScheme = new Scheme("https", 443, sf);
+		SchemeRegistry schemeRegistry = new SchemeRegistry();
+		schemeRegistry.register(httpsScheme);
+
+		ClientConnectionManager cm = new BasicClientConnectionManager(schemeRegistry);
+
+		return new DefaultHttpClient(cm);
 	}
 }
