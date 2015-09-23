@@ -55,7 +55,7 @@
  
   <dt class="dt dlterm">Parameters</dt>
 
-  <dd class="dd">This operator supports 5 parameters. (<tt class="ph tt">contentAttribute, initDelay, iterations, period, url</tt>)
+  <dd class="dd">This operator supports 7 parameters. (<tt class="ph tt">acceptAllCertificates, contentAttribute, extraHeaders, initDelay, iterations, period, url</tt>)
 </dd>
 
  
@@ -137,7 +137,38 @@
 
 <div class="section">
 <p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters">Parameters</a></strong></p>
-This operator supports 5 parameters.<dl class="dl">
+This operator supports 7 parameters.<dl class="dl">
+
+<dt class="dt dlterm" id="spldoc_operator__parameter_acceptAllCertificates"><tt class="ph tt">acceptAllCertificates</tt></dt>
+
+<dd class="dd">
+<p class="p">Accept all SSL certificates, even those that are self-signed. Setting this option will allow potentially insecure connections. Default is false.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
 
 <dt class="dt dlterm" id="spldoc_operator__parameter_contentAttribute"><tt class="ph tt">contentAttribute</tt></dt>
 
@@ -160,6 +191,34 @@ This operator supports 5 parameters.<dl class="dl">
      </li>
 
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Attribute
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm" id="spldoc_operator__parameter_extraHeaders"><tt class="ph tt">extraHeaders</tt></dt>
+
+<dd class="dd">
+<p class="p">Extra headers to send with request, format is "Header-Name: value"
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
      </li>
 
   </ul>
