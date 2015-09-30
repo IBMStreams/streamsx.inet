@@ -312,6 +312,10 @@ void MY_OPERATOR::process(uint32_t idx)
         while (!retrievalBuffer.eof()) {
             string record;
             getline(retrievalBuffer, record);
+            if (retrievalBuffer.eof() && record.size()) {
+                // No more data in the file. 
+                break;
+            }
             if(inputLinesPerRecord_ > 1)
             {
               /*
