@@ -326,7 +326,13 @@ void MY_OPERATOR::process(uint32_t idx)
           while(!retrievalBuffer.eof())  {
               string record;
               getline(retrievalBuffer,record);
-            if(inputLinesPerRecord_ > 1)
+      
+              // if there's no data left, we should exit this loop
+              if(retrievalBuffer.eof() && record.size() == 0) {
+                 break;
+              }
+
+           if(inputLinesPerRecord_ > 1)
             {
               /*
                * Here, the user asked for multiple lines per record, so append the contents of the additional
