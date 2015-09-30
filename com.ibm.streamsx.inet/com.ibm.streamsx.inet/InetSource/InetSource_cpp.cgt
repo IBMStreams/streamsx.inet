@@ -412,7 +412,6 @@ void MY_OPERATOR::process(uint32_t idx)
               else break; // when there is no fragmentation, we are done
             }
 <% } %>
-            if(!retrievalBuffer.eof()) getline(retrievalBuffer, record);
         } // end while loop 
 <% if($outputTypeIsList && $emitTuplePerURI) { %>
         /*
