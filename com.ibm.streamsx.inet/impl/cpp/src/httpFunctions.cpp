@@ -54,7 +54,7 @@ struct curl_slist * getSList(SPL::list<SPL::rstring> theList) {
 	}
 	HeaderCache::iterator it = headerCache->find(theList);
 	if (it == headerCache->end()) {
-		SPLAPPTRC(L_ERROR,"Adding to cache",logTag);
+		SPLAPPTRC(L_DEBUG,"Adding to cache",logTag);
 		// Not cached, so build a new slist.
 		struct curl_slist * toReturn = NULL;
 		for ( SPL::list<SPL::rstring>::const_iterator it = theList.begin(); it != theList.end(); it++) {
@@ -74,7 +74,7 @@ struct curl_slist * getSList(SPL::list<SPL::rstring> theList) {
 		return toReturn;
 	}
 	else {
-		SPLAPPTRC(L_ERROR,"Using cached value",logTag);
+		SPLAPPTRC(L_DEBUG,"Using cached value for header list",logTag);
 		return it->second;
 	}
 }
@@ -274,7 +274,7 @@ SPL::rstring httpPut(const SPL::rstring & data, const SPL::rstring & url, const 
     	error = res;
     	return "";
     }
-    curl_easy_setopt(curlPut,CURLOPT_VERBOSE,1);
+    //curl_easy_setopt(curlPut,CURLOPT_VERBOSE,1);
     // Set post vs put.
     res = curl_easy_setopt(curlPut,CURLOPT_UPLOAD,1);
     if (res != CURLE_OK) {
