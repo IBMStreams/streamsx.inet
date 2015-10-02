@@ -51,7 +51,7 @@ public class HTTPPostOper extends AbstractOperator
 {
 	static final String CLASS_NAME="com.ibm.streamsx.inet.http.HTTPPostOper";
 	static final String OPER_NAME = "HTTPPost";
-	
+        public static final String CONSISTENT_CUT_INTRODUCER="\\n\\n**Behavior in a consistent region**\\n\\n";
 	
 	static final String 
 			MIME_JSON = "application/json",  
@@ -262,7 +262,7 @@ public class HTTPPostOper extends AbstractOperator
 			" Tuples are sent to the server one at a time in order of receipt. If the HTTP server cannot be accessed, the operation" +
 			" will be retried on the current thread and may temporarily block any additional tuples that arrive on the input port." +
 			" By default, the data is sent in application/x-www-form-urlencoded UTF-8 encoded format."  +
-			"\\n\\n** Behavior in a Consistent Region **" + 
+	    CONSISTENT_CUT_INTRODUCER +
 			"\\nThis operator cannot be placed at the start of a consistent region."
 		;
 
