@@ -1,4 +1,9 @@
 
+/**
+  * This composite is meant to be run as a test.  If compiled in standalone mode and executed,
+  * it will give return 0 if the test is successful, and non-zero if the test fails.  It should
+  * be able to be invoked by any test harness.
+  */
 
 composite Main {
 
