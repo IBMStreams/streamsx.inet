@@ -127,7 +127,7 @@ character. An complete empty line indicates an empty file. This function must no
         <library>
           <cmn:description>FTP wrapper lib</cmn:description>
           <cmn:managedLibrary>
-            <cmn:lib>ftpwrapper</cmn:lib>
+            <cmn:lib>inettoolkit</cmn:lib>
             <cmn:libPath>../../impl/lib</cmn:libPath>
             <cmn:includePath>../../impl/cpp/include/libftp</cmn:includePath>
           </cmn:managedLibrary>
