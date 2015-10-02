@@ -224,7 +224,6 @@ void MY_OPERATOR::process(uint32_t idx)
   SPLAPPTRC(L_DEBUG, "Processing...", "InetSource");
 
   OPort0Type tuple;
-  string record;
   istringstream retrievalBuffer;
   int recordCounter = 0;
 <% if($doNotStreamInitialFetch) { %>
@@ -323,11 +322,13 @@ void MY_OPERATOR::process(uint32_t idx)
          */
         
         // Start of loop here, one loop cycle per input record, until retrieval buffer is exhausted
-        getline(retrievalBuffer, record);
-        if(record.size() > 0 || !retrievalBuffer.eof())
-        {
-          do
-          {
+        while (!retrievalBuffer.eof()) {
+            string record;
+            getline(retrievalBuffer, record);
+            if (retrievalBuffer.eof() && record.size()) {
+                // No more data in the file. 
+                break;
+            }
             if(inputLinesPerRecord_ > 1)
             {
               /*
@@ -368,11 +369,7 @@ void MY_OPERATOR::process(uint32_t idx)
     
             // Now that the record has been formed, do the following:
     
-            /*
-             * (** Note, additional function planned here to parse the record into multiple pieces, and assign
-             * each piece to an attribute of the output stream tuple. **)
-             */
-    
+
 <% if($outputTypeIsList) { %>
             /*
              * Here, the output attribute is a list<rstring>, so append the record to the end of
@@ -432,9 +429,7 @@ void MY_OPERATOR::process(uint32_t idx)
               else break; // when there is no fragmentation, we are done
             }
 <% } %>
-            if(!retrievalBuffer.eof()) getline(retrievalBuffer, record);
-          } while(!retrievalBuffer.eof());
-        } // end of if(record.size() > 0 || !retrievalBuffer.eof())
+        } // end while loop 
 <% if($outputTypeIsList && $emitTuplePerURI) { %>
         /*
          * Here, emitTuplePerURI was requested, so flush the internal list buffer(s) into its(their)
