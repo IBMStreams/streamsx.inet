@@ -1,6 +1,6 @@
 #
 # *******************************************************************************
-# * Copyright (C)2014, International Business Machines Corporation and *
+# * Copyright (C)2014-2015, International Business Machines Corporation and *
 # * others. All Rights Reserved. *
 # *******************************************************************************
 #
@@ -10,7 +10,7 @@ args=-t ../../com.ibm.streamsx.inet
 ns=com.ibm.streamsx.inet.http.tests
 outputdir=./output
 
-tests=HTTPStreamBasicFunctionTestMain HTTPStreamBadUrlTestMain HTTPStreamConsistentRegionFailMain HTTPPostBasicFunctionTestMain HTTPPostConsistentRegionFailMain
+tests=HTTPStreamBasicFunctionTestMain HTTPStreamBadUrlTestMain HTTPStreamConsistentRegionFailMain HTTPPostBasicFunctionTestMain HTTPPostConsistentRegionFailMain URLEncodeTestMain
 
 rntest=./scripts/testRunner.sh
 ftest=./scripts/expectFail.sh

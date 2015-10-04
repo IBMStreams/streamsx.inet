@@ -4,7 +4,7 @@
 <toolkitInfoModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo" xsi:schemaLocation="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo toolkitInfoModel.xsd">
   <identity>
     <name>com.ibm.streamsx.inet</name>
-    <description>
+   <description>
 The Internet Toolkit provides support for common internet protocols.
 
 This toolkit separates its functionality into a number of namespaces:
@@ -48,7 +48,7 @@ Alternatively, you can fully qualify the operators that are provided by toolkit 
 4. Start the InfoSphere Streams instance. 
 5. Run the application. You can submit the application as a job by using the **streamtool submitjob** command or by using Streams Studio. 
     </description>
-    <version>2.7</version>
+    <version>2.7.0</version>
     <requiredProductVersion>4.0.0.0</requiredProductVersion>
   </identity>
   <dependencies/>

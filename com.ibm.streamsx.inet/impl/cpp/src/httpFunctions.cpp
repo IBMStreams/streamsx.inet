@@ -38,7 +38,7 @@ __attribute__((destructor)) void cleanupCurl() {
 void addCurlHandle(CURL * handle) {
 
     if (activeCurlPointers == NULL) {
-        activeCurlPointers = new std::vector<CURL*>(3);
+        activeCurlPointers = new std::vector<CURL*>(6);
     }
     activeCurlPointers->push_back(handle);
 
@@ -124,12 +124,17 @@ CURLcode addCommonOpts(CURL * curl, const SPL::rstring & url, const SPL::list<SP
 
 	if (extraHeaders.size() > 0) {
 		struct curl_slist * extraHeadersSlist = getSList(extraHeaders);
-	    curl_easy_setopt(curl,CURLOPT_HTTPHEADER,extraHeadersSlist);
+	    res = curl_easy_setopt(curl,CURLOPT_HTTPHEADER,extraHeadersSlist);
 	    if (res!= CURLE_OK) {
 	    	return res;
 	    }
 	}
-
+    else {
+       res = curl_easy_setopt(curl,CURLOPT_HTTPHEADER,NULL);
+    }
+    if (res != CURLE_OK) {
+        return res;
+    }
 
     res=curl_easy_setopt(curl,CURLOPT_SSL_VERIFYPEER,0);
     if (res != CURLE_OK) {
@@ -154,6 +159,47 @@ CURLcode addCommonOpts(CURL * curl, const SPL::rstring & url, const SPL::list<SP
     return CURLE_OK;
 }
 
+SPL::rstring urlEncode(const SPL::rstring & raw) {
+static __thread CURL* encode = NULL;
+if (encode == NULL) {
+    encode = curl_easy_init();
+    addCurlHandle(encode);
+    }
+char * result = curl_easy_escape(encode,raw.data(),raw.size());
+SPL::rstring toReturn(result);
+curl_free(result);
+return toReturn;
+}
+
+
+SPL::rstring urlDecode(const SPL::rstring & encoded) {
+static __thread CURL* decode = NULL;
+if (decode == NULL) {
+    decode = curl_easy_init();
+    addCurlHandle(decode);
+}
+int length = 0;
+char * result = curl_easy_unescape(decode,encoded.data(), encoded.size(),&length);
+SPL::rstring toReturn(result,length);
+curl_free(result);
+return toReturn;
+}
+
+CURLcode readResultAsRstring(CURL* curl , SPL::rstring & result) {
+   // Now handle read, for error checking and exception handling
+    SPL::rstring toReturn;
+    CURLcode res = curl_easy_setopt(curl,CURLOPT_WRITEDATA,&result);
+    if (res != CURLE_OK) {
+       SPLAPPTRC(L_ERROR, "Error " << res << "setting data pointer", logTag);
+       return res;
+    }
+    res = curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,&(populate_rstring));
+    if (res != CURLE_OK) {
+       SPLAPPTRC(L_ERROR, "Error " << res << " setting write function", logTag);
+     }
+     return res;
+}
+
 class RstringAndIndex {
     public:
     const SPL::rstring * theData;
@@ -175,6 +221,38 @@ size_t readFromRstring(char * buffer, size_t size, size_t nitems, void *instream
     }
     SPLAPPTRC(L_DEBUG,"sent " << i << " bytes, numSent is " << theStruct->numSent,logTag);
     return i;
+}
+
+SPL::rstring httpDelete(const SPL::rstring & url, const SPL::list<SPL::rstring> &extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> & headers, SPL::int32 & error) {
+
+static __thread CURL* curlDelete = NULL;
+error = 0;
+if (curlDelete == NULL) {
+    curlDelete = curl_easy_init();
+    addCurlHandle(curlDelete);
+}
+headers.clear();
+CURLcode res=addCommonOpts(curlDelete, url, extraHeaders, username, password);
+if (res != CURLE_OK) {
+    error = res;
+    return "";
+}
+res = curl_easy_setopt(curlDelete,CURLOPT_CUSTOMREQUEST,"DELETE");
+if (res != CURLE_OK) {
+    error = res;
+    return "";
+}
+SPL::rstring toReturn;
+res = readResultAsRstring(curlDelete,toReturn);
+if (res != CURLE_OK) {
+    error = res;
+    return "";
+}
+res = curl_easy_perform(curlDelete);
+if (res != CURLE_OK) {
+    error = res;
+    return "";
+}
 }
 
 SPL::rstring httpPost(const SPL::rstring & data, const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> & headers,SPL::int32 & error) {
@@ -221,20 +299,17 @@ SPL::rstring httpPost(const SPL::rstring & data, const SPL::rstring & url, const
 
     // Now handle read, for error checking and exception handling
     SPL::rstring toReturn;
-    res = curl_easy_setopt(curlPost,CURLOPT_WRITEDATA,&toReturn);
+    res = readResultAsRstring(curlPost,toReturn);
     if (res != CURLE_OK) {
-    	SPLAPPTRC(L_ERROR, "Error " << res << "setting data pointer", logTag);
-    	error =res;
-    	return "";
+        error = res;
+        return "";
     }
-    res = curl_easy_setopt(curlPost,CURLOPT_WRITEFUNCTION,&(populate_rstring));
+    res = curl_easy_setopt(curlPost,CURLOPT_FOLLOWLOCATION,0);
     if (res != CURLE_OK) {
-    	SPLAPPTRC(L_ERROR, "Error " << res << " setting write function", logTag);
-    	error = res;
-    	return "";
+        error = res;
+        return "";
     }
 
-    curl_easy_setopt(curlPost,CURLOPT_FOLLOWLOCATION,0);
     SPLAPPTRC(L_DEBUG,"About to perform",logTag);
     // ALL DONE!  Do action.
     res = curl_easy_perform(curlPost);
@@ -309,17 +384,10 @@ SPL::rstring httpPut(const SPL::rstring & data, const SPL::rstring & url, const 
     SPLAPPTRC(L_TRACE,"About to perform",logTag);
     // Now handle read, for error checking and exception handling
     SPL::rstring toReturn;
-    res = curl_easy_setopt(curlPut,CURLOPT_WRITEDATA,&toReturn);
+    res = readResultAsRstring(curlPut,toReturn);
     if (res != CURLE_OK) {
-    	SPLAPPTRC(L_ERROR, "Error " << res << "setting data pointer", logTag);
-    	error =res;
-    	return "";
-    }
-    res = curl_easy_setopt(curlPut,CURLOPT_WRITEFUNCTION,&(populate_rstring));
-    if (res != CURLE_OK) {
-    	SPLAPPTRC(L_ERROR, "Error " << res << " setting write function", logTag);
-    	error = res;
-    	return "";
+        error = res;
+        return "";
     }
 
     // ALL DONE!  Do action.
@@ -353,15 +421,9 @@ SPL::rstring httpGet(const SPL::rstring & url, const SPL::list<SPL::rstring> & e
     		error = res;
     		return toReturn;
     	}
-        res = curl_easy_setopt(curlGet,CURLOPT_WRITEDATA,&toReturn);
+        res = readResultAsRstring(curlGet,toReturn);
+
         if (res != CURLE_OK) {
-        	SPLAPPTRC(L_ERROR, "Error " << res << "setting data pointer", logTag);
-        	error = res;
-        	return toReturn;
-        }
-        res = curl_easy_setopt(curlGet,CURLOPT_WRITEFUNCTION,&(populate_rstring));
-        if (res != CURLE_OK) {
-        	SPLAPPTRC(L_ERROR, "Error " << res << " setting write function", logTag);
         	error = res;
         	return toReturn;
         }
