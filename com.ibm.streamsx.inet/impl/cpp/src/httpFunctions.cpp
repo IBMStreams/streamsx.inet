@@ -185,10 +185,10 @@ curl_free(result);
 return toReturn;
 }
 
-CURLcode readResultAsRstring(CURL* curl , SPL::rstring & result) {
+CURLcode readResultAsRstring(CURL* curl , SPL::rstring * resultPtr) {
    // Now handle read, for error checking and exception handling
     SPL::rstring toReturn;
-    CURLcode res = curl_easy_setopt(curl,CURLOPT_WRITEDATA,&result);
+    CURLcode res = curl_easy_setopt(curl,CURLOPT_WRITEDATA,resultPtr);
     if (res != CURLE_OK) {
        SPLAPPTRC(L_ERROR, "Error " << res << "setting data pointer", logTag);
        return res;
@@ -223,7 +223,7 @@ size_t readFromRstring(char * buffer, size_t size, size_t nitems, void *instream
     return i;
 }
 
-SPL::rstring httpDelete(const SPL::rstring & url, const SPL::list<SPL::rstring> &extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> & headers, SPL::int32 & error) {
+SPL::rstring httpDelete(const SPL::rstring & url, const SPL::list<SPL::rstring> &extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::int32 & error) {
 
 static __thread CURL* curlDelete = NULL;
 error = 0;
@@ -231,7 +231,7 @@ if (curlDelete == NULL) {
     curlDelete = curl_easy_init();
     addCurlHandle(curlDelete);
 }
-headers.clear();
+
 CURLcode res=addCommonOpts(curlDelete, url, extraHeaders, username, password);
 if (res != CURLE_OK) {
     error = res;
@@ -243,7 +243,7 @@ if (res != CURLE_OK) {
     return "";
 }
 SPL::rstring toReturn;
-res = readResultAsRstring(curlDelete,toReturn);
+res = readResultAsRstring(curlDelete,&toReturn);
 if (res != CURLE_OK) {
     error = res;
     return "";
@@ -253,6 +253,7 @@ if (res != CURLE_OK) {
     error = res;
     return "";
 }
+return toReturn;
 }
 
 SPL::rstring httpPost(const SPL::rstring & data, const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> & headers,SPL::int32 & error) {
@@ -299,7 +300,7 @@ SPL::rstring httpPost(const SPL::rstring & data, const SPL::rstring & url, const
 
     // Now handle read, for error checking and exception handling
     SPL::rstring toReturn;
-    res = readResultAsRstring(curlPost,toReturn);
+    res = readResultAsRstring(curlPost,&toReturn);
     if (res != CURLE_OK) {
         error = res;
         return "";
@@ -384,7 +385,7 @@ SPL::rstring httpPut(const SPL::rstring & data, const SPL::rstring & url, const 
     SPLAPPTRC(L_TRACE,"About to perform",logTag);
     // Now handle read, for error checking and exception handling
     SPL::rstring toReturn;
-    res = readResultAsRstring(curlPut,toReturn);
+    res = readResultAsRstring(curlPut,&toReturn);
     if (res != CURLE_OK) {
         error = res;
         return "";
@@ -421,7 +422,7 @@ SPL::rstring httpGet(const SPL::rstring & url, const SPL::list<SPL::rstring> & e
     		error = res;
     		return toReturn;
     	}
-        res = readResultAsRstring(curlGet,toReturn);
+        res = readResultAsRstring(curlGet,&toReturn);
 
         if (res != CURLE_OK) {
         	error = res;
