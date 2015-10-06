@@ -19,10 +19,10 @@ SPL_LINK_OPTIONS = $(shell $(SPL_PKGCFG) --libs $(SPL_PKG))
 # Folders
 # -----------------------------------------------------------------------------
 TRG := .
-INC:= $(TRG)/cpp/include/libftp
+INC:= $(TRG)/cpp/include
 LIB := $(TRG)/lib
-OBJ := $(TRG)/cpp/obj/libftp
-SRC := $(TRG)/cpp/src/libftp
+OBJ := $(TRG)/cpp/bin
+SRC := $(TRG)/cpp/src
 
 # -----------------------------------------------------------------------------
 # phony targets are targets being not in the filesystem but are always "active"
@@ -34,7 +34,7 @@ SRC := $(TRG)/cpp/src/libftp
 # Library
 # -----------------------------------------------------------------------------
 
-LIBRARY := $(LIB)/libftpwrapper.so
+LIBRARY := $(LIB)/libinettoolkit.so
 
 # -----------------------------------------------------------------------------
 # Helpers
@@ -55,7 +55,7 @@ $(LIB) $(OBJ):
 	
 $(OBJ)/%.o: $(SRC)/%.cpp $(INCLUDES)
 	@echo Compiling '$<' ...
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@ -I $(INC)
 
 $(LIBRARY): $(LIB) $(OBJ) $(OBJECTS)
 	@echo Building C++ shared library '$@'

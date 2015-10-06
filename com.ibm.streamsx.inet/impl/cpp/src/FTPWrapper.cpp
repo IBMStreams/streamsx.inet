@@ -1,7 +1,7 @@
 /* Copyright (C) 2013-2014, International Business Machines Corporation */
 /* All Rights Reserved */
 
-#include "../../include/libftp/FTPWrapper.h"
+#include "FTPWrapper.h"
 #include <SPL/Runtime/Common/RuntimeException.h>
 #include <cstdio>
 #include <iostream>

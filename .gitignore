@@ -9,8 +9,10 @@ impl/nl/include/*.h
 /com.ibm.streamsx.inet/impl/nl/InetResource.dat
 
 # generated operator models
-/com.ibm.streamsx.inet/com.ibm.streamsx.inet.wsserver/WebSocketInject/WebSocketInject.xml
-/com.ibm.streamsx.inet/com.ibm.streamsx.inet.wsserver/WebSocketSend/WebSocketSend.xm
+/com.ibm.streamsx.inet/com.ibm.streamsx.inet.wsserver/WebSocketInject/*
+/com.ibm.streamsx.inet/com.ibm.streamsx.inet.wsserver/WebSocketSend/*
+/com.ibm.streamsx.inet/com.ibm.streamsx.inet.rest/*/*.gif
+/com.ibm.streamsx.inet/com.ibm.streamsx.inet.http/*/*.gif
 
 samples/*/output
 samples/*/toolkit.xml

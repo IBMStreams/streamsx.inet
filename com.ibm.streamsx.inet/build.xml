@@ -92,7 +92,7 @@ artifacts were left around and caused issues with the ant build.
 	<target name="cpp">
 		<exec executable="make" failonerror="true" dir="impl">
 			<arg value="-f" />
-			<arg value="Makefile.libftp" />
+			<arg value="Makefile" />
 			<arg value="all" />
 		</exec>
 	</target>
@@ -100,7 +100,7 @@ artifacts were left around and caused issues with the ant build.
 	<target name="cpp-clean">
 		<exec executable="make" failonerror="true" dir="impl">
 		  <arg value="-f" />
-		  <arg value="Makefile.libftp" />
+		  <arg value="Makefile" />
 		  <arg value="clean" />
 		</exec>
 	</target>
