@@ -43,7 +43,7 @@ LIBRARY := $(LIB)/libinettoolkit.so
 INCLUDES = $(wildcard $(INC)/*.h) $(wildcard $(SRC)/*.h) 
 SOURCES  = $(wildcard $(SRC)/*.cpp)
 OBJECTS  = $(patsubst $(SRC)/%.cpp,$(OBJ)/%.o,$(SOURCES))
-CXXFLAGS := -O3 $(SPL_COMPILE_OPTIONS) 
+CXXFLAGS := -O3 $(SPL_COMPILE_OPTIONS) -Werror -Wall
 LINKFLAGS := -shared $(SPL_LINK_OPTIONS)
 
 all: clean build clean_objects
