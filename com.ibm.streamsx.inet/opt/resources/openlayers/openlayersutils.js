@@ -62,9 +62,7 @@ addMarkersToLayer = function(markerLayer, markers, response) {
       var tuple = tuples[i];
       var id = tuple.id;
       updated.push(id);
-      var markerType = tuple.markerType;
-      if (markerType == undefined)
-         markerType = 'marker-blue.png';
+      var markerType = getMarkerGraphic(tuple.markerType);
            
       if (id in markers) {
          if (markers[id].attributes.spltuple.markerType != markerType)
@@ -107,4 +105,26 @@ addMarkersToLayer = function(markerLayer, markers, response) {
          delete markers[id];
       }
    }
+}
+
+getMarkerGraphic = function( markerType) {
+    if (markerType == undefined)
+        return 'marker-blue.png';
+
+    switch (markerType) {
+     case 'GREEN':
+          return 'marker-green.png';
+     case 'YELLOW':
+          return 'marker-gold.png';
+     case 'RED':
+          return 'marker-red.png';
+     case 'BLUE':
+          return 'marker-blue.png';
+     case 'WARNING':
+          return 'marker-warning.png';
+     case 'AWARD':
+          return 'marker-award.png';
+     default:
+         return markerType;
+    }
 }
