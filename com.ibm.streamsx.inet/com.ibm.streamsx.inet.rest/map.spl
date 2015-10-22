@@ -1,0 +1,14 @@
+//
+// *******************************************************************************
+// * Copyright (C)2015, International Business Machines Corporation and *
+// * others. All Rights Reserved. *
+// *******************************************************************************
+//
+
+namespace com.ibm.streamsx.inet.rest;
+
+/**
+ * Type of the marker to display for a point on the default
+ * map visualization by [HTTPTupleView].
+*/
+type MarkerType = enum { GREEN, YELLOW, RED, WARNING, BLUE, AWARD } ;

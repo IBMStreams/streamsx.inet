@@ -14,7 +14,15 @@ JSONreplacer = function(key, value)
    return value;
 }
 
+// If the tuple contains a note attribute
+// then use that as the popup text.
+//
+// otherwise produce a "pretty" version
+// of the tuple using JSON.
 makePopupText = function(tuple) {
+   if (tuple.note != undefined)
+       return tuple.note;
+   
    return JSON.stringify(tuple, JSONreplacer, "<br />")
                .replace(/["{}]/g, "")   // get rid of JSON delimiters
                .substring(7);           // skip the first newline
@@ -84,12 +92,13 @@ addMarkersToLayer = function(markerLayer, markers, response) {
                            );
          marker.fid = id;
          markerLayer.addFeatures(marker);
-//         marker.map = markerLayer.map;    // Not necessary?
          markers[id] = marker;
       
          // First time only: set map viewport if not already set for geofences
          if (i == 0 && markerLayer.map.getCenter() == undefined) {
-            markerLayer.map.setCenter(longLat, 12);
+            markerLayer.map.setCenter(
+                     new OpenLayers.LonLat(tuple.longitude, tuple.latitude).transform(epsg4326, mapProjection),
+                     12);
          }
       
          // marker.events.register('mouseover', marker, tupleShowPopup);     
