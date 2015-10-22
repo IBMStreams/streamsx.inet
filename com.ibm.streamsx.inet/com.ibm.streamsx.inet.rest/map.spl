@@ -24,6 +24,8 @@
  *
  * Mapping is provided using `http://www.openlayers.org/api/OpenLayers.js` thus 
  * internet connectivity is required to use the default mapping.
+ * Note only when the mapping is accessed through its URLs
+ * is internet connectivity required.
 */
 
 namespace com.ibm.streamsx.inet.rest;
@@ -31,5 +33,12 @@ namespace com.ibm.streamsx.inet.rest;
 /**
  * Type of the marker to display for a point on the default
  * map visualization by [HTTPTupleView].
+ *
+ * * {../opt/resources/openlayers/marker-blue.png| BLUE} BLUE - Default when no `markerType` attribute exists.
+ * * {../opt/resources/openlayers/marker-green.png| GREEN} GREEN
+ * * {../opt/resources/openlayers/marker-gold.png| YELLOW} YELLOW
+ * * {../opt/resources/openlayers/marker-red.png| RED} RED
+ * * {../opt/resources/openlayers/marker-warning.png| WARNING} WARNING
+ * * {../opt/resources/openlayers/marker-award.png| AWARD} AWARD
 */
-type MarkerType = enum { GREEN, YELLOW, RED, WARNING, BLUE, AWARD } ;
+type MarkerType = enum { BLUE, GREEN, YELLOW, RED, WARNING, AWARD } ;
