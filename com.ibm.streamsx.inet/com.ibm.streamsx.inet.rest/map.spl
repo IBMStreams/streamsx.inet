@@ -47,3 +47,25 @@ namespace com.ibm.streamsx.inet.rest;
  * * {../opt/resources/openlayers/marker-award.png| AWARD} AWARD
 */
 type MarkerType = enum { BLUE, GREEN, YELLOW, RED, WARNING, AWARD } ;
+
+/**
+ * Convenience type that corresponds to the expected attributes
+ * for the default mapping visualization.
+*/
+type MappedPosition = tuple<rstring id,
+     float64 latitude, float64 longitude>;
+
+/**
+ * Convenience type that corresponds to the expected attributes
+ * for default mapping visualization using the pre-defined
+ * markers and a note.
+*/
+type MappedPositionMarker = MappedPosition, tuple<MarkerType markerType, rstring note>;
+
+/**
+ * Convenience type that corresponds to the expected attributes
+ * for default mapping visualization using icon path for
+ * markers and a note.
+*/
+type MappedPositionIcon = MappedPosition, tuple<rstring markerType, rstring note>;
+
