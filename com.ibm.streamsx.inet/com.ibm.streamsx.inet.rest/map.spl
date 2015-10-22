@@ -1,9 +1,30 @@
 //
-// *******************************************************************************
+
 // * Copyright (C)2015, International Business Machines Corporation and *
 // * others. All Rights Reserved. *
 // *******************************************************************************
 //
+/**
+ * [HTTPTupleView] provides default mapping visualization of
+ * tuple data that contains latitude and longitude.
+ * Each tuple in the window represents an object to be mapped
+ * and must include these attributes (as SPL or JSON attributes):
+ * * `id` - A unique identifier for the object being mapped.
+ * * `float64 longitude` - Longitude of the object's location.
+ * * `float64 latitude` - Latitude of the object's location.
+ *
+ * These attributes are optional:
+ * * `markerType` - Marker used at the item's position on the map. Can be of type [MarkerType] or an `rstring` containing the enumeration's values (e.g. `GREEN`). If this attribute is not present in the tuple then `BLUE` is used.
+ * * `note` - HTML for the popup that appears when the item's position marker is clicked. If this attribute is not present then the popup contains a string representation of the tuple.
+ *
+ * Access to the map is provided by the auto visualization table
+ * located at the URL `streamsx.inet.resources/dojo/viewall.html`.
+ * Locate the link in the table corresponding to the input port
+ * containing the mappable data.
+ *
+ * Mapping is provided using `http://www.openlayers.org/api/OpenLayers.js` thus 
+ * internet connectivity is required to use the default mapping.
+*/
 
 namespace com.ibm.streamsx.inet.rest;
 
