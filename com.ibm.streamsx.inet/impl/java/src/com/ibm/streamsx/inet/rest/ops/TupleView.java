@@ -66,10 +66,10 @@ public class TupleView extends ServletOperator {
 			"operators allows the operators to be logically connected in the SPL graph, rather than a single " + 
 			"operator with multiple unrelated streams being connected to it.\\n" + 
 			"\\n" + 
-			"Static content in the sub-directory `html` of the application's data directory will also be served " + 
+			"Static content in the sub-directory `html` of the application's `opt` directory will also be served " + 
 			"by the embedded web-server, thus allowing a complete web-application with live data to be " + 
 			"served by an SPL application. The default URL for the web-server resolves to " + 
-			"`{data_dir}/html/index.html`.\\n" + 
+			"`{application_dir}/opt/html/index.html`.\\n" + 
 			"\\n" + 
 			"Operators that support the `context` and `contextResourceBase` SPL parameters will serve " + 
 			"static files from the `contextResourceBase` directory rooted at the supplied context path.\\n" + 
