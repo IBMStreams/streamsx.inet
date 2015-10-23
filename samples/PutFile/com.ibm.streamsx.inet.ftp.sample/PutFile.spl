@@ -16,13 +16,13 @@ use spl.file::*;
  * is re-named to the final name.
  * Finally the local files are removed/moved into an archive directory.
  * The results a printed to stdout.
- * @param $protocol the transmission protocol
- * @param $host the remote host name or IP address
- * @param $path the remote path to a directory which will receive the transferred files.
+ * @param protocol the transmission protocol
+ * @param host the remote host name or IP address
+ * @param path the remote path to a directory which will receive the transferred files.
  * In case of sftp protocol the path should be an absolute path. In all other cases the path depends on the server configuration.
- * @param $username the remote user
- * @param $password the password
- * @param $verbosity the verbosity for the FTPPutFile operator
+ * @param username the remote user
+ * @param password the password
+ * @param verbosity the verbosity for the FTPPutFile operator
  */
 public composite PutFile {
 	param

@@ -30,7 +30,7 @@ import com.ibm.streamsx.inet.http.AbstractHTTPGetContent;
 @PrimitiveOperator(description = HTTPGetJSONContent.DESC, namespace = "com.ibm.streamsx.inet.http")
 @OutputPortSet(cardinality = 1, windowPunctuationOutputMode = WindowPunctuationOutputMode.Free, description = "Content of the HTTP GET request as an JSON attribute. Each successful HTTP request that returns a "
         + "content results in a submitted tuple with an rstring attribute containing the returned content.")
-@Icons(location32 = "impl/java/icons/HTTPGetXMLContent_32.gif", location16 = "impl/java/icons/HTTPGetXMLContent_16.gif")
+@Icons(location32 = "icons/HTTPGetXMLContent_32.gif", location16 = "icons/HTTPGetXMLContent_16.gif")
 public class HTTPGetJSONContent extends AbstractHTTPGetContent<String> {
 
     static final String DESC = "Periodically connects to an HTTP endpoint to GET JSON content as a single tuple. "

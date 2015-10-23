@@ -10,20 +10,20 @@ use com.ibm.streamsx.inet.ftp::*;
  * This sample uses the FTPReader operator and the FTPCommand operator.
  * It scans a remote directory and initiates file transfers for the found files.
  * Finally the transferred files are moved into an archive directory at the remote host.
- * The sample initiates a text file transfer for files with names *.txt 
- * and the sample initiates a binary file transfer for files with names *.bin.
+ * The sample initiates a text file transfer for files with names \*.txt 
+ * and the sample initiates a binary file transfer for files with names \*.bin.
  * The results a printed to stdout and in separate output text files.
- * @param $protocol the transmission protocol
- * @param $host the remote host name or IP address
- * @param $path the remote path to a directory which stores some files to be transferred 
+ * @param protocol the transmission protocol
+ * @param host the remote host name or IP address
+ * @param path the remote path to a directory which stores some files to be transferred 
  * files with the extension .txt are handled as text files and files with extension .bin are transferred as binary files. In case of sftp protocol 
  * the path should be an absolute path. In all other cases the path depends on the server configuration.
- * @param $username the remote user
- * @param $password the password
- * @param $verbosityDirScan the verbosity for the directory scan operator
- * @param $verbosityTxtFile the verbosity for the text file transfer operator
- * @param $verbosityBinFile the verbosity for the binary file transfer operator
- * @param $verbosityCommand the verbosity for the command execution operator
+ * @param username the remote user
+ * @param password the password
+ * @param verbosityDirScan the verbosity for the directory scan operator
+ * @param verbosityTxtFile the verbosity for the text file transfer operator
+ * @param verbosityBinFile the verbosity for the binary file transfer operator
+ * @param verbosityCommand the verbosity for the command execution operator
  */
 public composite RemoteDirScanAndGet {
 	param

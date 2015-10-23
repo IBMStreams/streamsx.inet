@@ -38,7 +38,7 @@ import com.ibm.streams.operator.samples.patterns.TupleConsumer;
 @PrimitiveOperator( description=WebSocketSend.primDesc)
 @InputPorts({@InputPortSet(description=WebSocketSend.parmPortDesc, cardinality=1, optional=false, windowingMode=WindowMode.NonWindowed)})
 @Libraries("opt/wssupport/Java-WebSocket-1.3.0.jar")
-@Icons(location32="impl/java/icons/WebSocketSend_32.gif", location16="impl/java/icons/WebSocketSend_16.gif")
+@Icons(location32="icons/WebSocketSend_32.gif", location16="icons/WebSocketSend_16.gif")
 public class WebSocketSend extends TupleConsumer {
 
 	final static String primDesc =
