@@ -1,4 +1,4 @@
-#Wed Sep 23 16:17:02 EDT 2015
+#Fri Oct 23 11:58:34 EDT 2015
 copytosourcelist=
 hreftargetslist=dita/tk$InetSourceSample/ix$Operator.xml,dita/tk$InetSourceSample/ns$com.ibm.streamsx.inet.sample.xml,dita/toolkits/toolkits.xml,dita/toolkits/ix$Operator.xml,dita/tk$InetSourceSample/spl$com.ibm.streamsx.inet.sample$GetWeather.xml,dita/tk$InetSourceSample/tk$InetSourceSample.xml
 fullditatopicfile=fullditatopic.list
@@ -38,7 +38,7 @@ codereffile=coderef.list
 codereflist=
 user.input.file.listfile=usr.input.file.list
 uplevels=../
-user.input.dir=/tmp/real/streamsx.inet/samples/InetSource/doc/spldoc
+user.input.dir=/homes/hny2/hildrum/github/IBMStreams/streamsx.inet/samples/InetSource/doc/spldoc
 conrefpushfile=conrefpush.list
 tempdirToinputmapdir.relative.value=dita/
 flagimagefile=flagimage.list
