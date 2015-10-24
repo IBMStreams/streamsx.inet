@@ -1,10 +1,3 @@
-createMarkerLayer = function(map) {
-//    var markerLayer = new OpenLayers.Layer.Markers("Markers");
-    var markerLayer = new OpenLayers.Layer.Vector("Markers");
-    map.addLayer(markerLayer);
-    
-    return markerLayer;
-}
 
 JSONreplacer = function(key, value)
 {
@@ -43,6 +36,21 @@ createPopup = function(feature) {
 destroyPopup = function(feature) {
    feature.popup.destroy();
    feature.popup = null;
+}
+
+createMarkerLayer = function(map, name) {
+    var markerLayer = new OpenLayers.Layer.Vector(name);
+    map.addLayer(markerLayer);
+ 
+    //Add a selector control to the vectorLayer with popup functions
+    var controls = {
+         selector: new OpenLayers.Control.SelectFeature(markerLayer, { onSelect: createPopup, onUnselect: destroyPopup })
+    };
+      
+    map.addControl(controls['selector']);
+    controls['selector'].activate();
+    
+    return markerLayer;
 }
 
 moveMarker = function(feature, targetLoc) {
