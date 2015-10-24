@@ -67,12 +67,13 @@ moveMarker = function(feature, targetLoc) {
 
 addMarkersToLayer = function(markerLayers, markers, response) {
 
-   var markerLayer = markerLayers["Markers"];
+   var defaultMarkerLayer = markerLayers["Markers"];
+   var map = defaultMarkerLayer.map;
 
    var tuples = response;
    
    var epsg4326 = new OpenLayers.Projection("EPSG:4326");   
-   var mapProjection = markerLayer.map.getProjectionObject();
+   var mapProjection = map.getProjectionObject();
       		
    var updated = [] ;
    			
@@ -81,6 +82,8 @@ addMarkersToLayer = function(markerLayers, markers, response) {
       var id = tuple.id;
       updated.push(id);
       var markerType = getMarkerGraphic(tuple.markerType);
+
+      var markerLayer = defaultMarkerLayer;
            
       if (id in markers) {
          if (markers[id].attributes.spltuple.markerType != markerType)
@@ -105,19 +108,18 @@ addMarkersToLayer = function(markerLayers, markers, response) {
          markers[id] = marker;
       
          // First time only: set map viewport if not already set for geofences
-         if (i == 0 && markerLayer.map.getCenter() == undefined) {
-            markerLayer.map.setCenter(
+         if (i == 0 && map.getCenter() == undefined) {
+            map.setCenter(
                      new OpenLayers.LonLat(tuple.longitude, tuple.latitude).transform(epsg4326, mapProjection),
                      12);
          }
-      
-         // marker.events.register('mouseover', marker, tupleShowPopup);     
       }
    }
    
    // Remove any markers for which there was no new value
    for (var id in markers) {
       if (markers.hasOwnProperty(id) && updated.indexOf(id) == -1) {
+         var markerLayer = defaultMarkerLayer;
          markerLayer.removeMarker(markers[id]);
          markers[id].spltuple = null;
          markers[id].style.icon = null;
