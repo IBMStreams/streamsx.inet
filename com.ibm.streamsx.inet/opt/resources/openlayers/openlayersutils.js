@@ -65,7 +65,9 @@ moveMarker = function(feature, targetLoc) {
    }
 }
 
-addMarkersToLayer = function(markerLayer, markers, response) {
+addMarkersToLayer = function(markerLayers, markers, response) {
+
+   var markerLayer = markerLayers["Markers"];
 
    var tuples = response;
    

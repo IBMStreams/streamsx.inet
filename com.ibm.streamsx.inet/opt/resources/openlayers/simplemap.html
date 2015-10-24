@@ -50,11 +50,12 @@ html,body,#map-canvas {
       map.addLayer(new OpenLayers.Layer.OSM());
 
       // create marker layer
-      var markerLayer = createMarkerLayer(map, "Markers");
+      var markerLayers = {};
+      markerLayers["Markers"] = createMarkerLayer(map, "Markers");
       
       if ("geofences" in qp) {
         var file = qp["geofences"];
-        var geofenceLayer = new OpenLayers.Layer.Vector("Polygons", {
+        var geofenceLayer = new OpenLayers.Layer.Vector("Geofences", {
           styleMap: new OpenLayers.StyleMap({
             "default": new OpenLayers.Style({
                 fillColor: "#33CC00",
@@ -79,7 +80,7 @@ html,body,#map-canvas {
         var records = contents.split('\n');
         var wktParser = new OpenLayers.Format.WKT;
         var epsg4326 = new OpenLayers.Projection("EPSG:4326");   
-        var mapProjection = markerLayer.map.getProjectionObject();
+        var mapProjection = geofenceLayer.map.getProjectionObject();
         var colors = ["Green", "Yellow", "Red"];
         var polygons = [];
         for (var i = 0; i < records.length; i++) {
@@ -100,7 +101,7 @@ html,body,#map-canvas {
       var markers = {};
       
       function _addMarkersToMap(response) {
-           addMarkersToLayer(markerLayer, markers, response);
+           addMarkersToLayer(markerLayers, markers, response);
       }      
       
       // retrieve data from HTTPTupleView
