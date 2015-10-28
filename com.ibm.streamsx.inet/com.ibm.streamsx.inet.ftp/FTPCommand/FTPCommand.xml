@@ -80,7 +80,7 @@ The command string and the command arguments are received from port 0.
           <cmn:managedLibrary>
             <cmn:lib>inettoolkit</cmn:lib>
             <cmn:libPath>../../impl/lib</cmn:libPath>
-            <cmn:includePath>../../impl/cpp/include/libftp</cmn:includePath>
+            <cmn:includePath>../../impl/cpp/include</cmn:includePath>
           </cmn:managedLibrary>
         </library>
       </libraryDependencies>
