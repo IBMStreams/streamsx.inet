@@ -129,7 +129,7 @@ character. An complete empty line indicates an empty file. This function must no
           <cmn:managedLibrary>
             <cmn:lib>inettoolkit</cmn:lib>
             <cmn:libPath>../../impl/lib</cmn:libPath>
-            <cmn:includePath>../../impl/cpp/include/libftp</cmn:includePath>
+            <cmn:includePath>../../impl/cpp/include</cmn:includePath>
           </cmn:managedLibrary>
         </library>
       </libraryDependencies>
