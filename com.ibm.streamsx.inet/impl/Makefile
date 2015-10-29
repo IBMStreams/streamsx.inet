@@ -1,7 +1,7 @@
 # Copyright (C) 2013-2014, International Business Machines Corporation
 # All Rights Reserved
 $(info ************************************************************************)
-$(info ***  make libftp                                                     ***)
+$(info ***  make libinettoolkit                                             ***)
 $(info ************************************************************************)
 
 # InfoSphere Streams Compiler/Linker Options
