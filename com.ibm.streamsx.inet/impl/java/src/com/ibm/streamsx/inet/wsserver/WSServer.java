@@ -90,10 +90,10 @@ public class WSServer extends WebSocketServer {
 
 		try {
 			if (wsSource != null) {
-				wsSource.produceTuples(message,conn.getRemoteSocketAddress().toString());
-				trace.log(TraceLevel.INFO,"onMessage() source-" + conn.getRemoteSocketAddress().getAddress().getHostAddress() + "::" + message);                    				                    		        						
+			  wsSource.produceTuples(message,conn.getRemoteSocketAddress().toString());
+			  if (trace.isEnabledFor(TraceLevel.TRACE)) { trace.log(TraceLevel.TRACE, "onMessage() source-" + conn.getRemoteSocketAddress().getAddress().getHostAddress() + "::" + message); }
 			} else {
-				trace.log(TraceLevel.INFO,"onMessage() sink-" + conn.getRemoteSocketAddress().getAddress().getHostAddress() + "::" + message);                    				                    		        						
+              if (trace.isEnabledFor(TraceLevel.TRACE)) { trace.log(TraceLevel.TRACE, "onMessage() sink-" + conn.getRemoteSocketAddress().getAddress().getHostAddress() + "::" + message); }
 			}
 			
 		} catch (Exception e) {
@@ -123,7 +123,7 @@ public class WSServer extends WebSocketServer {
 		String message = null;
 		try {
 			message = jsonMessage.serialize();
-			trace.log(TraceLevel.INFO,"sendToAll() : " + message);                    									
+			if (trace.isEnabledFor(TraceLevel.TRACE)) { trace.log(TraceLevel.TRACE, "sendToAll() : " + message); }
 		} catch (IOException e) {
     		trace.log(TraceLevel.ERROR, "sendToAll() :" + jsonMessage.toString() + " err: " + e.getMessage() );
 		}
@@ -131,7 +131,7 @@ public class WSServer extends WebSocketServer {
 		if (message != null) {
 			synchronized ( con ) {
 				for( WebSocket c : con ) {
-					trace.log(TraceLevel.INFO,"sendToAll()" + c.getRemoteSocketAddress().getAddress().getHostAddress() + "::" + cnt++ + " of " + con.size());                    				                    		        									
+                  if (trace.isEnabledFor(TraceLevel.TRACE)) { trace.log(TraceLevel.TRACE, "sendToAll()" + c.getRemoteSocketAddress().getAddress().getHostAddress() + "::" + cnt++ + " of " + con.size()); }
 					c.send( message );
 				}
 			}

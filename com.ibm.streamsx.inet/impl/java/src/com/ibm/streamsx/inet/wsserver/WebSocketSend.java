@@ -127,7 +127,7 @@ public class WebSocketSend extends TupleConsumer {
     	JSONEncoding jsonEncoding = EncodingFactory.getJSONEncoding();
     	
         int tuplesInRequest = 0;
-        trace.log(TraceLevel.INFO,"processBatch() : batchSize:" + getBatchSize());
+        if (trace.isEnabledFor(TraceLevel.TRACE)) { trace.log(TraceLevel.TRACE, "processBatch() : batchSize:" + getBatchSize()); }
         JSONArray tuples = new JSONArray();
         for (Iterator<BatchedTuple> iter = batch.iterator(); iter.hasNext(); ) {
 
@@ -145,7 +145,7 @@ public class WebSocketSend extends TupleConsumer {
         }
         JSONObject message = new JSONObject();
         message.put("tuples", tuples);
-        trace.log(TraceLevel.INFO,"processBatch() : sending tuplesInRequest:" + tuplesInRequest);        
+        if (trace.isEnabledFor(TraceLevel.TRACE)) { trace.log(TraceLevel.TRACE, "processBatch() : sending tuplesInRequest:" + tuplesInRequest); }
         int sentCount = wsServer.sendToAll(message);
         getnClientsConnected().setValue(sentCount);
         getnMessagesSent().setValue(wsServer.getTotalSentCount());

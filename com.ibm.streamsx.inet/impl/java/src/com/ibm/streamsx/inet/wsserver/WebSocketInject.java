@@ -208,10 +208,10 @@ public class WebSocketInject extends TupleProducer {
         	 trace.log(TraceLevel.INFO, "produceTuples(): idName:" + attrIdName + " Value:[" + id + "]");                            	
         }
         tuple.setString(attrMsgName, msg);
-        trace.log(TraceLevel.INFO,"produceTuples(): ATTR:" + attrMsgName + " Value:[" + msg + "]");                            	        
+        if (trace.isEnabledFor(TraceLevel.TRACE)) { trace.log(TraceLevel.TRACE, "produceTuples(): ATTR:" + attrMsgName + " Value:[" + msg + "]"); }
         // Submit tuple to output stream
         try {
-	    trace.log(TraceLevel.INFO,"produceTuples():submit id: " + id + " len:" + msg.length());;
+          if (trace.isEnabledFor(TraceLevel.TRACE)) { trace.log(TraceLevel.TRACE, "produceTuples():submit id: " + id + " len:" + msg.length());; }
 	    out.submit(tuple);
             getnMessagesReceived().incrementValue(1L);
             getnClientsConnected().setValue(wsServer.getClientCount());
