@@ -250,11 +250,26 @@ public class ServletEngine implements ServletEngineMBean, MBeanRegistration {
         
         isSSL = true;
     }
-    
+
+
+        // Originally corePoolSize was set to a fixed: 32
+        // Jetty, however, creates its starting threads based on the number of
+        // available processors 2*(Runtime.getRuntime().availableProcessors()+3)/4    
+        // On large hosts (ppc64 with 24 processors, this can exceed 32)
+        // While many descriptions of the ThreadPoolExecuter make it seem that it will
+        // just add threads, testing has shown that this did not occur.
+        // Some literature states it will only add threads if the queue is full
+        // If Jetty never starts, then the queue will never fill, thus
+        // we need core threads to be set to at least as large as the number of threads
+        // that Jetty will start
+        // NOTE: This was based on examination of jetty 8.1.3 code
+        //       If the toolkit moves to jetty 9+ this could change
 	private ThreadPoolExecutor newContextThreadPoolExecutor(OperatorContext context) {
+                int jettyStartupThreads = 2*(Runtime.getRuntime().availableProcessors()+3)/4;      
+                trace.info("Creating ThreadPoolExecuter corePoolSize: 32+" + jettyStartupThreads);
 		return  new ThreadPoolExecutor(
-                32, // corePoolSize,
-                256, // maximumPoolSize,
+                32 + jettyStartupThreads, // corePoolSize,
+                Math.max(256, 32 + jettyStartupThreads), // maximumPoolSize,
                 60, //keepAliveTime,
                 TimeUnit.SECONDS,
                 new LinkedBlockingQueue<Runnable>(), // workQueue,
