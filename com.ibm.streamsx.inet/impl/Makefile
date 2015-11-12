@@ -4,6 +4,15 @@ $(info ************************************************************************)
 $(info ***  make libftp                                                     ***)
 $(info ************************************************************************)
 
+# Handle PPC platforms that require toolchain Compiler
+ifeq ($(CXX),g++)
+  PLATFORM := $(shell uname -i)
+  ifeq ($(PLATFORM),ppc64)
+    CXX=/opt/at7.0/bin/g++
+  endif
+endif
+
+
 # InfoSphere Streams Compiler/Linker Options
 SPL_PKGCFG=$(realpath $(STREAMS_INSTALL)/bin/dst-pe-pkg-config.sh)
 ifeq "" "$(SPL_PKGCFG)"
