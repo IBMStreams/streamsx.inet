@@ -20,7 +20,7 @@ import com.ibm.streams.operator.model.PrimitiveOperator;
 	@InputPortSet(optional=true,windowingMode=WindowMode.Windowed,windowPunctuationInputMode=WindowPunctuationInputMode.WindowBound,
 			description="Optional windowed input ports whose tuples will be available using a HTTP GET request a URL with the corresponding port index.")
 	})
-@Icons(location32="impl/java/icons/"+TupleView.opName+"_32.gif", location16="impl/java/icons/"+TupleView.opName+"_16.gif")
+@Icons(location32="icons/"+TupleView.opName+"_32.gif", location16="icons/"+TupleView.opName+"_16.gif")
 
 public class TupleView extends ServletOperator {
     static final String opName = "HTTPTupleView";

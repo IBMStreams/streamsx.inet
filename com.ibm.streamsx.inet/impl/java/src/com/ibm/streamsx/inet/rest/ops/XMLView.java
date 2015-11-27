@@ -23,7 +23,7 @@ import com.ibm.streams.operator.model.PrimitiveOperator;
 @PrimitiveOperator(name="HTTPXMLView", description=XMLView.DESC)
 @InputPortSet(cardinality=1,windowingMode=WindowMode.NonWindowed,
 			description="Input port whose first XML attribute will be available using a HTTP GET request with a URL using port index 0.")
-@Icons(location32="impl/java/icons/HTTPXMLView_32.gif", location16="impl/java/icons/HTTPXMLView_16.gif")
+@Icons(location32="icons/HTTPXMLView_32.gif", location16="icons/HTTPXMLView_16.gif")
 public class XMLView extends ServletOperator {
 	
 	private final Map<Integer, Object[]> portData = Collections.synchronizedMap(new HashMap<Integer, Object[]>());

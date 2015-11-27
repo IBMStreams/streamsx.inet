@@ -16,7 +16,7 @@ import com.ibm.streams.operator.model.PrimitiveOperator;
  *
  */
 @PrimitiveOperator(description=WebContext.DESC)
-@Icons(location32="impl/java/icons/WebContext_32.gif", location16="impl/java/icons/WebContext_16.gif")
+@Icons(location32="icons/WebContext_32.gif", location16="icons/WebContext_16.gif")
 public class WebContext extends ServletOperator {
 
 	/*

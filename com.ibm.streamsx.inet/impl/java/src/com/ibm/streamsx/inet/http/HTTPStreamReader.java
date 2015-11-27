@@ -40,7 +40,7 @@ import com.ibm.streamsx.inet.http.HTTPPostOper;
 			  		"Tuple structure must conform to the [HTTPResponse] type specified in this namespace.")})
 @PrimitiveOperator(name=HTTPStreamReader.OPER_NAME, description=HTTPStreamReader.DESC)
 @Libraries(value={"opt/downloaded/*"})
-@Icons(location32="impl/java/icons/"+HTTPStreamReader.OPER_NAME+"_32.gif", location16="impl/java/icons/"+HTTPStreamReader.OPER_NAME+"_16.gif")
+@Icons(location32="icons/"+HTTPStreamReader.OPER_NAME+"_32.gif", location16="icons/"+HTTPStreamReader.OPER_NAME+"_16.gif")
 public class HTTPStreamReader extends AbstractOperator {
 
 	static final String CLASS_NAME= "com.ibm.streamsx.inet.http.HTTPStreamsReader";
