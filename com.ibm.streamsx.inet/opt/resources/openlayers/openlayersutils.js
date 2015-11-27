@@ -65,6 +65,19 @@ moveMarker = function(feature, targetLoc) {
    }
 }
 
+getMarkerLayer = function(markerLayers, defaultLayer, layer) {
+   if (layer == undefined)
+      return defaultLayer;
+
+   var markerLayer = markerLayers[layer];
+   if (markerLayer == undefined) {
+        markerLayer = createMarkerLayer(defaultLayer.map, layer);
+        markerLayers[layer] = markerLayer;
+   }
+   return markerLayer;
+      
+}
+
 addMarkersToLayer = function(markerLayers, markers, response) {
 
    var defaultMarkerLayer = markerLayers["Markers"];
@@ -79,12 +92,12 @@ addMarkersToLayer = function(markerLayers, markers, response) {
    			
    for (var i = 0; i < tuples.length; i++) {
       var tuple = tuples[i];
-      var id = tuple.id;
-      updated.push(id);
       var markerType = getMarkerGraphic(tuple.markerType);
 
-      var markerLayer = defaultMarkerLayer;
-           
+      var markerLayer = getMarkerLayer(markerLayers, defaultMarkerLayer, tuple.layer);
+      var id = markerLayer.name + ":" + tuple.id;
+      updated.push(id);
+
       if (id in markers) {
          if (markers[id].attributes.spltuple.markerType != markerType)
             markers[id].style.externalGraphic = markerType;
@@ -105,6 +118,7 @@ addMarkersToLayer = function(markerLayers, markers, response) {
                            );
          marker.fid = id;
          markerLayer.addFeatures(marker);
+         marker.__splLayer = markerLayer;
          markers[id] = marker;
       
          // First time only: set map viewport if not already set for geofences
@@ -119,7 +133,8 @@ addMarkersToLayer = function(markerLayers, markers, response) {
    // Remove any markers for which there was no new value
    for (var id in markers) {
       if (markers.hasOwnProperty(id) && updated.indexOf(id) == -1) {
-         var markerLayer = defaultMarkerLayer;
+         var markerLayer = marker.__splLayer;
+         marker.__splLayer == undefined;
          markerLayer.removeMarker(markers[id]);
          markers[id].spltuple = null;
          markers[id].style.icon = null;
