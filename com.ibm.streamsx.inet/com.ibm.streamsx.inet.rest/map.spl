@@ -9,11 +9,12 @@
  * tuple data that contains latitude and longitude.
  * Each tuple in the window represents an object to be mapped
  * and must include these attributes (as SPL or JSON attributes):
- * * `id` - A unique identifier for the object being mapped.
+ * * `id` - A unique identifier for the object being mapped. The identifier must be unique within its layer.
  * * `float64 longitude` - Longitude of the object's location.
  * * `float64 latitude` - Latitude of the object's location.
  *
  * These attributes are optional:
+ * * `layer` - Identifier for the layer the item will be placed on. If not set a default layer of `Markers` is used. Type is `rstring` or `ustring`.
  * * `markerType` - Marker used at the item's position on the map. Can be of type [MarkerType] or an `rstring` containing the enumeration's values (e.g. `GREEN`) or a path to an icon file. If this attribute is not present in the tuple then `BLUE` is used.
  * * `note` - HTML for the popup that appears when the item's position marker is clicked. If this attribute is not present then the popup contains a string representation of the tuple.
  * 
@@ -68,4 +69,18 @@ type MappedPositionMarker = MappedPosition, tuple<MarkerType markerType, rstring
  * markers and a note.
 */
 type MappedPositionIcon = MappedPosition, tuple<rstring markerType, rstring note>;
+
+/**
+ * Convenience type that corresponds to the expected attributes
+ * for default mapping visualization using a layer, pre-defined
+ * markers and a note.
+*/
+type MappedPositionMarkerLayer = MappedPositionMarker, tuple<rstring layer>;
+
+/**
+ * Convenience type that corresponds to the expected attributes
+ * for default mapping visualization using a layer, icon path for
+ * markers and a note.
+*/
+type MappedPositionIconLayer = MappedPositionIcon, tuple<rstring layer>;
 
