@@ -42,7 +42,7 @@
     </exec>
     </target>
 
-  <target name="clean" depends="cleansamples"
+  <target name="clean" depends="cleansamples,clean-all-samples"
         description="clean up" >
         <delete includeemptydirs="true">
           <fileset dir="${basedir}" includes="release-*/"/>
@@ -86,7 +86,18 @@
        <dirset dir="samples" includes="*"/>
     </subant>
   </target>
-  
+
+  <target name="build-all-samples" depends="toolkit">
+    <subant target="buildsample" genericantfile="${basedir}/build.xml">
+       <dirset dir="samples" includes="*"/>
+    </subant>
+  </target>
+  <target name="clean-all-samples">
+    <subant target="cleansample" genericantfile="${basedir}/build.xml">
+       <dirset dir="samples" includes="*"/>
+    </subant>
+  </target>
+
   <!-- Test targets -->
   <target name="tests" depends="toolkit">
      <ant dir="${toolkit}" target="test"/>
@@ -95,6 +106,22 @@
 
 
   <!-- Targets called on samples -->
+  <target name="buildsample">
+     <echo message="Sample to build: ${basedir}"/>
+     <exec executable="make" failonerror="true" dir="${basedir}">
+        <arg value="-f" />
+        <arg value="Makefile" />
+        <arg value="all" />
+     </exec>
+  </target>
+  <target name="cleansample">
+     <echo message="Sample to clean: ${basedir}"/>
+     <exec executable="make" failonerror="true" dir="${basedir}">
+        <arg value="-f" />
+        <arg value="Makefile" />
+        <arg value="clean" />
+     </exec>
+  </target>
   <target name="indextoolkit">
      <echo message="Tookit to index: ${basedir}"/>
      <exec executable="${streams.install}/bin/spl-make-toolkit">

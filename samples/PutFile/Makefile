@@ -8,8 +8,8 @@ $(error error: environment variable STREAMS_INSTALL has to be set)
 endif
 
 STREAMS_INET_TOOLKIT ?=../../com.ibm.streamsx.inet:${STREAMS_INSTALL}/toolkits/com.ibm.streamsx.inet
-SPLC_FLAGS?=
-SPLC_FLAGS+= -a -t $(STREAMS_INET_TOOLKIT)
+SPLC_FLAGS ?= -a -t $(STREAMS_INET_TOOLKIT)
+SPL_CMD_ARGS ?=
 SPLC = $(STREAMS_INSTALL)/bin/sc
 SPL_MAIN_COMPOSITE = com.ibm.streamsx.inet.ftp.sample::PutFile
 OUTPUT=output
@@ -17,7 +17,7 @@ DATA_DIR=$(abspath ./data)
 STAND_ALONE_OUTPUT_DIR = $(OUTPUT)/Standalone
 DISTRIBUTED_OUTPUT_DIR = $(OUTPUT)/Distributed
 
-all: clean standalone distributed
+all: clean distributed
 
 run: standalone
 	output/Standalone/bin/standalone
@@ -25,10 +25,10 @@ run: standalone
 	@find data -name '*.txt' -print -exec cat {} \;
 
 standalone:
-	$(SPLC) $(SPLC_FLAGS) -T -M $(SPL_MAIN_COMPOSITE) --output-directory $(STAND_ALONE_OUTPUT_DIR) --data-directory $(DATA_DIR)
+	$(SPLC) $(SPLC_FLAGS) -T -M $(SPL_MAIN_COMPOSITE) --output-directory $(STAND_ALONE_OUTPUT_DIR) --data-directory $(DATA_DIR) $(SPL_CMD_ARGS)
 
 distributed:
-	$(SPLC) $(SPLC_FLAGS) -M $(SPL_MAIN_COMPOSITE) --output-directory $(DISTRIBUTED_OUTPUT_DIR) --data-directory $(DATA_DIR)
+	$(SPLC) $(SPLC_FLAGS) -M $(SPL_MAIN_COMPOSITE) --output-directory $(DISTRIBUTED_OUTPUT_DIR) --data-directory $(DATA_DIR) $(SPL_CMD_ARGS)
 
 clean: clean-standalone clean-distributed clean-output
 
