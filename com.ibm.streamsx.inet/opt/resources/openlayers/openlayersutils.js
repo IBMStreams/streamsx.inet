@@ -1,10 +1,3 @@
-createMarkerLayer = function(map) {
-//    var markerLayer = new OpenLayers.Layer.Markers("Markers");
-    var markerLayer = new OpenLayers.Layer.Vector("Markers");
-    map.addLayer(markerLayer);
-    
-    return markerLayer;
-}
 
 JSONreplacer = function(key, value)
 {
@@ -45,6 +38,21 @@ destroyPopup = function(feature) {
    feature.popup = null;
 }
 
+createMarkerLayer = function(map, name) {
+    var markerLayer = new OpenLayers.Layer.Vector(name);
+    map.addLayer(markerLayer);
+ 
+    //Add a selector control to the vectorLayer with popup functions
+    var controls = {
+         selector: new OpenLayers.Control.SelectFeature(markerLayer, { onSelect: createPopup, onUnselect: destroyPopup })
+    };
+      
+    map.addControl(controls['selector']);
+    controls['selector'].activate();
+    
+    return markerLayer;
+}
+
 moveMarker = function(feature, targetLoc) {
    feature.move(targetLoc);
    
@@ -57,21 +65,39 @@ moveMarker = function(feature, targetLoc) {
    }
 }
 
-addMarkersToLayer = function(markerLayer, markers, response) {
+getMarkerLayer = function(markerLayers, defaultLayer, layer) {
+   if (layer == undefined)
+      return defaultLayer;
+
+   var markerLayer = markerLayers[layer];
+   if (markerLayer == undefined) {
+        markerLayer = createMarkerLayer(defaultLayer.map, layer);
+        markerLayers[layer] = markerLayer;
+   }
+   return markerLayer;
+      
+}
+
+addMarkersToLayer = function(markerLayers, markers, response) {
+
+   var defaultMarkerLayer = markerLayers["Markers"];
+   var map = defaultMarkerLayer.map;
 
    var tuples = response;
    
    var epsg4326 = new OpenLayers.Projection("EPSG:4326");   
-   var mapProjection = markerLayer.map.getProjectionObject();
+   var mapProjection = map.getProjectionObject();
       		
    var updated = [] ;
    			
    for (var i = 0; i < tuples.length; i++) {
       var tuple = tuples[i];
-      var id = tuple.id;
-      updated.push(id);
       var markerType = getMarkerGraphic(tuple.markerType);
-           
+
+      var markerLayer = getMarkerLayer(markerLayers, defaultMarkerLayer, tuple.layer);
+      var id = markerLayer.name + ":" + tuple.id;
+      updated.push(id);
+
       if (id in markers) {
          if (markers[id].attributes.spltuple.markerType != markerType)
             markers[id].style.externalGraphic = markerType;
@@ -92,22 +118,23 @@ addMarkersToLayer = function(markerLayer, markers, response) {
                            );
          marker.fid = id;
          markerLayer.addFeatures(marker);
+         marker.__splLayer = markerLayer;
          markers[id] = marker;
       
          // First time only: set map viewport if not already set for geofences
-         if (i == 0 && markerLayer.map.getCenter() == undefined) {
-            markerLayer.map.setCenter(
+         if (i == 0 && map.getCenter() == undefined) {
+            map.setCenter(
                      new OpenLayers.LonLat(tuple.longitude, tuple.latitude).transform(epsg4326, mapProjection),
                      12);
          }
-      
-         // marker.events.register('mouseover', marker, tupleShowPopup);     
       }
    }
    
    // Remove any markers for which there was no new value
    for (var id in markers) {
       if (markers.hasOwnProperty(id) && updated.indexOf(id) == -1) {
+         var markerLayer = marker.__splLayer;
+         marker.__splLayer == undefined;
          markerLayer.removeMarker(markers[id]);
          markers[id].spltuple = null;
          markers[id].style.icon = null;
