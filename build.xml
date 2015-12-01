@@ -42,7 +42,7 @@
     </exec>
     </target>
 
-  <target name="clean" depends="cleansamples,clean-all-samples"
+  <target name="clean" depends="cleansamples"
         description="clean up" >
         <delete includeemptydirs="true">
           <fileset dir="${basedir}" includes="release-*/"/>
@@ -82,18 +82,15 @@
     </subant>
   </target>
   <target name="cleansamples">
-    <subant target="cleantoolkit" genericantfile="${basedir}/build.xml">
+    <subant genericantfile="${basedir}/build.xml">
+       <target name="cleantoolkit"/>
+       <target name="cleansample"/>
        <dirset dir="samples" includes="*"/>
     </subant>
   </target>
 
   <target name="build-all-samples" depends="toolkit">
     <subant target="buildsample" genericantfile="${basedir}/build.xml">
-       <dirset dir="samples" includes="*"/>
-    </subant>
-  </target>
-  <target name="clean-all-samples">
-    <subant target="cleansample" genericantfile="${basedir}/build.xml">
        <dirset dir="samples" includes="*"/>
     </subant>
   </target>
