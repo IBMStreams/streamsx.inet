@@ -148,7 +148,8 @@ public class HTTPPostOper extends AbstractOperator
 		this.retryDelay = val;
 	}
 	@Parameter(optional=true, description="Set the content type of the HTTP request. " +
-			" If the value is set to \\\""+MIME_JSON+"\\\" then the entire tuple is sent in JSON format. " +
+			" If the value is set to \\\""+MIME_JSON+"\\\" then the entire tuple is sent in JSON format using SPL's standard tuple to JSON encoding, "
+			        + "if the input schema is `tuple<rstring jsonString>` then `jsonString` is assumed to already be JSON and its value is sent as the content. " +
 			" Default is \\\""+MIME_FORM+"\\\"." +
 			" Note that if a value other than the above mentioned ones is specified, the input stream can only have a single attribute.")
 	public void setHeaderContentType(String val) {
