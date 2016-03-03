@@ -97,16 +97,18 @@ public class WSServer extends WebSocketServer {
 			}
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+    		trace.log(TraceLevel.ERROR, "WSServer onMessage(): " + message + " err: " + e.getMessage() );
+			//e.printStackTrace();
 		}
 	}
 
 	@Override
 	public void onError( WebSocket conn, Exception ex ) {
-		ex.printStackTrace();
-		if( conn != null ) {
-			// some errors like port binding failed may not be assignable to a specific websocket
-		}
+      trace.log(TraceLevel.ERROR, "WSServer onError(): client: " + ( conn!=null ? conn.getRemoteSocketAddress().toString() : "unknown" ) + " err: " + ex.getMessage() );
+      //ex.printStackTrace();
+      //if( conn != null ) {
+      //	// some errors like port binding failed may not be assignable to a specific websocket
+      //}
 	}
 
 	/**
@@ -125,7 +127,7 @@ public class WSServer extends WebSocketServer {
 			message = jsonMessage.serialize();
 			if (trace.isEnabledFor(TraceLevel.TRACE)) { trace.log(TraceLevel.TRACE, "sendToAll() : " + message); }
 		} catch (IOException e) {
-    		trace.log(TraceLevel.ERROR, "sendToAll() :" + jsonMessage.toString() + " err: " + e.getMessage() );
+    		trace.log(TraceLevel.ERROR, "WSServer sendToAll(): " + jsonMessage.toString() + " err: " + e.getMessage() );
 		}
 		int cnt = 0;        		
 		if (message != null) {
