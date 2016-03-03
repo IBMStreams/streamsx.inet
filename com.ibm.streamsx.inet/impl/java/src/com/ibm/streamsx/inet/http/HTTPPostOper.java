@@ -19,6 +19,7 @@ import com.ibm.streams.operator.AbstractOperator;
 import com.ibm.streams.operator.Attribute;
 import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.OperatorContext.ContextCheck;
+import com.ibm.streams.operator.Type.MetaType;
 import com.ibm.streams.operator.OutputTuple;
 import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.StreamingInput;
@@ -49,7 +50,43 @@ import com.ibm.streamsx.inet.http.HTTPRequest.RequestType;
 @Icons(location32="icons/HTTPPost_32.gif", location16="icons/HTTPPost_16.gif")
 public class HTTPPostOper extends AbstractOperator  
 {
-	static final String CLASS_NAME="com.ibm.streamsx.inet.http.HTTPPostOper";
+	/**
+     * How the incoming tuple is
+     * processed into a POST request.
+     *
+     */
+    private enum ProcessType {
+        
+        /**
+         * Tuple is converted to application/x-www-form-urlencoded
+         */
+        TUPLE_FORM,
+        
+        /**
+         * Tuple is converted to application/json
+         * using the standard encoding.
+         */
+        TUPLE_JSON,
+        
+        /**
+         * Input schema is tuple<rstring jsonString>
+         * passed directly as application/json;
+         */
+        PURE_JSON,
+        
+        /**
+         * Input schema has a single attribute
+         * and its string value is sent as the POST
+         * body.
+         */
+        SINGLE_ATTRIBUTE,
+
+        ;
+    }
+
+
+
+    static final String CLASS_NAME="com.ibm.streamsx.inet.http.HTTPPostOper";
 	static final String OPER_NAME = "HTTPPost";
         public static final String CONSISTENT_CUT_INTRODUCER="\\n\\n**Behavior in a consistent region**\\n\\n";
 	
@@ -73,6 +110,11 @@ public class HTTPPostOper extends AbstractOperator
 	
 	private String headerContentType = MIME_FORM;
 	private boolean acceptAllCertificates = false;
+	
+	/**
+	 * How the input tuple is processed.
+	 */
+	private ProcessType processType = ProcessType.SINGLE_ATTRIBUTE;
 
 	private List<String> extraHeaders = new ArrayList<String>();
 
@@ -150,9 +192,27 @@ public class HTTPPostOper extends AbstractOperator
 		rc = new RetryController(maxRetries, retryDelay);
 		hasOutputPort = op.getStreamingOutputs().size() == 1;
 		
+		final StreamSchema inputSchema = getInput(0).getStreamSchema();
 		if((!headerContentType.equals(MIME_FORM) && !headerContentType.equals(MIME_JSON))) {
-			if(getInput(0).getStreamSchema().getAttributeCount() != 1) 
+			if(inputSchema.getAttributeCount() != 1) 
 				throw new Exception("Only a single attribute is permitted in the input stream for content type \"" + headerContentType + "\"");
+		}
+	
+		if (headerContentType.equals(MIME_FORM))
+		    processType = ProcessType.TUPLE_FORM;		
+		else if (headerContentType.equals(MIME_JSON)) {
+		    processType = ProcessType.TUPLE_JSON;
+		    
+		    // Handle jsonString as JSON, not re-encode it.
+		    if (inputSchema.getAttributeCount() == 1) {
+		        Attribute attr = inputSchema.getAttribute(0);
+		        if (attr.getName().equals("jsonString")
+		                && attr.getType().getMetaType() == MetaType.RSTRING) {
+		            // Schema is just tuple<rstring jsonString>
+		            processType = ProcessType.PURE_JSON;
+		        }
+		    }
+		            
 		}
 		
 		trace.log(TraceLevel.INFO, "URL: " + url);
@@ -174,20 +234,34 @@ public class HTTPPostOper extends AbstractOperator
 		req.setHeader("Content-Type", headerContentType);
 		req.setType(RequestType.POST);
 		req.setInsecure(acceptAllCertificates);
+		
+		switch (processType) {
 
-		if(headerContentType.equals(MIME_FORM)) {
-			Map<String, String> params = new HashMap<String, String>();
-			for (Attribute attribute : schema) {
-				params.put(attribute.getName(), tuple.getObject(attribute.getName()).toString());
-			}
-			req.setParams(params);
+		case TUPLE_FORM:
+		{
+            Map<String, String> params = new HashMap<String, String>();
+            for (Attribute attribute : schema) {
+                params.put(attribute.getName(), tuple.getObject(attribute.getName()).toString());
+            }
+            req.setParams(params);		    
 		}
-		else if(headerContentType.equals(MIME_JSON)){
-			JSONEncoding<JSONObject, JSONArray> je = EncodingFactory.getJSONEncoding();
-			req.setParams(je.encodeAsString(tuple));
+		case TUPLE_JSON:
+		{
+            JSONEncoding<JSONObject, JSONArray> je = EncodingFactory.getJSONEncoding();
+            req.setParams(je.encodeAsString(tuple));          
+            break;
 		}
-		else {
-			req.setParams(tuple.getObject(schema.getAttribute(0).getName()).toString());
+	    case PURE_JSON:
+	    {
+             req.setParams(tuple.getString(0));
+	         break;
+	    }
+	    case SINGLE_ATTRIBUTE:
+	    {
+	        req.setParams(tuple.getObject(schema.getAttribute(0).getName()).toString());
+	        break;
+	    }
+		
 		}
 
 		Map<String, String> headerMap = HTTPUtils.getHeaderMap(extraHeaders);
