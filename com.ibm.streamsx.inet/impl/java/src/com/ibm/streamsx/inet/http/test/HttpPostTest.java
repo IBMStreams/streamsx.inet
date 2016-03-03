@@ -76,4 +76,62 @@ public class HttpPostTest {
 
         testableGraph.shutdown().get();
     }
+    
+    /**
+     * Test when the input schema has jsonString
+     * and other attributes.
+     * @throws Exception
+     */
+    @Test
+    public void testMixedJSONInputAsis() throws Exception {
+        OperatorGraph graph = OperatorGraphFactory.newGraph();
+
+        OperatorInvocation<HTTPPostOper> op = graph.addOperator("TestJSONStringAttribute", HTTPPostOper.class);
+        op.setStringParameter("headerContentType", "application/json");
+        op.setStringParameter("url", "http://httpbin.org/post");
+
+        InputPortDeclaration tuplesToPost = op
+                .addInput("tuple<int32 a, rstring jsonString, rstring s>");
+        
+        OutputPortDeclaration postReturn = op.addOutput("tuple<rstring data, rstring errorMessage, int32 responseCode, int32 dataSize>");
+        
+        // Create the testable version of the graph
+        JavaTestableGraph testableGraph = new JavaOperatorTester()
+                .executable(graph);
+
+        // Create the injector to inject test tuples.
+        StreamingOutput<OutputTuple> injector = testableGraph.getInputTester(tuplesToPost);
+        
+        MostRecent<Tuple> mr = new MostRecent<>();
+        
+        testableGraph.registerStreamHandler(postReturn, mr);
+        
+        // Execute the initialization of operators within graph.
+        testableGraph.initialize().get().allPortsReady().get();
+        
+        // Create a JSON object for the jsonString attribute.
+        JSONObject json = new JSONObject();
+        json.put("b", 37l);
+        json.put("c", "HelloWorld!");
+        
+        // and submit to the operator
+        injector.submitAsTuple(575, new RString(json.serialize()), new RString("mixed!"));
+        
+        System.out.println(mr.getMostRecentTuple());
+        
+        String returnedData = mr.getMostRecentTuple().getString("data");
+        JSONObject returnedJson = (JSONObject) JSON.parse(returnedData);
+        assertEquals("application/json", ((JSONObject) returnedJson.get("headers")).get("Content-Type"));
+        
+        // Add in the fields
+        json.put("a", 575L); // JSON4J always uses longs
+        json.put("s", "mixed!");
+        
+        String jsonData = (String) returnedJson.get("data");
+        
+        assertEquals(json, JSON.parse(jsonData));
+        
+        testableGraph.shutdown().get();
+    }
+
 }

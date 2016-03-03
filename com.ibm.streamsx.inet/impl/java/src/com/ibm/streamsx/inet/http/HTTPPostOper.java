@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import com.ibm.json.java.JSON;
 import com.ibm.json.java.JSONArray;
 import com.ibm.json.java.JSONObject;
 import com.ibm.streams.operator.AbstractOperator;
@@ -73,6 +74,15 @@ public class HTTPPostOper extends AbstractOperator
          * passed directly as application/json;
          */
         PURE_JSON,
+        
+        /**
+         * Input schema has one rstring jsonString
+         * at the top level. E.g. tuple<int32 a, int64 b, rstring jsonString>.
+         * In this case a JSON object is created from jsonString
+         * and then keys a and b are added with the tuple's value
+         * converted to its JSON representation.
+         */
+        MIX_JSON,
         
         /**
          * Input schema has a single attribute
@@ -207,16 +217,32 @@ public class HTTPPostOper extends AbstractOperator
 		    // Handle jsonString as JSON, not re-encode it.
 		    if (inputSchema.getAttributeCount() == 1) {
 		        Attribute attr = inputSchema.getAttribute(0);
-		        if (attr.getName().equals("jsonString")
-		                && attr.getType().getMetaType() == MetaType.RSTRING) {
+		        if (isStandardJsonAttribute(attr)) {
 		            // Schema is just tuple<rstring jsonString>
 		            processType = ProcessType.PURE_JSON;
+		        }
+		    }
+		    else {
+		        // A top-level attribute being jsonString
+		        for (Attribute attr : inputSchema) {
+		            if (isStandardJsonAttribute(attr)) {
+		                processType = ProcessType.MIX_JSON;
+		                break;
+		            }
 		        }
 		    }
 		            
 		}
 		
 		trace.log(TraceLevel.INFO, "URL: " + url);
+	}
+	
+	/**
+	 * Is an attribute SPL's standard representation for JSON.
+	 */
+	private static boolean isStandardJsonAttribute(Attribute attr) {
+        return attr.getName().equals("jsonString")
+                && attr.getType().getMetaType() == MetaType.RSTRING;
 	}
 
 	@ContextCheck(compile=true)
@@ -256,6 +282,20 @@ public class HTTPPostOper extends AbstractOperator
 	    {
              req.setParams(tuple.getString(0));
 	         break;
+	    }
+	    case MIX_JSON:
+	    {
+	        JSONEncoding<JSONObject, JSONArray> je = EncodingFactory.getJSONEncoding();
+	        
+	        JSONObject json = (JSONObject) JSON.parse(tuple.getString("jsonString"));
+	        for (Attribute attr : tuple.getStreamSchema()) {
+	            if (attr.getName().equals("jsonString"))
+	                continue;
+	            
+	            json.put(attr.getName(), je.getAttributeObject(tuple, attr));
+	        }
+	        req.setParams(json.serialize());
+	        break;
 	    }
 	    case SINGLE_ATTRIBUTE:
 	    {
