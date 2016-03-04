@@ -135,7 +135,7 @@ artifacts were left around and caused issues with the ant build.
 	<target name="compile" depends="init, maven-deps">
 		<javac srcdir="${src.dir}" destdir="${build.dir}" debug="true" includeantruntime="no"
 		     source="1.7" target="1.7"
-		     excludes="com/ibm/streamsx/inet/rest/test/**">
+		     excludes="com/ibm/streamsx/inet/*/test/**">
 			<classpath>
 				<path refid="cp.compile" />
 			</classpath>
@@ -158,7 +158,7 @@ artifacts were left around and caused issues with the ant build.
 		<mkdir dir="${test.run.dir}" />
 		<mkdir dir="${test.build.dir}" />
 
-		<javac srcdir="${src.dir}" destdir="${test.build.dir}" debug="true" includeantruntime="yes" includes="com/ibm/streamsx/inet/rest/test/**">
+		<javac srcdir="${src.dir}" destdir="${test.build.dir}" debug="true" includeantruntime="yes" includes="com/ibm/streamsx/inet/*/test/**">
 			<classpath>
 				<pathelement location="${impl.lib.dir}/${jarfile}" />
 				<path refid="cp.streams" />
