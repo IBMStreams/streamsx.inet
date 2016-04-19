@@ -15,6 +15,10 @@ import java.util.Map.Entry;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+//import org.apache.http.conn.params
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -42,6 +46,7 @@ class HTTPRequest {
 
 	private HttpUriRequest req = null;
 	private HttpEntity entity = null;
+	private double connectionTimeout = -1.0;
 
 	public HTTPRequest(String url) {
 		this.url =  url;
@@ -74,6 +79,10 @@ class HTTPRequest {
 	public void setInsecure(boolean insecure) {
 		this.insecure = insecure;
 	}
+	
+	public void setConnectionTimeout(double connectionTimeout) {
+		this.connectionTimeout = connectionTimeout;
+	}	
 
 	/**
 	 * Set the parameters for a POST request
@@ -126,6 +135,12 @@ class HTTPRequest {
 			if(entity != null)
 				post.setEntity(entity);				
 			req = post;
+			if (connectionTimeout > 0.0) {
+				HttpParams httpParams = new BasicHttpParams();		
+				int cto = (int)(connectionTimeout * 1000.0);
+				HttpConnectionParams.setConnectionTimeout(httpParams, cto );
+				post.setParams(httpParams);				
+			}			
 		}
 
 		if(headers.size() > 0) {

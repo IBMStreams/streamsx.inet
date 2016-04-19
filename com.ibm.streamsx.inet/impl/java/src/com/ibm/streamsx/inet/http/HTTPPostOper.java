@@ -108,6 +108,7 @@ public class HTTPPostOper extends AbstractOperator
 
 
 	private double retryDelay = 3;
+	private double connectionTimeout = -1;
 	private int maxRetries = 3;
 	private String url = null;
 	private IAuthenticate auth = null;
@@ -157,6 +158,11 @@ public class HTTPPostOper extends AbstractOperator
 	public void setRetryDelay(double val) {
 		this.retryDelay = val;
 	}
+	@Parameter(optional=true, description="Optional parameter specifies amount of time (in seconds) that the operator waits for the connection for to be established.")
+	public void setConnectionTimeout(double val) {
+		this.connectionTimeout = val;
+	}
+
 	@Parameter(optional=true, description="Set the content type of the HTTP request. " +
 			" If the value is set to \\\""+MIME_JSON+"\\\" then the entire tuple is sent in JSON format using SPL's standard tuple to JSON encoding, "
 			        + "if the input schema is `tuple<rstring jsonString>` then `jsonString` is assumed to already be JSON and its value is sent as the content. " +
@@ -261,7 +267,9 @@ public class HTTPPostOper extends AbstractOperator
 		req.setHeader("Content-Type", headerContentType);
 		req.setType(RequestType.POST);
 		req.setInsecure(acceptAllCertificates);
-		
+		req.setConnectionTimeout(connectionTimeout);
+		trace.log(TraceLevel.TRACE, "Set connectionTimeout: " + connectionTimeout);					
+
 		switch (processType) {
 
 		case TUPLE_FORM:
