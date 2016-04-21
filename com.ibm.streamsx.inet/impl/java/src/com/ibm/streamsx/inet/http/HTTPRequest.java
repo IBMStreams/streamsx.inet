@@ -47,6 +47,7 @@ class HTTPRequest {
 	private HttpUriRequest req = null;
 	private HttpEntity entity = null;
 	private double connectionTimeout = -1.0;
+        private HttpParams httpParams = null;
 
 	public HTTPRequest(String url) {
 		this.url =  url;
@@ -132,15 +133,16 @@ class HTTPRequest {
 		}
 		else {
 			HttpPost post = new HttpPost(url);
-			if(entity != null)
-				post.setEntity(entity);				
+			if(entity != null) {
+			    post.setEntity(entity);				
+			}
 			req = post;
-			if (connectionTimeout > 0.0) {
-				HttpParams httpParams = new BasicHttpParams();		
-				int cto = (int)(connectionTimeout * 1000.0);
-				HttpConnectionParams.setConnectionTimeout(httpParams, cto );
-				post.setParams(httpParams);				
-			}			
+			if (httpParams == null) {
+			    httpParams = new BasicHttpParams();		
+			    int cto = (int)(connectionTimeout * 1000.0);
+			    HttpConnectionParams.setConnectionTimeout(httpParams, cto );
+			}
+			post.setParams(httpParams);				
 		}
 
 		if(headers.size() > 0) {

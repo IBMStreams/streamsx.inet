@@ -108,7 +108,7 @@ public class HTTPPostOper extends AbstractOperator
 
 
 	private double retryDelay = 3;
-	private double connectionTimeout = -1;
+	private double connectionTimeout = 60.0;
 	private int maxRetries = 3;
 	private String url = null;
 	private IAuthenticate auth = null;
@@ -158,7 +158,7 @@ public class HTTPPostOper extends AbstractOperator
 	public void setRetryDelay(double val) {
 		this.retryDelay = val;
 	}
-	@Parameter(optional=true, description="Optional parameter specifies amount of time (in seconds) that the operator waits for the connection for to be established.")
+	@Parameter(optional=true, description="Optional parameter specifies amount of time (in seconds) that the operator waits for the connection for to be established. Default is 60.")
 	public void setConnectionTimeout(double val) {
 		this.connectionTimeout = val;
 	}
