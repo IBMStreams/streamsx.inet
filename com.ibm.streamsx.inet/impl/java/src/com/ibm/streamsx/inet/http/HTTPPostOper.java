@@ -186,8 +186,8 @@ public class HTTPPostOper extends AbstractOperator
 	}
 	@Parameter(optional=true, 
 			description="Specify attributes used to compose the http post. " +
-					"Comma separated list of attribute names that that will be sent posted to the url. " +
-					"Names' that do not have a corresponding input attribute name are ignored. " + 
+					"Comma separated list of attribute names that will be posted to the url. " +
+					"Names' that do not have a corresponding input attribute are ignored. " + 
 					"The parameter is invalid if HeaderContentType is not " + MIME_JSON + " or " + MIME_FORM + ". " +
 					"Default is to send all attributes." 
 					) 
@@ -251,10 +251,9 @@ public class HTTPPostOper extends AbstractOperator
 		        }
 		    }
 		}
-		System.out.println("**Header: " + headerContentType + " PostAttribures:" + postAttributes.size());		
 		if (postAttributes.size() > 0) {
 			if ((headerContentType.equals(MIME_FORM) ||  headerContentType.equals(MIME_JSON))) {
-				System.out.println("Header: " + headerContentType + " PostAttribures:" + postAttributes.size());
+			    //  The headerContentType is acceptable.
 			} else { 
 				throw new Exception(" PostAttributes specified with headerContentType value other than: " + 
 						MIME_FORM + "," + MIME_JSON + "; found '" + headerContentType + "'.");
@@ -297,7 +296,6 @@ public class HTTPPostOper extends AbstractOperator
             Map<String, String> params = new HashMap<String, String>();
             
             for (Attribute attribute : schema) {
-            	System.out.println("TUPLE FORM : " + attribute.getName());
             	if (isAttributeToPost(attribute.getName())) {
             		params.put(attribute.getName(), tuple.getObject(attribute.getName()).toString());
             	}
@@ -328,7 +326,6 @@ public class HTTPPostOper extends AbstractOperator
 	    }
 	    case MIX_JSON:
 	    {
-         	System.out.println("MIX_JSON:xxx " );
 	        JSONEncoding<JSONObject, JSONArray> je = EncodingFactory.getJSONEncoding();
 	        
 	        JSONObject json = (JSONObject) JSON.parse(tuple.getString("jsonString"));
@@ -392,7 +389,7 @@ public class HTTPPostOper extends AbstractOperator
 
 		StreamingOutput<OutputTuple> op = getOutput(0);
 		OutputTuple otup = op.newTuple();
-		otup.assign(tuple);
+		otup.assign(tuple);    // propagate attributes input -> output
 		
 		if(resp == null) {
 			otup.setString("errorMessage", 
@@ -429,17 +426,17 @@ public class HTTPPostOper extends AbstractOperator
 	boolean isAttributeToPost(String attributeName) {
 		
 		if (postAttributes.isEmpty()) {
-			System.out.println("EMPTY");
+			trace.log(TraceLevel.INFO, "postAttriburte to use: " + attributeName);
 			return true;
 		}
 		for (Iterator<String> iterator = postAttributes.iterator(); iterator.hasNext();) {
-
 			String postAttribute = iterator.next();
-			System.out.println(attributeName +" ? " + postAttribute );			
 			if (postAttribute.equals(attributeName)) {
+			        trace.log(TraceLevel.INFO, "postAttriburte to use: " + attributeName);
 				return true;
 			}				
 		}
+		trace.log(TraceLevel.INFO, "postAttriburte do not use: " + attributeName);		
 		return false;
 	}
 
