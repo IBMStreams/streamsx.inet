@@ -9,9 +9,11 @@ package com.ibm.streamsx.inet.http;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import com.ibm.json.java.JSON;
@@ -27,6 +29,7 @@ import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.StreamingInput;
 import com.ibm.streams.operator.StreamingOutput;
 import com.ibm.streams.operator.Tuple;
+import com.ibm.streams.operator.TupleAttribute;
 import com.ibm.streams.operator.compile.OperatorContextChecker;
 import com.ibm.streams.operator.encoding.EncodingFactory;
 import com.ibm.streams.operator.encoding.JSONEncoding;
@@ -122,7 +125,7 @@ public class HTTPPostOper extends AbstractOperator
 	
 	private String headerContentType = MIME_FORM;
 	private boolean acceptAllCertificates = false;
-	private List<String> postAttributes = new ArrayList<String>();
+	private Set<String>includeAttributesSet = null; 
 	
 	/**
 	 * How the input tuple is processed.
@@ -187,14 +190,36 @@ public class HTTPPostOper extends AbstractOperator
 	@Parameter(optional=true, 
 			description="Specify attributes used to compose the http post. " +
 					"Comma separated list of attribute names that will be posted to the url. " +
-					"Names' that do not have a corresponding input attribute are ignored. " + 
-					"The parameter is invalid if HeaderContentType is not " + MIME_JSON + " or " + MIME_FORM + ". " +
+					"The parameter is invalid if HeaderContentType is " +
+		                        "not \\\"" + MIME_JSON + "\\\" or \\\"" + MIME_FORM + "\\\". " +
 					"Default is to send all attributes." 
 					) 
-	public void setPostAttributes(List<String> val) {
-		this.postAttributes = val;
+	public void setIncludeAttributes(List<TupleAttribute<Tuple, ?>> includeAttributes) {
+		includeAttributesSet = new HashSet<String>();
+		for (TupleAttribute<Tuple, ?> postAttr : includeAttributes) {
+	            String attrName = postAttr.getAttribute().getName();		
+	            includeAttributesSet.add(attrName);
+		}
 		
 	}
+        // includeAttribute invalid if HeaderContextType is something other thatn MIME_JSON, MIME_FORM.
+        @ContextCheck(compile = true)
+	public static void checkIncludeAttributesDependency(OperatorContextChecker checker) {
+	    OperatorContext operatorContext = checker.getOperatorContext();
+	    String header;
+	    Set<String>parameterNames = operatorContext.getParameterNames();
+	    if (!parameterNames.contains("includeAttributes")) return;
+	    if (!parameterNames.contains("headerContextType")) return;	    
+
+
+	    List<String>headers = operatorContext.getParameterValues("headerContextType");
+	    if (headers.size() == 0) return;
+	    header = headers.get(0);
+	    if (header.equals(MIME_FORM) || header.equals(MIME_JSON)) return;
+	    checker.setInvalidContext( HTTPPostOper.OPER_NAME + " Invalid HeaderContextType: " + header + " when used with includeAttributes.",
+					new String[] {});
+        }
+
 	//consistent region checks
 	@ContextCheck(compile = true)
 	public static void checkInConsistentRegion(OperatorContextChecker checker) {
@@ -251,14 +276,6 @@ public class HTTPPostOper extends AbstractOperator
 		        }
 		    }
 		}
-		if (postAttributes.size() > 0) {
-			if ((headerContentType.equals(MIME_FORM) ||  headerContentType.equals(MIME_JSON))) {
-			    //  The headerContentType is acceptable.
-			} else { 
-				throw new Exception(" PostAttributes specified with headerContentType value other than: " + 
-						MIME_FORM + "," + MIME_JSON + "; found '" + headerContentType + "'.");
-			}
-		}
 		trace.log(TraceLevel.INFO, "URL: " + url);
 	}
 	
@@ -300,11 +317,8 @@ public class HTTPPostOper extends AbstractOperator
             		params.put(attribute.getName(), tuple.getObject(attribute.getName()).toString());
             	}
             }
-    		if((params.size() == 0) && (trace.isLoggable(TraceLevel.WARNING))) {
-    			trace.log(TraceLevel.WARNING, "No attributes selected to send.");
-    		}
             req.setParams(params);	
-            break; // was the code missing this?
+            break;
 		}
 		case TUPLE_JSON:
 		{
@@ -424,20 +438,10 @@ public class HTTPPostOper extends AbstractOperator
 	}
 	
 	boolean isAttributeToPost(String attributeName) {
-		
-		if (postAttributes.isEmpty()) {
-			trace.log(TraceLevel.INFO, "postAttriburte to use: " + attributeName);
+		if (includeAttributesSet == null) {
 			return true;
 		}
-		for (Iterator<String> iterator = postAttributes.iterator(); iterator.hasNext();) {
-			String postAttribute = iterator.next();
-			if (postAttribute.equals(attributeName)) {
-			        trace.log(TraceLevel.INFO, "postAttriburte to use: " + attributeName);
-				return true;
-			}				
-		}
-		trace.log(TraceLevel.INFO, "postAttriburte do not use: " + attributeName);		
-		return false;
+		return(includeAttributesSet.contains(attributeName));
 	}
 
 	@Override
