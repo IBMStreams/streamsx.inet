@@ -9,8 +9,11 @@ package com.ibm.streamsx.inet.http;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import com.ibm.json.java.JSON;
@@ -26,6 +29,7 @@ import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.StreamingInput;
 import com.ibm.streams.operator.StreamingOutput;
 import com.ibm.streams.operator.Tuple;
+import com.ibm.streams.operator.TupleAttribute;
 import com.ibm.streams.operator.compile.OperatorContextChecker;
 import com.ibm.streams.operator.encoding.EncodingFactory;
 import com.ibm.streams.operator.encoding.JSONEncoding;
@@ -121,6 +125,7 @@ public class HTTPPostOper extends AbstractOperator
 	
 	private String headerContentType = MIME_FORM;
 	private boolean acceptAllCertificates = false;
+	private Set<String>includeAttributesSet = null; 
 	
 	/**
 	 * How the input tuple is processed.
@@ -182,7 +187,39 @@ public class HTTPPostOper extends AbstractOperator
 	public void setAcceptAllCertificates(boolean val) {
 		this.acceptAllCertificates = val;
 	}
-	
+	@Parameter(optional=true, 
+			description="Specify attributes used to compose the http post. " +
+					"Comma separated list of attribute names that will be posted to the url. " +
+					"The parameter is invalid if HeaderContentType is " +
+		                        "not \\\"" + MIME_JSON + "\\\" or \\\"" + MIME_FORM + "\\\". " +
+					"Default is to send all attributes." 
+					) 
+	public void setIncludeAttributes(List<TupleAttribute<Tuple, ?>> includeAttributes) {
+		includeAttributesSet = new HashSet<String>();
+		for (TupleAttribute<Tuple, ?> postAttr : includeAttributes) {
+	            String attrName = postAttr.getAttribute().getName();		
+	            includeAttributesSet.add(attrName);
+		}
+		
+	}
+        // includeAttribute invalid if HeaderContextType is something other thatn MIME_JSON, MIME_FORM.
+        @ContextCheck(compile = true)
+	public static void checkIncludeAttributesDependency(OperatorContextChecker checker) {
+	    OperatorContext operatorContext = checker.getOperatorContext();
+	    String header;
+	    Set<String>parameterNames = operatorContext.getParameterNames();
+	    if (!parameterNames.contains("includeAttributes")) return;
+	    if (!parameterNames.contains("headerContextType")) return;	    
+
+
+	    List<String>headers = operatorContext.getParameterValues("headerContextType");
+	    if (headers.size() == 0) return;
+	    header = headers.get(0);
+	    if (header.equals(MIME_FORM) || header.equals(MIME_JSON)) return;
+	    checker.setInvalidContext( HTTPPostOper.OPER_NAME + " Invalid HeaderContextType: " + header + " when used with includeAttributes.",
+					new String[] {});
+        }
+
 	//consistent region checks
 	@ContextCheck(compile = true)
 	public static void checkInConsistentRegion(OperatorContextChecker checker) {
@@ -194,6 +231,7 @@ public class HTTPPostOper extends AbstractOperator
 					new String[] {});
 		}
 	}
+
 	
 	@Override
 	public void initialize(OperatorContext op) throws Exception  {
@@ -237,9 +275,7 @@ public class HTTPPostOper extends AbstractOperator
 		            }
 		        }
 		    }
-		            
 		}
-		
 		trace.log(TraceLevel.INFO, "URL: " + url);
 	}
 	
@@ -275,15 +311,26 @@ public class HTTPPostOper extends AbstractOperator
 		case TUPLE_FORM:
 		{
             Map<String, String> params = new HashMap<String, String>();
+            
             for (Attribute attribute : schema) {
-                params.put(attribute.getName(), tuple.getObject(attribute.getName()).toString());
+            	if (isAttributeToPost(attribute.getName())) {
+            		params.put(attribute.getName(), tuple.getObject(attribute.getName()).toString());
+            	}
             }
-            req.setParams(params);		    
+            req.setParams(params);	
+            break;
 		}
 		case TUPLE_JSON:
 		{
             JSONEncoding<JSONObject, JSONArray> je = EncodingFactory.getJSONEncoding();
-            req.setParams(je.encodeAsString(tuple));          
+            JSONObject jo = je.encodeTuple(tuple);
+            
+            for (Iterator<String> it = jo.keySet().iterator(); it.hasNext();) {
+            	if (!isAttributeToPost(it.next())) {
+            		it.remove();
+            	}            	
+            }
+            req.setParams(jo.serialize());          
             break;
 		}
 	    case PURE_JSON:
@@ -356,14 +403,14 @@ public class HTTPPostOper extends AbstractOperator
 
 		StreamingOutput<OutputTuple> op = getOutput(0);
 		OutputTuple otup = op.newTuple();
+		otup.assign(tuple);    // propagate attributes input -> output
 		
 		if(resp == null) {
 			otup.setString("errorMessage", 
 					t == null ? "Unknown error." : t.getMessage()
 					);			
 			otup.setInt("responseCode", -1);
-		}
-		else {
+		} else {
 			if(trace.isLoggable(TraceLevel.DEBUG))
 				trace.log(TraceLevel.DEBUG, "Response: " + resp.toString());
 			
@@ -388,6 +435,13 @@ public class HTTPPostOper extends AbstractOperator
 		while(!shutdown && System.currentTimeMillis() < end) {
 			Thread.sleep(100);
 		}
+	}
+	
+	boolean isAttributeToPost(String attributeName) {
+		if (includeAttributesSet == null) {
+			return true;
+		}
+		return(includeAttributesSet.contains(attributeName));
 	}
 
 	@Override
