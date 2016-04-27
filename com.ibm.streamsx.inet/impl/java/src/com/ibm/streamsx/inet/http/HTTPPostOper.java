@@ -330,7 +330,7 @@ public class HTTPPostOper extends AbstractOperator
             		it.remove();
             	}            	
             }
-            req.setParams(jo.toString());          
+            req.setParams(jo.serialize());          
             break;
 		}
 	    case PURE_JSON:
