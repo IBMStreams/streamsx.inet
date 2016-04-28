@@ -125,7 +125,7 @@ public class HTTPPostOper extends AbstractOperator
 	
 	private String headerContentType = MIME_FORM;
 	private boolean acceptAllCertificates = false;
-	private Set<String>includeAttributesSet = null; 
+        private Set<String>includeAttributesSet = null;   // attributes to include in the http request
 	
 	/**
 	 * How the input tuple is processed.
@@ -194,9 +194,9 @@ public class HTTPPostOper extends AbstractOperator
 		                        "not \\\"" + MIME_JSON + "\\\" or \\\"" + MIME_FORM + "\\\". " +
 					"Default is to send all attributes." 
 					) 
-	public void setIncludeAttributes(List<TupleAttribute<Tuple, ?>> includeAttributes) {
+	public void setInclude(List<TupleAttribute<Tuple, ?>> include) {
 		includeAttributesSet = new HashSet<String>();
-		for (TupleAttribute<Tuple, ?> postAttr : includeAttributes) {
+		for (TupleAttribute<Tuple, ?> postAttr : include) {
 	            String attrName = postAttr.getAttribute().getName();		
 	            includeAttributesSet.add(attrName);
 		}
@@ -216,7 +216,7 @@ public class HTTPPostOper extends AbstractOperator
 	    if (headers.size() == 0) return;
 	    header = headers.get(0);
 	    if (header.equals(MIME_FORM) || header.equals(MIME_JSON)) return;
-	    checker.setInvalidContext( HTTPPostOper.OPER_NAME + " Invalid HeaderContextType: " + header + " when used with includeAttributes.",
+	    checker.setInvalidContext( HTTPPostOper.OPER_NAME + " Invalid HeaderContextType: " + header + " when used with include.",
 					new String[] {});
         }
 
