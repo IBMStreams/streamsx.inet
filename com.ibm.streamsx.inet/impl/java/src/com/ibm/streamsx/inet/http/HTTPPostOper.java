@@ -46,10 +46,13 @@ import com.ibm.streams.operator.state.ConsistentRegionContext;
 import com.ibm.streamsx.inet.http.HTTPRequest.RequestType;
 
 @InputPorts(@InputPortSet(cardinality=1, 
-			description="All attributes of the input stream are sent as POST data to the specified HTTP server"))
+			description="By default, all attributes of the input stream are sent as POST data to the specified HTTP server."))
 @OutputPorts(@OutputPortSet(cardinality=1, optional=true, 
-			description="Emits a tuple containing the reponse received from the server. " +
-		     "Tuple structure must conform to the [HTTPResponse] type specified in this namespace."))
+			description="Emits a tuple containing the reponse received from the server and assignments automatically forwarded from the input. " +
+		     "Tuple structure must conform to the [HTTPResponse] type specified in this namespace. " + 
+                     "Additional attributes with corresponding input attributes will be forwarded before the POST request."
+
+))
 @PrimitiveOperator(name=HTTPPostOper.OPER_NAME, description=HTTPPostOper.DESC)
 @Libraries(value={"opt/downloaded/*"})
 @Icons(location32="icons/HTTPPost_32.gif", location16="icons/HTTPPost_16.gif")
@@ -188,7 +191,7 @@ public class HTTPPostOper extends AbstractOperator
 		this.acceptAllCertificates = val;
 	}
 	@Parameter(optional=true, 
-			description="Specify attributes used to compose the http post. " +
+			description="Specify attributes used to compose the POST. " +
 					"Comma separated list of attribute names that will be posted to the url. " +
 					"The parameter is invalid if HeaderContentType is " +
 		                        "not \\\"" + MIME_JSON + "\\\" or \\\"" + MIME_FORM + "\\\". " +
@@ -454,7 +457,6 @@ public class HTTPPostOper extends AbstractOperator
 	public static final String DESC = 
 			"This operator sends incoming tuples to the specified HTTP server as part of a POST request." +
 			" A single tuple will be sent as a body of one HTTP POST request." +
-			" All attributes of the tuple will be serialized and sent to the server." +
 			" Certain authentication modes are supported." +
 			" Tuples are sent to the server one at a time in order of receipt. If the HTTP server cannot be accessed, the operation" +
 			" will be retried on the current thread and may temporarily block any additional tuples that arrive on the input port." +
