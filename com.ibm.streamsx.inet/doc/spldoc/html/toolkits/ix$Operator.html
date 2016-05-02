@@ -122,7 +122,7 @@
 
   <dt class="dt dlterm"><a class="xref" href="../tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.wsserver$WebSocketSend.html">WebSocketSend</a></dt>
 
-  <dd class="dd">Operator transmits tuples recieved on the input port via WebSocket protocol to connected clients.Upon startup, starts WebSocket Server.</dd>
+  <dd class="dd">Operator transmits tuples recieved on the input port via WebSocket protocol to connected clients.Upon startup, starts WebSocket Server. As tuple arrives on the input port they're converted intoJSON formatted messages and transmitted to all currently connected clients. Clients can connect and disconnect at anytime.</dd>
 
 
 </dl>

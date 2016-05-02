@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.7.0</a> &gt; com.ibm.streamsx.inet.rest</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.7.4</a> &gt; com.ibm.streamsx.inet.rest</p>
 
 </div>
 
@@ -81,7 +81,7 @@ This tables use the Dojo Javascript library from the Steams install, and thus do
 
   <dl class="dl"><dt class="dt dlterm"><a class="xref" href="ns$com.ibm.streamsx.inet.rest$1.html">HTTPS Support</a>
 </dt>
-<dd class="dd">Overview of HTTP and HTTPS support for <tt class="ph tt">com.ibm.streamsx.inet.rest</tt> operators.
+<dd class="dd">Overview of HTTP and HTTPS support for <tt class="ph tt">com.ibm.streamsx.inet.rest</tt> operators. HTTP Support: By default the REST operators provide open ports with no authentication or encryption.
 </dd>
 </dl>
 
@@ -115,7 +115,32 @@ This tables use the Dojo Javascript library from the Steams install, and thus do
 <div class="section"><h2 class="title sectiontitle splhead-1">Functions</h2>
   
 <ul class="sl simple">
-<li class="sli"><strong class="ph b"><a class="xref" href="fj$com.ibm.streamsx.inet.rest.html#spldoc_functions__obfuscate.T">obfuscate(T)</a></strong>: Obfuscate a password for an operator in this namespace.If the password is starts with <tt class="ph tt">OBF:</tt> then it is assumed to be already obfuscated and input is returned unchanged.
+<li class="sli"><strong class="ph b"><a class="xref" href="fj$com.ibm.streamsx.inet.rest.html#spldoc_functions__obfuscate.T">obfuscate(T)</a></strong>: Obfuscate a password for an operator in this namespace.If the password is starts with <tt class="ph tt">OBF:</tt> then it is assumed to be already obfuscated and input is returned unchanged. This allowsexternal tools to pass submission time values that are already obfuscated. The Eclipse Jetty class <tt class="ph tt">org.eclipse.jetty.util.security.Password</tt> is the underlying utility.
+</li>
+
+</ul>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Types</h2>
+  
+<ul class="sl simple">
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.inet.rest$map.html#spldoc_compilationunit__type__MappedPosition">MappedPosition</a></strong>: Convenience type that corresponds to the expected attributes for the default mapping visualization.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.inet.rest$map.html#spldoc_compilationunit__type__MappedPositionIcon">MappedPositionIcon</a></strong>: Convenience type that corresponds to the expected attributes for default mapping visualization using icon path for markers and a note.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.inet.rest$map.html#spldoc_compilationunit__type__MappedPositionIconLayer">MappedPositionIconLayer</a></strong>: Convenience type that corresponds to the expected attributes for default mapping visualization using a layer, icon path for markers and a note.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.inet.rest$map.html#spldoc_compilationunit__type__MappedPositionMarker">MappedPositionMarker</a></strong>: Convenience type that corresponds to the expected attributes for default mapping visualization using the pre-defined markers and a note.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.inet.rest$map.html#spldoc_compilationunit__type__MappedPositionMarkerLayer">MappedPositionMarkerLayer</a></strong>: Convenience type that corresponds to the expected attributes for default mapping visualization using a layer, pre-defined markers and a note.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.inet.rest$map.html#spldoc_compilationunit__type__MarkerType">MarkerType</a></strong>: Type of the marker to display for a point on the default map visualization by <a class="xref" href="op$com.ibm.streamsx.inet.rest$HTTPTupleView.html">HTTPTupleView</a>.
 </li>
 
 </ul>

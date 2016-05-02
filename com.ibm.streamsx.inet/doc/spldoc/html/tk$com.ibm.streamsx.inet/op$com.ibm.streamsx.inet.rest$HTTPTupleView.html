@@ -22,8 +22,12 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.7.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.rest.html">com.ibm.streamsx.inet.rest</a> &gt; HTTPTupleView</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.7.4</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.rest.html">com.ibm.streamsx.inet.rest</a> &gt; HTTPTupleView</p>
 
+</div>
+
+<div class="section splprimop">
+  <embed class="image" src="../../image/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.rest$HTTPTupleView.svg" width="672" height="112"/>
 </div>
 
 <div class="section">
@@ -76,7 +80,7 @@ Query parameters are ignored if the input port's schema is <tt class="ph tt">tup
 <p class="p"><tt class="ph tt">HTTPTupleView</tt>, <a class="xref" href="op$com.ibm.streamsx.inet.rest$HTTPTupleInjection.html">HTTPTupleInjection</a>, <a class="xref" href="op$com.ibm.streamsx.inet.rest$HTTPXMLInjection.html">HTTPXMLInjection</a> and <a class="xref" href="op$com.ibm.streamsx.inet.rest$WebContext.html">WebContext</a> embed a Jetty webserver and all operator invocations in an SPL application that are co-located/fused in same partition (PE) will share a common Jetty instance. Thus by fusing these operators together with a common port value, a single web-server serving a single SPL application can be created. This sharing of the web-server by fusing multiple operators allows the operators to be logically connected in the SPL graph, rather than a single operator with multiple unrelated streams being connected to it.
 </p>
 
-<p class="p">Static content in the sub-directory <tt class="ph tt">html</tt> of the application's data directory will also be served by the embedded web-server, thus allowing a complete web-application with live data to be served by an SPL application. The default URL for the web-server resolves to <tt class="ph tt">{data_dir}/html/index.html</tt>.
+<p class="p">Static content in the sub-directory <tt class="ph tt">html</tt> of the application's <tt class="ph tt">opt</tt> directory will also be served by the embedded web-server, thus allowing a complete web-application with live data to be served by an SPL application. The default URL for the web-server resolves to <tt class="ph tt">{application_dir}/opt/html/index.html</tt>.
 </p>
 
 <p class="p">Operators that support the <tt class="ph tt">context</tt> and <tt class="ph tt">contextResourceBase</tt> SPL parameters will serve static files from the <tt class="ph tt">contextResourceBase</tt> directory rooted at the supplied context path.
@@ -92,10 +96,6 @@ Query parameters are ignored if the input port's schema is <tt class="ph tt">tup
 
 </div>
 
-</div>
-
-<div class="section splprimop">
-  <embed class="image" src="../../image/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.rest$HTTPTupleView.svg" width="672" height="112"/>
 </div>
 
 <div class="section"><h2 class="title sectiontitle splhead-1">Summary</h2>

@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.7.0</a> &gt; com.ibm.streamsx.inet.wsserver</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.7.4</a> &gt; com.ibm.streamsx.inet.wsserver</p>
 
 </div>
 
@@ -32,7 +32,7 @@
 <li class="sli"><strong class="ph b"><a class="xref" href="op$com.ibm.streamsx.inet.wsserver$WebSocketInject.html">WebSocketInject</a></strong>:  Operator recieves messages from WebSocket clients and generates a tuple which is sent to streams.
 </li>
 
-<li class="sli"><strong class="ph b"><a class="xref" href="op$com.ibm.streamsx.inet.wsserver$WebSocketSend.html">WebSocketSend</a></strong>: Operator transmits tuples recieved on the input port via WebSocket protocol to connected clients.Upon startup, starts WebSocket Server.
+<li class="sli"><strong class="ph b"><a class="xref" href="op$com.ibm.streamsx.inet.wsserver$WebSocketSend.html">WebSocketSend</a></strong>: Operator transmits tuples recieved on the input port via WebSocket protocol to connected clients.Upon startup, starts WebSocket Server. As tuple arrives on the input port they're converted intoJSON formatted messages and transmitted to all currently connected clients. Clients can connect and disconnect at anytime.
 </li>
 
 </ul>

@@ -22,13 +22,17 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.7.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.http.html">com.ibm.streamsx.inet.http</a> &gt; HTTPPost</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.7.4</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.http.html">com.ibm.streamsx.inet.http</a> &gt; HTTPPost</p>
 
+</div>
+
+<div class="section splprimop">
+  <embed class="image" src="../../image/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.http$HTTPPost.svg" width="672" height="112"/>
 </div>
 
 <div class="section">
 
-<p class="p">This operator sends incoming tuples to the specified HTTP server as part of a POST request. A single tuple will be sent as a body of one HTTP POST request. All attributes of the tuple will be serialized and sent to the server. Certain authentication modes are supported. Tuples are sent to the server one at a time in order of receipt. If the HTTP server cannot be accessed, the operation will be retried on the current thread and may temporarily block any additional tuples that arrive on the input port. By default, the data is sent in application/x-www-form-urlencoded UTF-8 encoded format.
+<p class="p">This operator sends incoming tuples to the specified HTTP server as part of a POST request. A single tuple will be sent as a body of one HTTP POST request. Certain authentication modes are supported. Tuples are sent to the server one at a time in order of receipt. If the HTTP server cannot be accessed, the operation will be retried on the current thread and may temporarily block any additional tuples that arrive on the input port. By default, the data is sent in application/x-www-form-urlencoded UTF-8 encoded format.
 </p>
 
 <p class="p"><strong class="ph b">Behavior in a consistent region</strong>
@@ -37,10 +41,6 @@
 <p class="p">This operator cannot be placed at the start of a consistent region.
 </p>
 
-</div>
-
-<div class="section splprimop">
-  <embed class="image" src="../../image/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.http$HTTPPost.svg" width="672" height="112"/>
 </div>
 
 <div class="section"><h2 class="title sectiontitle splhead-1">Summary</h2>
@@ -61,7 +61,7 @@
  
   <dt class="dt dlterm">Parameters</dt>
 
-  <dd class="dd">This operator supports 9 parameters. (<tt class="ph tt">acceptAllCertificates, authenticationFile, authenticationProperty, authenticationType, extraHeaders, headerContentType, maxRetries, retryDelay, url</tt>)
+  <dd class="dd">This operator supports 11 parameters. (<tt class="ph tt">acceptAllCertificates, authenticationFile, authenticationProperty, authenticationType, connectionTimeout, extraHeaders, headerContentType, include, maxRetries, retryDelay, url</tt>)
 </dd>
 
  
@@ -95,7 +95,7 @@
 
    <dd class="dd">
 
-<p class="p">All attributes of the input stream are sent as POST data to the specified HTTP server
+<p class="p">By default, all attributes of the input stream are sent as POST data to the specified HTTP server.
 </p>
    </dd>
 
@@ -147,7 +147,7 @@
 
    <dd class="dd">
 
-<p class="p">Emits a tuple containing the reponse received from the server. Tuple structure must conform to the <a class="xref" href="spl$com.ibm.streamsx.inet.http$HTTPTypes.html#spldoc_compilationunit__type__HTTPResponse">HTTPResponse</a> type specified in this namespace.
+<p class="p">Emits a tuple containing the reponse received from the server and assignments automatically forwarded from the input. Tuple structure must conform to the <a class="xref" href="spl$com.ibm.streamsx.inet.http$HTTPTypes.html#spldoc_compilationunit__type__HTTPResponse">HTTPResponse</a> type specified in this namespace. Additional attributes with corresponding input attributes will be forwarded before the POST request.
 </p>
 
 <p class="p"/>
@@ -185,7 +185,7 @@
 
 <div class="section">
 <p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters">Parameters</a></strong></p>
-This operator supports 9 parameters.<dl class="dl">
+This operator supports 11 parameters.<dl class="dl">
 
 <dt class="dt dlterm" id="spldoc_operator__parameter_acceptAllCertificates"><tt class="ph tt">acceptAllCertificates</tt></dt>
 
@@ -308,6 +308,37 @@ This operator supports 9 parameters.<dl class="dl">
 
 
 
+<dt class="dt dlterm" id="spldoc_operator__parameter_connectionTimeout"><tt class="ph tt">connectionTimeout</tt></dt>
+
+<dd class="dd">
+<p class="p">Optional parameter specifies amount of time (in seconds) that the operator waits for the connection for to be established. Default is 60.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: float64
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
 <dt class="dt dlterm" id="spldoc_operator__parameter_extraHeaders"><tt class="ph tt">extraHeaders</tt></dt>
 
 <dd class="dd">
@@ -339,7 +370,7 @@ This operator supports 9 parameters.<dl class="dl">
 <dt class="dt dlterm" id="spldoc_operator__parameter_headerContentType"><tt class="ph tt">headerContentType</tt></dt>
 
 <dd class="dd">
-<p class="p">Set the content type of the HTTP request.  If the value is set to "application/json" then the entire tuple is sent in JSON format.  Default is "application/x-www-form-urlencoded". Note that if a value other than the above mentioned ones is specified, the input stream can only have a single attribute.
+<p class="p">Set the content type of the HTTP request.  If the value is set to "application/json" then the entire tuple is sent in JSON format using SPL's standard tuple to JSON encoding, if the input schema is <tt class="ph tt">tuple&lt;rstring jsonString&gt;</tt> then <tt class="ph tt">jsonString</tt> is assumed to already be JSON and its value is sent as the content.  Default is "application/x-www-form-urlencoded". Note that if a value other than the above mentioned ones is specified, the input stream can only have a single attribute.
 </p>
 <dl class="dl">
 
@@ -354,6 +385,34 @@ This operator supports 9 parameters.<dl class="dl">
      </li>
 
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm" id="spldoc_operator__parameter_include"><tt class="ph tt">include</tt></dt>
+
+<dd class="dd">
+<p class="p">Specify attributes used to compose the POST. Comma separated list of attribute names that will be posted to the url. The parameter is invalid if HeaderContentType is not "application/json" or "application/x-www-form-urlencoded". Default is to send all attributes.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Attribute
      </li>
 
   </ul>
