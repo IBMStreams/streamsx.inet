@@ -5,26 +5,33 @@
 #define COM_IBM_STREAMSX_INET_FTP_H_
 
 // Define SPL types and functions
-#include "SPL/Runtime/Function/SPLFunctions.h"
+#include <SPL/Runtime/Type/String.h>
+#include <SPL/Runtime/Type/Float.h>
 #include <curl/curl.h>
+#include <pthread.h>
 
 
 namespace com { namespace ibm { namespace streamsx { namespace inet { namespace ftp {
 
-//class OperatorObject;
 /****************************************************************
  * the common FTP libcurl wrapper                               *
  ****************************************************************/
 class FTPWrapper{
 public:
+	class Initializer{
+		public:
+			Initializer();
+			~Initializer();
+	};
+	static Initializer Init;
+
 	enum CloseConnectionMode {never, ever, punct};
 	enum TransmissionProtocolLiteral {ftp, ftpSSLAll, ftpSSLControl, ftpSSLTry, ftps, sftp};
 	enum CreateMissingDirs { none, create /*, retry - valid from libcurl 7.19.4*/ };
-	//typedef size_t (OperatorObject::* Callback) (void * buffer, size_t size, size_t count);
 	typedef size_t (* Callback) (void * buffer, size_t size, size_t count, void * data);
 
 
-
+	//Construction and Destruction must not be executed in a multithreading environment
 	FTPWrapper(	CloseConnectionMode
 				closeConnectionMode_,
 				TransmissionProtocolLiteral protocol_,
@@ -32,6 +39,7 @@ public:
 				CreateMissingDirs createMissingDirs_,
 				SPL::rstring const & debugAspect_);
 	~FTPWrapper();
+
 	void			onPunct(); //window punct
 	void			prepareToShutdown();
 
@@ -44,9 +52,12 @@ public:
 	void			setFilename(SPL::rstring const & val);
 	void			setUsername(SPL::rstring const & val);
 	void			setPassword(SPL::rstring const & val);
+	void			setConnectionTimeout(uint32_t val);
+	void			setTransferTimeout(uint32_t val);
 	SPL::rstring	getError() const						{ return error; };
 	uint32_t		getNoTransfers() const					{ return noTransfers; }
 	uint32_t		getNoTransferFailures() const			{ return noTransferFailures; }
+	uint32_t		getResultCode() const					{ return static_cast<uint32_t>(resultCodeForCOF); }
 	//conversions TransmissionProtocolLiteral
 	static char const * toString(TransmissionProtocolLiteral protocol);
 	static char const * toString(CloseConnectionMode mode);
@@ -74,9 +85,14 @@ protected:
 	bool urlChange;
 	bool credentialChange;
 	SPL::rstring userpasswd;	//the concatenation of username and passwd
+	long connectionTimeout;		//the timeout for the connection establishment (CURLOPT_CONNECTTIMEOUT)
+	long transferTimeout;		//the timeout for the transfer (CURLOPT_TIMEOUT)
+	bool connectionTimeoutReceived;
+	bool transferTimeoutReceived;
 
 	CURL * curl; //the curl handle
 	CURLcode res; //curl result code
+	CURLcode resultCodeForCOF; // The error port's Error() custom output function returns the result code. The res variable cannot be used because it is overridden at many places after the operation failed.
 	bool shutdown; //shutdown requested
 
 	//statistics
@@ -85,8 +101,14 @@ protected:
 	//error and debug
 	SPL::rstring error;		//the error string is set when a perform fails
 	SPL::rstring action;	//the initialization action internal used
-	const SPL::rstring debugAspect;
+	//multithreading support
+	static bool asyncDnsSupport;
+	static int wrapperCount;
+	static pthread_mutex_t * ssllocks;
+	static void lockCallback(int mode, int ind, const char *file, int line);
+	//static unsigned long threadId();
 
+	const SPL::rstring debugAspect;
 	static char const * protocolString[]; //used for conversion of TransmissionProtocolLiteral
 	static char const * closeConnectionModeString[]; //used for conversation
 };
@@ -144,7 +166,6 @@ public:
 						bool use_EPRT_,
 						/*bool usePRET_, */
 						bool skipPASVIp_,
-						//OperatorObject * op_,
 						void * op_,
 						Callback cb_);
 
@@ -157,7 +178,6 @@ private:
 	//the call back member
 	size_t	writeCallback(void * buffer, size_t size, size_t count);
 
-	//OperatorObject * const op;
 	void * op;	//the operator to call back
 	Callback operatorCallback; //the callback function pointer
 
