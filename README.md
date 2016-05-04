@@ -20,4 +20,6 @@ To learn more about Streams:
 * [Introduction to Streams Quick Start Edition](http://ibmstreams.github.io/streamsx.documentation/docs/4.1/qse-intro/)
 * [Streams Getting Started Guide](http://ibmstreams.github.io/streamsx.documentation/docs/4.1/qse-getting-started/)
 * [StreamsDev](https://developer.ibm.com/streamsdev/)
- 
+
+The FTP operators in namespace com.ibm.streamsx.inet.ftp need the system library libcurl (version 7.19.7 or higher) installed.
+Developers needs additionally the libcurl-devel package.
