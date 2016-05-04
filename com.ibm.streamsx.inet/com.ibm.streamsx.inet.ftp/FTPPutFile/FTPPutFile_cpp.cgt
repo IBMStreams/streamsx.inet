@@ -44,6 +44,14 @@
 	$password = $password->getValueAt(0)->getCppExpression() if ($password);
 	print "//password : $password\n";
 
+	my $connectionTimeout = $model->getParameterByName("connectionTimeout");
+	$connectionTimeout = $connectionTimeout->getValueAt(0)->getCppExpression() if ($connectionTimeout);
+	print "//connectionTimeout = $connectionTimeout\n";
+
+	my $transferTimeout = $model->getParameterByName("transferTimeout");
+	$transferTimeout = $transferTimeout->getValueAt(0)->getCppExpression() if ($transferTimeout);
+	print "//transferTimeout = $transferTimeout\n";
+
 	my $curlVerbose = $model->getParameterByName("curlVerbose");
 	$curlVerbose = $curlVerbose ? $curlVerbose->getValueAt(0)->getCppExpression() : "false";
 	print "//curlVerbose $curlVerbose\n";
@@ -121,7 +129,7 @@
 #			my $attr = $errorOutput->getAttributeAt($i);
 #			if ($attr->hasAssignmentWithOutputFunction()) {
 #				my $of = $attr->getAssignmentOutputFunctionName();
-#				if ($of eq "ErrorNumber") {
+#				if ($of eq "Error") {
 #					if (!SPL::CodeGen::Type::isInt32($attr->getSPLType())) {
 #						print STDERR "Attribute ".$attr->getName() . " must have type int32 at $errorOutput->getSourceLocation()\n";
 #						exit(1);
@@ -220,6 +228,12 @@ void MY_OPERATOR::process(Tuple const & tuple, uint32_t port) {
 <%if	($usePORT) {%>
 			writer->setUsePORT(<%=$usePORT%>);
 <%		}%>
+<%		if ($connectionTimeout) { %>
+			writer->setConnectionTimeout(<%=$connectionTimeout%>);
+<%		} %>
+<%		if ($transferTimeout) { %>
+			writer->setTransferTimeout(<%=$transferTimeout%>);
+<%		} %>
 <%if	($renameTo) {%>
 			writer->setRenameTo(<%=$renameTo%>);
 <%		}%>
@@ -302,11 +316,9 @@ void MY_OPERATOR::generateOutTuple(bool success, IPort0Type const & iport$0) {
 }
 
 void MY_OPERATOR::sendError(SPL::rstring const & reason, IPort0Type const & iport$0) {
-	SPL::rstring r2 = reason + " url:" + writer->getUrl() + " localFile:" + writer->getLocalFilename();
-	SPLAPPTRC(L_ERROR, r2, debugAspect);
+	SPL::rstring err2 = reason + " url:" + writer->getUrl() + " localFile:" + writer->getLocalFilename();
+	SPLAPPTRC(L_ERROR, err2, debugAspect);
 <% if ($hasErrorStream) { %>
-	SPL::timestamp t = SPL::Functions::Time::getTimestamp();
-	SPL::rstring err2 = SPL::Functions::Time::ctime(t) + " " + r2;
 	<%	# generate the initializer for the tuple
 		my $init = "";
 		my $numAttrs = $errorOutput->getNumberOfAttributes();
@@ -315,8 +327,8 @@ void MY_OPERATOR::sendError(SPL::rstring const & reason, IPort0Type const & ipor
 			my $aName = $attr->getName();
 			if ($attr->hasAssignmentWithOutputFunction()) {
 				my $of = $attr->getAssignmentOutputFunctionName();
-				if ($of eq "ErrorNumber") {
-					$init .= "errorNumber";
+				if ($of eq "Error") {
+					$init .= "SPL::uint32(writer->getResultCode())";
 				} elsif ($of eq "ErrorText") {
 					$init .= "SPL::rstring(err2)";
 				} elsif ($of eq "Url") {

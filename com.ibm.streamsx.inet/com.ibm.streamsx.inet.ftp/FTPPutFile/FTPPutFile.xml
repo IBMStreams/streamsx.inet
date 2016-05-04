@@ -64,7 +64,7 @@ You can optionally rename the file after you complete the transfer.</description
           <name>GetError</name>
           <function>
             <description>get the error number</description>
-            <prototype><![CDATA[int32 ErrorNumber()]]></prototype>
+            <prototype><![CDATA[int32 Error()]]></prototype>
           </function>
           <function>
             <description>get the error description</description>
@@ -160,8 +160,8 @@ stream&lt;rstring path, rstring file, uint64 size, rstring url, boolean success&
         <name>path</name>
         <description>
 The path of the remote fie/directory. The path may contain an filename part. If the filename part is omitted the parameter must end with a '/'. 
-The path should begin with '/'. In case of ftp protocols the path is relative to the home directory of the user and may depend on the server configuration. 
-In case of sftp the path is always an absolute path.
+In case of ftp protocols the path is relative to the home directory of the user and may depend on the server configuration. In case of ftp protocol an absolute path must start with '//'.
+In case of sftp the path is an absolute path. A path relative to users home directory may be entered in the form '~/'.
         </description>
         <optional>false</optional>
         <rewriteAllowed>true</rewriteAllowed>
@@ -227,6 +227,27 @@ This optionally parameter controls when the closing of connection after transfer
         <expressionMode>AttributeFree</expressionMode>
         <type>enum&#123;never, ever, punct&#125;</type>
         <cardinality>1</cardinality>
+      </parameter>
+      <parameter>
+        <name>connectionTimeout</name>
+        <description>This is the maximum time in seconds that you allow the connection to the server to take. This only limits the connection phase, once it has connected, this option is of no more use. Set to zero to switch to the default built-in connection timeout - 120 seconds. See also the `transferTimeout` parameter.</description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>Expression</expressionMode>
+        <type>int32</type>
+        <cardinality>1</cardinality>
+        <portScope><port>0</port></portScope>
+      </parameter>
+      <parameter>
+        <name>transferTimeout</name>
+        <description>This is the maximum time in seconds that you allow the libcurl transfer operation to take. Normally, name lookups can take a considerable time
+and limiting operations to less than a few minutes risk aborting perfectly normal operations. Default timeout is 0 (zero) which means it never times out.</description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>Expression</expressionMode>
+        <type>int32</type>
+        <cardinality>1</cardinality>
+        <portScope><port>0</port></portScope>
       </parameter>
       <parameter>
         <name>curlVerbose</name>
@@ -346,7 +367,7 @@ it already uses for the control connection. But it will use the port number from
     </inputPorts>
     <outputPorts>
       <outputPortSet>
-        <description>The statistics stream with the statistics of the performed operation.</description>
+        <description>The statistics stream with the statistics of the performed operation. The GetStatistics output functions must be applied to this port.</description>
         <expressionMode>Expression</expressionMode> 
         <autoAssignment>true</autoAssignment>
         <completeAssignment>false</completeAssignment>
@@ -361,11 +382,14 @@ it already uses for the control connection. But it will use the port number from
           <port>0</port>
         </finalPunctuationPortScope>
         <tupleMutationAllowed>true</tupleMutationAllowed>
+        <outputAssignmentPortScope>
+          <port>0</port>
+        </outputAssignmentPortScope>
         <cardinality>1</cardinality>
         <optional>false</optional>
       </outputPortSet>
       <outputPortSet>
-        <description>The optional error stream with the diagnostics information.</description>
+        <description>The optional error stream with the diagnostics information. The GetError output functions may be applied to this port. If no output assignment is applied, the output stream must have a single attribute of type rstring.</description>
         <expressionMode>Expression</expressionMode> 
         <autoAssignment>true</autoAssignment>
         <completeAssignment>false</completeAssignment>
@@ -375,8 +399,13 @@ it already uses for the control connection. But it will use the port number from
           <type>GetError</type>
         </outputFunctions>
         <windowPunctuationOutputMode>Free</windowPunctuationOutputMode>
-        <finalPunctuationPortScope></finalPunctuationPortScope>
+        <finalPunctuationPortScope>
+          <port>0</port>
+        </finalPunctuationPortScope>
         <tupleMutationAllowed>true</tupleMutationAllowed>
+        <outputAssignmentPortScope>
+          <port>0</port>
+        </outputAssignmentPortScope>
         <cardinality>1</cardinality>
         <optional>true</optional>
       </outputPortSet>
