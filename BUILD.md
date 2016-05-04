@@ -11,3 +11,4 @@ The top-level build.xml contains two main targets:
 
 * all - Builds and creates SPLDOC for the toolkit and samples. Developers should ensure this target is successful when creating a pull request.
 * release - Builds release artifacts, which is a tar bundle containing the toolkits and samples. It includes stamping the SPLDOC and toolkit version numbers with the git commit number (thus requires git to be available). The release should use Java 7 for the Java compile to allow the widest use of the toolkit (with Streams 4.0 or later). (Note Streams 4.0 ships Java 7).
+* build-all-samples - Builds all samples. Developers should ensure this target is successful when creating a pull request.
