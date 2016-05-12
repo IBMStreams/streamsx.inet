@@ -76,20 +76,16 @@ The command string and the command arguments are received from port 0.
             <prototype><![CDATA[rstring ErrorText()]]></prototype>
           </function>
           <function>
-            <description>Get the url</description>
+            <description>This function returns a string with the url including schema.</description>
             <prototype><![CDATA[rstring Url()]]></prototype>
           </function>
           <function>
-            <description>Get the number of completed ftp transfers</description>
+            <description>Get the number of executed ftp commands(in case of rename only one is counted)</description>
             <prototype><![CDATA[uint32 NoTransfers()]]></prototype>
           </function>
           <function>
-            <description>Get the number of failed ftp transfers</description>
+            <description>Get the number of failed ftp commands</description>
             <prototype><![CDATA[uint32 NoTransferFailures()]]></prototype>
-          </function>
-          <function>
-            <description>Get the number of bytes transferred in successfully completed transfers</description>
-            <prototype><![CDATA[uint64 NoBytesTransferred()]]></prototype>
           </function>
           <function>
             <description>Return the argument unchanged.</description>

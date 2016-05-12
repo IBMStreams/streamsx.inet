@@ -267,8 +267,6 @@ void MY_OPERATOR::sendError(SPL::rstring const & reason, IPort0Type const & ipor
 						$init .= "SPL::uint32(wrapper->getNoTransfers())";
 					} elsif ($of eq "NoTransferFailures") {
 						$init .= "SPL::uint32(wrapper->getNoTransferFailures())";
-					} elsif ($of eq "NoBytesTransferred") {
-						$init .= "SPL::uint32(wrapper->getNoBytesTransferred())";
 					} elsif ($of eq "AsIs") {
 						$init .= SPL::CodeGenHelper::ensureValue ($attr->getSPLType(), $attr->getAssignmentValue()->getCppExpression());
 					}
