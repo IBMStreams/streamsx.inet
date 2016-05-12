@@ -41,10 +41,10 @@ private:
   //calls this member function
   size_t writeToStream(void * buffer, size_t size, size_t count);
   //the function to send out data step by step
-  void sendIntermediateTuples(); //send out read data tuples to port 0
-  void sendLeftoverTuple(); //send out read data tuples to port 0
-  OPort0Type generateOutTuple(char const * cp, size_t size, bool leftover);
-  void sendError(SPL::rstring const & reason); 
+  void sendIntermediateTuples(IPort0Type const & iport$0); //send out read data tuples to port 0
+  void sendLeftoverTuple(IPort0Type const & iport$0); //send out read data tuples to port 0
+  OPort0Type generateOutTuple(char const * cp, size_t size, bool leftover, IPort0Type const & iport$0);
+  void sendError(SPL::rstring const & reason, IPort0Type const & iport$0); 
 
   IPort0Type const * inTuple0; //transfer for output assignments
   //TODO max blocksize in lib

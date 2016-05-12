@@ -37,7 +37,7 @@ SRC := $(TRG)/cpp/src
 # phony targets are targets being not in the filesystem but are always "active"
 # -----------------------------------------------------------------------------
 
-.PHONY: all build clean clean_objects clean_library help $(LIB) $(OBJ)
+.PHONY: all build clean clean_objects help
 
 # -----------------------------------------------------------------------------
 # Library
@@ -70,21 +70,22 @@ $(LIBRARY): $(LIB) $(OBJ) $(OBJECTS)
 	@echo Building C++ shared library '$@'
 	$(CXX) $(LINKFLAGS) -o $@  $(OBJECTS)
 
-clean: clean_objects clean_library
+clean:
+	@echo Cleaning object files ...
+	@rm -rfv $(OBJ)
+	@echo Cleaning library files ...
+	@rm -fv $(LIBRARY)
 
 clean_objects:
 	@echo Cleaning object files ...
 	@rm -rfv $(OBJ)
 
-clean_library:
-	@echo Cleaning library files ...
-	@rm -fv $(LIBRARY)
-
 help:
-	@echo "make -f Makefile.libftp <all|clean|build|help>"
+	@echo "make -f Makefile.libftp <all|clean|build|clean_objects|help>"
 	@echo "targets:"
 	@echo "help: print this help text"
-	@echo "all: clean build this is the default target"
+	@echo "all: clean build this is the default target remove the objects"
 	@echo "clean: remove library and object files"
-	@echo "build: build the library" 
+	@echo "build: build the library"
+	@echo "clean_objects: remove the object files"
 	
