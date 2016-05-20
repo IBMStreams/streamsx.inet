@@ -6,6 +6,10 @@
 #include <cstdlib>
 
 <%
+	#warn deprecated COF
+	sub warnDeprecateCof {
+		SPL::CodeGen::warnln("Deprecated custom output function used: %s", @_, $model->getContext()->getSourceLocation());
+	}
 	my $hasPasswordStream = $model->getNumberOfInputPorts() == 2;
 	my $hasErrorStream = $model->getNumberOfOutputPorts() == 2;
 	my $mainOutputPort = $model->getOutputPortAt(0);
@@ -69,17 +73,15 @@
 				my $attr = $errorOutputPort->getAttributeAt($i);
 				if ($attr->hasAssignmentWithOutputFunction()) {
 					my $of = $attr->getAssignmentOutputFunctionName();
-					if ($of eq "Error") {
+					if (($of eq "Error") || ($of eq "ErrorCode")) {
 						$hasNonDefaultErrorOutputPortAssignement = 1;
 					} elsif ($of eq "ErrorText") {
 						$hasNonDefaultErrorOutputPortAssignement = 1;
 					} elsif ($of eq "Url") {
 						$hasNonDefaultErrorOutputPortAssignement = 1;
-					} elsif ($of eq "NoTransfers") {
+					} elsif (($of eq "NoTransfers") || ($of eq "CommandCount")) {
 						$hasNonDefaultErrorOutputPortAssignement = 1;
-					} elsif ($of eq "NoFailures") {
-						$hasNonDefaultErrorOutputPortAssignement = 1;
-					} elsif ($of eq "NoBytesTransferred") {
+					} elsif (($of eq "NoTransferFailures") || ($of eq "CommandFailureCount")) {
 						$hasNonDefaultErrorOutputPortAssignement = 1;
 					}
 				}
@@ -198,8 +200,14 @@ void MY_OPERATOR::process(Tuple const & tuple, uint32_t port) {
 					} elsif ($of eq "Url") {
 						$init .= "SPL::rstring(wrapper->getUrl())";
 					} elsif ($of eq "NoCommands") {
+						warnDeprecateCof("NoCommands()");
+						$init .= "SPL::uint64(wrapper->getNoTransfers())";
+					} elsif ($of eq "CommandCount") {
 						$init .= "SPL::uint64(wrapper->getNoTransfers())";
 					} elsif ($of eq "NoFailures") {
+						warnDeprecateCof("NoFailures()");
+						$init .= "SPL::uint64(wrapper->getNoTransferFailures())";
+					} elsif ($of eq "CommandFailureCount") {
 						$init .= "SPL::uint64(wrapper->getNoTransferFailures())";
 					} elsif ($of eq "AsIs") {
 						$init .= SPL::CodeGenHelper::ensureValue ($attr->getSPLType(), $attr->getAssignmentValue()->getCppExpression());
@@ -258,14 +266,23 @@ void MY_OPERATOR::sendError(SPL::rstring const & reason, IPort0Type const & ipor
 				if ($attr->hasAssignmentWithOutputFunction()) {
 					my $of = $attr->getAssignmentOutputFunctionName();
 					if ($of eq "Error") {
+						warnDeprecateCof("Error()");
+						$init .= "SPL::int32(wrapper->getResultCode())";
+					} elsif ($of eq "ErrorCode") {
 						$init .= "SPL::int32(wrapper->getResultCode())";
 					} elsif ($of eq "ErrorText") {
 						$init .= "SPL::rstring(err2)";
 					} elsif ($of eq "Url") {
 						$init .= "SPL::rstring(wrapper->getUrl())";
 					} elsif ($of eq "NoTransfers") {
+						warnDeprecateCof("NoTransfers()");
+						$init .= "SPL::uint32(wrapper->getNoTransfers())";
+					} elsif ($of eq "CommandCount") {
 						$init .= "SPL::uint32(wrapper->getNoTransfers())";
 					} elsif ($of eq "NoTransferFailures") {
+						warnDeprecateCof("NoTransferFailures()");
+						$init .= "SPL::uint32(wrapper->getNoTransferFailures())";
+					} elsif ($of eq "CommandFailureCount") {
 						$init .= "SPL::uint32(wrapper->getNoTransferFailures())";
 					} elsif ($of eq "AsIs") {
 						$init .= SPL::CodeGenHelper::ensureValue ($attr->getSPLType(), $attr->getAssignmentValue()->getCppExpression());

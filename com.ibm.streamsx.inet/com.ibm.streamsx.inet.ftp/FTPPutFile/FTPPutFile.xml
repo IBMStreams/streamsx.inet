@@ -40,16 +40,28 @@ You can optionally rename the file after you complete the transfer.</description
             <prototype><![CDATA[uint64 FileSize()]]></prototype>
           </function>
           <function>
-            <description>This function returns the number of completed ftp transfers.</description>
+            <description>Deprecated: This function returns the number of completed ftp transfers.</description>
             <prototype><![CDATA[uint32 NoTransfers()]]></prototype>
           </function>
           <function>
-            <description>This function returns the number of failed ftp transfers.</description>
+            <description>This function returns the number of completed ftp transfers.</description>
+            <prototype><![CDATA[uint32 TransferCount()]]></prototype>
+          </function>
+          <function>
+            <description>Deprecated: This function returns the number of failed ftp transfers.</description>
             <prototype><![CDATA[uint32 NoTransferFailures()]]></prototype>
           </function>
           <function>
-            <description>This function returns the number of bytes transferred in successfully completed transfers.</description>
+            <description>This function returns the number of failed ftp transfers.</description>
+            <prototype><![CDATA[uint32 TransferFailureCount()]]></prototype>
+          </function>
+          <function>
+            <description>Deprecated: This function returns the number of bytes transferred in successfully completed transfers.</description>
             <prototype><![CDATA[uint64 NoBytesTransferred()]]></prototype>
+          </function>
+          <function>
+            <description>This function returns the number of bytes transferred in successfully completed transfers.</description>
+            <prototype><![CDATA[uint64 BytesTransferred()]]></prototype>
           </function>
           <function>
             <description>This function returns the transfer speed in byte per second of the last transfer / valid after file end.</description>
@@ -63,8 +75,12 @@ You can optionally rename the file after you complete the transfer.</description
         <customOutputFunction>
           <name>GetError</name>
           <function>
-            <description>Get the error number</description>
+            <description>Deprecated: Get the error number</description>
             <prototype><![CDATA[int32 Error()]]></prototype>
+          </function>
+          <function>
+            <description>Get the error number</description>
+            <prototype><![CDATA[int32 ErrorCode()]]></prototype>
           </function>
           <function>
             <description>Get the error description</description>
@@ -75,16 +91,28 @@ You can optionally rename the file after you complete the transfer.</description
             <prototype><![CDATA[rstring Url()]]></prototype>
           </function>
           <function>
-            <description>This function returns the number of completed ftp transfers.</description>
+            <description>Deprecated: This function returns the number of completed ftp transfers.</description>
             <prototype><![CDATA[uint32 NoTransfers()]]></prototype>
           </function>
           <function>
-            <description>This function returns the number of failed ftp transfers.</description>
+            <description>This function returns the number of completed ftp transfers.</description>
+            <prototype><![CDATA[uint32 TransferCount()]]></prototype>
+          </function>
+          <function>
+            <description>Deprecated: This function returns the number of failed ftp transfers.</description>
             <prototype><![CDATA[uint32 NoTransferFailures()]]></prototype>
           </function>
           <function>
-            <description>This function returns the number of bytes transferred in successfully completed transfers.</description>
+            <description>This function returns the number of failed ftp transfers.</description>
+            <prototype><![CDATA[uint32 TransferFailureCount()]]></prototype>
+          </function>
+          <function>
+            <description>Deprecated: This function returns the number of bytes transferred in successfully completed transfers.</description>
             <prototype><![CDATA[uint64 NoBytesTransferred()]]></prototype>
+          </function>
+          <function>
+            <description>This function returns the number of bytes transferred in successfully completed transfers.</description>
+            <prototype><![CDATA[uint64 BytesTransferred()]]></prototype>
           </function>
           <function>
             <description>Return the argument unchanged.</description>

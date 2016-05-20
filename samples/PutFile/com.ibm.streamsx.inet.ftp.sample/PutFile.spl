@@ -4,7 +4,7 @@
 namespace com.ibm.streamsx.inet.ftp.sample;
 
 use com.ibm.streamsx.inet.ftp::*;
-//use com.ibm.streams.teda.file::*;
+//use com.ibm.streams.teda.file::rename;
 //use com.ibm.streams.teda.internal.fileutils::*;
 use spl.file::*;
 
@@ -40,6 +40,7 @@ public composite PutFile {
 			param
 				directory: "./in";
 				sleepTime : 30.0;
+				pattern : ".*\\.txt";
 			output FilenameStream :
 				path = FullPath(),
 				file = FileName();
@@ -47,7 +48,10 @@ public composite PutFile {
 		}
 		
 		//transfer the file to ftp server
-		stream<rstring lpath, rstring file, uint64 size, rstring url, boolean success> ResultStream as OUT = FTPPutFile(FilenameStream as IN) {
+		(
+			stream<rstring lpath, rstring file, uint64 size, rstring url, boolean success, uint32 transferCount, uint32 failureCount, uint64 bytesTransferred> ResultStream as OUT;
+			stream<rstring errorText, int32 error, uint32 transferCount, uint32 failureCount, uint64 bytesTransferred> ErrorStream as ERR
+		) = FTPPutFile(FilenameStream as IN) {
 			param
 				protocol : $protocol;
 				host : $host;
@@ -59,13 +63,45 @@ public composite PutFile {
 				renameTo : file;
 				sendStatisticsOnError : true;
 				curlVerbose : $verbosity;
-			output OUT :
-				lpath = IN.path,
-				size = FileSize(),
-				url = Url(),
-				success = Success();
+			output
+				OUT :
+					lpath = IN.path,
+					size = FileSize(),
+					url = Url(),
+					success = Success(),
+					//transferCount = NoTransfers(),
+					transferCount = TransferCount(),
+					//failureCount = NoTransferFailures(),
+					failureCount = TransferFailureCount(),
+					//bytesTransferred = NoBytesTransferred();
+					bytesTransferred = BytesTransferred();
+				ERR :
+					errorText = ErrorText(),
+					//error = Error(),
+					error = ErrorCode(),
+					//transferCount = NoTransfers(),
+					transferCount = TransferCount(),
+					//failureCount = NoTransferFailures(),
+					failureCount = TransferFailureCount(),
+					//bytesTransferred = NoBytesTransferred();
+					bytesTransferred = BytesTransferred();
 			config placement : partitionColocation("FTPPUT");
 		}
+
+		//print results
+		() as ResultTap = ResultSink(ResultStream) {
+			param
+				file : "PutResult.txt";
+				loc : "RESULTTAP1";
+		}
+
+		//print error
+		() as ErrorTap = ResultSink(ErrorStream) {
+			param
+				file : "PutError.txt";
+				loc : "ERRORTAP1";
+		}
+
 		//move local files
 		stream<rstring localMoveResult, tuple<I> result> FileMoverStream as O = Custom(ResultStream as I) {
 			logic

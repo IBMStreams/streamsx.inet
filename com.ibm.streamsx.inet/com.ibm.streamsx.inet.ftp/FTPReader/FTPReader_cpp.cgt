@@ -6,6 +6,10 @@
 #include <cstdlib>
 
 <%
+	#warn deprecated COF
+	sub warnDeprecateCof {
+		SPL::CodeGen::warnln("Deprecated custom output function used: %s", @_, $model->getContext()->getSourceLocation());
+	}
 	my $hasPasswordStream = $model->getNumberOfInputPorts() == 2;
 	my $hasErrorStream = $model->getNumberOfOutputPorts() == 2;
 	my $mainOutputPort = $model->getOutputPortAt(0);
@@ -126,17 +130,17 @@
 				my $attr = $errorOutputPort->getAttributeAt($i);
 				if ($attr->hasAssignmentWithOutputFunction()) {
 					my $of = $attr->getAssignmentOutputFunctionName();
-					if ($of eq "Error") {
+					if (($of eq "Error") || ($of eq "ErrorCode")) {
 						$hasNonDefaultErrorOutputPortAssignement = 1;
 					} elsif ($of eq "ErrorText") {
 						$hasNonDefaultErrorOutputPortAssignement = 1;
 					} elsif ($of eq "Url") {
 						$hasNonDefaultErrorOutputPortAssignement = 1;
-					} elsif ($of eq "NoTransfers") {
+					} elsif (($of eq "NoTransfers") || ($of eq "TransferCount")) {
 						$hasNonDefaultErrorOutputPortAssignement = 1;
-					} elsif ($of eq "NoFailures") {
+					} elsif (($of eq "NoTransferFailures") || ($of eq "TransferFailureCount")) {
 						$hasNonDefaultErrorOutputPortAssignement = 1;
-					} elsif ($of eq "NoBytesTransferred") {
+					} elsif (($of eq "NoBytesTransferred") || ($of eq "BytesTransferred")) {
 						$hasNonDefaultErrorOutputPortAssignement = 1;
 					}
 				}
@@ -435,10 +439,19 @@ MY_OPERATOR::OPort0Type MY_OPERATOR::generateOutTuple(char const * cp, uint64_t 
 			} elsif ($of eq "Sequence") {
 				$init .= "SPL::int32(sequence)";
 			} elsif ($of eq "NoTransfers") {
+				warnDeprecateCof("getNoTransfers()");
+				$init .= "SPL::uint32(reader->getNoTransfers())";
+			} elsif ($of eq "TransferCount") {
 				$init .= "SPL::uint32(reader->getNoTransfers())";
 			} elsif ($of eq "NoTransferFailures") {
+				warnDeprecateCof("NoTransferFailures()");
+				$init .= "SPL::uint32(reader->getNoTransferFailures())";
+			} elsif ($of eq "TransferFailureCount") {
 				$init .= "SPL::uint32(reader->getNoTransferFailures())";
 			} elsif ($of eq "NoBytesTransferred") {
+				warnDeprecateCof("NoBytesTransferred()");
+				$init .= "SPL::uint32(reader->getNoBytesTransferred())";
+			} elsif ($of eq "BytesTransferred") {
 				$init .= "SPL::uint32(reader->getNoBytesTransferred())";
 			} elsif ($of eq "TransferSpeed") {
 				$init .= "SPL::float64(reader->getTransferSpeed())";
@@ -492,16 +505,28 @@ void MY_OPERATOR::sendError(SPL::rstring const & reason, IPort0Type const & ipor
 				if ($attr->hasAssignmentWithOutputFunction()) {
 					my $of = $attr->getAssignmentOutputFunctionName();
 					if ($of eq "Error") {
+						warnDeprecateCof("Error()");
+						$init .= "SPL::uint32(reader->getResultCode())";
+					} elsif ($of eq "ErrorCode") {
 						$init .= "SPL::uint32(reader->getResultCode())";
 					} elsif ($of eq "ErrorText") {
 						$init .= "SPL::rstring(err2)";
 					} elsif ($of eq "Url") {
 						$init .= "SPL::rstring(reader->getUrl())";
 					} elsif ($of eq "NoTransfers") {
+						warnDeprecateCof("NoTransfers()");
+						$init .= "SPL::uint32(reader->getNoTransfers())";
+					} elsif ($of eq "TransferCount") {
 						$init .= "SPL::uint32(reader->getNoTransfers())";
 					} elsif ($of eq "NoTransferFailures") {
+						warnDeprecateCof("NoTransferFailures()");
+						$init .= "SPL::uint32(reader->getNoTransferFailures())";
+					} elsif ($of eq "TransferFailureCount") {
 						$init .= "SPL::uint32(reader->getNoTransferFailures())";
 					} elsif ($of eq "NoBytesTransferred") {
+						warnDeprecateCof("NoBytesTransferred()");
+						$init .= "SPL::uint32(reader->getNoBytesTransferred())";
+					} elsif ($of eq "BytesTransferred") {
 						$init .= "SPL::uint32(reader->getNoBytesTransferred())";
 					} elsif ($of eq "AsIs") {
 						$init .= SPL::CodeGenHelper::ensureValue ($attr->getSPLType(), $attr->getAssignmentValue()->getCppExpression());
