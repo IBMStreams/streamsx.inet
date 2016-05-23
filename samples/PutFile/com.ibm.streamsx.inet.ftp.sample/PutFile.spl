@@ -4,8 +4,6 @@
 namespace com.ibm.streamsx.inet.ftp.sample;
 
 use com.ibm.streamsx.inet.ftp::*;
-//use com.ibm.streams.teda.file::rename;
-//use com.ibm.streams.teda.internal.fileutils::*;
 use spl.file::*;
 
 /**
