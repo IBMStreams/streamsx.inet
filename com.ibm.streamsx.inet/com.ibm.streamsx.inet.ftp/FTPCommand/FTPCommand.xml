@@ -53,7 +53,7 @@ The command string and the command arguments are received from port 0.
             <prototype><![CDATA[rstring Url()]]></prototype>
           </function>
           <function>
-            <description>Deprecated: Get the number of executed ftp commands(in case of rename only one is counted)</description>
+            <description>Deprecated: Get the number of executed ftp commands(in case of rename only one is counted). Use function CommandCount() instead.</description>
             <prototype><![CDATA[uint32 NoCommands()]]></prototype>
           </function>
           <function>
@@ -61,7 +61,7 @@ The command string and the command arguments are received from port 0.
             <prototype><![CDATA[uint32 CommandCount()]]></prototype>
           </function>
           <function>
-            <description>Deprecated: Get the number of failed ftp commands</description>
+            <description>Deprecated: Get the number of failed ftp commands. Use function CommandFailureCount() instead.</description>
             <prototype><![CDATA[uint32 NoFailures()]]></prototype>
           </function>
           <function>
@@ -76,7 +76,7 @@ The command string and the command arguments are received from port 0.
         <customOutputFunction>
           <name>GetError</name>
           <function>
-            <description>Deprecated: Get the error number</description>
+            <description>Deprecated: Get the error number. Use function ErrorCode() instead.</description>
             <prototype><![CDATA[int32 Error()]]></prototype>
           </function>
           <function>
@@ -92,7 +92,7 @@ The command string and the command arguments are received from port 0.
             <prototype><![CDATA[rstring Url()]]></prototype>
           </function>
           <function>
-            <description>Deprecated: Get the number of executed ftp commands(in case of rename only one is counted)</description>
+            <description>Deprecated: Get the number of executed ftp commands(in case of rename only one is counted). Use function CommandCount() instead.</description>
             <prototype><![CDATA[uint32 NoTransfers()]]></prototype>
           </function>
           <function>
@@ -100,7 +100,7 @@ The command string and the command arguments are received from port 0.
             <prototype><![CDATA[uint32 CommandCount()]]></prototype>
           </function>
           <function>
-            <description>Deprecated: Get the number of failed ftp commands</description>
+            <description>Deprecated: Get the number of failed ftp commands. Use function CommandFailureCount() instead.</description>
             <prototype><![CDATA[uint32 NoTransferFailures()]]></prototype>
           </function>
           <function>

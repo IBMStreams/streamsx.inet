@@ -94,7 +94,7 @@ character. An complete empty line indicates an empty file. This function must no
             <prototype><![CDATA[int32 Sequence()]]></prototype>
           </function>
           <function>
-            <description>Deprecated: This function returns the number of completed ftp transfers.</description>
+            <description>Deprecated: This function returns the number of completed ftp transfers. Use function TransferCount() instead.</description>
             <prototype><![CDATA[uint32 NoTransfers()]]></prototype>
           </function>
           <function>
@@ -102,7 +102,7 @@ character. An complete empty line indicates an empty file. This function must no
             <prototype><![CDATA[uint32 TransferCount()]]></prototype>
           </function>
           <function>
-            <description>Deprecated: This function returns the number of failed ftp transfers.</description>
+            <description>Deprecated: This function returns the number of failed ftp transfers. Use function TransferFailureCount() instead.</description>
             <prototype><![CDATA[uint32 NoTransferFailures()]]></prototype>
           </function>
           <function>
@@ -110,7 +110,7 @@ character. An complete empty line indicates an empty file. This function must no
             <prototype><![CDATA[uint32 TransferFailureCount()]]></prototype>
           </function>
           <function>
-            <description>Deprecated: This function returns the number of bytes transferred in successfully completed transfers.</description>
+            <description>Deprecated: This function returns the number of bytes transferred in successfully completed transfers. Use function BytesTransferred() instead.</description>
             <prototype><![CDATA[uint64 NoBytesTransferred()]]></prototype>
           </function>
           <function>
@@ -129,7 +129,7 @@ character. An complete empty line indicates an empty file. This function must no
         <customOutputFunction>
           <name>GetError</name>
           <function>
-            <description>Deprecated: Get the error number</description>
+            <description>Deprecated: Get the error number. Use function ErrorCode() instead.</description>
             <prototype><![CDATA[int32 Error()]]></prototype>
           </function>
           <function>
@@ -145,7 +145,7 @@ character. An complete empty line indicates an empty file. This function must no
             <prototype><![CDATA[rstring Url()]]></prototype>
           </function>
           <function>
-            <description>Deprecated: This function returns the number of completed ftp transfers.</description>
+            <description>Deprecated: This function returns the number of completed ftp transfers. Use function TransferCount() instead.</description>
             <prototype><![CDATA[uint32 NoTransfers()]]></prototype>
           </function>
           <function>
@@ -153,7 +153,7 @@ character. An complete empty line indicates an empty file. This function must no
             <prototype><![CDATA[uint32 TransferCount()]]></prototype>
           </function>
           <function>
-            <description>Deprecated: This function returns the number of failed ftp transfers.</description>
+            <description>Deprecated: This function returns the number of failed ftp transfers. Use function TransferFailureCount() instead.</description>
             <prototype><![CDATA[uint32 NoTransferFailures()]]></prototype>
           </function>
           <function>
@@ -161,7 +161,7 @@ character. An complete empty line indicates an empty file. This function must no
             <prototype><![CDATA[uint32 TransferFailureCount()]]></prototype>
           </function>
           <function>
-            <description>Deprecated: This function returns the number of bytes transferred in successfully completed transfers.</description>
+            <description>Deprecated: This function returns the number of bytes transferred in successfully completed transfers. Use function BytesTransferred() instead.</description>
             <prototype><![CDATA[uint64 NoBytesTransferred()]]></prototype>
           </function>
           <function>
