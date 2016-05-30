@@ -2,18 +2,95 @@
 /* All Rights Reserved */
 
 #include "FTPWrapper.h"
+#include <SPL/Runtime/Type/Timestamp.h>
+#include <SPL/Runtime/Function/SPLFunctions.h>
 #include <SPL/Runtime/Common/RuntimeException.h>
 #include <cstdio>
 #include <iostream>
 #include <sys/stat.h>
+#include <openssl/crypto.h>
 
 namespace com { namespace ibm { namespace streamsx { namespace inet { namespace ftp {
 using namespace SPL;
+
+/***************************************************************
+ *               static initializations                        *
+ ***************************************************************/
+bool FTPWrapper::asyncDnsSupport(false);
+int FTPWrapper::wrapperCount(0);
+pthread_mutex_t * FTPWrapper::ssllocks(NULL);
+FTPWrapper::Initializer Init;
+
+/**************************************************************
+ *                  Wrapper Initializer                       *
+ * Makes the global non thread save initialization of curl lib*
+ **************************************************************/
+FTPWrapper::Initializer::Initializer() {
+	//ssl thread support
+
+	CURLcode res = curl_global_init(CURL_GLOBAL_DEFAULT);
+	if (CURLE_OK != res) {
+		THROW(SPL::SPLRuntime, "FTPWrapper initialization error - global curl error");
+	} else {
+		SPLAPPTRC(L_INFO, "Work with Curl version:" << curl_version(), "FTPWrapper");
+		std::cout << "FTPWrapper: Work with Curl version:" << curl_version() << std::endl;
+	}
+	curl_version_info_data * dat =  curl_version_info(CURLVERSION_NOW);
+	if (dat->ssl_version) SPLAPPTRC(L_INFO, "curl_version_info ssl_version=" << dat->ssl_version, "FTPWrapper");
+	std::cout << "FTPWrapper: curl_version_info ssl_version=" << dat->ssl_version << std::endl;
+	if (dat->libssh_version) SPLAPPTRC(L_INFO, "libssh_version=" << dat->libssh_version, "FTPWrapper");
+	std::cout << "FTPWrapper: libssh_version=" << dat->libssh_version << std::endl;
+	//printf("protocols=%s\n", dat->protocols);
+	if (dat->features & CURL_VERSION_ASYNCHDNS) asyncDnsSupport = true; else asyncDnsSupport = false;
+	SPLAPPTRC(L_INFO, "Async DNS supported="<< asyncDnsSupport, "FTPWrapper");
+	std::cout << "FTPWrapper: Async DNS supported="<< asyncDnsSupport << std::endl;
+
+	//initialize ssl lock array
+	void (*fp)(int, int, const char*, int) = CRYPTO_get_locking_callback();
+	if (fp) SPLAPPTRC(L_ERROR, "There is already ssh lock call back function registered", "FTPWrapper");
+	ssllocks = (pthread_mutex_t *)OPENSSL_malloc(CRYPTO_num_locks() * sizeof(pthread_mutex_t));
+	for (int i=0; i < CRYPTO_num_locks(); i++) {
+		pthread_mutex_init(&(ssllocks[i]),NULL);
+	}
+	//CRYPTO_set_id_callback(threadId);
+	CRYPTO_set_locking_callback(lockCallback);
+}
+
+FTPWrapper::Initializer::~Initializer() {
+	curl_global_cleanup();
+	CRYPTO_set_locking_callback(NULL);
+	//CRYPTO_set_id_callback(NULL);
+	for (int i=0; i <CRYPTO_num_locks(); i++) {
+		pthread_mutex_destroy(&(ssllocks[i]));
+	}
+	OPENSSL_free(ssllocks);
+	ssllocks = NULL;
+}
+
+/**************************************************************
+ *              ssh locking callbacks                         *
+ **************************************************************/
+
+void FTPWrapper::lockCallback(int mode, int ind, const char *file, int line) {
+	if (mode & CRYPTO_LOCK) {
+		pthread_mutex_lock(&(ssllocks[ind]));
+	}
+	else {
+		pthread_mutex_unlock(&(ssllocks[ind]));
+	}
+}
+/*unsigned long FTPWrapper::threadId() {
+	unsigned long ret;
+	ret=pthread_self();
+	return ret;
+}*/
+
 
 /**************************************************************
  *                       FTPWrapper                           *
  **************************************************************/
 //constructor
+//Construction and Destruction must not be executed in a multithreading environment
 FTPWrapper::FTPWrapper(
 				CloseConnectionMode connectionCloseMode_,
 				TransmissionProtocolLiteral protocol_,
@@ -36,6 +113,11 @@ FTPWrapper::FTPWrapper(
 	credentialChange(false),
 	userpasswd(),
 
+	connectionTimeout(0),
+	transferTimeout(0),
+	connectionTimeoutReceived(false),
+	transferTimeoutReceived(false),
+
 	curl(NULL),
 	res(CURLE_OK),
 	shutdown(false),
@@ -44,8 +126,15 @@ FTPWrapper::FTPWrapper(
 	noTransferFailures(0),
 	error(),
 	action(),
-	debugAspect(debugAspect_)
+	debugAspect("FTPWrapper," + debugAspect_)
 {
+	SPLAPPTRC(L_DEBUG, "Construct FTPWrapper with params: CloseConnectionMode connectionCloseMode=" << connectionCloseMode_ <<
+													" TransmissionProtocolLiteral=" << toString(protocol) <<
+													" verbose=" << verbose_,
+			debugAspect);
+
+	wrapperCount++;
+	SPLAPPTRC(L_DEBUG, "wrapperCount=" << wrapperCount, "FTPWrapper");
 	//make the schema
 	switch (protocol) {
 	case ftp:
@@ -61,25 +150,15 @@ FTPWrapper::FTPWrapper(
 		schema = "sftp://";
 		break;
 	}
-	SPLAPPTRC(L_DEBUG, "Construct FTPWrapper with params: CloseConnectionMode connectionCloseMode=" << connectionCloseMode_ <<
-													" TransmissionProtocolLiteral=" << toString(protocol) <<
-													" verbose=" << verbose_,
-			debugAspect);
-	//initialize the curl lib
-	res = curl_global_init(CURL_GLOBAL_DEFAULT);
-	if (CURLE_OK != res) {
-		error = "Error during global init of libcurl";
-		THROW(SPL::SPLRuntime, "FTPWrapper initialization error - global curl error");
-	} else {
-		SPLAPPTRC(L_INFO, "Work with Curl version:" << curl_version(), debugAspect);
-	}
+	//initialize the curl lib is done in static Init
 }
 
 //destructor
 FTPWrapper::~FTPWrapper() {
 	SPLAPPTRC(L_DEBUG, "Destruct FTPWrapper", debugAspect);
 	deInitialize();
-	curl_global_cleanup();
+	wrapperCount--;
+	//curl cleanup in static Init
 }
 
 //more set & get
@@ -119,6 +198,20 @@ void FTPWrapper::setPassword(SPL::rstring const & val) {
 	}
 }
 
+void FTPWrapper::setConnectionTimeout(uint32_t val) {
+	if (val != connectionTimeout) {
+		connectionTimeout = val;
+		connectionTimeoutReceived = true;
+	}
+}
+
+void FTPWrapper::setTransferTimeout(uint32_t val) {
+	if (val != transferTimeout) {
+		transferTimeout = val;
+		transferTimeoutReceived = true;
+	}
+}
+
 //get handle if null
 //start with all common initialization actions
 //from descendant initialize
@@ -127,6 +220,7 @@ void FTPWrapper::initialize() {
 
 		SPLAPPTRC(L_DEBUG, "FTPWrapper::initialize initialize curl lib", debugAspect);
 		curl = curl_easy_init(); //first init action set result
+		//std::cout << curl << std::endl;
 		if (curl) {
 			res = CURLE_OK;
 			if (verbose) {
@@ -156,8 +250,8 @@ void FTPWrapper::initialize() {
 				case ftpSSLAll:
 					sslOption = CURLFTPSSL_ALL;
 					break;
-                default:
-                    sslOption = CURLFTPSSL_NONE;
+				default:
+					sslOption = CURLFTPSSL_NONE;
 				}
 				if (sslOption != CURLFTPSSL_NONE) {
 					action = "CURLOPT_FTP_SSL";
@@ -238,6 +332,32 @@ bool FTPWrapper::perform() {
 				credentialChange = false;
 			}
 		}
+		//CURLOPT_NOSIGNAL must be set if more than one ftp operator are fused in one pe an no dynamic dns support is available
+		//otherwise we will see aborts
+		if ((wrapperCount > 1) && (! asyncDnsSupport)) {
+			if ((connectionTimeoutReceived || transferTimeoutReceived) && (CURLE_OK == res)) {
+				action = "CURLOPT_NOSIGNAL";
+				long nosig = 1;
+				SPLAPPTRC(L_DEBUG, "set CURLOPT_NOSIGNAL = 1", debugAspect);
+				res = curl_easy_setopt(curl, CURLOPT_NOSIGNAL, nosig);
+			}
+		}
+		if (connectionTimeoutReceived && (CURLE_OK == res)) {
+			action = "CURLOPT_CONNECTTIMEOUT";
+			SPLAPPTRC(L_DEBUG, "connectionTimeout change : " << connectionTimeout, debugAspect);
+			res = curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, connectionTimeout);
+			if (CURLE_OK == res) {
+				connectionTimeoutReceived = false;
+			}
+		}
+		if (transferTimeoutReceived && (CURLE_OK == res)) {
+			action = "CURLOPT_TIMEOUT";
+			SPLAPPTRC(L_DEBUG, "transferTimeout change : " << transferTimeout, debugAspect);
+			res = curl_easy_setopt(curl, CURLOPT_TIMEOUT, transferTimeout);
+			if (CURLE_OK == res) {
+				transferTimeoutReceived = false;
+			}
+		}
 		if (CURLE_OK != res) {
 			THROW(SPL::SPLRuntime, "FTPReaderWrapper initialization error action " << action << ", curl says: " << curl_easy_strerror(res));
 		}
@@ -254,6 +374,7 @@ bool FTPWrapper::perform() {
 			result = true;
 		} else {
 			noTransferFailures++;
+			resultCodeForCOF = res;
 			error = "libcurl perform operation failed! curl says: ";
 			error+= curl_easy_strerror(res);
 			result = false;
@@ -376,7 +497,6 @@ FTPReaderWrapper::FTPReaderWrapper(
 					bool useEPRT_,
 					/*bool usePRET_, */
 					bool skipPASVIp_,
-					//OperatorObject * op_,
 					void * op_,
 					Callback cb_) :
 	FTPTransportWrapper(closeConnectionMode_, protocol_, verbose_, createMissingDirs_, debugAspect_, useEPSV_, useEPRT_, /*bool usePRET_, */ skipPASVIp_),
@@ -418,7 +538,6 @@ bool FTPReaderWrapper::perform() {
 size_t FTPReaderWrapper::writeCallback(void * buffer, size_t size, size_t count) {
 	SPLAPPTRC(L_TRACE, "must write size=" << size << " count=" << count << " bytes", debugAspect);
 	size_t result;
-	//size_t result = myself->op->*operatorCallback(buffer, size, count, ds->op);
 	if (shutdown) { //abort transfer in case of shutdown
 		result = size * count;
 		result--; //make sure the return differs

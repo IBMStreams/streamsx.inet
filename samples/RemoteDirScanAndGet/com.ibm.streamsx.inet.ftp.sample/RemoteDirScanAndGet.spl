@@ -50,8 +50,9 @@ public composite RemoteDirScanAndGet {
 	}
 	//scan the remote directory
 	(
-		stream<rstring fileName, uint64 size, rstring date, rstring user, boolean isFile> FilenameStream as OUT;
-		stream<rstring error> ErrorStream
+		stream<rstring fileName, uint64 size, rstring date, rstring user, boolean isFile, uint32 transferCount, uint32 failureCount, uint64 bytesTransferred> FilenameStream as OUT;
+		//stream<rstring error> ErrorStream
+		stream<rstring errorText, int32 error, uint32 transferCount, uint32 failureCount, uint64 bytesTransferred> ErrorStream as ERR
 	) = FTPReader(TriggerStream) {
 		param
 			protocol : $protocol;
@@ -62,12 +63,29 @@ public composite RemoteDirScanAndGet {
 			password : $password;
 			useEPSV : false;
 			curlVerbose : $verbosityDirScan;
-		output OUT :
-			fileName = FileName(),
-			size = FileSize(),
-			date = FileDate(),
-			user = FileUser(),
-			isFile = IsFile();
+		output
+			OUT :
+				fileName = FileName(),
+				size = FileSize(),
+				date = FileDate(),
+				user = FileUser(),
+				isFile = IsFile(),
+				//transferCount = NoTransfers(),
+				transferCount = TransferCount(),
+				//failureCount =  NoTransferFailures(),
+				failureCount = TransferFailureCount(),
+				//bytesTransferred = NoBytesTransferred();
+				bytesTransferred = BytesTransferred();
+			ERR:
+				errorText = ErrorText(),
+				//error = Error(),
+				error = ErrorCode(),
+				//transferCount = NoTransfers(),
+				transferCount = TransferCount(),
+				//failureCount =  NoTransferFailures(),
+				failureCount =  TransferFailureCount(),
+				//bytesTransferred = NoBytesTransferred();
+				bytesTransferred = BytesTransferred();
 		config placement : partitionColocation("DIR");
 	}
 	//print the results
@@ -182,8 +200,9 @@ public composite RemoteDirScanAndGet {
 	}
 	//move the file into archive directory
 	(
-		stream<boolean success, rstring command, rstring fileName, rstring file2> ResultStream as OUT;
-		stream<rstring error> ResultErrorStream
+		stream<boolean success, rstring command, rstring fileName, rstring file2, uint32 transferCount, uint32 failureCount> ResultStream as OUT;
+		//stream<rstring error> ResultErrorStream
+		stream<rstring errorText, int32 error, uint32 transferCount, uint32 failureCount> ResultErrorStream as ERR
 	) = FTPCommand(CommandStream as IN) {
 		param
 			protocol : $protocol;
@@ -196,9 +215,22 @@ public composite RemoteDirScanAndGet {
 			password : $password;
 			connectionCloseMode : never;
 			curlVerbose : $verbosityCommand;
-		output OUT :
-			fileName = IN.file,
-			success = Success();
+		output
+			OUT :
+				fileName = IN.file,
+				success = Success(),
+				//transferCount = NoCommands(),
+				transferCount = CommandCount(),
+				//failureCount =  NoFailures();
+				failureCount =  CommandFailureCount();
+			ERR :
+				errorText = ErrorText(),
+				//error = Error(),
+				error = ErrorCode(),
+				//transferCount = NoTransfers(),
+				transferCount = CommandCount(),
+				//failureCount =  NoTransferFailures();
+				failureCount = CommandFailureCount();
 		config placement : partitionColocation("MOVE");
 	}
 	//print out the command and the time
