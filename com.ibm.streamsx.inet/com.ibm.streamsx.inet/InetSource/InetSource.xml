@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 
-<!-- Copyright (C) 2010,2012-2014, International Business Machines     -->
+<!-- Copyright (C) 2010,2012-2016, International Business Machines     -->
 <!-- Corporation.  All Rights Reserved                                 -->
 
 <operatorModel
@@ -28,8 +28,13 @@ The two operators differ in the following ways:
   An example of multi-target reading is in the `WeatherConditions.spl` file within the Commodity Purchasing Sample Application,
   where 24 HTTP-based URLs are simultaneously monitored for changes.
 
-The output stream schema can contain exactly one attribute of either rstring or list&lt;rstring&gt; data types.
-The output stream of the `InetSource` operator can be fed into a `Functor` operator with custom logic to parse the rstring data
+The data retrieved is assigned to the first attribute in the operator's output port. The first output attribute may be of type `rstring`, `list&lt;rstring&gt;`, or `blob`.
+When the first attribute is of type `rstring` or `list&lt;rstring&gt;`, the retrieved data assumed to contain text: the operator parses the data into lines and assigns them to the attribute in one or more output tuples, according to the `emitTuplePerXxxx` parameters.
+When the first attribute is of type `blob`, all of the retrieved data is assigned to the attribute in one output tuple, and the `emitTuplePerXxxx` parameters are ignored.
+
+If the operator's output port has a second attribute, it must be of type `rstring`. The operator will assign the URL of the location the data was retrieved from to the second attribute in each output tuple.
+
+The output stream of the `InetSource` operator can be fed into a `Functor` operator with custom logic to parse the data
 into any number of SPL types. For more information and examples, see the `WeatherConditions.spl` file 
 within the Commodity Purchasing Sample Application.
 
