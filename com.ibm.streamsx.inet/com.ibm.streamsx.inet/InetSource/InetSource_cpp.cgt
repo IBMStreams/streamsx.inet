@@ -21,16 +21,17 @@
   my $urlAttributeName = $oport->getNumberOfAttributes()>1 ? $oport->getAttributeAt(1)->getName() : undef;
   my $urlAttributeType = $oport->getNumberOfAttributes()>1 ? $oport->getAttributeAt(1)->getSPLType() : undef;
 
-  # the type of the data attribute in the output tuple must be either 'rstring' or 'list<rstring>' or 'blob'
-  SPL::CodeGen::exit("sorry, output attribute '$dataAttributeName' must be of type 'rstring' or 'list<rstring>' or 'blob', not '$dataAttributeType'") unless $dataAttributeType eq "rstring" || $dataAttributeType eq "list<rstring>" || $dataAttributeType eq "blob";
+  # the type of the first attribute in the output tuple must be either 'rstring' or 'list<rstring>', 'blob', or 'xml'
+  SPL::CodeGen::exit("sorry, output attribute '$dataAttributeName' must be of type 'rstring' or 'list<rstring>' or 'blob' or 'xml', not '$dataAttributeType'") unless $dataAttributeType eq "rstring" || $dataAttributeType eq "list<rstring>" || $dataAttributeType eq "blob" || $dataAttributeType eq "xml";
 
-  # the type of the URL attribute in the output tuple must be 'rstring', if it is specified at all
+  # the type of the second attribute in the output tuple must be 'rstring', if it is specified at all
   SPL::CodeGen::exit("sorry, output attribute '$urlAttributeName' must be of type 'rstring', not '$dataAttributeType'") if $urlAttributeName && $urlAttributeType ne "rstring";
 
   # we will handle the data attribute in the output tuple differently depending upon its type
   my $dataAttributeIsString = 0;   
   my $dataAttributeIsList = 0;
   my $dataAttributeIsBlob = 0;
+  my $dataAttributeIsXML = 0;
 
   # create a variable to hold the parameters as I get them
   my $parameter = "";
@@ -71,6 +72,10 @@
   elsif ($dataAttributeType eq "blob")
   {
     $dataAttributeIsBlob = 1;
+  }
+  elsif ($dataAttributeType eq "xml")
+  {
+    $dataAttributeIsXML = 1;
   }
 
 
@@ -490,7 +495,25 @@ void MY_OPERATOR::process(uint32_t idx)
           SPLAPPTRC(L_DEBUG, "Submitting output tuple with 'blob' data attribute " << tuple, "InetSource");
           submit(tuple, 0);
 
-<% } # end -- if data attribute is blob %>
+<% } elsif ($dataAttributeIsXML) { # end -- if data attribute is blob %>
+
+          /*
+           * Here the data attribute is XML, so the entire content fetched from the 'retriever'
+           * is converted to XML, assigned to the attribute, and submitted. Note that XML
+           * conversion exceptions are caught and logged, and the tuple discarded without
+           * emitting any output.
+          */
+          try {
+            tuple.clear();
+            tuple.set_<%=$dataAttributeName%>( SPL::xml( "", fetchContent.c_str(), fetchContent.length() ) );
+            <% print("tuple.set_$urlAttributeName( retriever->targetURL() );\n") if $urlAttributeName; %>
+            SPLAPPTRC(L_DEBUG, "Submitting output tuple with 'xml' data attribute " << tuple, "InetSource");
+            submit(tuple, 0);
+          } catch (const SPL::SPLRuntimeException& e) {
+            SPLLOG(L_ERROR, "runtime error " << e.what() << " processing data from " << retriever->targetURL() << ", " << e.getExplanation(), "InetSource");
+          }
+
+<% } # end -- if data attribute is xml %>
 
 
 <% if($doNotStreamInitialFetch) { %>

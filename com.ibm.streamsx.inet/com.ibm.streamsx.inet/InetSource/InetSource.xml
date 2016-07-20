@@ -17,20 +17,25 @@ and generates a stream from those contents. This operator can also be used to st
 The `InetSource` operator shares some characteristics with the `FileSource` operator from the IBM Streams Processing Language (SPL)
 standard toolkit, but it provides more functions. 
 The two operators differ in the following ways:
+
 * The `FileSource` operator reads from local files.
   In addition to reading local files, the `InetSource` operator supports remote reading of files by using HTTP, HTTPS, and FTP.
+
 * By default, the `FileSource` operator reads its target input only once. 
   The `InetSource` operator periodically checks the target files for updates on a user-controllable schedule.
   In addition, you can choose to use the `InetSource` operator to either stream out of the entire target file contents on each read,
   or stream out only the additions to the contents of the target file since the previous read.
+
 * The `FileSource` operator supports a single target for reading, while the `InetSource` operator can support multiple targets.
   The URI of each target can use any of the supported protocols (HTTP, HTTPS, FTP, FTPS, or FILE) and a mix of these protocols.
   An example of multi-target reading is in the `WeatherConditions.spl` file within the Commodity Purchasing Sample Application,
   where 24 HTTP-based URLs are simultaneously monitored for changes.
 
-The data retrieved is assigned to the first attribute in the operator's output port. The first output attribute may be of type `rstring`, `list&lt;rstring&gt;`, or `blob`.
-When the first attribute is of type `rstring` or `list&lt;rstring&gt;`, the retrieved data assumed to contain text: the operator parses the data into lines and assigns them to the attribute in one or more output tuples, according to the `emitTuplePerXxxx` parameters.
-When the first attribute is of type `blob`, all of the retrieved data is assigned to the attribute in one output tuple, and the `emitTuplePerXxxx` parameters are ignored.
+The data retrieved is assigned to the first attribute in the operator's output port. The first output attribute may be of type `rstring`, `list&lt;rstring&gt;`, `blob`, or `xml`:
+
+* When the first attribute is of type `rstring` or `list&lt;rstring&gt;`, the retrieved data assumed to contain text: the operator parses the data into lines and assigns them to the attribute in one or more output tuples, according to the `emitTuplePerXxxx` parameters.
+
+* When the first attribute is of type `blob` or `xml`, all of the retrieved data is assigned to the attribute in one output tuple, and the `emitTuplePerXxxx` parameters are ignored. But if the attribute is of type `xml` and the retrieved data contains invalid XML, an error is logged and no output is produced.
 
 If the operator's output port has a second attribute, it must be of type `rstring`. The operator will assign the URL of the location the data was retrieved from to the second attribute in each output tuple.
 
