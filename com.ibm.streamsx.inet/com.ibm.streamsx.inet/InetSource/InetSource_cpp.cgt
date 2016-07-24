@@ -141,7 +141,7 @@ MY_OPERATOR::MY_OPERATOR()
 }
 
 void MY_OPERATOR::addRetriever(const std::string&  iURI) {
-    SPLAPPTRC(L_DEBUG, "Using " << iURI << "' as the input URI...","InetSource");
+    SPLAPPTRC(L_DEBUG, "Using '" << iURI << "' as an input URI...","InetSource");
 
       InetRetriever* retriever = new InetRetriever(iURI);
 <% if($incrementalFetch) { %>
@@ -163,13 +163,21 @@ std::string MY_OPERATOR::checkURI(const std::string & iURI) {
       // Ensure that the URI is correctly formatted
       uri.init(iURI);
     }
-    catch(DistilleryException& e)
-    // Malformed input URI -- issue message and shut down the PE
+    catch(DistilleryException& e) 
     {
+      // Malformed input URI -- issue message and shut down the PE
       SPL::rstring msg = INET_MALFORMED_URI(iURI);
       SPLAPPLOG(L_ERROR, msg, "InetSource");
       SPL::Functions::Utility::shutdownPE();
     }
+    catch(std::exception& e) 
+    {
+      // Malformed input URI -- issue message and shut down the PE
+      SPL::rstring msg = INET_MALFORMED_URI(iURI);
+      SPLAPPLOG(L_ERROR, msg, "InetSource");
+      SPL::Functions::Utility::shutdownPE();
+    }
+
     if((iURI.compare(0, 8, relFileProtocol) == 0) && (iURI.compare(0, 9, absFileProtocol) != 0))
     // The URI was declared as a relative path/filename (relative to the PE's data directory).
     // Compute the absolute path/filename and assign it back to iURI. 
