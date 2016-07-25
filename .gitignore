@@ -14,6 +14,14 @@ impl/nl/include/*.h
 /com.ibm.streamsx.inet/com.ibm.streamsx.inet.rest/*/*.gif
 /com.ibm.streamsx.inet/com.ibm.streamsx.inet.http/*/*.gif
 
+# more generated operator and function models
+/com.ibm.streamsx.inet/com.ibm.streamsx.inet.http/HTTPGetJSONContent/HTTPGetJSONContent.xml
+/com.ibm.streamsx.inet/com.ibm.streamsx.inet.rest/HTTPJSONInjection/HTTPJSONInjection.xml
+/com.ibm.streamsx.inet/com.ibm.streamsx.inet.rest/native.function/SPL_JNIFunctions_com_ibm_streamsx_inet_rest.h
+/com.ibm.streamsx.inet/com.ibm.streamsx.inet.rest/native.function/javaFunction.xml
+/com.ibm.streamsx.inet/impl/nl/include/InetResource.h
+
+# more generated files
 samples/*/output
 samples/*/toolkit.xml
 /samples/*/doc
