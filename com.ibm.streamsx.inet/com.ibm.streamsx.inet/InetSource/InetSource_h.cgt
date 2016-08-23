@@ -121,6 +121,8 @@ private:
   SPL::rstring intraRecordPadValue_;
   SPL::float64 fetchInterval_;
   bool punctPerFetch_;
+  int32_t iterations_;
+  int32_t iteration_;
   uint32_t emitTuplePerRecordCount_;
   bool dynamicURL_;
   MY_OPERATOR(const MY_OPERATOR& op);
