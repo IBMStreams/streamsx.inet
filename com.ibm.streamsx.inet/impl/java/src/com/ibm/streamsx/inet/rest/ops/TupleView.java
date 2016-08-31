@@ -28,6 +28,9 @@ public class TupleView extends ServletOperator {
 	@Parameter(optional=true, cardinality=-1, description="Names of attributes to partition the window by")
 	public void setPartitionKey(String[] attributeNames) {}
 	
+    @Parameter(optional = true, description = "List of headers to insert into the http reply. Formatted as header:value")
+    public void setHeaders(String[] headers) {}
+    
 	static final String DESC = "REST HTTP or HTTPS API to view tuples from windowed input ports.\\n" + 
 			"Embeds a Jetty web server to provide HTTP REST access to the collection of tuples in " + 
 			"the input port window at the time of the last eviction for tumbling windows, " + 
@@ -45,6 +48,7 @@ public class TupleView extends ServletOperator {
 			"would match the SPL partitionKey setting of: `partitionKey: “firstName”, “lastName”;`. When a window is partitioned and no partition query parameter is provided the data for all partitions is returned.\\n" + 
 			"* `attribute` – Restricts the returned data to the named attributes. Data is returned in the order the attribute names are provided. When not provided, all attributes in the input tuples are returned. E.g. `?format=json&attribute=lastName&attribute=city` will return only the `lastName` and `city` attributes in that order with `lastName` first.\\n" + 
 			"* `suppress` – Suppresses the named attributes from the output. When not provided, no attributes are suppressed. suppress is applied after applying the query parameter attribute. E.g. `?suppress=firstName&suppress=lastName` will not include lastName or firstName in the returned data.\\n" +
+			"* `callback` – Wrappers the returned JSON in a call to callbackvalue(...json...); to enable JSONP processing.\\n" +
 			"Query parameters are ignored if the input port's schema is `tuple<rstring jsonString>`.\\n" +
 			"\\n" + 
 			"The fixed URL `/ports/info` returns meta-data (using JSON) about all of the Streams ports that have associated URLs.\\n" + 
