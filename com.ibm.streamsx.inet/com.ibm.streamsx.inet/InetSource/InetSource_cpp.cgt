@@ -5,9 +5,11 @@
 <%SPL::CodeGen::implementationPrologue($model);%>
 
 <%
+  require InetResource;
+
   my $ccContext = $model->getContext()->getOptionalContext("ConsistentRegion");
   if (defined $ccContext) {
-    SPL::CodeGen::exitln("The following operator is not supported in a consistent region: InetSource.");
+    SPL::CodeGen::exitln(InetResource::INET_CONSISTENT_CHECK("InetSource"));
   }
   
 my $oport = $model->getOutputPortAt(0);
@@ -17,7 +19,7 @@ my $oport = $model->getOutputPortAt(0);
   # Check the attribute type in the output tuple to make sure it is either list<string> or string
   if($oportSPLType ne "rstring" && $oportSPLType ne "list<rstring>")
   {
-    SPL::CodeGen::exit("Output attribute '{$oportSPLType}' must be of type rstring or list<rstring>. It was declared as type '{$oportSPLType}'.");
+    SPL::CodeGen::exitln(InetResource::INET_OPORT_TYPE_CHECK_1($oportAttr->getName(), "$oportSPLType"));
   }
 
   # we handle the list<rstring> output type differently than the rstring output type
@@ -62,11 +64,11 @@ my $oport = $model->getOutputPortAt(0);
     # scalar attributes in output tuple
     if(($emitTuplePerFetch) || ($emitTuplePerURI))
     {
-      SPL::CodeGen::exit("The emitTuplePerFetch and emitTuplePerURI parameters are valid for list-based attributes only.  The attribute was declared as type '{$oportSPLType}'.");
+      SPL::CodeGen::exitln(InetResource::INET_PARAM_CHECK_1("$oportSPLType"));
     }
     elsif($value > 1)
     {
-      SPL::CodeGen::exit("Values of the emitTuplePerRecordCount parameter greater than one are valid for list-based attributes only.  The declared value was '{$value}'.");
+      SPL::CodeGen::exitln(InetResource::INET_PARAM_CHECK_2("$value"));
     }
   }
 
@@ -155,6 +157,13 @@ std::string MY_OPERATOR::checkURI(const std::string & iURI) {
       uri.init(iURI);
     }
     catch(DistilleryException& e)
+    // Malformed input URI -- issue message and shut down the PE
+    {
+      SPL::rstring msg = INET_MALFORMED_URI(iURI);
+      SPLAPPLOG(L_ERROR, msg, "InetSource");
+      SPL::Functions::Utility::shutdownPE();
+    }
+    catch(std::exception& e)
     // Malformed input URI -- issue message and shut down the PE
     {
       SPL::rstring msg = INET_MALFORMED_URI(iURI);

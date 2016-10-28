@@ -44,14 +44,34 @@
       <!-- TRNOTE Please start translating the following entries.          -->
       <!-- =============================================================== -->
       <group>
-        <trans-unit id="StreamsInetToolkitMessages_CDIST0200" extraData="INET_MALFORMED_URI" resname="CDIST0200E">
-          <source>The Uniform Resource Identifier string {0} specified in the URIList parameter contains a syntax error.  The Processing Element will shut down now.</source>
+        <!-- NOTE:  The Internet Toolkit is assigned message ID range CDIST0200 – CDIST0249 -->
+        <trans-unit id="StreamsInetToolkitMessages_CDIST0200" extraData="INET_CONSISTENT_CHECK" resname="CDIST0200E">
+          <source>The following operator is not supported in a consistent region: {0}.</source>
+          <!--TRNOTE Do not translate the word consistent region -->
         </trans-unit>
-        <trans-unit id="StreamsInetToolkitMessages_CDIST0201" extraData="INET_NONZERO_LIBCURL_RC" resname="CDIST0201W">
-          <source>A Uniform Resource Identifier retrieval from {0} was not successful.  The numeric return code from the libcurl agent was {1,number,integer} and the error message text was: {2}.  The Processing Element will continue running.</source>
+        <trans-unit id="StreamsInetToolkitMessages_CDIST0201" extraData="INET_OPORT_TYPE_CHECK_1" resname="CDIST0201E">
+          <source>Output attribute ''{0}'' must be of type rstring or list&lt;rstring&gt;. It was declared as type {1}.</source>
+          <!--TRNOTE Do not translate the word rstring and list -->
         </trans-unit>
-        <trans-unit id="StreamsInetToolkitMessages_CDIST0202" extraData="INET_NONZERO_LIBCURL_RC_REPEATED" resname="CDIST0202W">
-          <source>A Uniform Resource Identifier retrieval from {0} has not been successful for the last {3,number,integer} attempts.  The numeric return code from the libcurl agent was {1,number,integer} and the error message text was: {2}.  The Processing Element will continue running.</source>
+        <trans-unit id="StreamsInetToolkitMessages_CDIST0202" extraData="INET_PARAM_CHECK_1" resname="CDIST0202E">
+          <source>The emitTuplePerFetch and emitTuplePerURI parameters are valid for list-based attributes only. The attribute was declared as type ''{0}''.</source>
+          <!--TRNOTE Do not translate the word emitTuplePerFetch and emitTuplePerURI -->
+        </trans-unit>
+        <trans-unit id="StreamsInetToolkitMessages_CDIST0203" extraData="INET_PARAM_CHECK_2" resname="CDIST0203E">
+          <source>Values of the emitTuplePerRecordCount parameter greater than one are valid for list-based attributes only. The declared value was ''{0}''.</source>
+          <!--TRNOTE Do not translate the word emitTuplePerRecordCount -->
+        </trans-unit>
+        <trans-unit id="StreamsInetToolkitMessages_CDIST0204" extraData="INET_MALFORMED_URI" resname="CDIST0204E">
+          <source>The Uniform Resource Identifier string {0} specified in the URIList parameter contains a syntax error. The Processing Element will shut down now.</source>
+          <!--TRNOTE Do not translate 'Uniform Resource Identifier' and 'Processing Element' -->
+        </trans-unit>
+        <trans-unit id="StreamsInetToolkitMessages_CDIST0230" extraData="INET_NONZERO_LIBCURL_RC" resname="CDIST0230W">
+          <source>A Uniform Resource Identifier retrieval from {0} was not successful. The numeric return code from the libcurl agent was {1,number,integer} and the error message text was: {2}. The Processing Element will continue running.</source>
+          <!--TRNOTE Do not translate 'Uniform Resource Identifier' and 'Processing Element' -->
+        </trans-unit>
+        <trans-unit id="StreamsInetToolkitMessages_CDIST0231" extraData="INET_NONZERO_LIBCURL_RC_REPEATED" resname="CDIST0231W">
+          <source>A Uniform Resource Identifier retrieval from {0} has not been successful for the last {3,number,integer} attempts. The numeric return code from the libcurl agent was {1,number,integer} and the error message text was: {2}. The Processing Element will continue running.</source>
+          <!--TRNOTE Do not translate 'Uniform Resource Identifier', 'Processing Element' and libcurl -->
         </trans-unit>
       </group>
     </body>
