@@ -48,8 +48,8 @@ Alternatively, you can fully qualify the operators that are provided by toolkit 
 4. Start the InfoSphere Streams instance. 
 5. Run the application. You can submit the application as a job by using the **streamtool submitjob** command or by using Streams Studio. 
     </description>
-    <version>2.0.2</version>
-    <requiredProductVersion>4.0.0.0</requiredProductVersion>
+    <version>2.1.0</version>
+    <requiredProductVersion>4.2.0.0</requiredProductVersion>
   </identity>
   <dependencies/>
   <resources>

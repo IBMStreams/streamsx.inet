@@ -45,3 +45,4 @@ com.ibm.streamsx.inet/impl/lib/*.jar
 
 # temporary directories
 tmp
+/.project
