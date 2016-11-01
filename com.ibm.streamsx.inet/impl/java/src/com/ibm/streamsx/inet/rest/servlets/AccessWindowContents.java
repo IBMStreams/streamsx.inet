@@ -112,16 +112,31 @@ public class AccessWindowContents extends HttpServlet {
 
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
+        
+        // Need the list of headers 
+        final List<String> headers = windowContents.getContext().getParameterValues("headers");
+        for (String header: headers)
+        {
+        	String[] splitheader = header.split(":");
+        	if (splitheader.length == 2)
+        		response.setHeader(splitheader[0],  splitheader[1]);
+        }
         response.setHeader("Cache-Control",
                 "no-cache, no-store, must-revalidate");
         response.setStatus(HttpServletResponse.SC_OK);
 
         response.setContentType("application/json");
+        if (request.getParameter("callback") != null)
+		{
+        	out.print(request.getParameter("callback"));
+        	out.print("(");
+		}
         if (isPureJson)
             formatPureJSON(out, tuples);
         else
             formatJSON(out, tuples, attributes);
-
+        if (request.getParameter("callback") != null)
+        	out.println(");");
         out.flush();
         out.close();
     }
