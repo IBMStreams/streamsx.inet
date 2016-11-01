@@ -36,6 +36,10 @@ MY_OPERATOR::InetRetriever::InetRetriever(const std::string& targURL) throw(int)
 
     // Tell curl to have the server provide the "last modified at" timestamp when we retrieve
     curl_easy_setopt(_curlHandle, CURLOPT_FILETIME, 1);
+
+    // some servers insist on knowing who is asking
+    curl_easy_setopt(_curlHandle, CURLOPT_USERAGENT, "IBMStreams/4.0");
+ 
   }
 
 MY_OPERATOR::InetRetriever::~InetRetriever()
@@ -67,12 +71,10 @@ std::string MY_OPERATOR::InetRetriever::fetch() throw(CURLcode)
     std::string result;
 
     // Unless requested, don't retrieve again if unmodified since last retrieval
-    if (!_ignoreLastModTime)
+    if (!_ignoreLastModTime && _lastModTime>0)
       {
         // Tell curl to not retrieve the file if it hasn't changed since our last retrieval
-        curl_easy_setopt(_curlHandle, CURLOPT_TIMECONDITION,
-            CURL_TIMECOND_IFMODSINCE);
-
+        curl_easy_setopt(_curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_IFMODSINCE);
         curl_easy_setopt(_curlHandle, CURLOPT_TIMEVALUE, _lastModTime);
       }
     else

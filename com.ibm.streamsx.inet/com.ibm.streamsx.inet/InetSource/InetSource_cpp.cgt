@@ -21,7 +21,7 @@
   my $urlAttributeName = $oport->getNumberOfAttributes()>1 ? $oport->getAttributeAt(1)->getName() : undef;
   my $urlAttributeType = $oport->getNumberOfAttributes()>1 ? $oport->getAttributeAt(1)->getSPLType() : undef;
 
-  # the type of the first attribute in the output tuple must be either 'rstring' or 'list<rstring>', 'blob', or 'xml'
+  # the type of the first attribute in the output tuple must be either 'rstring', 'list<rstring>', 'blob', or 'xml'
   SPL::CodeGen::exit("sorry, output attribute '$dataAttributeName' must be of type 'rstring' or 'list<rstring>' or 'blob' or 'xml', not '$dataAttributeType'") unless $dataAttributeType eq "rstring" || $dataAttributeType eq "list<rstring>" || $dataAttributeType eq "blob" || $dataAttributeType eq "xml";
 
   # the type of the second attribute in the output tuple must be 'rstring', if it is specified at all
@@ -120,6 +120,20 @@ using namespace streams_boost;
 @include "URIHelperCpp.cgt";
 
 
+// This macro wraps the specified line of 'code' in an 'if' block that executes
+// only if the application's tracing level is at least as high as the specified 'level'.
+// Note that this macro should be defined in '.../system/impl/include/TRC/DistilleryDebug.h'
+// or '.../include/SPL/Runtime/Common/RuntimeDebug.h'.
+
+#define SPLAPPTRC_CODE(level, code) do { \
+  int ilvl = Distillery::debug::EXTERNAL_DEBUG_LEVEL_MAP_TO_INTERNAL[level]; \
+  if ( __builtin_expect( (ilvl <= Distillery::debug::app_trace_level) , 0 ) ) \
+  { \
+    code ; \
+  } \
+} while(0)
+
+
 MY_OPERATOR::MY_OPERATOR()
   : MY_BASE_OPERATOR(), 
     relFileProtocol("file:///"),
@@ -130,6 +144,8 @@ MY_OPERATOR::MY_OPERATOR()
     intraRecordPadValue_(<%=(($parameter = $model->getParameterByName("intraRecordPadValue"))?SPL::CodeGen::getParameterCppInitializer($parameter):"\" \"")%>), 
     fetchInterval_(<%=(($parameter = $model->getParameterByName("fetchInterval"))?SPL::CodeGen::getParameterCppInitializer($parameter):600.0)%>), 
     punctPerFetch_(<%=(($parameter = $model->getParameterByName("punctPerFetch"))?SPL::CodeGen::getParameterCppInitializer($parameter):'false')%>), 
+    iterations_(<%=(($parameter = $model->getParameterByName("iterations"))?SPL::CodeGen::getParameterCppInitializer($parameter):0)%>), 
+    iteration_(0), 
 <% if($dataAttributeIsList) { %>
     emitTuplePerRecordCount_(<%=($emitTuplePerRecordCount?SPL::CodeGen::getParameterCppInitializer($emitTuplePerRecordCount):0),%>),
 <% } else { %>
@@ -141,9 +157,15 @@ MY_OPERATOR::MY_OPERATOR()
 }
 
 void MY_OPERATOR::addRetriever(const std::string&  iURI) {
-    SPLAPPTRC(L_DEBUG, "Using '" << iURI << "' as an input URI...","InetSource");
 
+      SPLAPPTRC(L_DEBUG, "Using '" << iURI << "' as an input URI...","InetSource");
+
+      // allocate a curl object for this URL
       InetRetriever* retriever = new InetRetriever(iURI);
+
+      // enable tracing in curl object if this operator is tracing
+      SPLAPPTRC_CODE( L_TRACE, retriever->enableCurlTrace() );
+
 <% if($incrementalFetch) { %>
       retriever->incrementalFetch(<%=$incrementalFetch%>);
 <% } %>
@@ -332,6 +354,7 @@ void MY_OPERATOR::process(uint32_t idx)
         }
         continue;
       }
+
       SPLAPPTRC(L_TRACE, "got " << fetchContent.length() << " bytes from URL " << retriever->targetURL() << " ...","InetSource");
 
 <% if($doNotStreamInitialFetch) { %>
@@ -568,9 +591,18 @@ void MY_OPERATOR::process(uint32_t idx)
     }
 <% } %>
 
+    // if we are not iterating endlessly, increment iteration counter and break out of loop when limit is reached
+    if ( iterations_ != 0 && ++iteration_ >= iterations_ ) break;
+
     // Now pause until it is time to perform the next fetch
+    SPLAPPTRC(L_DEBUG, "waiting " << fetchInterval_ << " seconds before repeating fetches", "InetSource");
     getPE().blockUntilShutdownRequest(fetchInterval_);
-  }
+
+  } // end -- while !getPE().getShutdownRequested()
+
+
+  // emit final punctuation after last fetch iteration
+  submit(Punctuation::FinalMarker, 0);
 
   SPLAPPTRC(L_DEBUG, "Processing complete", "InetSource");
 }
