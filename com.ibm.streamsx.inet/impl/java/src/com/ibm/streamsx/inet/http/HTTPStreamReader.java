@@ -133,7 +133,8 @@ public class HTTPStreamReader extends AbstractOperator {
 				checker.getOperatorContext().getOptionalContext(ConsistentRegionContext.class);
 		
 		if(consistentRegionContext != null) {
-			checker.setInvalidContext( HTTPStreamReader.OPER_NAME + " operator cannot be used inside a consistent region.", new String[] {}); //$NON-NLS-1$
+			checker.setInvalidContext(Messages.getString("CONSISTENT_CHECK_2"),
+									new String[] {HTTPStreamReader.OPER_NAME});
 		}
 	}
 	

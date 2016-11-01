@@ -49,13 +49,13 @@ import com.ibm.streamsx.inet.http.HTTPRequest.RequestType;
 @Icons(location32="impl/java/icons/HTTPPost_32.gif", location16="impl/java/icons/HTTPPost_16.gif")
 public class HTTPPostOper extends AbstractOperator  
 {
-	static final String CLASS_NAME="com.ibm.streamsx.inet.http.HTTPPostOper";
-	static final String OPER_NAME = "HTTPPost";
-        public static final String CONSISTENT_CUT_INTRODUCER="\\n\\n**Behavior in a consistent region**\\n\\n";
+	static final String CLASS_NAME="com.ibm.streamsx.inet.http.HTTPPostOper"; //$NON-NLS-1$
+	static final String OPER_NAME = "HTTPPost"; //$NON-NLS-1$
+        public static final String CONSISTENT_CUT_INTRODUCER="\\n\\n**Behavior in a consistent region**\\n\\n"; //$NON-NLS-1$
 	
 	static final String 
-			MIME_JSON = "application/json",  
-			MIME_FORM = "application/x-www-form-urlencoded";
+			MIME_JSON = "application/json",   //$NON-NLS-1$
+			MIME_FORM = "application/x-www-form-urlencoded"; //$NON-NLS-1$
 
 	private static Logger trace = Logger.getLogger(CLASS_NAME);
 
@@ -64,7 +64,7 @@ public class HTTPPostOper extends AbstractOperator
 	private int maxRetries = 3;
 	private String url = null;
 	private IAuthenticate auth = null;
-	private String authenticationType = "none", authenticationFile = null;
+	private String authenticationType = "none", authenticationFile = null; //$NON-NLS-1$
 	private RetryController rc = null;
 
 	private boolean hasOutputPort = false;
@@ -117,8 +117,8 @@ public class HTTPPostOper extends AbstractOperator
 				checker.getOperatorContext().getOptionalContext(ConsistentRegionContext.class);
 		
 		if(consistentRegionContext != null && consistentRegionContext.isStartOfRegion()) {
-			checker.setInvalidContext( HTTPPostOper.OPER_NAME + " operator cannot be placed at the start of a consistent region.", 
-					new String[] {});
+			checker.setInvalidContext(	Messages.getString("CONSISTENT_CHECK_1"),  //$NON-NLS-1$
+										new String[] {HTTPPostOper.OPER_NAME});
 		}
 	}
 	
@@ -126,7 +126,7 @@ public class HTTPPostOper extends AbstractOperator
 	public void initialize(OperatorContext op) throws Exception  {
 		super.initialize(op);    
 
-		trace.log(TraceLevel.INFO, "Using authentication type: " + authenticationType);
+		trace.log(TraceLevel.INFO, "Using authentication type: " + authenticationType); //$NON-NLS-1$
 		if(authenticationFile != null) {
             authenticationFile = authenticationFile.trim();
         }
@@ -138,16 +138,16 @@ public class HTTPPostOper extends AbstractOperator
 		
 		if((!headerContentType.equals(MIME_FORM) && !headerContentType.equals(MIME_JSON))) {
 			if(getInput(0).getStreamSchema().getAttributeCount() != 1) 
-				throw new Exception("Only a single attribute is permitted in the input stream for content type \"" + headerContentType + "\"");
+				throw new Exception("Only a single attribute is permitted in the input stream for content type \"" + headerContentType + "\""); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		
-		trace.log(TraceLevel.INFO, "URL: " + url);
+		trace.log(TraceLevel.INFO, "URL: " + url); //$NON-NLS-1$
 	}
 
 	@ContextCheck(compile=true)
 	public static boolean checkAuthParams(OperatorContextChecker occ) {
-		return occ.checkDependentParameters("authenticationFile", "authenticationType")
-				&& occ.checkDependentParameters("authenticationProperty", "authenticationType")
+		return occ.checkDependentParameters("authenticationFile", "authenticationType") //$NON-NLS-1$ //$NON-NLS-2$
+				&& occ.checkDependentParameters("authenticationProperty", "authenticationType") //$NON-NLS-1$ //$NON-NLS-2$
 				;
 	}
 
@@ -157,7 +157,7 @@ public class HTTPPostOper extends AbstractOperator
 		StreamSchema schema = stream.getStreamSchema();
 
 		HTTPRequest req = new HTTPRequest(url);
-		req.setHeader("Content-Type", headerContentType);
+		req.setHeader("Content-Type", headerContentType); //$NON-NLS-1$
 		req.setType(RequestType.POST);
 
 		if(headerContentType.equals(MIME_FORM)) {
@@ -181,21 +181,21 @@ public class HTTPPostOper extends AbstractOperator
 		while(true) {
 			try {
 				if(trace.isLoggable(TraceLevel.TRACE))
-					trace.log(TraceLevel.TRACE, "Sending request: " + req.toString());
+					trace.log(TraceLevel.TRACE, "Sending request: " + req.toString()); //$NON-NLS-1$
 				
 				resp = req.sendRequest(auth);
 				
 				if(trace.isLoggable(TraceLevel.TRACE))
-					trace.log(TraceLevel.TRACE, "Got response: " + resp.toString());
+					trace.log(TraceLevel.TRACE, "Got response: " + resp.toString()); //$NON-NLS-1$
 				rc.readSuccess();
 				break;
 			}catch(Exception e) {
 				t=e;
 				rc.readException();
-				trace.log(TraceLevel.ERROR, "Exception", e);
+				trace.log(TraceLevel.ERROR, "Exception", e); //$NON-NLS-1$
 			}
 			if(!shutdown && rc.doRetry()) {
-				trace.log(TraceLevel.ERROR, "Sleeping " + retryDelay +" seconds");
+				trace.log(TraceLevel.ERROR, "Sleeping " + retryDelay +" seconds"); //$NON-NLS-1$ //$NON-NLS-2$
 				sleepABit(rc.getSleep());
 			}
 			else {
@@ -204,7 +204,7 @@ public class HTTPPostOper extends AbstractOperator
 		}
 
 		if(trace.isLoggable(TraceLevel.INFO))
-			trace.log(TraceLevel.INFO, "Response code: " + 
+			trace.log(TraceLevel.INFO, "Response code: " +  //$NON-NLS-1$
 						((resp!=null) ? resp.getResponseCode() : -1) 
 					);
 
@@ -215,27 +215,27 @@ public class HTTPPostOper extends AbstractOperator
 		OutputTuple otup = op.newTuple();
 		
 		if(resp == null) {
-			otup.setString("errorMessage", 
-					t == null ? "Unknown error." : t.getMessage()
+			otup.setString("errorMessage",  //$NON-NLS-1$
+					t == null ? "Unknown error." : t.getMessage() //$NON-NLS-1$
 					);			
-			otup.setInt("responseCode", -1);
+			otup.setInt("responseCode", -1); //$NON-NLS-1$
 		}
 		else {
 			if(trace.isLoggable(TraceLevel.DEBUG))
-				trace.log(TraceLevel.DEBUG, "Response: " + resp.toString());
+				trace.log(TraceLevel.DEBUG, "Response: " + resp.toString()); //$NON-NLS-1$
 			
 			if(resp.getErrorStreamData()!=null)
-				otup.setString("errorMessage", resp.getErrorStreamData());
+				otup.setString("errorMessage", resp.getErrorStreamData()); //$NON-NLS-1$
 	
 			if(resp.getOutputData() != null) {
-				otup.setString("data", resp.getOutputData());
-				otup.setInt("dataSize", resp.getOutputData().length());
+				otup.setString("data", resp.getOutputData()); //$NON-NLS-1$
+				otup.setInt("dataSize", resp.getOutputData().length()); //$NON-NLS-1$
 			}
 	
-			otup.setInt("responseCode", resp.getResponseCode());
+			otup.setInt("responseCode", resp.getResponseCode()); //$NON-NLS-1$
 		}
 		if(trace.isLoggable(TraceLevel.DEBUG))
-			trace.log(TraceLevel.DEBUG, "Sending tuple: " + otup.toString());
+			trace.log(TraceLevel.DEBUG, "Sending tuple: " + otup.toString()); //$NON-NLS-1$
 		op.submit(otup);
 	}
 
@@ -255,15 +255,15 @@ public class HTTPPostOper extends AbstractOperator
 	
 
 	public static final String DESC = 
-			"This operator sends incoming tuples to the specified HTTP server as part of a POST request." +
-			" A single tuple will be sent as a body of one HTTP POST request." +
-			" All attributes of the tuple will be serialized and sent to the server." +
-			" Certain authentication modes are supported." +
-			" Tuples are sent to the server one at a time in order of receipt. If the HTTP server cannot be accessed, the operation" +
-			" will be retried on the current thread and may temporarily block any additional tuples that arrive on the input port." +
-			" By default, the data is sent in application/x-www-form-urlencoded UTF-8 encoded format."  +
+			"This operator sends incoming tuples to the specified HTTP server as part of a POST request." + //$NON-NLS-1$
+			" A single tuple will be sent as a body of one HTTP POST request." + //$NON-NLS-1$
+			" All attributes of the tuple will be serialized and sent to the server." + //$NON-NLS-1$
+			" Certain authentication modes are supported." + //$NON-NLS-1$
+			" Tuples are sent to the server one at a time in order of receipt. If the HTTP server cannot be accessed, the operation" + //$NON-NLS-1$
+			" will be retried on the current thread and may temporarily block any additional tuples that arrive on the input port." + //$NON-NLS-1$
+			" By default, the data is sent in application/x-www-form-urlencoded UTF-8 encoded format."  + //$NON-NLS-1$
 	    CONSISTENT_CUT_INTRODUCER +
-			"\\nThis operator cannot be placed at the start of a consistent region."
+			"\\nThis operator cannot be placed at the start of a consistent region." //$NON-NLS-1$
 		;
 
 }
