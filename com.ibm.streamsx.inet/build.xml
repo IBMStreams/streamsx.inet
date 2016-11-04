@@ -149,7 +149,7 @@ artifacts were left around and caused issues with the ant build.
 		</manifestclasspath>
 		<jar destfile="${impl.lib.dir}/${jarfile}" filesonly="true">
 			<fileset dir="${build.dir}" includes="com/ibm/streamsx/inet/**"/>
-			<fileset dir="${src.dir}" includes="com/ibm/streamsx/inet/http/messages/*.properties"/>
+			<fileset dir="${src.dir}" includes="com/ibm/streamsx/inet/messages/*.properties"/>
 			<manifest>
 				<attribute name="Class-Path" value="${jar.cp.manifest}" />
 			</manifest>

@@ -1,10 +1,10 @@
-package com.ibm.streamsx.inet.http;
+package com.ibm.streamsx.inet.messages;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 public class Messages {
-	private static final String BUNDLE_NAME = "com.ibm.streamsx.inet.http.messages.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "com.ibm.streamsx.inet.messages.messages"; //$NON-NLS-1$
 
 	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 
