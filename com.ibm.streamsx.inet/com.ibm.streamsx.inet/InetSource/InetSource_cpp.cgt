@@ -320,7 +320,7 @@ void MY_OPERATOR::process(uint32_t idx)
 
       // point at the next 'retriever' object
       InetRetriever* retriever = retrievers_.at(i);
-      SPLAPPTRC(L_TRACE, "getting URL " << retriever->targetURL() << " ...","InetSource");
+      SPLAPPTRC(L_INFO, "getting URL " << retriever->targetURL() << " ...","InetSource");
 
       // fetch content from this URL 
       try
@@ -355,7 +355,7 @@ void MY_OPERATOR::process(uint32_t idx)
         continue;
       }
 
-      SPLAPPTRC(L_TRACE, "got " << fetchContent.length() << " bytes from URL " << retriever->targetURL() << " ...","InetSource");
+      SPLAPPTRC(L_INFO, "got " << fetchContent.length() << " bytes from URL " << retriever->targetURL() << " ...","InetSource");
 
 <% if($doNotStreamInitialFetch) { %>
       // if we don't want the initial fetch and we are on that fetch, skip the output
