@@ -4,7 +4,7 @@
 <toolkitInfoModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo" xsi:schemaLocation="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo toolkitInfoModel.xsd">
   <identity>
     <name>com.ibm.streamsx.inet</name>
-   <description>
+    <description>
 The Internet Toolkit provides support for common internet protocols.
 
 This toolkit separates its functionality into a number of namespaces:
