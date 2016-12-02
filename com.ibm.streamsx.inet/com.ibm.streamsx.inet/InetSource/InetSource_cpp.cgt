@@ -595,7 +595,7 @@ void MY_OPERATOR::process(uint32_t idx)
     if ( iterations_ != 0 && ++iteration_ >= iterations_ ) break;
 
     // Now pause until it is time to perform the next fetch
-    SPLAPPTRC(L_DEBUG, "waiting " << fetchInterval_ << " seconds before repeating fetches", "InetSource");
+    SPLAPPTRC(L_INFO, "waiting " << fetchInterval_ << " seconds before repeating fetches", "InetSource");
     getPE().blockUntilShutdownRequest(fetchInterval_);
 
   } // end -- while !getPE().getShutdownRequested()
