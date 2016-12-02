@@ -6,10 +6,18 @@
 #include <cstdlib>
 
 <%
+	require InetResource;
+
 	#warn deprecated COF
 	sub warnDeprecateCof {
-		SPL::CodeGen::warnln("Deprecated custom output function used: %s", @_, $model->getContext()->getSourceLocation());
+		SPL::CodeGen::warnln(InetResource::INET_DEPRECATED_COF(@_), $model->getContext()->getSourceLocation());
 	}
+
+	my $ccContext = $model->getContext()->getOptionalContext("ConsistentRegion");
+	if (defined $ccContext) {
+		SPL::CodeGen::exitln(InetResource::INET_CONSISTENT_CHECK("FTPPutFile"));
+	}
+
 	my $hasPasswordStream = $model->getNumberOfInputPorts() == 2;
 	my $hasErrorStream = $model->getNumberOfOutputPorts() == 2;
 	
@@ -116,10 +124,10 @@
 		if ($hasErrorStream) {
 			$errorOutputPort = $model->getOutputPortAt(1);
 			if (1 != $errorOutputPort->getNumberOfAttributes()) {
-				SPL::CodeGen::exitln("The error output port must have one attribute of type rstring", $errorOutputPort->getSourceLocation());
+				SPL::CodeGen::exitln(InetResource::INET_FTP_READER_OUTPUT_PARAM_CHECK_1(), $errorOutputPort->getSourceLocation());
 			}
 			if (!SPL::CodeGen::Type::isRString($errorOutputPort->getAttributeAt(0)->getSPLType())) {
-				SPL::CodeGen::exitln("The error output port must have one attribute of type rstring", $errorOutputPort->getSourceLocation());
+				SPL::CodeGen::exitln(InetResource::INET_FTP_READER_OUTPUT_PARAM_CHECK_1(), $errorOutputPort->getSourceLocation());
 			}
 		}
 	}

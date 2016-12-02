@@ -12,7 +12,9 @@ All Rights Reserved
     <context>
       <description docHref="doc/${nl}/spldoc/html/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.ftp$FTPPutFile.html">
 The `FTPPutFile` operator can put a local file on a remote host by using FTP, FTPS, or SFTP protocols. 
-You can optionally rename the file after you complete the transfer.</description>
+You can optionally rename the file after you complete the transfer.
+
+The FTPPutFile operator must not be used inside a consistent region!</description>
       <iconUri size="16">ftpPutFile_16.gif</iconUri>
       <iconUri size="32">ftpPutFile_32.gif</iconUri>
       <!-- some optional elements

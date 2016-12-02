@@ -19,6 +19,7 @@ import com.ibm.streams.operator.model.Icons;
 import com.ibm.streams.operator.model.InputPortSet;
 import com.ibm.streams.operator.model.InputPortSet.WindowMode;
 import com.ibm.streams.operator.model.PrimitiveOperator;
+import com.ibm.streamsx.inet.messages.Messages;
 
 @PrimitiveOperator(name="HTTPXMLView", description=XMLView.DESC)
 @InputPortSet(cardinality=1,windowingMode=WindowMode.NonWindowed,
@@ -33,15 +34,14 @@ public class XMLView extends ServletOperator {
 	 * @param checker
 	 */
 	@ContextCheck
-    public static void checkHasXMLAttribute(OperatorContextChecker checker) {
-        StreamingInput<Tuple> port = checker.getOperatorContext().getStreamingInputs().get(0);
+	public static void checkHasXMLAttribute(OperatorContextChecker checker) {
+		StreamingInput<Tuple> port = checker.getOperatorContext().getStreamingInputs().get(0);
 		for (Attribute attr : port.getStreamSchema()) {
-        	if (attr.getType().getMetaType() == MetaType.XML)
-        		return;  	   
-       }
-        
-       checker.setInvalidContext("Input port {0} requires an xml attribute.", new Object[] {port.getName()});
-    }
+			if (attr.getType().getMetaType() == MetaType.XML)
+				return;
+		}
+		checker.setInvalidContext(Messages.getString("INPUT_PORT_PARAM_CHECK_1"), new String[] {port.getName()});
+	}
 	
 	private int attributeIndex = -1;
 	@Override
