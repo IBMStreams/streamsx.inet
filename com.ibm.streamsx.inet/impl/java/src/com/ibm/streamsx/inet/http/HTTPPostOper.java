@@ -43,6 +43,7 @@ import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
 import com.ibm.streams.operator.state.ConsistentRegionContext;
+import com.ibm.streamsx.inet.messages.Messages;
 import com.ibm.streamsx.inet.http.HTTPRequest.RequestType;
 
 @InputPorts(@InputPortSet(cardinality=1, 
@@ -230,11 +231,9 @@ public class HTTPPostOper extends AbstractOperator
 				checker.getOperatorContext().getOptionalContext(ConsistentRegionContext.class);
 		
 		if(consistentRegionContext != null && consistentRegionContext.isStartOfRegion()) {
-			checker.setInvalidContext( HTTPPostOper.OPER_NAME + " operator cannot be placed at the start of a consistent region.", 
-					new String[] {});
+			checker.setInvalidContext(Messages.getString("CONSISTENT_CHECK_1"), new String[] {HTTPPostOper.OPER_NAME});
 		}
 	}
-
 	
 	@Override
 	public void initialize(OperatorContext op) throws Exception  {

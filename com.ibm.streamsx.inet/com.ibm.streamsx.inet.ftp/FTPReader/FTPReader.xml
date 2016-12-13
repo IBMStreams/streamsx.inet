@@ -18,6 +18,8 @@ Separate output functions are available to get dedicated information about the d
 file name, size, or date.
 
 If the operator works as file source, the content of the file can be delivered either in binary format as a `blob` or in text format line by line.
+
+The FTPReader operator must not be used inside a consistent region!
       </description>
       <iconUri size="16">ftpReader_16.gif</iconUri>
       <iconUri size="32">ftpReader_32.gif</iconUri>

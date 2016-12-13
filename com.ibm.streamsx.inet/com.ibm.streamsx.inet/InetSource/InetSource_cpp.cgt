@@ -5,9 +5,11 @@
 <%SPL::CodeGen::implementationPrologue($model);%>
 
 <%
+  require InetResource;
+
   my $ccContext = $model->getContext()->getOptionalContext("ConsistentRegion");
   if (defined $ccContext) {
-    SPL::CodeGen::exitln("The following operator is not supported in a consistent region: InetSource.");
+    SPL::CodeGen::exitln(InetResource::INET_CONSISTENT_CHECK("InetSource"));
   }
   
   # get the output port object
@@ -22,10 +24,10 @@
   my $urlAttributeType = $oport->getNumberOfAttributes()>1 ? $oport->getAttributeAt(1)->getSPLType() : undef;
 
   # the type of the first attribute in the output tuple must be either 'rstring', 'list<rstring>', 'blob', or 'xml'
-  SPL::CodeGen::exit("sorry, output attribute '$dataAttributeName' must be of type 'rstring' or 'list<rstring>' or 'blob' or 'xml', not '$dataAttributeType'") unless $dataAttributeType eq "rstring" || $dataAttributeType eq "list<rstring>" || $dataAttributeType eq "blob" || $dataAttributeType eq "xml";
+  SPL::CodeGen::exit(InetResource::INET_OPORT_TYPE_CHECK_2($dataAttributeName, $dataAttributeType)) unless $dataAttributeType eq "rstring" || $dataAttributeType eq "list<rstring>" || $dataAttributeType eq "blob" || $dataAttributeType eq "xml";
 
   # the type of the second attribute in the output tuple must be 'rstring', if it is specified at all
-  SPL::CodeGen::exit("sorry, output attribute '$urlAttributeName' must be of type 'rstring', not '$dataAttributeType'") if $urlAttributeName && $urlAttributeType ne "rstring";
+  SPL::CodeGen::exit(InetResource::INET_OPORT_TYPE_CHECK_3($urlAttributeName, $dataAttributeType)) if $urlAttributeName && $urlAttributeType ne "rstring";
 
   # we will handle the data attribute in the output tuple differently depending upon its type
   my $dataAttributeIsString = 0;   
@@ -62,11 +64,11 @@
     # scalar attributes in output tuple
     if(($emitTuplePerFetch) || ($emitTuplePerURI))
     {
-      SPL::CodeGen::exit("The emitTuplePerFetch and emitTuplePerURI parameters are valid only for attributes of type 'list<rstring>', not '$dataAttributeType'");
+      SPL::CodeGen::exit(InetResource::INET_PARAM_CHECK_3($dataAttributeType));
     }
     elsif ($value > 1)
     {
-      SPL::CodeGen::exit("Values of the 'emitTuplePerRecordCount' parameter greater than one are valid only for attributes of type 'list<rstring>', not '$value'");
+      SPL::CodeGen::exit(InetResource::INET_PARAM_CHECK_4($value));
     }
   }
   elsif ($dataAttributeType eq "blob")
@@ -541,7 +543,7 @@ void MY_OPERATOR::process(uint32_t idx)
             SPLAPPTRC(L_DEBUG, "Submitting output tuple with 'xml' data attribute " << tuple, "InetSource");
             submit(tuple, 0);
           } catch (const SPL::SPLRuntimeException& e) {
-            SPLLOG(L_ERROR, "discarded XML data from " << retriever->targetURL() << " due to " << e.what() << ", " << e.getExplanation(), "InetSource");
+            SPLAPPTRC(L_ERROR, "discarded XML data from " << retriever->targetURL() << " due to " << e.what() << ", " << e.getExplanation(), "InetSource");
           }
 
 <% } # end -- if data attribute is xml %>

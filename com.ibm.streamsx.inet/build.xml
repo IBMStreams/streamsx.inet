@@ -22,6 +22,7 @@ artifacts were left around and caused issues with the ant build.
 	<property name="build.dir" value="impl/java/classes" />
 	<property name="impl.lib.dir" value="impl/lib" />
 	<property name="lib.dir" value="lib" />
+	<property name="impl.nl.dir" value="impl/nl" />
 	<property name="opt.wssupport.dir" value="opt/wssupport" />
 	<property name="test.run.dir" value="tests" />
 	<property name="test.build.dir" value="${test.run.dir}/bin" />
@@ -45,6 +46,10 @@ artifacts were left around and caused issues with the ant build.
 		<delete dir="${downloads.dir}" />
 		<delete dir="output" />
 		<delete dir="doc" />
+		<delete dir="${impl.nl.dir}/include"/>
+		<delete>
+			<fileset dir="${impl.nl.dir}" includes="*.dat"/>
+		</delete>
 		<delete dir="${test.run.dir}" />
 		<delete dir="${test.build.dir}" />
 
@@ -99,21 +104,20 @@ artifacts were left around and caused issues with the ant build.
 
 	<target name="cpp-clean">
 		<exec executable="make" failonerror="true" dir="impl">
-		  <arg value="-f" />
-		  <arg value="Makefile" />
-		  <arg value="clean" />
+			<arg value="-f" />
+			<arg value="Makefile" />
+			<arg value="clean" />
 		</exec>
 	</target>
 
-	  
-  <target name="indextoolkit" depends="jar,cpp">
-     <echo message="Tookit to index: ${basedir}"/>
-     <exec executable="${streams.install}/bin/spl-make-toolkit">
-        <arg value="--directory"/>
-        <arg value="${basedir}"/>
-        <arg value="-m"/>
-     </exec>
-     </target>
+	<target name="indextoolkit" depends="jar,cpp">
+		<echo message="Tookit to index: ${basedir}"/>
+		<exec executable="${streams.install}/bin/spl-make-toolkit" failonerror="true">
+			<arg value="--directory"/>
+			<arg value="${basedir}"/>
+			<arg value="-m"/>
+		</exec>
+	</target>
 
 	<target name="cleanToolkitxml">
 		<delete>
@@ -134,8 +138,8 @@ artifacts were left around and caused issues with the ant build.
 
 	<target name="compile" depends="init, maven-deps">
 		<javac srcdir="${src.dir}" destdir="${build.dir}" debug="true" includeantruntime="no"
-		     source="1.7" target="1.7"
-		     excludes="com/ibm/streamsx/inet/*/test/**">
+			source="1.7" target="1.7"
+			excludes="com/ibm/streamsx/inet/*/test/**">
 			<classpath>
 				<path refid="cp.compile" />
 			</classpath>
@@ -146,13 +150,16 @@ artifacts were left around and caused issues with the ant build.
 		<manifestclasspath property="jar.cp.manifest" jarfile="${impl.lib.dir}/com.ibm.streamsx.inet.rest.jar">
 			<classpath refid="cp.manifest" />
 		</manifestclasspath>
-		<jar destfile="${impl.lib.dir}/${jarfile}" basedir="${build.dir}" includes="com/ibm/streamsx/inet/**" filesonly="true">
+		<jar destfile="${impl.lib.dir}/${jarfile}" filesonly="true">
+			<fileset dir="${build.dir}" includes="com/ibm/streamsx/inet/**"/>
+			<fileset dir="${src.dir}" includes="com/ibm/streamsx/inet/messages/*.properties"/>
 			<manifest>
 				<attribute name="Class-Path" value="${jar.cp.manifest}" />
 			</manifest>
 		</jar>
 		<delete dir="${build.dir}" />
 	</target>
+
 	<!-- assumes Junit 4.3 (or later) is in $HOME/.ant/lib -->
 	<target name="test" depends="jar">
 		<mkdir dir="${test.run.dir}" />
