@@ -191,6 +191,7 @@ std::string MY_OPERATOR::checkURI(const std::string & iURI) {
     {
       // Malformed input URI -- issue message and shut down the PE
       SPL::rstring msg = INET_MALFORMED_URI(iURI);
+      SPLAPPTRC(L_ERROR, "std::exception:  The Uniform Resource Identifier string " << iURI << " specified in the URIList parameter contains a syntax error. The Processing Element will shut down now.", "InetSource");
       SPLAPPLOG(L_ERROR, msg, "InetSource");
       SPL::Functions::Utility::shutdownPE();
     }
@@ -198,6 +199,7 @@ std::string MY_OPERATOR::checkURI(const std::string & iURI) {
     {
       // Malformed input URI -- issue message and shut down the PE
       SPL::rstring msg = INET_MALFORMED_URI(iURI);
+      SPLAPPTRC(L_ERROR, "std::exception:  The Uniform Resource Identifier string " << iURI << " specified in the URIList parameter contains a syntax error. The Processing Element will shut down now.", "InetSource");
       SPLAPPLOG(L_ERROR, msg, "InetSource");
       SPL::Functions::Utility::shutdownPE();
     }
