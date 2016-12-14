@@ -257,12 +257,12 @@ void MY_OPERATOR::allPortsReady()
  
 void MY_OPERATOR::prepareToShutdown() 
 {
-  SPLAPPTRC(L_DEBUG, "Shutdown Request event received by PE " << getContext().getName(), "InetSource");
+  SPLAPPTRC(L_TRACE, "Shutdown Request event received by PE " << getContext().getName(), "InetSource");
 }
 
 void MY_OPERATOR::process(uint32_t idx)
 {
-  SPLAPPTRC(L_DEBUG, "Processing...", "InetSource");
+  SPLAPPTRC(L_TRACE, "Processing...", "InetSource");
 
   OPort0Type tuple;
   std::string fetchContent; // content fetched from URL
@@ -322,7 +322,7 @@ void MY_OPERATOR::process(uint32_t idx)
 
       // point at the next 'retriever' object
       InetRetriever* retriever = retrievers_.at(i);
-      SPLAPPTRC(L_TRACE, "getting URL " << retriever->targetURL() << " ...","InetSource");
+      SPLAPPTRC(L_DEBUG, "getting URL " << retriever->targetURL() << " ...","InetSource");
 
       // fetch content from this URL 
       try
@@ -357,7 +357,7 @@ void MY_OPERATOR::process(uint32_t idx)
         continue;
       }
 
-      SPLAPPTRC(L_TRACE, "got " << fetchContent.length() << " bytes from URL " << retriever->targetURL() << " ...","InetSource");
+      SPLAPPTRC(L_DEBUG, "got " << fetchContent.length() << " bytes from URL " << retriever->targetURL() << " ...","InetSource");
 
 <% if($doNotStreamInitialFetch) { %>
       // if we don't want the initial fetch and we are on that fetch, skip the output
@@ -467,7 +467,7 @@ void MY_OPERATOR::process(uint32_t idx)
                 tuple.clear();
                 tuple.set_<%=$dataAttributeName%>(recordBuffer);
                 <% print("tuple.set_$urlAttributeName(retriever->targetURL());\n") if $urlAttributeName; %>
-                SPLAPPTRC(L_DEBUG, "Submitting output tuple with 'list<rstring>' data attribute" << tuple, "InetSource");
+                SPLAPPTRC(L_TRACE, "Submitting output tuple with 'list<rstring>' data attribute" << tuple, "InetSource");
                 submit(tuple, 0);
                 recordBuffer.clear();
                 recordCounter = 0;
@@ -486,7 +486,7 @@ void MY_OPERATOR::process(uint32_t idx)
               string limitStr = record.substr(0, 2147483647); // gets entire record if size < 2^31-1
               tuple.set_<%=$dataAttributeName%>(limitStr);
               <% print("tuple.set_$urlAttributeName(retriever->targetURL());\n") if $urlAttributeName; %>
-              SPLAPPTRC(L_DEBUG, "Submitting output tuple with 'rstring' data attribute " << tuple, "InetSource");
+              SPLAPPTRC(L_TRACE, "Submitting output tuple with 'rstring' data attribute " << tuple, "InetSource");
               submit(tuple, 0);
               if(limitStr.size() < record.size()) // did fragmentation occur?
               {
@@ -509,7 +509,7 @@ void MY_OPERATOR::process(uint32_t idx)
           tuple.clear();
           tuple.set_<%=$dataAttributeName%>(recordBuffer);
           <% print("tuple.set_$urlAttributeName(retriever->targetURL());\n") if $urlAttributeName; %>
-          SPLAPPTRC(L_DEBUG, "Submitting output tuple with 'list<rstring>' data attribute" << tuple, "InetSource");
+          SPLAPPTRC(L_TRACE, "Submitting output tuple with 'list<rstring>' data attribute" << tuple, "InetSource");
           submit(tuple, 0);
           recordBuffer.clear();
           recordCounter = 0;
@@ -525,7 +525,7 @@ void MY_OPERATOR::process(uint32_t idx)
           tuple.clear();
           tuple.set_<%=$dataAttributeName%>( SPL::blob( (const unsigned char*)fetchContent.c_str(), fetchContent.length() ) );
           <% print("tuple.set_$urlAttributeName( retriever->targetURL() );\n") if $urlAttributeName; %>
-          SPLAPPTRC(L_DEBUG, "Submitting output tuple with 'blob' data attribute " << tuple, "InetSource");
+          SPLAPPTRC(L_TRACE, "Submitting output tuple with 'blob' data attribute " << tuple, "InetSource");
           submit(tuple, 0);
 
 <% } elsif ($dataAttributeIsXML) { # end -- if data attribute is blob %>
@@ -540,7 +540,7 @@ void MY_OPERATOR::process(uint32_t idx)
             tuple.clear();
             tuple.set_<%=$dataAttributeName%>( SPL::xml( "", fetchContent.c_str(), fetchContent.length() ) );
             <% print("tuple.set_$urlAttributeName( retriever->targetURL() );\n") if $urlAttributeName; %>
-            SPLAPPTRC(L_DEBUG, "Submitting output tuple with 'xml' data attribute " << tuple, "InetSource");
+            SPLAPPTRC(L_TRACE, "Submitting output tuple with 'xml' data attribute " << tuple, "InetSource");
             submit(tuple, 0);
           } catch (const SPL::SPLRuntimeException& e) {
             SPLAPPTRC(L_ERROR, "discarded XML data from " << retriever->targetURL() << " due to " << e.what() << ", " << e.getExplanation(), "InetSource");
@@ -572,7 +572,7 @@ void MY_OPERATOR::process(uint32_t idx)
         tuple.clear();
         tuple.set_<%=$dataAttributeName%>(recordBuffer);
         <% print("tuple.set_$urlAttributeName(retriever->targetURL());\n") if $urlAttributeName; %>
-        SPLAPPTRC(L_DEBUG, "Submitting output tuple " << tuple, "InetSource");
+        SPLAPPTRC(L_TRACE, "Submitting output tuple " << tuple, "InetSource");
         submit(tuple, 0);
         recordBuffer.clear();
         recordCounter = 0;
@@ -606,7 +606,7 @@ void MY_OPERATOR::process(uint32_t idx)
   // emit final punctuation after last fetch iteration
   submit(Punctuation::FinalMarker, 0);
 
-  SPLAPPTRC(L_DEBUG, "Processing complete", "InetSource");
+  SPLAPPTRC(L_TRACE, "Processing complete", "InetSource");
 }
 
 <%SPL::CodeGen::implementationEpilogue($model);%>

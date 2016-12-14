@@ -31,10 +31,13 @@ MY_OPERATOR::InetRetriever::InetRetriever(const std::string& targURL) throw(int)
     // to resolve the particular instance that the callback should be directed to.
     curl_easy_setopt(_curlHandle, CURLOPT_WRITEDATA, this);
 
-    // Set the URL that we're retrieving from
+    // Set the URL that we are fetching
     curl_easy_setopt(_curlHandle, CURLOPT_URL, _targetURL.c_str());
 
-    // Tell curl to have the server provide the "last modified at" timestamp when we retrieve
+    // Tell curl to follow any redirects for the URL that the server returns
+    curl_easy_setopt(_curlHandle, CURLOPT_FOLLOWLOCATION, 1L);
+
+    // Tell curl to ask the server to provide the "last modified at" timestamp when fetching a file
     curl_easy_setopt(_curlHandle, CURLOPT_FILETIME, 1);
 
     // some servers insist on knowing who is asking
