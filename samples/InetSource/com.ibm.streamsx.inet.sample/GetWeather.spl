@@ -38,7 +38,7 @@ public composite GetWeather
       logic
         onTuple Result:
         {
-          printString("result: " + result[0] + "\n");
+          printStringLn("result: " + result[0]);
         } 
     }
 }
