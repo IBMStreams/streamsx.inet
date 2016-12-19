@@ -23,7 +23,7 @@ all: ${tests}
 compile: ${tests}
 
 %TestMain:
-	${sc} -T ${args} --output-directory ${outputdir}/$@ -M ${ns}::$@
+	${sc} ${args} --output-directory ${outputdir}/$@ -M ${ns}::$@
 	${rntest} ${outputdir}/$@/bin/standalone `${getprops} ${propfile} ${ns}::$@`
 
 
