@@ -25,6 +25,7 @@ clean:
 	-rm -rf toolkit.xml
 
 clean-runtime-generated-files:
+	-rm -rf data/*.txt
 	-rm -rf data/in/*.txt
 	-rm -rf data/move/*.txt
 
