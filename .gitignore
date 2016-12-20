@@ -24,6 +24,7 @@ toolkit.xml
 # more generated files
 samples/*/output
 samples/*/toolkit.xml
+samples/*/.toolkitList
 /samples/*/doc
 
 ## java excludes
