@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <info:toolkitInfoModel xmlns:common="http://www.ibm.com/xmlns/prod/streams/spl/common" xmlns:info="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo">
   <info:identity>
-    <info:name>FTP PutFile sample</info:name>
-    <info:description>This sample demonstrates the use of the FTPPutFile operator</info:description>
+    <info:name>HTTPFunctions</info:name>
+    <info:description>Sample application for HTTPFunctions</info:description>
     <info:version>1.0.0</info:version>
     <info:requiredProductVersion>3.2.2.0</info:requiredProductVersion>
   </info:identity>
