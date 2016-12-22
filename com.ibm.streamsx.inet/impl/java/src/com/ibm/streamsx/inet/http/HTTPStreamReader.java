@@ -44,10 +44,10 @@ import com.ibm.streamsx.inet.http.HTTPPostOper;
 @Icons(location32="impl/java/icons/"+HTTPStreamReader.OPER_NAME+"_32.gif", location16="impl/java/icons/"+HTTPStreamReader.OPER_NAME+"_16.gif")
 public class HTTPStreamReader extends AbstractOperator {
 
-	static final String CLASS_NAME= "com.ibm.streamsx.inet.http.HTTPStreamsReader"; //$NON-NLS-1$
-	static final String OPER_NAME = "HTTPGetStream"; //$NON-NLS-1$
+	static final String CLASS_NAME= "com.ibm.streamsx.inet.http.HTTPStreamsReader";
+	static final String OPER_NAME = "HTTPGetStream";
     
-	private String dataAttributeName = "data"; //$NON-NLS-1$
+	private String dataAttributeName = "data";
 	private HTTPStreamReaderObj reader = null;
 	private int maxRetries = 3;
 	private double retryDelay = 30;
@@ -56,7 +56,7 @@ public class HTTPStreamReader extends AbstractOperator {
 	private boolean shutdown = false, useBackoff = false;
 	private String url = null;
 	private List<String> postData = new ArrayList<String>();
-	private String authenticationType = "none", authenticationFile = null; //$NON-NLS-1$
+	private String authenticationType = "none", authenticationFile = null;
 	private RetryController rc = null;
 	private List<String> authenticationProperties = new ArrayList<String>();
 
@@ -122,8 +122,8 @@ public class HTTPStreamReader extends AbstractOperator {
 
 	@ContextCheck(compile=true)
 	public static boolean checkAuthParams(OperatorContextChecker occ) {
-		return occ.checkDependentParameters("authenticationFile", "authenticationType") //$NON-NLS-1$ //$NON-NLS-2$
-				&& occ.checkDependentParameters("authenticationProperty", "authenticationType") //$NON-NLS-1$ //$NON-NLS-2$
+		return occ.checkDependentParameters("authenticationFile", "authenticationType")
+				&& occ.checkDependentParameters("authenticationProperty", "authenticationType")
 				;
 	}
 	
@@ -145,30 +145,30 @@ public class HTTPStreamReader extends AbstractOperator {
 
 		if(op.getNumberOfStreamingOutputs() == 2) {
 			hasErrorOut = true;
-			trace.log(TraceLevel.INFO, "Error handler port is enabled"); //$NON-NLS-1$
+			trace.log(TraceLevel.INFO, "Error handler port is enabled");
 		}
 
 		if(getOutput(0).getStreamSchema().getAttribute(dataAttributeName) == null) {
 			if(getOutput(0).getStreamSchema().getAttributeCount() > 1) {
-				throw new Exception("Could not automatically detect the data field for output port 0. " + //$NON-NLS-1$
-						"Specify a valid value for \"dataAttributeName\""); //$NON-NLS-1$
+				throw new Exception("Could not automatically detect the data field for output port 0. " +
+						"Specify a valid value for \"dataAttributeName\"");
 			}
 			dataAttributeName = getOutput(0).getStreamSchema().getAttribute(0).getName();
 		}
 
 		MetaType dataParamType = getOutput(0).getStreamSchema().getAttribute(dataAttributeName).getType().getMetaType();
 		if(dataParamType!=MetaType.USTRING && dataParamType!=MetaType.RSTRING)
-			throw new Exception("Only types \"" + MetaType.USTRING + "\" and \""  //$NON-NLS-1$ //$NON-NLS-2$
-					+ MetaType.RSTRING + "\" allowed for param " + dataAttributeName + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new Exception("Only types \"" + MetaType.USTRING + "\" and \""
+					+ MetaType.RSTRING + "\" allowed for param " + dataAttributeName + "\"");
 
 
 		Map<String, String> postDataParams = null; 
 		if(postData != null && postData.size() > 0 ) {
 			postDataParams = new HashMap<String, String>();
 			for(String value : postData) {
-				int loc = value.indexOf("="); //$NON-NLS-1$
+				int loc = value.indexOf("=");
 				if(loc == -1 || loc >= value.length()-1)
-					throw new Exception("Value of \"postData\" parameter not as expected: " + value); //$NON-NLS-1$
+					throw new Exception("Value of \"postData\" parameter not as expected: " + value);
 				postDataParams.put(value.substring(0, loc), value.substring(loc+1, value.length()));
 			}
 		}
@@ -178,7 +178,7 @@ public class HTTPStreamReader extends AbstractOperator {
 		else
 			rc=new RetryController(maxRetries, retryDelay);
 		
-		trace.log(TraceLevel.INFO, "Using authentication type: " + authenticationType); //$NON-NLS-1$
+		trace.log(TraceLevel.INFO, "Using authentication type: " + authenticationType);
 		if(authenticationFile != null) {
             authenticationFile = authenticationFile.trim();
         }
@@ -193,7 +193,7 @@ public class HTTPStreamReader extends AbstractOperator {
 
 	@Override
 	public void allPortsReady() throws Exception {
-		trace.log(TraceLevel.INFO, "URL: " + reader.getUrl()); //$NON-NLS-1$
+		trace.log(TraceLevel.INFO, "URL: " + reader.getUrl());
 		th.start();
 	}
 
@@ -205,13 +205,13 @@ public class HTTPStreamReader extends AbstractOperator {
 	}
 
 	void connectionSuccess() throws Exception {
-		trace.log(LogLevel.INFO, Messages.getString("CONNECTION_SUCCESS")); //$NON-NLS-1$
+		trace.log(LogLevel.INFO, Messages.getString("CONNECTION_SUCCESS"));
 		rc.connectionSuccess();
 	}
 
 	boolean onReadException(Exception e) throws Exception {
 		rc.readException();
-		trace.log(TraceLevel.ERROR, "Processing Read Exception", e); //$NON-NLS-1$
+		trace.log(TraceLevel.ERROR, "Processing Read Exception", e);
 
 		if(hasErrorOut) {
 			OutputTuple otup = getOutput(1).newTuple();
@@ -221,29 +221,29 @@ public class HTTPStreamReader extends AbstractOperator {
 				retCode = ((HTTPException) e).getResponseCode();
 				String data = ((HTTPException) e).getData();
 				if(data != null) {
-					otup.setString("data", data); //$NON-NLS-1$
-					otup.setInt("dataSize", data.length()); //$NON-NLS-1$
+					otup.setString("data", data);
+					otup.setInt("dataSize", data.length());
 				}
 				else {
-					otup.setInt("dataSize", 0); //$NON-NLS-1$
+					otup.setInt("dataSize", 0);
 				}
 			}
 
-			otup.setInt("responseCode", retCode); //$NON-NLS-1$
-			otup.setString("errorMessage", e.getMessage()); //$NON-NLS-1$
+			otup.setInt("responseCode", retCode);
+			otup.setString("errorMessage", e.getMessage());
 
 			getOutput(1).submit(otup);
 		}
 		boolean retry = !shutdown && rc.doRetry() ;
 		if(retry) {
-			trace.log(TraceLevel.ERROR, "Will Retry", e); //$NON-NLS-1$
+			trace.log(TraceLevel.ERROR, "Will Retry", e);
 			sleepABit(rc.getSleep());
 		}
 		return retry;
 	}
 
 	void sleepABit(double seconds) throws InterruptedException {
-		trace.log(TraceLevel.INFO, "Sleeping for: " + seconds); //$NON-NLS-1$
+		trace.log(TraceLevel.INFO, "Sleeping for: " + seconds);
 		long end  = System.currentTimeMillis() + (long)(seconds * 1000);
 		while(!shutdown && System.currentTimeMillis() < end) {
 			Thread.sleep(1 * 100);
@@ -255,7 +255,7 @@ public class HTTPStreamReader extends AbstractOperator {
 		if(line == null) return;
 		
 		if(trace.isLoggable(TraceLevel.TRACE))
-			trace.log(TraceLevel.TRACE, "New Data: " + line); //$NON-NLS-1$
+			trace.log(TraceLevel.TRACE, "New Data: " + line);
 		rc.readSuccess();
 		if(trace.isLoggable(TraceLevel.DEBUG))
 			trace.log(TraceLevel.DEBUG, line);
@@ -264,11 +264,11 @@ public class HTTPStreamReader extends AbstractOperator {
 		otup.setString(dataAttributeName, line);
 		op.submit(otup);
 		if(trace.isLoggable(TraceLevel.TRACE))
-			trace.log(TraceLevel.TRACE, "Done Submitting"); //$NON-NLS-1$
+			trace.log(TraceLevel.TRACE, "Done Submitting");
 	}
 
 	boolean connectionClosed() throws Exception {
-		trace.log(TraceLevel.INFO, "Stream Connection Closed"); //$NON-NLS-1$
+		trace.log(TraceLevel.INFO, "Stream Connection Closed");
 		rc.connectionClosed();
 		StreamingOutput<OutputTuple> op = getOutput(0);
 		op.punctuate(StreamingData.Punctuation.WINDOW_MARKER);//signal current one done
@@ -281,13 +281,13 @@ public class HTTPStreamReader extends AbstractOperator {
 	
 	
 	public static final String DESC  = 
-			"Connects to an HTTP endpoint, reads \\\"chunks\\\" of data and sends it to the output port." + //$NON-NLS-1$
-			" Every line read from the HTTP server endpoint is sent as a single tuple." + //$NON-NLS-1$
-			" If a connection is closed by the server, a WINDOW punctuation will be sent on port 0." + //$NON-NLS-1$
-			" Supported Authentications: Basic Authentication, OAuth 1.0a." + //$NON-NLS-1$
-			" Supported Compressions: Gzip, Deflate." + //$NON-NLS-1$
+			"Connects to an HTTP endpoint, reads \\\"chunks\\\" of data and sends it to the output port." +
+			" Every line read from the HTTP server endpoint is sent as a single tuple." +
+			" If a connection is closed by the server, a WINDOW punctuation will be sent on port 0." +
+			" Supported Authentications: Basic Authentication, OAuth 1.0a." +
+			" Supported Compressions: Gzip, Deflate." +
 	                HTTPPostOper.CONSISTENT_CUT_INTRODUCER+
-			"This operator cannot be used inside a consistent region." //$NON-NLS-1$
+			"This operator cannot be used inside a consistent region."
 			;
 }
 
