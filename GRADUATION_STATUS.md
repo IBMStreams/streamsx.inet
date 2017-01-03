@@ -15,7 +15,7 @@ Incubation for projects is covered here: https://github.com/IBMStreams/administr
 - [ ] :large_orange_diamond: Sufficient testing
   * Status: Some testing exists, not all operators are tested.
 - [ ] :red_circle: Instructions on how to get started with development and contributing to project
-  * Status: None existNone exist
+  * Status: None exist
 - [x] :white_check_mark: Website that contains information and documentation of the project
   * Status: http://ibmstreams.github.io/streamsx.inet/
 - [ ] :red_circle: Clear release plan
