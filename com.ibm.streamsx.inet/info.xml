@@ -52,7 +52,7 @@ Alternatively, you can fully qualify the operators that are provided by toolkit 
 5. Run the application. You can submit the application as a job by using the **streamtool submitjob** command or by using Streams Studio. 
     </description>
     <version>2.8.1</version>
-    <requiredProductVersion>4.0.0.0</requiredProductVersion>
+    <requiredProductVersion>4.0.1</requiredProductVersion>
   </identity>
   <dependencies/>
   <resources>
