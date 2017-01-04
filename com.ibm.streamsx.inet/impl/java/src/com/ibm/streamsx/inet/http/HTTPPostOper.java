@@ -44,7 +44,6 @@ import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
 import com.ibm.streams.operator.state.ConsistentRegionContext;
 import com.ibm.streamsx.inet.messages.Messages;
-import com.ibm.streamsx.inet.http.HTTPRequest.RequestType;
 
 @InputPorts(@InputPortSet(cardinality=1, 
 			description="By default, all attributes of the input stream are sent as POST data to the specified HTTP server."))
@@ -303,7 +302,7 @@ public class HTTPPostOper extends AbstractOperator
 
 		HTTPRequest req = new HTTPRequest(url);
 		req.setHeader("Content-Type", headerContentType);
-		req.setType(RequestType.POST);
+		req.setMethod(HTTPMethod.POST);
 		req.setInsecure(acceptAllCertificates);
 		req.setConnectionTimeout(connectionTimeout);
 		trace.log(TraceLevel.TRACE, "Set connectionTimeout: " + connectionTimeout);					
