@@ -10,8 +10,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Map;
 
-import com.ibm.streamsx.inet.http.HTTPRequest.RequestType;
-
 class HTTPException extends Exception {
 
 	private static final long serialVersionUID = 1L;
@@ -56,7 +54,7 @@ class HTTPStreamReaderObj implements Runnable
 		this.postData = postD;
 		req = new HTTPRequest(url);
 		if(postData != null)
-			req.setType(RequestType.POST);
+			req.setMethod(HTTPMethod.POST);
 		
 		if(!disableCompression) {
 			req.setHeader("Accept-Encoding", "gzip, deflate");
