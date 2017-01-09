@@ -88,34 +88,34 @@ public:
 
 
 public:
-  // constructor
+
+  // ----------- standard operator methods ----------
+
   MY_OPERATOR();
-
-  // destructor
   virtual ~MY_OPERATOR(); 
-
-  // notify port readiness
   void allPortsReady(); 
-
-  // check the URI to make sure it's valid; also handle relative and absolute paths.
-  std::string checkURI(const std::string & inURI);
-
-  // notify termination
   void prepareToShutdown(); 
-
-  // processing for source and threaded operators   
   void process(uint32_t idx);
-  
-  /// add a retriever to the reiver list.  Assumes the URI has already been
-  /// checked
-  void addRetriever(const std::string & iURI);
 
-    
+  // ----------- ???? ----------
+
+  //???MY_OPERATOR(const MY_OPERATOR& op);
+  //???MY_OPERATOR& operator=(const MY_OPERATOR& op);
+
+  // ----------- InetSource operator methods  ----------
+
+  void addRetriever(const std::string & url, int timeout);
+  std::string checkURI(const std::string & url);
+
 private:
-  // members
+
+  // ----------- operator state variables ----------
+
   std::string relFileProtocol;
   std::string absFileProtocol;
   std::vector<InetRetriever*> retrievers_;
+  InetRetriever* retriever_;
+  int timeout_;
   std::vector<std::pair<int,uint32_t> > retCodeCounts_;
   uint32_t inputLinesPerRecord_;
   SPL::rstring intraRecordPadValue_;
@@ -125,8 +125,19 @@ private:
   int32_t iteration_;
   uint32_t emitTuplePerRecordCount_;
   bool dynamicURL_;
-  MY_OPERATOR(const MY_OPERATOR& op);
-  MY_OPERATOR& operator=(const MY_OPERATOR& op);
+
+  // ----------- operator output tuple ----------
+
+  OPort0Type outputTuple;
+
+  // ----------- assignment functions for output attributes ----------
+
+  SPL::rstring TargetURL() { return retriever_->targetURL(); }
+  SPL::rstring EffectiveURL() { return retriever_->effectiveURL(); }
+  SPL::rstring ContentType() { return retriever_->contentType(); }
+  SPL::int32 ResponseCode() { return retriever_->responseCode(); }
+  SPL::float64 FetchTime() { return retriever_->fetchTime(); }
+
 }; 
 
 <%SPL::CodeGen::headerEpilogue($model);%>
