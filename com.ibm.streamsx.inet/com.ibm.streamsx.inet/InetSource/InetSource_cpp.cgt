@@ -2,9 +2,10 @@
 # Copyright (C) 2010,2012-2016, International Business Machines Corporation. 
 # All Rights Reserved.
 %>
-<%SPL::CodeGen::implementationPrologue($model);%>
 
 <%
+  unshift @INC, dirname($model->getContext()->getOperatorDirectory()) . "/../impl/bin";
+  require CodeGenX;
   require InetResource;
 
   my $ccContext = $model->getContext()->getOptionalContext("ConsistentRegion");
@@ -13,27 +14,23 @@
   }
   
   # get the output port object
-  my $oport = $model->getOutputPortAt(0);
+  my $outputPort = $model->getOutputPortAt(0);
 
-  # the data fetched from URLs will be assigned to the first output attribute
-  my $dataAttributeName = $oport->getAttributeAt(0)->getName();
-  my $dataAttributeType = $oport->getAttributeAt(0)->getSPLType();
-
-  # the URLs themselves will be assigned to the second output attribute, if there is one
-  my $urlAttributeName = $oport->getNumberOfAttributes()>1 ? $oport->getAttributeAt(1)->getName() : undef;
-  my $urlAttributeType = $oport->getNumberOfAttributes()>1 ? $oport->getAttributeAt(1)->getSPLType() : undef;
-
-  # the type of the first attribute in the output tuple must be either 'rstring', 'list<rstring>', 'blob', or 'xml'
+  # the data fetched from URLs will be assigned to the first output attribute that does not have an assignment
+  my $dataAttributeName;
+  my $dataAttributeType;
+    for (my $i = 0; $i < $outputPort->getNumberOfAttributes(); ++$i) {
+        my $attribute = $outputPort->getAttributeAt($i);
+        next if $attribute->hasAssignment();
+        $dataAttributeName = $attribute->getName();
+        $dataAttributeType = $attribute->getSPLType();
+        last;
+    }
+  SPL::CodeGen::exit("sorry, fetched data cannot be assigned to an output attribute because all attributes have explicit assignments" ) unless $dataAttributeName;
   SPL::CodeGen::exit(InetResource::INET_OPORT_TYPE_CHECK_2($dataAttributeName, $dataAttributeType)) unless $dataAttributeType eq "rstring" || $dataAttributeType eq "list<rstring>" || $dataAttributeType eq "blob" || $dataAttributeType eq "xml";
 
-  # the type of the second attribute in the output tuple must be 'rstring', if it is specified at all
-  SPL::CodeGen::exit(InetResource::INET_OPORT_TYPE_CHECK_3($urlAttributeName, $dataAttributeType)) if $urlAttributeName && $urlAttributeType ne "rstring";
-
-  # we will handle the data attribute in the output tuple differently depending upon its type
-  my $dataAttributeIsString = 0;   
-  my $dataAttributeIsList = 0;
-  my $dataAttributeIsBlob = 0;
-  my $dataAttributeIsXML = 0;
+  # get C++ expressions that get values for optional parameters
+  my $timeout = $model->getParameterByName("timeout") ? $model->getParameterByName("timeout")->getValueAt(0)->getCppExpression() : 0;
 
   # create a variable to hold the parameters as I get them
   my $parameter = "";
@@ -45,10 +42,10 @@
   my $emitTuplePerURI = $model->getParameterByName("emitTuplePerURI");
   my $emitTuplePerRecordCount = $model->getParameterByName("emitTuplePerRecordCount");
 
-  # consistency checks for boolean parameters, based on type of data attribute in output tuple
+  # consistency checks for boolean parameters, based on type of data attribute
+
   if ($dataAttributeType eq "list<rstring>")
   {
-    $dataAttributeIsList = 1;
     if(!($emitTuplePerFetch) && !($emitTuplePerURI) && !($emitTuplePerRecordCount))
     {
       $emitTuplePerFetch = 1;
@@ -57,9 +54,9 @@
       if($emitTuplePerURI) { $emitTuplePerURI = ($emitTuplePerURI->getValueAt(0)->getSPLExpression() eq 'true')?1:0; }
     }
   }
-  elsif ($dataAttributeType eq "rstring")
+
+  if ($dataAttributeType eq "rstring")
   {
-    $dataAttributeIsString = 1;
     my $value = $emitTuplePerRecordCount ? $emitTuplePerRecordCount->getValueAt(0)->getSPLExpression() : 1;
     # scalar attributes in output tuple
     if(($emitTuplePerFetch) || ($emitTuplePerURI))
@@ -71,33 +68,29 @@
       SPL::CodeGen::exit(InetResource::INET_PARAM_CHECK_4($value));
     }
   }
-  elsif ($dataAttributeType eq "blob")
-  {
-    $dataAttributeIsBlob = 1;
-  }
-  elsif ($dataAttributeType eq "xml")
-  {
-    $dataAttributeIsXML = 1;
-  }
-
 
   if($initDelay)
   {
     $initDelay = $initDelay->getValueAt(0)->getCppExpression();
   }
+
   if($incrementalFetch)
   {
     $incrementalFetch = $incrementalFetch->getValueAt(0)->getCppExpression();
   }
+
   if($doNotStreamInitialFetch)
   {
     $doNotStreamInitialFetch = ($doNotStreamInitialFetch->getValueAt(0)->getSPLExpression() eq 'true')?1:0;
   }
+
   if($unconditionalFetch)
   {
     $unconditionalFetch = $unconditionalFetch->getValueAt(0)->getCppExpression();
   }
 %>
+
+<%SPL::CodeGen::implementationPrologue($model);%>
 
 #include <iostream>
 #include <string>
@@ -141,6 +134,7 @@ MY_OPERATOR::MY_OPERATOR()
     relFileProtocol("file:///"),
     absFileProtocol("file:////"),
     retrievers_(),
+    timeout_(<%=$timeout%>),
     retCodeCounts_(),
     inputLinesPerRecord_(<%=(($parameter = $model->getParameterByName("inputLinesPerRecord"))?SPL::CodeGen::getParameterCppInitializer($parameter):1)%>), 
     intraRecordPadValue_(<%=(($parameter = $model->getParameterByName("intraRecordPadValue"))?SPL::CodeGen::getParameterCppInitializer($parameter):"\" \"")%>), 
@@ -148,22 +142,21 @@ MY_OPERATOR::MY_OPERATOR()
     punctPerFetch_(<%=(($parameter = $model->getParameterByName("punctPerFetch"))?SPL::CodeGen::getParameterCppInitializer($parameter):'false')%>), 
     iterations_(<%=(($parameter = $model->getParameterByName("iterations"))?SPL::CodeGen::getParameterCppInitializer($parameter):0)%>), 
     iteration_(0), 
-<% if($dataAttributeIsList) { %>
+<% if ($dataAttributeType eq "list<rstring>") { %>
     emitTuplePerRecordCount_(<%=($emitTuplePerRecordCount?SPL::CodeGen::getParameterCppInitializer($emitTuplePerRecordCount):0),%>),
 <% } else { %>
     emitTuplePerRecordCount_(1),
 <% } %>
    dynamicURL_(<%=($model->getParameterByName("URIList")->getValueAt(0)->hasSideEffects()?"true":"false")%>)
 {
-
 }
 
-void MY_OPERATOR::addRetriever(const std::string&  iURI) {
+void MY_OPERATOR::addRetriever(const std::string&  url, const int timeout) {
 
-      SPLAPPTRC(L_DEBUG, "Using '" << iURI << "' as an input URI...","InetSource");
+      SPLAPPTRC(L_DEBUG, "Using '" << url << "' as a target URL ...","InetSource");
 
       // allocate a curl object for this URL
-      InetRetriever* retriever = new InetRetriever(iURI);
+      InetRetriever* retriever = new InetRetriever(url, timeout);
 
       // enable tracing in curl object if this operator is tracing
       SPLAPPTRC_CODE( L_TRACE, retriever->enableCurlTrace() );
@@ -180,33 +173,33 @@ void MY_OPERATOR::addRetriever(const std::string&  iURI) {
      
 }
 
-std::string MY_OPERATOR::checkURI(const std::string & iURI) {
+std::string MY_OPERATOR::checkURI(const std::string & url) {
     URIHelper uri;
     try
     {
       // Ensure that the URI is correctly formatted
-      uri.init(iURI);
+      uri.init(url);
     }
     catch(DistilleryException& e) 
     {
-      // Malformed input URI -- issue message and shut down the PE
-      SPL::rstring msg = INET_MALFORMED_URI(iURI);
-      SPLAPPTRC(L_ERROR, "std::exception:  The Uniform Resource Identifier string " << iURI << " specified in the URIList parameter contains a syntax error. The Processing Element will shut down now.", "InetSource");
+      // Malformed input URL -- issue message and shut down the PE
+      SPL::rstring msg = INET_MALFORMED_URI(url);
+      SPLAPPTRC(L_ERROR, "std::exception:  The Uniform Resource Identifier string " << url << " specified in the URIList parameter contains a syntax error. The Processing Element will shut down now.", "InetSource");
       SPLAPPLOG(L_ERROR, msg, "InetSource");
       SPL::Functions::Utility::shutdownPE();
     }
     catch(std::exception& e) 
     {
-      // Malformed input URI -- issue message and shut down the PE
-      SPL::rstring msg = INET_MALFORMED_URI(iURI);
-      SPLAPPTRC(L_ERROR, "std::exception:  The Uniform Resource Identifier string " << iURI << " specified in the URIList parameter contains a syntax error. The Processing Element will shut down now.", "InetSource");
+      // Malformed input URL -- issue message and shut down the PE
+      SPL::rstring msg = INET_MALFORMED_URI(url);
+      SPLAPPTRC(L_ERROR, "std::exception:  The Uniform Resource Identifier string " << url << " specified in the URIList parameter contains a syntax error. The Processing Element will shut down now.", "InetSource");
       SPLAPPLOG(L_ERROR, msg, "InetSource");
       SPL::Functions::Utility::shutdownPE();
     }
 
-    if((iURI.compare(0, 8, relFileProtocol) == 0) && (iURI.compare(0, 9, absFileProtocol) != 0))
+    if((url.compare(0, 8, relFileProtocol) == 0) && (url.compare(0, 9, absFileProtocol) != 0))
     // The URI was declared as a relative path/filename (relative to the PE's data directory).
-    // Compute the absolute path/filename and assign it back to iURI. 
+    // Compute the absolute path/filename and assign it back to URL. 
     {
       string iFileName;
       iFileName.assign(uri.getPath());
@@ -234,12 +227,12 @@ std::string MY_OPERATOR::checkURI(const std::string & iURI) {
         inputFileName.append("/").append(iFileName);
       }
 
-      std::string newURI(relFileProtocol);
-      newURI.append(inputFileName);
-      return newURI;
+      std::string newURL(relFileProtocol);
+      newURL.append(inputFileName);
+      return newURL;
     }
     else {
-        return iURI;
+        return url;
     }
 }
 
@@ -266,7 +259,6 @@ void MY_OPERATOR::process(uint32_t idx)
 {
   SPLAPPTRC(L_TRACE, "Processing...", "InetSource");
 
-  OPort0Type tuple;
   std::string fetchContent; // content fetched from URL
   std::istringstream fetchBuffer; // buffer of content fetched from URL
 
@@ -275,7 +267,7 @@ void MY_OPERATOR::process(uint32_t idx)
   bool initialFetch = true;
 <% } %>
 
-<% if($dataAttributeIsList) { %>
+<% if ($dataAttributeType eq "list<rstring>") { %>
   // internal buffer for accumulating lines for output records
   SPL::list<SPL::rstring> recordBuffer;
   int recordCounter = 0;
@@ -314,7 +306,7 @@ void MY_OPERATOR::process(uint32_t idx)
 
 	// here we need to add a retriever.
 	for (std::size_t i = retrievers_.size(); i < newURI.size(); i++) {
-	    addRetriever(checkURI(newURI.at(i)));
+      addRetriever(checkURI(newURI.at(i)), timeout_);
 	}
     } // end -- if 'dynamicURL_' or 'firstTime'
 
@@ -323,13 +315,13 @@ void MY_OPERATOR::process(uint32_t idx)
     {
 
       // point at the next 'retriever' object
-      InetRetriever* retriever = retrievers_.at(i);
-      SPLAPPTRC(L_DEBUG, "getting URL " << retriever->targetURL() << " ...","InetSource");
+      retriever_ = retrievers_.at(i);
+      SPLAPPTRC(L_DEBUG, "getting URL " << retriever_->targetURL() << " ...","InetSource");
 
       // fetch content from this URL 
       try
       {
-        fetchContent = retriever->fetch();
+        fetchContent = retriever_->fetch();
       }
       catch(CURLcode rc)
       {
@@ -349,17 +341,17 @@ void MY_OPERATOR::process(uint32_t idx)
         SPL::rstring msg;
         if (retcodeCount.second < 10)
         {
-          msg = INET_NONZERO_LIBCURL_RC(retriever->targetURL(), rc, string(curl_easy_strerror(rc)));
+          msg = INET_NONZERO_LIBCURL_RC(retriever_->targetURL(), rc, string(curl_easy_strerror(rc)));
           SPLAPPLOG(L_WARN, msg, "InetSource");
         }
         else if (retCodeCounts_.at(i).second % 10 == 0) {
-          msg = INET_NONZERO_LIBCURL_RC_REPEATED(retriever->targetURL(), rc, string(curl_easy_strerror(rc)), retcodeCount.second);
+          msg = INET_NONZERO_LIBCURL_RC_REPEATED(retriever_->targetURL(), rc, string(curl_easy_strerror(rc)), retcodeCount.second);
           SPLAPPLOG(L_WARN, msg, "InetSource");
         }
         continue;
       }
 
-      SPLAPPTRC(L_DEBUG, "got " << fetchContent.length() << " bytes from URL " << retriever->targetURL() << " ...","InetSource");
+      SPLAPPTRC(L_DEBUG, "got " << fetchContent.length() << " bytes from URL " << retriever_->targetURL() << " ...","InetSource");
 
 <% if($doNotStreamInitialFetch) { %>
       // if we don't want the initial fetch and we are on that fetch, skip the output
@@ -368,7 +360,7 @@ void MY_OPERATOR::process(uint32_t idx)
 <% } %>
 
 
-<% if ($dataAttributeIsString || $dataAttributeIsList) { %>
+<% if ($dataAttributeType eq "rstring" || $dataAttributeType eq "list<rstring>") { %>
         /*
          * Split retrieval buffer into separate "input records", each record containing
          * "inputlinesPerRecord" lines from the original file, separated by the "intraRecordPadValue"
@@ -431,12 +423,7 @@ void MY_OPERATOR::process(uint32_t idx)
     
             // Now that the record has been formed, do the following:
     
-            /*
-             * (** Note, additional function planned here to parse the record into multiple pieces, and assign
-             * each piece to an attribute of the output stream tuple. **)
-             */
-    
-<% if($dataAttributeIsList) { %>
+<% if ($dataAttributeType eq "list<rstring>") { %>
             /*
              * Here, the output attribute is a list<rstring>, so append the record to the end of
              * the internal buffer we're building.  (Don't submit it yet though.)
@@ -466,16 +453,19 @@ void MY_OPERATOR::process(uint32_t idx)
                */
               if(recordCounter >= emitTuplePerRecordCount_ && recordBuffer.size() > 0)
               {
-                tuple.clear();
-                tuple.set_<%=$dataAttributeName%>(recordBuffer);
-                <% print("tuple.set_$urlAttributeName(retriever->targetURL());\n") if $urlAttributeName; %>
-                SPLAPPTRC(L_TRACE, "Submitting output tuple with 'list<rstring>' data attribute" << tuple, "InetSource");
-                submit(tuple, 0);
+                outputTuple.clear();
+                outputTuple.set_<%=$dataAttributeName%>(recordBuffer);
+                <% CodeGenX::assignOutputAttributeValues("outputTuple", $outputPort); %> ;
+                SPLAPPTRC(L_TRACE, "Submitting output tuple with 'list<rstring>' data attribute" << outputTuple, "InetSource");
+                submit(outputTuple, 0);
                 recordBuffer.clear();
                 recordCounter = 0;
               }
             }
-<% } elsif ($dataAttributeIsString) { # end -- if data attribute is list of strings %>
+<% } # end -- if data attribute is list of strings %>
+
+
+<% if ($dataAttributeType eq "rstring") { %>
             /*
              * Here, the output attribute is a rstring, so assign the record to the rstring tuple
              * attribute and submit the tuple.  If the resulting attribute would exceed 2^31-1 in
@@ -484,12 +474,12 @@ void MY_OPERATOR::process(uint32_t idx)
              */
             while(true)
             {
-              tuple.clear();
+              outputTuple.clear();
               string limitStr = record.substr(0, 2147483647); // gets entire record if size < 2^31-1
-              tuple.set_<%=$dataAttributeName%>(limitStr);
-              <% print("tuple.set_$urlAttributeName(retriever->targetURL());\n") if $urlAttributeName; %>
-              SPLAPPTRC(L_TRACE, "Submitting output tuple with 'rstring' data attribute " << tuple, "InetSource");
-              submit(tuple, 0);
+              outputTuple.set_<%=$dataAttributeName%>(limitStr);
+              <% CodeGenX::assignOutputAttributeValues("outputTuple", $outputPort); %> ;
+              SPLAPPTRC(L_TRACE, "Submitting output tuple with 'rstring' data attribute " << outputTuple, "InetSource");
+              submit(outputTuple, 0);
               if(limitStr.size() < record.size()) // did fragmentation occur?
               {
                 record = record.substr(limitStr.size());
@@ -498,40 +488,45 @@ void MY_OPERATOR::process(uint32_t idx)
             }
 <% } # end -- if data attribute is string %>
 
+
           } // end -- split fetched content into records
 
 
-<% if($dataAttributeIsList && $emitTuplePerURI) { %>
+<% if ($dataAttributeType eq "list<rstring>" && $emitTuplePerURI) { %>
         /*
          * Here, emitTuplePerURI was requested, so flush the internal list buffer(s) into its(their)
          * corresponding tuple attribute(s) and then submit the tuple if nonempty.
          */
         if(recordBuffer.size() > 0)
         {
-          tuple.clear();
-          tuple.set_<%=$dataAttributeName%>(recordBuffer);
-          <% print("tuple.set_$urlAttributeName(retriever->targetURL());\n") if $urlAttributeName; %>
-          SPLAPPTRC(L_TRACE, "Submitting output tuple with 'list<rstring>' data attribute" << tuple, "InetSource");
-          submit(tuple, 0);
+          outputTuple.clear();
+          outputTuple.set_<%=$dataAttributeName%>(recordBuffer);
+          <% CodeGenX::assignOutputAttributeValues("outputTuple", $outputPort); %> ;
+          SPLAPPTRC(L_TRACE, "Submitting output tuple with 'list<rstring>' data attribute" << outputTuple, "InetSource");
+          submit(outputTuple, 0);
           recordBuffer.clear();
           recordCounter = 0;
         } // end -- test for non-empty buffer
 <% } %>
 
-<% } elsif ($dataAttributeIsBlob) { # end -- if data attribute is string or list of strings %>
 
+<% } # end -- if data attribute is string or list of strings %>
+
+
+<% if ($dataAttributeType eq "blob") { %>
           /*
            * Here the data attribute is a blob, so the entire content fetched from the 'retriever'
            * is assigned to the attribute and submitted.
           */
-          tuple.clear();
-          tuple.set_<%=$dataAttributeName%>( SPL::blob( (const unsigned char*)fetchContent.c_str(), fetchContent.length() ) );
-          <% print("tuple.set_$urlAttributeName( retriever->targetURL() );\n") if $urlAttributeName; %>
-          SPLAPPTRC(L_TRACE, "Submitting output tuple with 'blob' data attribute " << tuple, "InetSource");
-          submit(tuple, 0);
+          outputTuple.clear();
+          outputTuple.set_<%=$dataAttributeName%>( SPL::blob( (const unsigned char*)fetchContent.c_str(), fetchContent.length() ) );
+          <% CodeGenX::assignOutputAttributeValues("outputTuple", $outputPort); %> ;
+          SPLAPPTRC(L_TRACE, "Submitting output tuple with 'blob' data attribute " << outputTuple, "InetSource");
+          submit(outputTuple, 0);
+<% } # end -- if data attribute is blob %>
 
-<% } elsif ($dataAttributeIsXML) { # end -- if data attribute is blob %>
 
+<% if ($dataAttributeType eq "xml") { %>
           /*
            * Here the data attribute is XML, so the entire content fetched from the 'retriever'
            * is converted to XML, assigned to the attribute, and submitted. Note that XML
@@ -539,15 +534,14 @@ void MY_OPERATOR::process(uint32_t idx)
            * emitting any output.
           */
           try {
-            tuple.clear();
-            tuple.set_<%=$dataAttributeName%>( SPL::xml( "", fetchContent.c_str(), fetchContent.length() ) );
-            <% print("tuple.set_$urlAttributeName( retriever->targetURL() );\n") if $urlAttributeName; %>
-            SPLAPPTRC(L_TRACE, "Submitting output tuple with 'xml' data attribute " << tuple, "InetSource");
-            submit(tuple, 0);
+            outputTuple.clear();
+            outputTuple.set_<%=$dataAttributeName%>( SPL::xml( "", fetchContent.c_str(), fetchContent.length() ) );
+            <% CodeGenX::assignOutputAttributeValues("outputTuple", $outputPort); %> ;
+            SPLAPPTRC(L_TRACE, "Submitting output tuple with 'xml' data attribute " << outputTuple, "InetSource");
+            submit(outputTuple, 0);
           } catch (const SPL::SPLRuntimeException& e) {
-            SPLAPPTRC(L_ERROR, "discarded XML data from " << retriever->targetURL() << " due to " << e.what() << ", " << e.getExplanation(), "InetSource");
+            SPLAPPTRC(L_ERROR, "discarded XML data from " << retriever_->targetURL() << " due to " << e.what() << ", " << e.getExplanation(), "InetSource");
           }
-
 <% } # end -- if data attribute is xml %>
 
 
@@ -564,18 +558,18 @@ void MY_OPERATOR::process(uint32_t idx)
     {
 <% } %>
 
-<% if($dataAttributeIsList && $emitTuplePerFetch) { %>
+<% if ($dataAttributeType eq "list<rstring>" && $emitTuplePerFetch) { %>
       /*
        * emitTuplePerFetch was requested -- so flush the internal list buffer(s) into its(their)
        * corresponding tuple attribute(s) and then submit the tuple.
        */
       if(recordBuffer.size() > 0)
       {
-        tuple.clear();
-        tuple.set_<%=$dataAttributeName%>(recordBuffer);
-        <% print("tuple.set_$urlAttributeName(retriever->targetURL());\n") if $urlAttributeName; %>
-        SPLAPPTRC(L_TRACE, "Submitting output tuple " << tuple, "InetSource");
-        submit(tuple, 0);
+        outputTuple.clear();
+        outputTuple.set_<%=$dataAttributeName%>(recordBuffer);
+        <% CodeGenX::assignOutputAttributeValues("outputTuple", $outputPort); %> ;
+        SPLAPPTRC(L_TRACE, "Submitting output tuple " << outputTuple, "InetSource");
+        submit(outputTuple, 0);
         recordBuffer.clear();
         recordCounter = 0;
       }
