@@ -338,7 +338,7 @@ void MY_OPERATOR::process(uint32_t idx)
         
         if (retcodeCount.second < 10)
         {
-          SPLAPPLOG(L_ERROR, "URL " << retriever_->targetURL() << " failed, " << string(curl_easy_strerror(rc)) << " (libcurl error code " << rc < ")", "InetSource");
+          SPLAPPLOG(L_ERROR, "URL " << retriever_->targetURL() << " failed, " << string(curl_easy_strerror(rc)) << " (libcurl error code " << rc << ")", "InetSource");
         }
         else if (retCodeCounts_.at(i).second % 10 == 0) {
           SPL::rstring msg = INET_NONZERO_LIBCURL_RC_REPEATED(retriever_->targetURL(), rc, string(curl_easy_strerror(rc)), retcodeCount.second);
