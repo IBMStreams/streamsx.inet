@@ -32,11 +32,16 @@ The data retrieved is implicitly assigned to the first output attribute that doe
 
 Other output attributes may be assigned values explicitly using the operator's output assignment functions. These functions assign the requested and responding URLs, the response code, the data type, and the elapsed time for fetching the data.
 
-The output stream of the `InetSource` operator can be fed into a `Functor` operator with custom logic to parse the data
-into any number of SPL types. For more information and examples, see the `WeatherConditions.spl` file 
-within the Commodity Purchasing Sample Application.
+The output stream of the `InetSource` operator can be fed into a `Functor`
+operator with custom logic to parse the data into any number of SPL types. For
+more information and examples, see the `WeatherConditions.spl` and
+`GetHeadlines.spl` sample applications.
 
-By default, there is no time limit for fetching data from remote servers; servers that accept a request but do not return a response can block the operator indefinitely. Optionally, a time limit for fetching data can be specified.
+By default, there is no time limit for fetching data from remote servers;
+servers that accept a request but do not return a response can block the
+operator indefinitely. Optionally, a time limit for fetching data can be
+specified. If the time limit is exceeded, the fetch is canceled, an error is
+logged, and no output is produced.
 
 **Behavior in a consistent region**
 
@@ -50,7 +55,7 @@ and **ALL_PROXY** environment variables as described on the curl man page at the
 
 This example demonstrates how to use the `InetSource` operator:
 
-    stream &lt;rstring metarObsRecord> WxObservations = InetSource (){
+    stream &lt;rstring metarObsRecord> WxObservations = InetSource () {
       param
         URIList:
         [&quot;http://weather.noaa.gov/pub/data/observations/meta/cycles/07Z.TXT&quot;,
