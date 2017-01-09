@@ -99,8 +99,8 @@ public:
 
   // ----------- ???? ----------
 
-  MY_OPERATOR(const MY_OPERATOR& op);
-  MY_OPERATOR& operator=(const MY_OPERATOR& op);
+  //???MY_OPERATOR(const MY_OPERATOR& op);
+  //???MY_OPERATOR& operator=(const MY_OPERATOR& op);
 
   // ----------- InetSource operator methods  ----------
 
@@ -132,11 +132,11 @@ private:
 
   // ----------- assignment functions for output attributes ----------
 
-  SPL::rstring TARGET_URL() { return retriever_->targetURL(); }
-  SPL::rstring EFFECTIVE_URL() { return retriever_->effectiveURL(); }
-  SPL::rstring CONTENT_TYPE() { return retriever_->contentType(); }
-  SPL::int32 RESPONSE_CODE() { return retriever_->responseCode(); }
-  SPL::float64 FETCH_TIME() { return retriever_->fetchTime(); }
+  SPL::rstring TargetURL() { return retriever_->targetURL(); }
+  SPL::rstring EffectiveURL() { return retriever_->effectiveURL(); }
+  SPL::rstring ContentType() { return retriever_->contentType(); }
+  SPL::int32 ResponseCode() { return retriever_->responseCode(); }
+  SPL::float64 FetchTime() { return retriever_->fetchTime(); }
 
 }; 
 

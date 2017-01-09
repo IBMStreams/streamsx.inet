@@ -70,11 +70,11 @@ public composite GetHeadlines {
       emitTuplePerURI: true;
     output Out:
       ingestTimestamp = getTimestampInSecs(),
-      targetURL = TARGET_URL(),
-      effectiveURL = EFFECTIVE_URL(),
-      responseCode = RESPONSE_CODE(),
-      fetchTime = FETCH_TIME(),
-      contentType = CONTENT_TYPE(); }
+      targetURL = TargetURL(),
+      effectiveURL = EffectiveURL(),
+      responseCode = ResponseCode(),
+      fetchTime = FetchTime(),
+      contentType = ContentType(); }
 
   ( stream<InetStream> XMLInetStream ; stream<InetStream> NonXMLInetStream ) = Filter(InetStream) {
     param

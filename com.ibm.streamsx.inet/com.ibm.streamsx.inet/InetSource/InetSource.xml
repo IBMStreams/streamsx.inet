@@ -72,35 +72,35 @@ This example demonstrates how to use the `InetSource` operator:
             <description>
               This function assigns the URL that was requested when fetching the data assigned to the data attribute. This is one of the URLs specified in the 'URLList' parameter.
             </description>
-            <prototype>rstring TARGET_URL()</prototype>
+            <prototype>rstring TargetURL()</prototype>
           </function>
           
           <function>
             <description>
               This function assigns the URL that responded when fetching the data assigned to the data attribute. This may be one of the URLs specified in the 'URLList' parameter, or it may be different if the requested URL was redirected elsewhere.
             </description>
-            <prototype>rstring EFFECTIVE_URL()</prototype>
+            <prototype>rstring EffectiveURL()</prototype>
           </function>
 
           <function>
             <description>
               This function assigns the value of the 'ContentType' header from an HTTP response, if the data fetched was an HTTP response and a 'ContentType' header was inclued, or else an empty string if not.
             </description>
-            <prototype>rstring CONTENT_TYPE()</prototype>
+            <prototype>rstring ContentType()</prototype>
           </function>
           
           <function>
             <description>
               This function assigns the value of the response code.
             </description>
-            <prototype>int32 RESPONSE_CODE()</prototype>
+            <prototype>int32 ResponseCode()</prototype>
           </function>
 
           <function>
             <description>
               This function assigns the elapsed time the fetch took to complete, in seconds
             </description>
-            <prototype>float64 FETCH_TIME()</prototype>
+            <prototype>float64 FetchTime()</prototype>
           </function>
 
           <function>
