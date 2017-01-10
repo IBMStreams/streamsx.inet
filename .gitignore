@@ -4,6 +4,7 @@ impl/nl/include/*.h
 *.pm
 # If you want to include a perl module, do
 # !foo.pm
+!CodeGenX.pm
 
 /com.ibm.streamsx.inet/doc/
 /com.ibm.streamsx.inet/impl/nl/InetResource.dat
