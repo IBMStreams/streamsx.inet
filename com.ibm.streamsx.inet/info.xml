@@ -55,6 +55,14 @@ Alternatively, you can fully qualify the operators that are provided by toolkit 
   <resources>
     <messageSet name="InetResource">
       <lang default="true">en_US/InetResource.xlf</lang>
+      <lang>fr_FR/InetResource.xlf</lang>
+      <lang>it_IT/InetResource.xlf</lang>
+      <lang>ja_JP/InetResource.xlf</lang>
+      <lang>ko_KR/InetResource.xlf</lang>
+      <lang>pt_BR/InetResource.xlf</lang>
+      <lang>ru_RU/InetResource.xlf</lang>
+      <lang>zh_CN/InetResource.xlf</lang>
+      <lang>zh_TW/InetResource.xlf</lang>
     </messageSet>
   </resources>
 </toolkitInfoModel>
