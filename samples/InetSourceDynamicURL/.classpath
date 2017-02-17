@@ -1,9 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="impl/java/src">
-		<attributes>
-			<attribute name="optional" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="output" path="impl/java/bin"/>
+	<classpathentry kind="output" path="bin"/>
 </classpath>

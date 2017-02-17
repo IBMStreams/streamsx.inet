@@ -1,13 +1,13 @@
 # streams-specific excludes
 toolkit.xml
-impl/nl/include/*.h
 *.pm
 # If you want to include a perl module, do
 # !foo.pm
 !CodeGenX.pm
 
 /com.ibm.streamsx.inet/doc/
-/com.ibm.streamsx.inet/impl/nl/InetResource.dat
+/com.ibm.streamsx.inet/impl/nl/*.dat
+/com.ibm.streamsx.inet/impl/nl/include
 
 # generated operator models
 /com.ibm.streamsx.inet/com.ibm.streamsx.inet.wsserver/WebSocketInject/*
@@ -25,6 +25,8 @@ impl/nl/include/*.h
 # more generated files
 samples/*/output
 samples/*/toolkit.xml
+samples/*/.toolkitList
+samples/*/bin
 /samples/*/doc
 
 ## java excludes
@@ -35,7 +37,7 @@ samples/*/toolkit.xml
 
 # Package Files #
 com.ibm.streamsx.inet/lib/*.jar
-com.ibm.streamsx.inet/impl/lib/*.jar
+com.ibm.streamsx.inet/impl/lib
 *.war
 *.ear
 
@@ -66,3 +68,4 @@ com.ibm.streamsx.inet/impl/lib/*.jar
 
 # ignore this file created by Mac OS:
 .DS_Store
+/.project
