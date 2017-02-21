@@ -66,7 +66,7 @@
           <!--TRNOTE Do not translate the word emitTuplePerRecordCount -->
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0204" extraData="INET_MALFORMED_URI" resname="CDIST0204E">
-          <source>The Uniform Resource Identifier string {0} specified in the URIList parameter contains a syntax error. The Processing Element will shut down now.</source>
+          <source>a URI specified in the URIList parameter contains a syntax error. The Processing Element will shut down now.</source>
           <!--TRNOTE Do not translate 'Uniform Resource Identifier' and 'Processing Element' -->
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0207" extraData="INET_OPORT_TYPE_CHECK_2" resname="CDIST0207E">

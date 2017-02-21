@@ -182,17 +182,15 @@ std::string MY_OPERATOR::checkURI(const std::string & url) {
     }
     catch(DistilleryException& e) 
     {
-      // Malformed input URL -- issue message and shut down the PE
-      SPL::rstring msg = INET_MALFORMED_URI(url);
-      SPLAPPTRC(L_ERROR, "URL " << url << " is invalid, " << msg, "InetSource");
-      SPL::Functions::Utility::shutdownPE();
+      // Malformed input URL -- log error and return empty string
+      SPLAPPTRC(L_ERROR, "ignoring malformed URL " << url, "InetSource");
+      return std::string();
     }
     catch(std::exception& e) 
     {
-      // Malformed input URL -- issue message and shut down the PE
-      SPL::rstring msg = INET_MALFORMED_URI(url);
-      SPLAPPTRC(L_ERROR, "URL " << url << " is invalid, " << msg, "InetSource");
-      SPL::Functions::Utility::shutdownPE();
+      // Malformed input URL -- log error and return empty string
+      SPLAPPTRC(L_ERROR, "ignoring malformed URL " << url, "InetSource");
+      return std::string();
     }
 
     if((url.compare(0, 8, relFileProtocol) == 0) && (url.compare(0, 9, absFileProtocol) != 0))
@@ -281,31 +279,46 @@ void MY_OPERATOR::process(uint32_t idx)
   {
 
     if (dynamicURL_ || firstTime) {
-    firstTime = false;
-         SPL::list<SPL::rstring> newURI = <%=($model->getParameterByName("URIList")->getValueAt(0)->getCppExpression())%>; 
-	// delete retrievers we won't need.
-	while (retrievers_.size() > newURI.size()) {
-	      	// save it so we can delete it.
+      firstTime = false;
+
+      // get list or URIs
+      SPL::list<SPL::rstring> newURI = <%=($model->getParameterByName("URIList")->getValueAt(0)->getCppExpression())%>; 
+
+      // delete retrievers we won't need.
+      while (retrievers_.size() > newURI.size()) {
+        // save it so we can delete it.
 		InetRetriever* last = retrievers_.back();
 		retrievers_.erase(retrievers_.end() -1, retrievers_.end());
 		retCodeCounts_.erase(retCodeCounts_.end() -1, retCodeCounts_.end());
 		delete last;	
-	}
+      }
 
-       // If there's a retriever, re-use it.
-        for (std::size_t i = 0; i < retrievers_.size() ; i++)  {
-            if (retrievers_.at(i)->updateURL(checkURI(newURI.at(i)))) {
-             SPLAPPTRC(L_INFO, "URL " << i << " updated to " << retrievers_.at(i)->targetURL(), "InetSource");
-            }
-            else {
-                SPLAPPTRC(L_DEBUG,"URL " << i << " re-evaluated, but is unchanged ", "InetSource");
-            }
-        } // end -- check URLs in list of 'retrievers' 
+      // If there's a retriever, re-use it.
+      bool oops = false;
+      for (std::size_t i = 0; i < retrievers_.size() ; i++)  {
+        std::string uri = checkURI(newURI.at(i));
+        if (uri.length()==0) { oops = true; continue; }
+        if (retrievers_.at(i)->updateURL(uri)) {
+          SPLAPPTRC(L_INFO, "URL " << i << " updated to " << retrievers_.at(i)->targetURL(), "InetSource");
+        }
+        else {
+          SPLAPPTRC(L_DEBUG,"URL " << i << " re-evaluated, but is unchanged ", "InetSource");
+        }
+      } // end -- check URLs in list of 'retrievers' 
 
-	// here we need to add a retriever.
-	for (std::size_t i = retrievers_.size(); i < newURI.size(); i++) {
-      addRetriever(checkURI(newURI.at(i)), timeout_);
-	}
+      // add a retriever for a new URI
+      for (std::size_t i = retrievers_.size(); i < newURI.size(); i++) {
+        std::string uri = checkURI(newURI.at(i));
+        if (uri.length()==0) { oops = true; continue; }
+        addRetriever(uri, timeout_);
+      }
+
+      // terminate if any of the URIs are invalid and won't change, otherwise continue with valid URIs
+      if ( oops && !dynamicURL_ ) {
+        SPLAPPTRC(L_ERROR, INET_MALFORMED_URI(""), "InetSource");
+        SPL::Functions::Utility::shutdownPE();
+      }
+
     } // end -- if 'dynamicURL_' or 'firstTime'
 
     // now fetch content from each 'retriever' and emit zero or more tuples containing its data
