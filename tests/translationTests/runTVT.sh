@@ -1,6 +1,17 @@
 #!/bin/bash
 
 verbose=0
+languages=( de_DE fr_FR it_IT es_ES pt_BR ja_JP zh_CN ru_RU zh_TW ko_KR en_US )
+
+function printVerbose() {
+	if [ $verbose ]; then
+		echo "$1"
+	fi
+}
+
+function printError() {
+  echo "ERROR ERROR: $1"
+}
 
 while getopts ":v" opt; do
 	case $opt in
@@ -16,18 +27,7 @@ done
 
 set -o nounset;
 shopt -s globstar
-
-function printVerbose() {
-	if [ $verbose ]; then
-		echo "$1"
-	fi
-}
-
-function printError() {
-  echo "ERROR ERROR: $1"
-}
-
-languages=( de_DE fr_FR it_IT es_ES pt_BR ja_JP zh_CN ru_RU zh_TW ko_KR en_US )
+shopt -s nullglob
 
 startDirectory=$(pwd)
 datestring=$(date +%Y%m%d-%H%M%S)
@@ -66,7 +66,10 @@ for testdir in *; do
 		  for splfile in **/*.spltpl; do
 			dest="${splfile%%spltpl}spl"
 			printVerbose "Convert spl template $splfile to $dest"
-				sed -e "s/\/\/_${variant}//g" "$splfile" > "$dest"
+				if ! sed -e "s/\/\/_${variant}//g" "$splfile" > "$dest"; then
+					errors=$((errors+1))
+					printError "Conversion of spl template failed"
+				fi
 			done
 			
 			#test case preparation
