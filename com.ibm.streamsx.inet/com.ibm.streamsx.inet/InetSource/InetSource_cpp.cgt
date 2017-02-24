@@ -315,7 +315,7 @@ void MY_OPERATOR::process(uint32_t idx)
 
       // terminate if any of the URIs are invalid and won't change, otherwise continue with valid URIs
       if ( oops && !dynamicURL_ ) {
-        SPLAPPTRC(L_ERROR, INET_MALFORMED_URI(""), "InetSource");
+        SPLAPPTRC(L_ERROR, INET_MALFORMED_URI, "InetSource");
         SPL::Functions::Utility::shutdownPE();
       }
 
