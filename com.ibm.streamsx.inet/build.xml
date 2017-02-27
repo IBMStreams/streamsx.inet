@@ -28,6 +28,7 @@ artifacts were left around and caused issues with the ant build.
 	<property name="test.build.dir" value="${test.run.dir}/bin" />
 	<property name="downloads.dir" value="opt/downloaded" />
 	<property name="jarfile" value="com.ibm.streamsx.inet.jar" />
+	<available file="opt/downloaded/.no_download" type="file" property="no.maven.deps"/>
 
 	<target name="init">
 		<fail unless="env.M2_HOME" message="Environment variable M2_HOME not set. Please set this to point to the path of maven home directory" />
@@ -129,7 +130,7 @@ artifacts were left around and caused issues with the ant build.
 	</target>
 
 	<!-- Downloads libraries using maven -->
-	<target name="maven-deps">
+	<target name="maven-deps" unless="no.maven.deps">
 		<exec executable="${maven.bin}" failonerror="true">
 			<arg value="dependency:copy-dependencies" />
 			<arg value="-DoutputDirectory=${downloads.dir}" />
