@@ -8,11 +8,8 @@
 The Internet Toolkit provides support for common internet protocols.
 
 This toolkit separates its functionality into a number of namespaces:
-* [namespace:com.ibm.streamsx.inet|com.ibm.streamsx.inet]: General purpose internet operator supporting a number of protocols.
-* [namesapce:com.ibm.streamsx.inet.ftp|com.ibm.streamsx.inet.ftp]: Operators that interact with external FTP servers.
-* [namespace:com.ibm.streamsx.inet.http|com.ibm.streamsx.inet.http]: Operators that interact with external HTTP servers.
-* [namespace:com.ibm.streamsx.inet.rest|com.ibm.streamsx.inet.rest]: Operators that embed a HTTP server to provide a REST-style API to streaming data.
-* [namespace:com.ibm.streamsx.inet.wsserver|com.ibm.streamsx.inet.wsserver]: Operators that embed a WebSocket server to expose streaming data as WebSocket messages.
+* com.ibm.streamsx.inet: General purpose internet operator supporting a number of protocols.
+* com.ibm.streamsx.inet.http: Operators that interact with external HTTP servers.
 
 + Developing and running applications that use the Internet Toolkit
 
@@ -51,13 +48,23 @@ Alternatively, you can fully qualify the operators that are provided by toolkit 
 4. Start the InfoSphere Streams instance. 
 5. Run the application. You can submit the application as a job by using the **streamtool submitjob** command or by using Streams Studio. 
     </description>
-    <version>2.8.2</version>
-    <requiredProductVersion>4.0.0.0</requiredProductVersion>
+    <version>2.1.0</version>
+    <requiredProductVersion>4.2.0.0</requiredProductVersion>
   </identity>
   <dependencies/>
   <resources>
     <messageSet name="InetResource">
       <lang default="true">en_US/InetResource.xlf</lang>
+      <lang>de_DE/InetResource.xlf</lang>
+      <lang>es_ES/InetResource.xlf</lang>
+      <lang>fr_FR/InetResource.xlf</lang>
+      <lang>it_IT/InetResource.xlf</lang>
+      <lang>ja_JP/InetResource.xlf</lang>
+      <lang>ko_KR/InetResource.xlf</lang>
+      <lang>pt_BR/InetResource.xlf</lang>
+      <lang>ru_RU/InetResource.xlf</lang>
+      <lang>zh_CN/InetResource.xlf</lang>
+      <lang>zh_TW/InetResource.xlf</lang>
     </messageSet>
   </resources>
 </toolkitInfoModel>

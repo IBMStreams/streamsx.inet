@@ -28,6 +28,7 @@ artifacts were left around and caused issues with the ant build.
 	<property name="test.build.dir" value="${test.run.dir}/bin" />
 	<property name="downloads.dir" value="opt/downloaded" />
 	<property name="jarfile" value="com.ibm.streamsx.inet.jar" />
+	<available file="opt/downloaded/.no_download" type="file" property="no.maven.deps"/>
 
 	<target name="init">
 		<fail unless="env.M2_HOME" message="Environment variable M2_HOME not set. Please set this to point to the path of maven home directory" />
@@ -59,17 +60,18 @@ artifacts were left around and caused issues with the ant build.
 		<pathelement location="${streams.install}/lib/com.ibm.streams.operator.samples.jar" />
 	</path>
 
-	<path id="cp.eclipse.jetty">
+	<!-- comment out some resources which are not used in this build -->
+	<!-- <path id="cp.eclipse.jetty">
 		<fileset dir="opt/eclipse-4.2.2/plugins">
 			<include name="javax.servlet*.jar" />
 			<include name="org.eclipse.jetty*.jar" />
 		</fileset>
-	</path>
-	<path id="cp.wssocket">
+	</path> -->
+	<!-- <path id="cp.wssocket">
 		<fileset dir="opt/wssupport">
 			<include name="Java-WebSocket-1.3.0.jar" />
 		</fileset>
-	</path>
+	</path> -->
 	<path id="cp.http.client">
 		<fileset dir="opt/HTTPClient4.2.3/lib">
 			<include name="*.jar" />
@@ -81,8 +83,8 @@ artifacts were left around and caused issues with the ant build.
 	</path>
 
 	<path id="cp.manifest">
-		<path refid="cp.eclipse.jetty" />
-		<path refid="cp.wssocket" />
+		<!-- <path refid="cp.eclipse.jetty" />
+		<path refid="cp.wssocket" /> -->
 		<path refid="cp.http.client" />
 		<path refid="cp.downloads" />
 	</path>
@@ -95,19 +97,19 @@ artifacts were left around and caused issues with the ant build.
 	<target name="all" depends="jar,cpp,indextoolkit" />
 
 	<target name="cpp">
-		<exec executable="make" failonerror="true" dir="impl">
+		<!-- <exec executable="make" failonerror="true" dir="impl">
 			<arg value="-f" />
 			<arg value="Makefile" />
 			<arg value="all" />
-		</exec>
+		</exec> -->
 	</target>
 
 	<target name="cpp-clean">
-		<exec executable="make" failonerror="true" dir="impl">
+		<!-- <exec executable="make" failonerror="true" dir="impl">
 			<arg value="-f" />
 			<arg value="Makefile" />
 			<arg value="clean" />
-		</exec>
+		</exec> -->
 	</target>
 
 	<target name="indextoolkit" depends="jar,cpp">
@@ -128,7 +130,7 @@ artifacts were left around and caused issues with the ant build.
 	</target>
 
 	<!-- Downloads libraries using maven -->
-	<target name="maven-deps">
+	<target name="maven-deps" unless="no.maven.deps">
 		<exec executable="${maven.bin}" failonerror="true">
 			<arg value="dependency:copy-dependencies" />
 			<arg value="-DoutputDirectory=${downloads.dir}" />
@@ -138,7 +140,7 @@ artifacts were left around and caused issues with the ant build.
 
 	<target name="compile" depends="init, maven-deps">
 		<javac srcdir="${src.dir}" destdir="${build.dir}" debug="true" includeantruntime="no"
-			source="1.7" target="1.7"
+			source="1.8" target="1.8"
 			excludes="com/ibm/streamsx/inet/*/test/**">
 			<classpath>
 				<path refid="cp.compile" />
@@ -165,14 +167,14 @@ artifacts were left around and caused issues with the ant build.
 		<mkdir dir="${test.run.dir}" />
 		<mkdir dir="${test.build.dir}" />
 
-		<javac srcdir="${src.dir}" destdir="${test.build.dir}" debug="true" includeantruntime="yes" includes="com/ibm/streamsx/inet/*/test/**">
+		<javac srcdir="${src.dir}" destdir="${test.build.dir}" debug="true" includeantruntime="yes" includes="com/ibm/streamsx/inet/rest/test/**">
 			<classpath>
 				<pathelement location="${impl.lib.dir}/${jarfile}" />
 				<path refid="cp.streams" />
 			</classpath>
 		</javac>
 
-		<junit printsummary="yes" haltonfailure="yes" fork="yes">
+		<junit printsummary="yes" haltonfailure="yes">
 			<classpath>
 				<pathelement location="${test.build.dir}" />
 				<pathelement location="${impl.lib.dir}/${jarfile}" />
@@ -187,7 +189,6 @@ artifacts were left around and caused issues with the ant build.
 				</fileset>
 			</batchtest>
 		</junit>
-
 	</target>
 
 </project>
