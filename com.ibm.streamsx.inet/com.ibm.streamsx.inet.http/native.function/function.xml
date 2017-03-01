@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="ASCII"?>
+<function:functionModel xmlns:common="http://www.ibm.com/xmlns/prod/streams/spl/common" xmlns:function="http://www.ibm.com/xmlns/prod/streams/spl/function">
+  <function:functionSet>
+    <function:headerFileName>httpFunctions.h</function:headerFileName>
+    <function:cppNamespaceName>com_ibm_streamsx_inet_http</function:cppNamespaceName>
+    <function:functions>
+      <function:function>
+        <function:description>HTTP GET on the given url, using the username and password, if present.  It follows redirects.  If there is an error, a non-zero is returned by error.</function:description>
+        <function:prototype cppName="">public rstring httpGet(rstring url,list&lt;rstring> extraHeaders, rstring user, rstring password, mutable int32 error)</function:prototype>
+      </function:function>
+      <function:function>
+      <function:description>HTTP DELETE on the given url, using the username and password, if present.  It follows redirects.  If there is an error, a non-zero is returned by error.</function:description>
+         <function:prototype cppName="">public rstring httpDelete(rstring url,list&lt;rstring> extraHeaders, rstring user, rstring password, mutable int32 error)</function:prototype>
+       </function:function>
+<function:function>
+        <function:description>HTTP PUT data to the given url using the username and password given if not empty.  Does not follow redirects.  Headers are returned in the headers list, error is set to a non-zero if there is an error, and the result of the PUT is returned in the rstring.</function:description>
+        <function:prototype>public rstring httpPut(rstring data, rstring url, list&lt;rstring> extraHeaders, rstring username, rstring password, mutable list&lt;rstring> headers, mutable int32 error)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>HTTP POST data to the given url using the username and password (if non-empty).  Does not follow redirects.  Headers are returned in the headers list.  Error is set to non-zero if there is an error.  The result of the POST is returned as an rstring. </function:description>
+        <function:prototype>public rstring httpPost(rstring data, rstring url, list&lt;rstring> extraHeaders, rstring username, rstring password, mutable list&lt;rstring> headers, mutable int32 error)</function:prototype>
+      </function:function>
+      <function:function>
+      <function:description>Decode a URL encoded rstring.</function:description>
+      <function:prototype>public rstring urlDecode(rstring decode)</function:prototype>
+      </function:function>
+    <function:function>
+    <function:description>URL encode the given rstring.</function:description>
+    <function:prototype>public rstring urlEncode(rstring raw)</function:prototype>
+    </function:function>
+    </function:functions>
+    <function:dependencies>
+      <function:library>
+        <common:description></common:description>
+        <common:managedLibrary>
+          <common:lib>curl</common:lib>
+          <common:lib>inettoolkit</common:lib>
+          <common:libPath>../../impl/lib</common:libPath>
+          <common:includePath>../../impl/cpp/include</common:includePath>
+        </common:managedLibrary>
+      </function:library>
+    </function:dependencies>
+  </function:functionSet>
+</function:functionModel>
