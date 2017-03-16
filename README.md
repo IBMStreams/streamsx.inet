@@ -1,10 +1,12 @@
-##README --  IBMStreams/streamsx.inet
+## README --  IBMStreams/streamsx.inet
 
 The IBMStreams/streamsx.inet toolkit project is an open source IBM InfoSphere Streams toolkit project supporting common internet protocols, such as HTTP, WebSockets, etc.
 
 Note that development is proceeding on two branches: 
 * The v2.0.0 branch is currently at version 2.0.1, and it contains what's shipped with the Streams product.   
 * The master branch is at version 2.6, and it contains several more operators, including the FTP operators, `HTTPTupleInjection` and `HTTPTupleView`.  It should be considered pre-release.   
+
+This toolkit implements the NLS feature. Use the guidelines for the message bundle that are described in [The messages and the NLS for toolkits](https://github.com/IBMStreams/administration/wiki/The-messages-and-the-NLS-for-toolkits)
 
 Support for Streams 4.0 Now Available!
 https://github.com/IBMStreams/streamsx.inet/releases
