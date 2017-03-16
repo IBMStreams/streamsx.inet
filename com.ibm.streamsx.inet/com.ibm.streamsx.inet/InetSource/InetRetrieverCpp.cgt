@@ -45,6 +45,9 @@ MY_OPERATOR::InetRetriever::InetRetriever(const std::string& url, const int time
     // Tell curl to ask the server to provide the "last modified at" timestamp when fetching a file
     curl_easy_setopt(_curlHandle, CURLOPT_FILETIME, 1);
 
+    // accept all supported built-in compression methods
+    curl_easy_setopt(_curlHandle, CURLOPT_ACCEPT_ENCODING, "");
+
     // some servers insist on knowing who is asking
     curl_easy_setopt(_curlHandle, CURLOPT_USERAGENT, "IBMStreams/4.0");
 
