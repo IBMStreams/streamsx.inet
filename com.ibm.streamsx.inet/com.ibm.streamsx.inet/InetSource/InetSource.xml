@@ -1,18 +1,11 @@
-<?xml version="1.0" ?>
-
+<?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright (C) 2010,2012-2016, International Business Machines     -->
 <!-- Corporation.  All Rights Reserved                                 -->
-
-<operatorModel
-  xmlns="http://www.ibm.com/xmlns/prod/streams/spl/operator" 
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:cmn="http://www.ibm.com/xmlns/prod/streams/spl/common"
-  xsi:schemaLocation="http://www.ibm.com/xmlns/prod/streams/spl/operator
-  operatorModel.xsd">
+<operatorModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.ibm.com/xmlns/prod/streams/spl/operator" xmlns:cmn="http://www.ibm.com/xmlns/prod/streams/spl/common" xsi:schemaLocation="http://www.ibm.com/xmlns/prod/streams/spl/operator operatorModel.xsd">
   <cppOperatorModel>
     <context>
       <description docHref="doc/${nl}/spldoc/html/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet$InetSource.html">
-The `InetSource` operator periodically retrieves text-based data from remote locations on an internet or intranet network
+The `InetSource` operator periodically retrieves data from network servers
 and generates a stream from those contents. This operator can also be used to stream the contents of local files.
 The `InetSource` operator shares some characteristics with the `FileSource` operator from the IBM Streams Processing Language (SPL)
 standard toolkit, but it provides more functions. 
@@ -31,17 +24,24 @@ The two operators differ in the following ways:
   An example of multi-target reading is in the `WeatherConditions.spl` file within the Commodity Purchasing Sample Application,
   where 24 HTTP-based URLs are simultaneously monitored for changes.
 
-The data retrieved is assigned to the first attribute in the operator's output port. The first output attribute may be of type `rstring`, `list&lt;rstring&gt;`, `blob`, or `xml`:
+The data retrieved is implicitly assigned to the first output attribute that does not have explicit output assignments. The data attribute must be of type `rstring`, `list&lt;rstring>`, `blob`, or `xml`:
 
-* When the first attribute is of type `rstring` or `list&lt;rstring&gt;`, the retrieved data is assumed to contain text: the operator parses the data into lines and assigns them to the attribute in one or more output tuples, according to the `emitTuplePerXxxx` parameters.
+* When the data attribute is of type `rstring` or `list&lt;rstring>`, the retrieved data is assumed to contain text: the operator parses the data into lines and assigns them to the attribute in one or more output tuples, according to the `emitTuplePerXxxx` parameters.
 
-* When the first attribute is of type `blob` or `xml`, all of the retrieved data is assigned to the attribute in one output tuple, and the `emitTuplePerXxxx` parameters are ignored. Note that if the attribute is of type `xml` and the retrieved data contains invalid XML, an error is logged and no output is produced.
+* When the data attribute is of type `blob` or `xml`, all of the retrieved data is assigned to the attribute in one output tuple, and the `emitTuplePerXxxx` parameters are ignored. Note that if the attribute is of type `xml` and the retrieved data contains invalid XML, an error is logged and no output is produced.
 
-If the operator's output port has a second attribute, it must be of type `rstring`. The operator will assign the URL of the location the data was retrieved from to the second attribute in each output tuple.
+Other output attributes may be assigned values explicitly using the operator's output assignment functions. These functions assign the requested and responding URLs, the response code, the data type, and the elapsed time for fetching the data.
 
-The output stream of the `InetSource` operator can be fed into a `Functor` operator with custom logic to parse the data
-into any number of SPL types. For more information and examples, see the `WeatherConditions.spl` file 
-within the Commodity Purchasing Sample Application.
+The output stream of the `InetSource` operator can be fed into a `Functor`
+operator with custom logic to parse the data into any number of SPL types. For
+more information and examples, see the `WeatherConditions.spl` and
+`GetHeadlines.spl` sample applications.
+
+By default, there is no time limit for fetching data from remote servers;
+servers that accept a request but do not return a response can block the
+operator indefinitely. Optionally, a time limit for fetching data can be
+specified. If the time limit is exceeded, the fetch is canceled, an error is
+logged, and no output is produced.
 
 **Behavior in a consistent region**
 
@@ -55,11 +55,11 @@ and **ALL_PROXY** environment variables as described on the curl man page at the
 
 This example demonstrates how to use the `InetSource` operator:
 
-    stream &lt;rstring metarObsRecord&gt; WxObservations = InetSource (){
+    stream &lt;rstring metarObsRecord> WxObservations = InetSource () {
       param
         URIList:
-        ["http://weather.noaa.gov/pub/data/observations/meta/cycles/07Z.TXT",
-        "http://weather.noaa.gov/pub/data/observations/meta/cycles/08Z.TXT"];
+        [&quot;http://weather.noaa.gov/pub/data/observations/meta/cycles/07Z.TXT&quot;,
+        &quot;http://weather.noaa.gov/pub/data/observations/meta/cycles/08Z.TXT&quot;];
         initDelay: 5.0;
         incrementalFetch: true;
         fetchIntervalSeconds: 60u;
@@ -69,6 +69,53 @@ This example demonstrates how to use the `InetSource` operator:
       <iconUri size="16">InetSource_16.gif</iconUri>
       <iconUri size="32">InetSource_32.gif</iconUri>
       <customLiterals/>
+      <customOutputFunctions>
+        <customOutputFunction>
+          <name>InetSourceOutputAssignments</name>
+
+          <function>
+            <description>
+              This function assigns the URL that was requested when fetching the data assigned to the data attribute. This is one of the URLs specified in the 'URLList' parameter.
+            </description>
+            <prototype>rstring TargetURL()</prototype>
+          </function>
+          
+          <function>
+            <description>
+              This function assigns the URL that responded when fetching the data assigned to the data attribute. This may be one of the URLs specified in the 'URLList' parameter, or it may be different if the requested URL was redirected elsewhere.
+            </description>
+            <prototype>rstring EffectiveURL()</prototype>
+          </function>
+
+          <function>
+            <description>
+              This function assigns the value of the 'ContentType' header from an HTTP response, if the data fetched was an HTTP response and a 'ContentType' header was inclued, or else an empty string if not.
+            </description>
+            <prototype>rstring ContentType()</prototype>
+          </function>
+          
+          <function>
+            <description>
+              This function assigns the value of the response code.
+            </description>
+            <prototype>int32 ResponseCode()</prototype>
+          </function>
+
+          <function>
+            <description>
+              This function assigns the elapsed time the fetch took to complete, in seconds
+            </description>
+            <prototype>float64 FetchTime()</prototype>
+          </function>
+
+          <function>
+            <description>
+            </description>
+            <prototype>&lt;any T> T copy()</prototype>
+          </function>
+
+        </customOutputFunction>
+      </customOutputFunctions>
       <libraryDependencies>
         <library>
           <cmn:description>curl-library</cmn:description>
@@ -84,18 +131,20 @@ This example demonstrates how to use the `InetSource` operator:
         </library>
       </libraryDependencies>
       <providesSingleThreadedContext>Always</providesSingleThreadedContext>
+      <allowCustomLogic>true</allowCustomLogic>
       <codeTemplates>
         <codeTemplate name="InetSource">
           <description>Basic InetSource template</description>
-          <template>stream&lt;${streamType}&gt; ${streamName} = InetSource() {
+          <template>stream&lt;${streamType}> ${streamName} = InetSource() {
             param
-                URIList : ["${urilistitem}"];
+                URIList : [&quot;${urilistitem}&quot;];
         }</template>
         </codeTemplate>
-      </codeTemplates>      
-    </context>  
+      </codeTemplates>
+    </context>
     <parameters>
       <allowAny>false</allowAny>
+
       <parameter>
         <name>URIList</name>
         <description>
@@ -104,8 +153,10 @@ This example demonstrates how to use the `InetSource` operator:
         <optional>false</optional>
         <rewriteAllowed>true</rewriteAllowed>
         <expressionMode>AttributeFree</expressionMode>
-        <type>list&lt;rstring&gt;</type>
+        <type>list&lt;rstring></type>
+        <cardinality>-1</cardinality>
       </parameter>
+
       <parameter>
         <name>initDelay</name>
         <description>This parameter specifies an initial processing delay, in seconds, before the InetSource operator begins emitting tuples. This parameter is optional; if present, it must have exactly one value of type float64 that is an expression which can be evaluated at operator startup time.</description>
@@ -115,10 +166,11 @@ This example demonstrates how to use the `InetSource` operator:
         <type>float64</type>
         <cardinality>1</cardinality>
       </parameter>
+
       <parameter>
         <name>inputLinesPerRecord</name>
         <description>
-          The InetSource operator starts its processing by formatting the data that is retrieved from the source URI into individual records. Each record is then copied into the attribute of the output stream tuple (if the attribute type is an `rstring`) or appended as a member to the end of the attribute (if the attribute type is a `list&lt;rstring&gt;` data type). By default, each line in the source URI is considered to be a single record and is carried into the tuple attribute directly. However, it is also fairly common for the data in the source URI to be laid out as multiple lines per logical record. For example, each logical record might be formatted within the raw input data as two non-blank lines followed by a blank line, for a total record length of three consecutive lines of text within the raw input data. For such cases, the *inputLinesPerRecord* modifier is used. If this modifier is specified, the operator reads n lines of the input file and concatenates them into a single logical record, placing a blank character as a pad value between them. Note that the pad character can be changed to a different value by using the `intraRecordPadValue` parameter, which is specified by using a double-quoted string of zero or more characters. Both parameters are optional; if present, `inputLinesPerRecord` must have exactly one value of type uint32 that is an expression which can be evaluated at compile time; and intraRecordPadValue must have exactly one value of type rstring that is an expression which can be evaluated at compile time.
+          The InetSource operator starts its processing by formatting the data that is retrieved from the source URI into individual records. Each record is then copied into the attribute of the output stream tuple (if the attribute type is an `rstring`) or appended as a member to the end of the attribute (if the attribute type is a `list&lt;rstring>` data type). By default, each line in the source URI is considered to be a single record and is carried into the tuple attribute directly. However, it is also fairly common for the data in the source URI to be laid out as multiple lines per logical record. For example, each logical record might be formatted within the raw input data as two non-blank lines followed by a blank line, for a total record length of three consecutive lines of text within the raw input data. For such cases, the *inputLinesPerRecord* modifier is used. If this modifier is specified, the operator reads n lines of the input file and concatenates them into a single logical record, placing a blank character as a pad value between them. Note that the pad character can be changed to a different value by using the `intraRecordPadValue` parameter, which is specified by using a double-quoted string of zero or more characters. Both parameters are optional; if present, `inputLinesPerRecord` must have exactly one value of type uint32 that is an expression which can be evaluated at compile time; and intraRecordPadValue must have exactly one value of type rstring that is an expression which can be evaluated at compile time.
         </description>
         <optional>true</optional>
         <rewriteAllowed>true</rewriteAllowed>
@@ -126,10 +178,11 @@ This example demonstrates how to use the `InetSource` operator:
         <type>uint32</type>
         <cardinality>1</cardinality>
       </parameter>
-       <parameter>
+
+      <parameter>
         <name>intraRecordPadValue</name>
         <description>
-          The InetSource operator starts its processing by formatting the data that is retrieved from the source URI into individual records. Each record is then copied into the attribute of the output stream tuple (if the attribute type is an `rstring`) or appended as a member to the end of the attribute (if the attribute type is a `list&lt;rstring&gt;` data type). By default, each line in the source URI is considered to be a single record and is carried into the tuple attribute directly. However, it is also fairly common for the data in the source URI to be laid out as multiple lines per logical record. For example, each logical record might be formatted within the raw input data as two non-blank lines followed by a blank line, for a total record length of three consecutive lines of text within the raw input data. For such cases, the *inputLinesPerRecord* modifier is used. If this modifier is specified, the operator reads n lines of the input file and concatenates them into a single logical record, placing a blank character as a pad value between them. Note that the pad character can be changed to a different value by using the `intraRecordPadValue` parameter, which is specified by using a double-quoted string of zero or more characters. Both parameters are optional; if present, `inputLinesPerRecord` must have exactly one value of type uint32 that is an expression which can be evaluated at compile time; and intraRecordPadValue must have exactly one value of type rstring that is an expression which can be evaluated at compile time.
+          The InetSource operator starts its processing by formatting the data that is retrieved from the source URI into individual records. Each record is then copied into the attribute of the output stream tuple (if the attribute type is an `rstring`) or appended as a member to the end of the attribute (if the attribute type is a `list&lt;rstring>` data type). By default, each line in the source URI is considered to be a single record and is carried into the tuple attribute directly. However, it is also fairly common for the data in the source URI to be laid out as multiple lines per logical record. For example, each logical record might be formatted within the raw input data as two non-blank lines followed by a blank line, for a total record length of three consecutive lines of text within the raw input data. For such cases, the *inputLinesPerRecord* modifier is used. If this modifier is specified, the operator reads n lines of the input file and concatenates them into a single logical record, placing a blank character as a pad value between them. Note that the pad character can be changed to a different value by using the `intraRecordPadValue` parameter, which is specified by using a double-quoted string of zero or more characters. Both parameters are optional; if present, `inputLinesPerRecord` must have exactly one value of type uint32 that is an expression which can be evaluated at compile time; and intraRecordPadValue must have exactly one value of type rstring that is an expression which can be evaluated at compile time.
         </description>
         <optional>true</optional>
         <rewriteAllowed>true</rewriteAllowed>
@@ -137,6 +190,7 @@ This example demonstrates how to use the `InetSource` operator:
         <type>rstring</type>
         <cardinality>1</cardinality>
       </parameter>
+
       <parameter>
         <name>fetchInterval</name>
         <description>
@@ -148,6 +202,7 @@ This example demonstrates how to use the `InetSource` operator:
         <type>float64</type>
         <cardinality>1</cardinality>
       </parameter>
+
       <parameter>
         <name>incrementalFetch</name>
         <description>
@@ -161,6 +216,7 @@ This example demonstrates how to use the `InetSource` operator:
         <type>boolean</type>
         <cardinality>1</cardinality>
       </parameter>
+
       <parameter>
         <name>doNotStreamInitialFetch</name>
         <description>
@@ -172,6 +228,7 @@ This example demonstrates how to use the `InetSource` operator:
         <type>boolean</type>
         <cardinality>1</cardinality>
       </parameter>
+
       <parameter>
         <name>unconditionalFetch</name>
         <description>
@@ -183,10 +240,11 @@ This example demonstrates how to use the `InetSource` operator:
         <type>boolean</type>
         <cardinality>1</cardinality>
       </parameter>
+
       <parameter>
         <name>emitTuplePerFetch</name>
         <description>
-          This parameter controls how frequently a tuple is emitted from the InetSource operator. It is mutually exclusive with the `emitTuplePerURI` and `emitTuplePerRecordCount` parameters. When this parameter is specified, the output schema must be of type list&lt;rstring&gt; because the data from each fetch is contained in an element of the attribute. This parameter is optional; if present, it must have exactly one value that is a boolean constant.
+          This parameter controls how frequently a tuple is emitted from the InetSource operator. It is mutually exclusive with the `emitTuplePerURI` and `emitTuplePerRecordCount` parameters. When this parameter is specified, the output schema must be of type list&lt;rstring> because the data from each fetch is contained in an element of the attribute. This parameter is optional; if present, it must have exactly one value that is a boolean constant.
 	    </description>
         <optional>true</optional>
         <rewriteAllowed>true</rewriteAllowed>
@@ -194,10 +252,11 @@ This example demonstrates how to use the `InetSource` operator:
         <type>boolean</type>
         <cardinality>1</cardinality>
       </parameter>
+
       <parameter>
         <name>emitTuplePerURI</name>
         <description>
-          This parameter controls how frequently a tuple is emitted from the InetSource operator. It is mutually exclusive with the `emitTuplePerFetch` and `emitTuplePerRecordCount` parameters. When this parameter is specified, the output schema must be of type list&lt;rstring&gt; because the data from each URI is contained in an element of the attribute. This parameter is optional; if present, it must have exactly one value that is a boolean constant.
+          This parameter controls how frequently a tuple is emitted from the InetSource operator. It is mutually exclusive with the `emitTuplePerFetch` and `emitTuplePerRecordCount` parameters. When this parameter is specified, the output schema must be of type list&lt;rstring> because the data from each URI is contained in an element of the attribute. This parameter is optional; if present, it must have exactly one value that is a boolean constant.
         </description>
         <optional>true</optional>
         <rewriteAllowed>true</rewriteAllowed>
@@ -205,10 +264,11 @@ This example demonstrates how to use the `InetSource` operator:
         <type>boolean</type>
         <cardinality>1</cardinality>
       </parameter>
+
       <parameter>
         <name>emitTuplePerRecordCount</name>
         <description>
-          This parameter controls how frequently a tuple is emitted from the InetSource operator. It is mutually exclusive with the `emitTuplePerFetch` and `emitTuplePerURI` paramters. When this parameter is specified, a tuple is emitted each time the specified number of records are received. The output schema must be of type list&lt;rstring&gt; because string data that exceeds the SPL string length limit is broken up into multiple elements in the output list. By default, a line is a record. If you change the `inputLinesPerRecord` parameter, this changes. The emit parameters control how those records are added to the output tuple. If `inputLinesPerRecord` is higher than the number of lines read, then you only get as many lines as were read. With multiple URIs, records never span content from URIs, however the emit parameters control how the records are put into tuples and when tuples are submitted (as described in each emit parameter section). This parameter is optional; if present, it must have exactly one value of type uint32 that is an expression which can be evaluated at compile time.
+          This parameter controls how frequently a tuple is emitted from the InetSource operator. It is mutually exclusive with the `emitTuplePerFetch` and `emitTuplePerURI` paramters. When this parameter is specified, a tuple is emitted each time the specified number of records are received. The output schema must be of type list&lt;rstring> because string data that exceeds the SPL string length limit is broken up into multiple elements in the output list. By default, a line is a record. If you change the `inputLinesPerRecord` parameter, this changes. The emit parameters control how those records are added to the output tuple. If `inputLinesPerRecord` is higher than the number of lines read, then you only get as many lines as were read. With multiple URIs, records never span content from URIs, however the emit parameters control how the records are put into tuples and when tuples are submitted (as described in each emit parameter section). This parameter is optional; if present, it must have exactly one value of type uint32 that is an expression which can be evaluated at compile time.
         </description>
         <optional>true</optional>
         <rewriteAllowed>true</rewriteAllowed>
@@ -216,6 +276,7 @@ This example demonstrates how to use the `InetSource` operator:
         <type>uint32</type>
         <cardinality>1</cardinality>
       </parameter>
+
       <parameter>
         <name>punctPerFetch</name>
         <description>
@@ -227,6 +288,7 @@ This example demonstrates how to use the `InetSource` operator:
         <type>boolean</type>
         <cardinality>1</cardinality>
       </parameter>
+
       <parameter>
         <name>iterations</name>
         <description>
@@ -238,20 +300,38 @@ This example demonstrates how to use the `InetSource` operator:
         <type>uint32</type>
         <cardinality>1</cardinality>
       </parameter>
+
+      <parameter>
+        <name>timeout</name>
+        <description>
+          This parameter specifies a timeout, in seconds, for fetching data from the URLs specified by the 'URLList' parameter. If not specified, no timeout is set, and remote servers that accept requests but do not respond quickly will block the operator.
+        </description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>AttributeFree</expressionMode>
+        <type>int32</type>
+        <cardinality>1</cardinality>
+      </parameter>
+
     </parameters>
-    <inputPorts>
-    </inputPorts>
+    <inputPorts/>
     <outputPorts>
       <outputPortSet>
-        <expressionMode>Expression</expressionMode> 
+        <description></description>
+        <expressionMode>Expression</expressionMode>
         <autoAssignment>false</autoAssignment>
         <completeAssignment>false</completeAssignment>
         <rewriteAllowed>false</rewriteAllowed>
+        <outputFunctions>
+          <default>copy</default>
+          <type>InetSourceOutputAssignments</type>
+        </outputFunctions>
         <windowPunctuationOutputMode>Generating</windowPunctuationOutputMode>
+        <windowPunctuationInputPort>-1</windowPunctuationInputPort>
         <tupleMutationAllowed>true</tupleMutationAllowed>
         <cardinality>1</cardinality>
         <optional>false</optional>
-      </outputPortSet>    
+      </outputPortSet>
     </outputPorts>
   </cppOperatorModel>
 </operatorModel>

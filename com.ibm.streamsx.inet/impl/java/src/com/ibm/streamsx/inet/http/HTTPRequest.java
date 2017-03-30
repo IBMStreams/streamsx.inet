@@ -45,7 +45,7 @@ class HTTPRequest {
 
 	private HttpUriRequest req = null;
 	private HttpEntity entity = null;
-	private double connectionTimeout = -1.0;
+	private double connectionTimeout = 20.0;
         private HttpParams httpParams = null;
 
 	public HTTPRequest(String url) {
