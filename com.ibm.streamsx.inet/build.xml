@@ -21,7 +21,7 @@ artifacts were left around and caused issues with the ant build.
 	<property name="src.dir"           location="impl/java/src" />
 	<property name="build.dir"         location="impl/java/classes" />
 	<property name="impl.lib.dir"      location="impl/lib" /> <!-- used for the libs -->
-	<property name="lib.dir"           location="impl/lib" /> <!-- used for cleanup only -->
+	<property name="lib.dir"           location="lib" />      <!-- used for cleanup only -->
 	<property name="nl.dir"            location="impl/nl" />
 	<property name="gensrc.dir"        location="impl/java/src-gen" />
 	<property name="test.run.dir"      location="tests" />
@@ -169,10 +169,10 @@ artifacts were left around and caused issues with the ant build.
 	</target>
 
 	<target name="jar" depends="compile" description="Generate the java library">
-		<manifestclasspath property="jar.cp.manifest" jarfile="${lib.dir}/com.ibm.streamsx.inet.rest.jar">
+		<manifestclasspath property="jar.cp.manifest" jarfile="${impl.lib.dir}/com.ibm.streamsx.inet.rest.jar">
 			<classpath refid="cp.manifest" />
 		</manifestclasspath>
-		<jar destfile="${lib.dir}/${jarfile}" filesonly="true">
+		<jar destfile="${impl.lib.dir}/${jarfile}" filesonly="true">
 			<fileset dir="${build.dir}" includes="com/ibm/streamsx/inet/**"/>
 			<fileset dir="${src.dir}" includes="com/ibm/streamsx/inet/messages/*.properties"/>
 			<manifest>
@@ -189,7 +189,7 @@ artifacts were left around and caused issues with the ant build.
 
 		<javac srcdir="${src.dir}" destdir="${test.build.dir}" debug="true" includeantruntime="yes" includes="com/ibm/streamsx/inet/*/test/**">
 			<classpath>
-				<pathelement location="${lib.dir}/${jarfile}" />
+				<pathelement location="${impl.lib.dir}/${jarfile}" />
 				<path refid="cp.streams" />
 			</classpath>
 		</javac>
@@ -197,7 +197,7 @@ artifacts were left around and caused issues with the ant build.
 		<junit printsummary="yes" haltonfailure="yes" fork="yes">
 			<classpath>
 				<pathelement location="${test.build.dir}" />
-				<pathelement location="${lib.dir}/${jarfile}" />
+				<pathelement location="${impl.lib.dir}/${jarfile}" />
 				<path refid="cp.streams" />
 			</classpath>
 
