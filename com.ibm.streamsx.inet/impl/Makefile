@@ -55,7 +55,7 @@ OBJECTS  = $(patsubst $(SRC)/%.cpp,$(OBJ)/%.o,$(SOURCES))
 CXXFLAGS := -O3 $(SPL_COMPILE_OPTIONS) -Werror -Wall
 LINKFLAGS := -shared $(SPL_LINK_OPTIONS)
 
-all: clean build clean_objects
+all: clean build
 
 build: $(LIBRARY)
 
