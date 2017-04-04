@@ -13,10 +13,6 @@
     </function:functions>
     <function:dependencies>
       <function:library>
-        <common:description/>
-        <common:managedLibrary/>
-      </function:library>
-      <function:library>
         <common:description>'curl' library</common:description>
         <common:managedLibrary>
           <common:lib>curl</common:lib>
