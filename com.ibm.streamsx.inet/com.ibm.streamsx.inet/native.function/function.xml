@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ASCII"?>
+<function:functionModel xmlns:common="http://www.ibm.com/xmlns/prod/streams/spl/common" xmlns:function="http://www.ibm.com/xmlns/prod/streams/spl/function">
+  <function:functionSet>
+    <function:headerFileName>parseDatestring.h</function:headerFileName>
+    <function:cppNamespaceName>com::ibm::streamsx::inet</function:cppNamespaceName>
+    <function:functions>
+      <function:function>
+        <function:description>
+        This function converts a string that specifies a calendar date and time into an integer containing the corresponding 'unix epoch' value. It recognizes all of the date and time formats allowed in HTTP messages. For details, see [https://curl.haxx.se/libcurl/c/curl_getdate.html].
+        </function:description>
+        <function:prototype>public int64 parseDatestring(rstring datestring)</function:prototype>
+      </function:function>
+    </function:functions>
+    <function:dependencies>
+      <function:library>
+        <common:description/>
+        <common:managedLibrary/>
+      </function:library>
+      <function:library>
+        <common:description>'curl' library</common:description>
+        <common:managedLibrary>
+          <common:lib>curl</common:lib>
+          <common:includePath>../../impl/include</common:includePath>
+        </common:managedLibrary>
+      </function:library>
+    </function:dependencies>
+  </function:functionSet>
+</function:functionModel>
