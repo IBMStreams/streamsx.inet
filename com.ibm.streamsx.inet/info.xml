@@ -22,7 +22,7 @@ or the SPL compiler to be aware of the location of the toolkit.
 # Before you begin
 
 Install IBM InfoSphere Streams. Configure the product environment variables by entering the following command: 
-    source product-installation-root-directory/4.0.0.0/bin/streamsprofile.sh
+    source product-installation-root-directory/4.0.1.0/bin/streamsprofile.sh
 
 # About this task
 
@@ -52,7 +52,7 @@ Alternatively, you can fully qualify the operators that are provided by toolkit 
 5. Run the application. You can submit the application as a job by using the **streamtool submitjob** command or by using Streams Studio. 
     </description>
     <version>2.8.2</version>
-    <requiredProductVersion>4.0.0.0</requiredProductVersion>
+    <requiredProductVersion>4.0.1.0</requiredProductVersion>
   </identity>
   <dependencies/>
   <resources>
