@@ -9,25 +9,30 @@ toolkit.xml
 /com.ibm.streamsx.inet/impl/nl/*.dat
 /com.ibm.streamsx.inet/impl/nl/include
 
-# generated operator models
-/com.ibm.streamsx.inet/com.ibm.streamsx.inet.wsserver/WebSocketInject/*
-/com.ibm.streamsx.inet/com.ibm.streamsx.inet.wsserver/WebSocketSend/*
-/com.ibm.streamsx.inet/com.ibm.streamsx.inet.rest/*/*.gif
+# generated operator models and icon files for java primitive operators
+/com.ibm.streamsx.inet/com.ibm.streamsx.inet.http/*/*.xml
 /com.ibm.streamsx.inet/com.ibm.streamsx.inet.http/*/*.gif
+!com.ibm.streamsx.inet/com.ibm.streamsx.inet.http/native.function/function.xml
+
+/com.ibm.streamsx.inet/com.ibm.streamsx.inet.rest/*/*.xml
+/com.ibm.streamsx.inet/com.ibm.streamsx.inet.rest/*/*.gif
+
+/com.ibm.streamsx.inet/com.ibm.streamsx.inet.wsserver/*/*.xml
+/com.ibm.streamsx.inet/com.ibm.streamsx.inet.wsserver/*/*.gif
 
 # more generated operator and function models
-/com.ibm.streamsx.inet/com.ibm.streamsx.inet.http/HTTPGetJSONContent/HTTPGetJSONContent.xml
-/com.ibm.streamsx.inet/com.ibm.streamsx.inet.rest/HTTPJSONInjection/HTTPJSONInjection.xml
 /com.ibm.streamsx.inet/com.ibm.streamsx.inet.rest/native.function/SPL_JNIFunctions_com_ibm_streamsx_inet_rest.h
 /com.ibm.streamsx.inet/com.ibm.streamsx.inet.rest/native.function/javaFunction.xml
 /com.ibm.streamsx.inet/impl/nl/include/InetResource.h
 
 # more generated files
+/com.ibm.streamsx.inet/opt/downloaded/
 samples/*/output
 samples/*/toolkit.xml
 samples/*/.toolkitList
 samples/*/bin
 /samples/*/doc
+/release-*
 
 ## java excludes
 *.class
@@ -36,8 +41,7 @@ samples/*/bin
 *$StreamsModel.java
 
 # Package Files #
-com.ibm.streamsx.inet/lib/*.jar
-com.ibm.streamsx.inet/impl/lib
+com.ibm.streamsx.inet/impl/lib/*.jar
 *.war
 *.ear
 

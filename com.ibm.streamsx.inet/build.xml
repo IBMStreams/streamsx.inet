@@ -33,6 +33,8 @@ artifacts were left around and caused issues with the ant build.
 	     In this case the libraries must be supplied from external build environment -->
 	<available file="opt/downloaded/.no_download" type="file" property="no.maven.deps"/>
 
+	<defaultexcludes add="**/.gitkeep"/>
+	
 	<target name="init">
 		<fail unless="env.M2_HOME" message="Environment variable M2_HOME not set. Please set this to point to the path of maven home directory" />
 		<mkdir dir="${gensrc.dir}"/>
