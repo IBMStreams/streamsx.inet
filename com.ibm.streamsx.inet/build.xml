@@ -41,9 +41,22 @@ artifacts were left around and caused issues with the ant build.
 		<mkdir dir="${downloads.dir}" />
 	</target>
 
-	<target name="clean" depends="cpp-clean">
-		<delete>
-			<fileset dir="${src.dir}" includes="**/*$StreamsModel.java" />
+	<target name="clean" depends="cpp-clean,cleanToolkitxml" description="clean all generated compiler, toolkit, test, document and downloaded artefacts">
+		<delete verbose="true">
+			<!-- The fileset with the generated spl artifacts -->
+			<fileset dir="${basedir}">
+				<include name="com.ibm.streamsx.inet.http/HTTPGetJSONContent/*"/>
+				<include name="com.ibm.streamsx.inet.http/HTTPGetStream/*"/>
+				<include name="com.ibm.streamsx.inet.http/HTTPGetXMLContent/*"/>
+				<include name="com.ibm.streamsx.inet.http/HTTPPost/*"/>
+				<include name="com.ibm.streamsx.inet.rest/HTTPJSONInjection/*"/>
+				<include name="com.ibm.streamsx.inet.rest/HTTPTupleInjection/*"/>
+				<include name="com.ibm.streamsx.inet.rest/HTTPTupleView/*"/>
+				<include name="com.ibm.streamsx.inet.rest/HTTPXMLInjection/*"/>
+				<include name="com.ibm.streamsx.inet.rest/HTTPXMLView/*"/>
+				<include name="com.ibm.streamsx.inet.wsserver/WebSocketInject/*"/>
+				<include name="com.ibm.streamsx.inet.wsserver/WebSocketSend/*"/>
+			</fileset>
 		</delete>
 		<delete dir="${gensrc.dir}"/>
 		<delete dir="${build.dir}" />
