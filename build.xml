@@ -46,8 +46,8 @@
         description="clean up" >
         <delete includeemptydirs="true">
           <fileset dir="${basedir}" includes="release-*/"/>
-        </delete>
-  	<ant dir="${toolkit}" target="clean"/>
+      </delete>
+      <ant dir="${toolkit}" target="clean"/>
   </target>
 
   <target name="toolkit"
@@ -56,8 +56,8 @@
   </target>
   
   <target name="toolkitIndexOnly" description="Index the toolkit.">
-  		<ant dir="${toolkit}" target="cleanToolkitxml" /> 
-        <ant dir="${toolkit}" target="indextoolkit" /> 
+      <ant dir="${toolkit}" target="cleanToolkitxml" />
+      <ant dir="${toolkit}" target="indextoolkit" />
   </target> 	
 
   <target name="spldoc" depends="setcommitversion, spldoc_work, revertversion"

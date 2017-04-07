@@ -15,25 +15,26 @@ artifacts were left around and caused issues with the ant build.
 <project name="com.ibm.streamsx.inet" basedir="." default="all">
 
 	<property environment="env" />
-	<property name="streams.install" value="${env.STREAMS_INSTALL}" />
-	<property name="maven.bin" value="${env.M2_HOME}/bin/mvn" />
+	<property name="streams.install"   value="${env.STREAMS_INSTALL}" />
+	<property name="maven.bin"         value="${env.M2_HOME}/bin/mvn" />
 
-	<property name="src.dir" value="impl/java/src" />
-	<property name="build.dir" value="impl/java/classes" />
-	<property name="impl.lib.dir" value="impl/lib" />
-	<property name="lib.dir" value="lib" />
-	<property name="impl.nl.dir" value="impl/nl" />
-	<property name="opt.wssupport.dir" value="opt/wssupport" />
-	<property name="test.run.dir" value="tests" />
-	<property name="test.build.dir" value="${test.run.dir}/bin" />
-	<property name="downloads.dir" value="opt/downloaded" />
-	<property name="jarfile" value="com.ibm.streamsx.inet.jar" />
+	<property name="src.dir"           location="impl/java/src" />
+	<property name="build.dir"         location="impl/java/classes" />
+	<property name="impl.lib.dir"      location="impl/lib" /> <!-- used for the libs -->
+	<property name="lib.dir"           location="lib" />      <!-- used for cleanup only -->
+	<property name="nl.dir"            location="impl/nl" />
+	<property name="test.run.dir"      location="tests" />
+	<property name="test.build.dir"    location="${test.run.dir}/bin" />
+	<property name="downloads.dir"     location="opt/downloaded" />
+	<property name="jarfile"           value="com.ibm.streamsx.inet.jar" />
+
+	<!-- if a file .no_download is present in the opt/donwnloaded directory, the maven download is supressed.
+	     In this case the libraries must be supplied from external build environment -->
 	<available file="opt/downloaded/.no_download" type="file" property="no.maven.deps"/>
 
 	<target name="init">
 		<fail unless="env.M2_HOME" message="Environment variable M2_HOME not set. Please set this to point to the path of maven home directory" />
 		<mkdir dir="${build.dir}" />
-		<mkdir dir="${lib.dir}" />
 		<mkdir dir="${impl.lib.dir}" />
 		<mkdir dir="${downloads.dir}" />
 	</target>
@@ -43,13 +44,14 @@ artifacts were left around and caused issues with the ant build.
 			<fileset dir="${src.dir}" includes="**/*$StreamsModel.java" />
 		</delete>
 		<delete dir="${build.dir}" />
+		<delete dir="${lib.dir}" />
 		<delete dir="${impl.lib.dir}" />
 		<delete dir="${downloads.dir}" />
 		<delete dir="output" />
 		<delete dir="doc" />
-		<delete dir="${impl.nl.dir}/include"/>
+		<delete dir="${nl.dir}/include"/>
 		<delete>
-			<fileset dir="${impl.nl.dir}" includes="*.dat"/>
+			<fileset dir="${nl.dir}" includes="*.dat"/>
 		</delete>
 		<delete dir="${test.run.dir}" />
 		<delete dir="${test.build.dir}" />
@@ -94,7 +96,7 @@ artifacts were left around and caused issues with the ant build.
 		<path refid="cp.manifest" />
 	</path>
 
-	<target name="all" depends="jar,cpp,indextoolkit" />
+	<target name="all" depends="indextoolkit" />
 
 	<target name="cpp">
 		<exec executable="make" failonerror="true" dir="impl">
