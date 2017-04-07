@@ -96,9 +96,9 @@ artifacts were left around and caused issues with the ant build.
 		<path refid="cp.manifest" />
 	</path>
 
-	<target name="all" depends="indextoolkit" />
+	<target name="all" depends="indextoolkit" description="build all source components and build toolkit index"/>
 
-	<target name="cpp">
+	<target name="cpp" description="Build the c++ source components">
 		<exec executable="make" failonerror="true" dir="impl">
 			<arg value="-f" />
 			<arg value="Makefile" />
@@ -106,7 +106,7 @@ artifacts were left around and caused issues with the ant build.
 		</exec>
 	</target>
 
-	<target name="cpp-clean">
+	<target name="cpp-clean" description="Cleanup the c++ build">
 		<exec executable="make" failonerror="true" dir="impl">
 			<arg value="-f" />
 			<arg value="Makefile" />
@@ -114,7 +114,7 @@ artifacts were left around and caused issues with the ant build.
 		</exec>
 	</target>
 
-	<target name="indextoolkit" depends="jar,cpp">
+	<target name="indextoolkit" depends="jar,cpp" description="Build the toolkit index">
 		<echo message="Tookit to index: ${basedir}"/>
 		<exec executable="${streams.install}/bin/spl-make-toolkit" failonerror="true">
 			<arg value="--directory"/>
@@ -123,7 +123,7 @@ artifacts were left around and caused issues with the ant build.
 		</exec>
 	</target>
 
-	<target name="cleanToolkitxml">
+	<target name="cleanToolkitxml" description="Clean the toolkit index">
 		<delete>
 			<fileset dir="./">
 				<include name="toolkit.xml" />
@@ -139,8 +139,7 @@ artifacts were left around and caused issues with the ant build.
 		</exec>
 	</target>
 
-
-	<target name="compile" depends="init, maven-deps">
+	<target name="compile" depends="init, maven-deps" description="Compile the java source components">
 		<javac srcdir="${src.dir}" destdir="${build.dir}" debug="true" includeantruntime="no"
 			source="1.8" target="1.8"
 			excludes="com/ibm/streamsx/inet/*/test/**">
@@ -150,7 +149,7 @@ artifacts were left around and caused issues with the ant build.
 		</javac>
 	</target>
 
-	<target name="jar" depends="compile">
+	<target name="jar" depends="compile" description="Generate the java library">
 		<manifestclasspath property="jar.cp.manifest" jarfile="${impl.lib.dir}/com.ibm.streamsx.inet.rest.jar">
 			<classpath refid="cp.manifest" />
 		</manifestclasspath>
@@ -165,7 +164,7 @@ artifacts were left around and caused issues with the ant build.
 	</target>
 
 	<!-- assumes Junit 4.3 (or later) is in $HOME/.ant/lib -->
-	<target name="test" depends="jar">
+	<target name="test" depends="jar" description="Execute the integrated unit tests">
 		<mkdir dir="${test.run.dir}" />
 		<mkdir dir="${test.build.dir}" />
 
