@@ -118,7 +118,7 @@ artifacts were left around and caused issues with the ant build.
 		<exec executable="make" failonerror="true" dir="impl">
 			<arg value="-f" />
 			<arg value="Makefile" />
-			<arg value="all" />
+			<arg value="build" />
 		</exec>
 	</target>
 
@@ -177,7 +177,7 @@ artifacts were left around and caused issues with the ant build.
 				<attribute name="Class-Path" value="${jar.cp.manifest}" />
 			</manifest>
 		</jar>
-		<delete dir="${build.dir}" />
+		<!-- <delete dir="${build.dir}" /> do not delete classes to enable incremental build -->
 	</target>
 
 	<!-- assumes Junit 4.3 (or later) is in $HOME/.ant/lib -->

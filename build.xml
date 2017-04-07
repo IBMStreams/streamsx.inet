@@ -9,7 +9,6 @@
   <property name="release.base" location="release-${ant.project.name}-" />
   <property name="toolkit.test" location="tests" />
 
-	
   <target name="all"
     description="Build the toolkit code, build the samples index and generate the spl documentation"
     depends="toolkit,samples, spldoc_work, toolkitIndexOnly"
@@ -164,7 +163,7 @@
           destfile="${releasefilename}"
           basedir="${basedir}"
           includes="${tkinfo.identity.name}/** samples/**"
-          excludes="**/.gitignore **/.settings/** **/.settings **/.project **/.classpath"
+          excludes="**/.gitignore **/.gitkeep **/.settings/** **/.settings **/.project **/.classpath com.ibm.streamsx.inet/impl/java/src-gen/** com.ibm.streamsx.inet/impl/java/classes/** com.ibm.streamsx.inet/impl/cpp/bin/**"
       />
       <checksum file="${releasefilename}"/>
       <checksum algorithm="sha1" file="${releasefilename}"/>
