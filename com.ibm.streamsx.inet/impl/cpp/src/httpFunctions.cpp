@@ -286,7 +286,7 @@ namespace com_ibm_streamsx_inet_http {
             buffer[i] = *(toSend->data() + theStruct->numSent);
         }
         if (size*nitems < toSend->length()) {
-            SPLAPPTRC(L_ERROR,"Size is " << size*nitems << " blob size is " << toSend->length(), logTag);
+            SPLAPPTRC(L_DEBUG,"Libcurl buffer size is " << size*nitems << " blob size is " << toSend->length(), logTag);
         }
         SPLAPPTRC(L_DEBUG,"sent " << i << " bytes, numSent is " << theStruct->numSent,logTag);
         return i;
