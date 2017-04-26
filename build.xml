@@ -10,7 +10,10 @@
   <property name="toolkit.test" location="tests" />
 
 	
-  <target name="all" depends="toolkit,samples, spldoc_work, toolkitIndexOnly"/>
+  <target name="all"
+    description="Build the toolkit code, build the samples index and generate the spl documentation"
+    depends="toolkit,samples, spldoc_work, toolkitIndexOnly"
+  />
 
   <target name="setcommitversion">
     <!-- Create the time stamp -->
@@ -43,21 +46,21 @@
     </target>
 
   <target name="clean" depends="cleansamples"
-        description="clean up" >
-        <delete includeemptydirs="true">
+      description="clean up toolkit code and samples">
+      <delete includeemptydirs="true">
           <fileset dir="${basedir}" includes="release-*/"/>
-        </delete>
-  	<ant dir="${toolkit}" target="clean"/>
+      </delete>
+      <ant dir="${toolkit}" target="clean"/>
   </target>
 
   <target name="toolkit"
-        description="Build any code and index the toolkit." >
-  	<ant dir="${toolkit}" target="all"/>
+      description="Build any code and index the toolkit." >
+      <ant dir="${toolkit}" target="all"/>
   </target>
   
   <target name="toolkitIndexOnly" description="Index the toolkit.">
-  		<ant dir="${toolkit}" target="cleanToolkitxml" /> 
-        <ant dir="${toolkit}" target="indextoolkit" /> 
+      <ant dir="${toolkit}" target="cleanToolkitxml" />
+      <ant dir="${toolkit}" target="indextoolkit" />
   </target> 	
 
   <target name="spldoc" depends="setcommitversion, spldoc_work, revertversion"
@@ -65,8 +68,7 @@
   />
 
   <target name="spldoc_work" depends="samples,setcommitversion"
-    description="Create SPLDOC"
-  >
+    description="Create SPLDOC">
     <antcall target="spldoctoolkit">
        <param name="tkdir" value="${toolkit}"/>
        <param name="tktitle" value="IBMStreams ${tkinfo.identity.name} Toolkit"/>
@@ -76,12 +78,12 @@
     </subant>
   </target>
 
-  <target name="samples" depends="toolkit">
+  <target name="samples" depends="toolkit" description="Build the toolkit index for the samples">
     <subant target="indextoolkit" genericantfile="${basedir}/build.xml">
        <dirset dir="samples" includes="*"/>
     </subant>
   </target>
-  <target name="cleansamples">
+  <target name="cleansamples" description="Clean up samples index and samples code">
     <subant genericantfile="${basedir}/build.xml">
        <target name="cleantoolkit"/>
        <target name="cleansample"/>
@@ -89,7 +91,7 @@
     </subant>
   </target>
 
-  <target name="build-all-samples" depends="toolkit">
+  <target name="build-all-samples" depends="toolkit" description="Compile all samples">
     <subant target="buildsample" genericantfile="${basedir}/build.xml">
        <dirset dir="samples" includes="*"/>
     </subant>
@@ -151,18 +153,20 @@
   </target>
 
   <!-- Targets to build releases -->
-  <target name="release"  depends="clean,setcommitversion,create_release_bundle,revertversion,toolkitIndexOnly"/>
+  <target name="release" description="Build the release bundle"
+    depends="clean,setcommitversion,create_release_bundle,revertversion,toolkitIndexOnly"
+  />
   <target name="create_release_bundle"  depends="all">
-        <property name="release.dir" location="${release.base}${commithash}" />
-	<mkdir dir="${release.dir}" />
-        <property name="releasefilename" value="${release.dir}/streamsx.inet.toolkits-${tkinfo.identity.version}-${DSTAMP}-${TSTAMP}.tgz"/>
-    	<tar compression="gzip" longfile="gnu"
-             destfile="${releasefilename}"
-    	     basedir="${basedir}"
-             includes="${tkinfo.identity.name}/** samples/**"
-             excludes="**/.gitignore **/.settings/** **/.settings **/.project **/.classpath"
-    	/>
-        <checksum file="${releasefilename}"/>
-        <checksum algorithm="sha1" file="${releasefilename}"/>
-    </target>
+      <property name="release.dir" location="${release.base}${commithash}" />
+      <mkdir dir="${release.dir}" />
+      <property name="releasefilename" value="${release.dir}/streamsx.inet.toolkits-${tkinfo.identity.version}-${DSTAMP}-${TSTAMP}.tgz"/>
+      <tar compression="gzip" longfile="gnu"
+          destfile="${releasefilename}"
+          basedir="${basedir}"
+          includes="${tkinfo.identity.name}/** samples/**"
+          excludes="**/.gitignore **/.settings/** **/.settings **/.project **/.classpath"
+      />
+      <checksum file="${releasefilename}"/>
+      <checksum algorithm="sha1" file="${releasefilename}"/>
+  </target>
 </project>
