@@ -19,6 +19,7 @@ namespace com { namespace ibm { namespace streamsx { namespace inet { namespace 
 class FTPWrapper{
 public:
 	class Initializer{
+		bool cryptoLockInserted;
 		public:
 			Initializer();
 			~Initializer();
