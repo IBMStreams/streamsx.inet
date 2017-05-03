@@ -1,0 +1,195 @@
+package com.ibm.streamsx.inet.rest.ops;
+/**
+* Licensed Materials - Property of IBM
+* Copyright IBM Corp. 2017 
+* @author mags
+*/
+import org.apache.log4j.Logger;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.stream.Stream;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.eclipse.jetty.continuation.Continuation;
+
+import com.ibm.json.java.JSONObject;
+import com.ibm.streams.operator.Tuple;
+
+public class ReqWebMessage {
+	static Logger trace = Logger.getLogger(ReqHandlerSuspend.class.getName());
+
+	public int trackingKey = 0;	
+	
+	protected static int trackingKeyGenerator = 0;
+	public Tuple tuple = null;
+	public String requestFromWeb;
+	private String method = null;
+	private String contextPath = null;
+	private String pathInfo = null;
+	private String queryString = null;
+	private String requestUrl = null;
+	private String contentType = null;
+	private HttpServletRequest request = null;
+	StringBuffer readerSb = null;
+
+	private Hashtable<String, String> headers = new Hashtable<String, String>();
+	private Continuation continuation;
+	/*
+	 * tracking key, tracking each request, becomes the key on Streams side
+	 * where it's used to correlate the request and response.
+	 */
+
+	private String responseFromStreams = "";
+	static final String defaultResponseContentType = "text/html; charset=utf-8";
+	private String responseContentType = defaultResponseContentType; 
+	
+	private Map<String, String> responseHeaders = new Hashtable<String, String>();
+	
+	public int statusCode = HttpServletResponse.SC_OK;
+	private String statusMessage = null;	
+
+	public ReqWebMessage(HttpServletRequest request) {
+		this.trackingKey = trackingKeyGenerator++;
+		this.request = request;
+		getPayload();
+		dumpPayload();
+	}
+	
+	void dumpPayload() {
+		if(trace.isInfoEnabled()) {
+			trace.info("DUMP REQUEST tracking key:" + trackingKey + " ");
+			for (String key : headers.keySet()) {
+				trace.info("-- header : key: " + key + " value:" + headers.get(key));
+			}
+			trace.info(String.format(
+				" -- method:%s -- context Path:%s -- pathInfo:%s -- requestUrl:%s -- contentType:%s",
+				method, contextPath, pathInfo, requestUrl, contentType));
+			trace.info(String.format(" -- queryString:%s -- readerInput: %s", queryString, readerSb.toString()));
+			trace.info(String.format(" -- requestPayload:%s", getRequestPayload()));
+		}
+	}
+	// Request components
+	private void getPayload() {
+		method = request.getMethod();
+		contentType = request.getContentType();
+		contextPath = request.getContextPath();
+		pathInfo = request.getPathInfo();
+		requestUrl = request.getRequestURL().toString();
+		queryString = request.getQueryString();
+		readerSb = new StringBuffer();
+		try {
+			Stream<String> stream = request.getReader().lines();
+			stream.forEach(item -> readerSb.append(item));
+			stream.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.err.println("Error reading request of context path : " + contextPath);
+			e.printStackTrace();
+		}
+
+		Enumeration<String> headerNames = request.getHeaderNames();
+		while (headerNames.hasMoreElements()) {
+			String name = headerNames.nextElement();
+			headers.put(name, request.getHeader(name));
+		}
+	}
+	// Request components 
+	// 
+	public String getRequestPayload() {
+		if (queryString != null) {
+			return queryString;
+		} else if (readerSb != null) {
+			return readerSb.toString();
+		}
+		return requestFromWeb == null ? "" : requestFromWeb;
+	}
+	public String getContentType() {
+		return (this.contentType == null ? "" : this.contentType); 
+	}
+	public String getMethod() {
+		return method == null ? "" : method;
+	}
+	public String getPathInfo() {
+		return pathInfo == null ? "" : pathInfo;
+	}
+	public String getRequestUrl() {
+		return requestUrl == null ? "" : requestUrl;
+	}
+	public Hashtable<String, String> getHeaders() {
+		return headers;
+	}
+	// Build the Json request from all the components. 
+	public String jsonRequest() {
+	
+		JSONObject jsonObj = new JSONObject();
+		jsonObj.put(HTTPTupleRequest.defaultKeyAttributeName, this.trackingKey);
+		jsonObj.put(HTTPTupleRequest.defaultMethodAttributeName, this.getMethod());
+		jsonObj.put(HTTPTupleRequest.defaultContentTypeAttributeName, this.getContentType());
+		jsonObj.put(HTTPTupleRequest.defaultContextPathAttributeName,  this.contextPath);
+		jsonObj.put(HTTPTupleRequest.defaultPathInfoAttributeName, this.getPathInfo());
+		jsonObj.put(HTTPTupleRequest.defaultRequestAttributeName, this.getRequestPayload());
+		jsonObj.put(HTTPTupleRequest.defaultUrlAttributeName, this.requestUrl);
+		jsonObj.put(HTTPTupleRequest.defaultHeaderAttributeName, this.getHeaders());
+		return(jsonObj.toString());
+	} 
+	
+	
+	// Jetty concept 
+	public void setContinuation(Continuation continuation) {
+		this.continuation = continuation;
+	}
+	public Continuation getContinuation() {
+		return this.continuation;
+	}
+	
+	// Response components - setting
+	//
+	public void setResponse(String response) {
+		this.responseFromStreams = response;
+	}
+	public void setResponseHeaders(Map<String, String> responseHeaders) {
+		this.responseHeaders = responseHeaders;
+	}
+	public void setResponseContentType(String responseContentType) {
+		this.responseContentType = responseContentType;
+	}
+	public void setStatusCode(Integer statusCode) {
+		if (statusCode != null) {
+			trace.info("setStatusCode :: status code:" + statusCode);
+			this.statusCode = statusCode;
+		} else {
+			trace.info("setStatusCode :: NULL mapped to 0");
+			this.statusCode = 0;
+			
+		}
+	}
+	public void setStatusMessage(String statusMessage) {
+		this.statusMessage = statusMessage;
+	}	
+	// response - getting
+	public String getStatusMessage() {
+		return (this.statusMessage);
+	}	
+	public Map<String, String> getResponseHeaders() {
+		return (this.responseHeaders);
+	}
+	public String getResponse() {
+		return this.responseFromStreams;
+	}
+	public String getResponseContentType() {
+		return this.responseContentType == null ? defaultResponseContentType : this.responseContentType;
+	}
+	public boolean isErrorStatus() {
+		trace.info("isErrorCode:" + this.statusCode);
+		return (this.statusCode >= HttpServletResponse.SC_BAD_REQUEST); 
+	}
+	public int statusCode() {
+		return this.statusCode < HttpServletResponse.SC_CONTINUE ? HttpServletResponse.SC_OK :this.statusCode;
+	}
+
+
+}
