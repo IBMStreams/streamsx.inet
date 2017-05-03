@@ -153,7 +153,9 @@ namespace com_ibm_streamsx_inet_http {
      */
     size_t addToHeaderList(char * buffer, size_t size, size_t nitems, void * userdata) {
         SPL::list<SPL::rstring> * theList = (SPL::list<SPL::rstring>*)userdata;
+        //std::cout << "addToHeaderList size=" << size << " nitems=" << nitems << std::endl;
         SPL::rstring newString(buffer,size*nitems);
+        //std::cout << "newString=" << newString << std::endl;
         theList->push_back(newString);
         return size*nitems;
     }
@@ -476,7 +478,7 @@ namespace com_ibm_streamsx_inet_http {
 
 
     // First pass as curl_get.
-    SPL::rstring httpGet(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::int32& error) {
+    SPL::rstring httpGet(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> * headers, SPL::int32& error) {
 
         // Curl is more efficient if we let it reuse handles
         static __thread CURL* curlGet = NULL;
@@ -506,6 +508,35 @@ namespace com_ibm_streamsx_inet_http {
                 error = res;
                 return toReturn;
             }
+            //add header function if headers are requested from the interface
+            if (headers) {
+                CURLcode res = curl_easy_setopt(curlGet,CURLOPT_HEADERDATA,(void*)headers);
+                if (res != CURLE_OK) {
+                    SPLAPPTRC(L_ERROR,"Error code " << res << " setting header data",logTag);
+                    error = res;
+                    return "";
+                }
+                res = curl_easy_setopt(curlGet,CURLOPT_HEADERFUNCTION,&addToHeaderList);
+                if (res != CURLE_OK) {
+                    SPLAPPTRC(L_ERROR, "Error code " << res << " setting header function", logTag);
+                    error = res;
+                    return "";
+                }
+            } else {
+                res = curl_easy_setopt(curlGet,CURLOPT_HEADERFUNCTION,NULL);
+                if (res != CURLE_OK) {
+                    SPLAPPTRC(L_ERROR, "Error code " << res << " setting header function", logTag);
+                    error = res;
+                    return "";
+                }
+                CURLcode res = curl_easy_setopt(curlGet,CURLOPT_HEADERDATA,NULL);
+                if (res != CURLE_OK) {
+                    SPLAPPTRC(L_ERROR,"Error code " << res << " setting header data",logTag);
+                    error = res;
+                    return "";
+                }
+            }
+            //perform operation
             res = curl_easy_perform(curlGet);
             if (res != CURLE_OK) {
                 SPLAPPTRC(L_ERROR, "Error " << res << " on curl_easy_perform", logTag);
@@ -521,5 +552,14 @@ namespace com_ibm_streamsx_inet_http {
         }
         return toReturn;
     }
+
+    SPL::rstring httpGet(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::int32& error) {
+        return httpGet(url, extraHeaders, username, password, NULL, error);
+    }
+
+    SPL::rstring httpGet(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> & headers, SPL::int32& error) {
+        return httpGet(url, extraHeaders, username, password, &headers, error);
+    }
+
 
 }

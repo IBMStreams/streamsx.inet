@@ -9,10 +9,14 @@
         <function:prototype cppName="">public rstring httpGet(rstring url,list&lt;rstring> extraHeaders, rstring user, rstring password, mutable int32 error)</function:prototype>
       </function:function>
       <function:function>
-      <function:description>HTTP DELETE on the given url, using the username and password, if present.  It follows redirects.  If there is an error, a non-zero is returned by error.</function:description>
-         <function:prototype cppName="">public rstring httpDelete(rstring url,list&lt;rstring> extraHeaders, rstring user, rstring password, mutable int32 error)</function:prototype>
-       </function:function>
-<function:function>
+        <function:description>HTTP GET on the given url, using the username and password, if present.  It follows redirects. Header information are provided in headers parameter. If there is an error, a non-zero is returned by error.</function:description>
+        <function:prototype cppName="">public rstring httpGet(rstring url,list&lt;rstring> extraHeaders, rstring user, rstring password, mutable list&lt;rstring> headers, mutable int32 error)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>HTTP DELETE on the given url, using the username and password, if present.  It follows redirects.  If there is an error, a non-zero is returned by error.</function:description>
+        <function:prototype cppName="">public rstring httpDelete(rstring url,list&lt;rstring> extraHeaders, rstring user, rstring password, mutable int32 error)</function:prototype>
+      </function:function>
+      <function:function>
         <function:description>HTTP PUT data to the given url using the username and password given if not empty.  Does not follow redirects.  Headers are returned in the headers list, error is set to a non-zero if there is an error, and the result of the PUT is returned in the rstring.</function:description>
         <function:prototype>public rstring httpPut(rstring data, rstring url, list&lt;rstring> extraHeaders, rstring username, rstring password, mutable list&lt;rstring> headers, mutable int32 error)</function:prototype>
       </function:function>
@@ -21,12 +25,12 @@
         <function:prototype>public rstring httpPost(rstring data, rstring url, list&lt;rstring> extraHeaders, rstring username, rstring password, mutable list&lt;rstring> headers, mutable int32 error)</function:prototype>
       </function:function>
       <function:function>
-      <function:description>Decode a URL encoded rstring.</function:description>
-      <function:prototype>public rstring urlDecode(rstring decode)</function:prototype>
+        <function:description>Decode a URL encoded rstring.</function:description>
+        <function:prototype>public rstring urlDecode(rstring decode)</function:prototype>
       </function:function>
     <function:function>
-    <function:description>URL encode the given rstring.</function:description>
-    <function:prototype>public rstring urlEncode(rstring raw)</function:prototype>
+      <function:description>URL encode the given rstring.</function:description>
+      <function:prototype>public rstring urlEncode(rstring raw)</function:prototype>
     </function:function>
     </function:functions>
     <function:dependencies>
