@@ -47,24 +47,32 @@ FTPWrapper::Initializer::Initializer() {
 
 	//initialize ssl lock array
 	void (*fp)(int, int, const char*, int) = CRYPTO_get_locking_callback();
-	if (fp) SPLAPPTRC(L_ERROR, "There is already ssh lock call back function registered", "FTPWrapper");
-	ssllocks = (pthread_mutex_t *)OPENSSL_malloc(CRYPTO_num_locks() * sizeof(pthread_mutex_t));
-	for (int i=0; i < CRYPTO_num_locks(); i++) {
-		pthread_mutex_init(&(ssllocks[i]),NULL);
+	if (fp) {
+		SPLAPPTRC(L_INFO, "There is already ssh lock call back function registered", "FTPWrapper");
+		cryptoLockInserted = false;
+	} else {
+		SPLAPPTRC(L_INFO, "Register own ssh lock call back function registered", "FTPWrapper");
+		ssllocks = (pthread_mutex_t *)OPENSSL_malloc(CRYPTO_num_locks() * sizeof(pthread_mutex_t));
+		for (int i=0; i < CRYPTO_num_locks(); i++) {
+			pthread_mutex_init(&(ssllocks[i]),NULL);
+		}
+		//CRYPTO_set_id_callback(threadId);
+		CRYPTO_set_locking_callback(lockCallback);
+		cryptoLockInserted = true;
 	}
-	//CRYPTO_set_id_callback(threadId);
-	CRYPTO_set_locking_callback(lockCallback);
 }
 
 FTPWrapper::Initializer::~Initializer() {
 	curl_global_cleanup();
-	CRYPTO_set_locking_callback(NULL);
-	//CRYPTO_set_id_callback(NULL);
-	for (int i=0; i <CRYPTO_num_locks(); i++) {
-		pthread_mutex_destroy(&(ssllocks[i]));
+	if (cryptoLockInserted) {
+		CRYPTO_set_locking_callback(NULL);
+		//CRYPTO_set_id_callback(NULL);
+		for (int i=0; i <CRYPTO_num_locks(); i++) {
+			pthread_mutex_destroy(&(ssllocks[i]));
+		}
+		OPENSSL_free(ssllocks);
+		ssllocks = NULL;
 	}
-	OPENSSL_free(ssllocks);
-	ssllocks = NULL;
 }
 
 /**************************************************************
