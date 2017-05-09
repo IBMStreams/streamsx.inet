@@ -46,7 +46,11 @@ MY_OPERATOR::InetRetriever::InetRetriever(const std::string& url, const int time
     curl_easy_setopt(_curlHandle, CURLOPT_FILETIME, 1);
 
     // accept all supported built-in compression methods
+#ifdef CURLOPT_ACCEPT_ENCODING
     curl_easy_setopt(_curlHandle, CURLOPT_ACCEPT_ENCODING, "");
+#elseif CURLOPT_ENCODING
+    curl_easy_setopt(_curlHandle, CURLOPT_ENCODING, "");
+#endif
 
     // some servers insist on knowing who is asking
     curl_easy_setopt(_curlHandle, CURLOPT_USERAGENT, "IBMStreams/4.0");
