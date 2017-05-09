@@ -5,24 +5,159 @@
     <function:cppNamespaceName>com_ibm_streamsx_inet_http</function:cppNamespaceName>
     <function:functions>
       <function:function>
-        <function:description>HTTP GET on the given url, using the username and password, if present.  It follows redirects.  If there is an error, a non-zero is returned by error.</function:description>
+        <function:description>
+HTTP GET on the given url, using the username and password, if present. It follows redirects.
+If there is an error, a non-zero is returned by error. Errorcodes see in [https://curl.haxx.se/libcurl/c/libcurl-errors.html]
+@param	url					the url to get
+@param	extraHeaders		if this list is not emtpy, the list is passed to the server as HTTP Headers
+@param	user				if this string is not empty, this user name is passed to to the server
+@param	password			if this string is not empty, this password is passed to the server
+@param	error				the returned error code
+@return	the received http message body
+        </function:description>
         <function:prototype cppName="">public rstring httpGet(rstring url,list&lt;rstring> extraHeaders, rstring user, rstring password, mutable int32 error)</function:prototype>
       </function:function>
       <function:function>
-        <function:description>HTTP GET on the given url, using the username and password, if present.  It follows redirects. Header information are provided in headers parameter. If there is an error, a non-zero is returned by error.</function:description>
+        <function:description>
+HTTP GET on the given url, using the username and password, if present. It follows redirects. Received header information are provided in headers parameter.
+If there is an error, a non-zero is returned by error. Errorcodes see in [https://curl.haxx.se/libcurl/c/libcurl-errors.html]
+@param	url					the url to get
+@param	extraHeaders		if this list is not emtpy, the list is passed to the server as HTTP Headers
+@param	user				if this string is not empty, this user name is passed to to the server
+@param	password			if this string is not empty, this password is passed to the server
+@param	headers				the returned header data
+@param	error				the returned error code
+@return	the received http message body
+        </function:description>
         <function:prototype cppName="">public rstring httpGet(rstring url,list&lt;rstring> extraHeaders, rstring user, rstring password, mutable list&lt;rstring> headers, mutable int32 error)</function:prototype>
       </function:function>
       <function:function>
-        <function:description>HTTP DELETE on the given url, using the username and password, if present.  It follows redirects.  If there is an error, a non-zero is returned by error.</function:description>
+        <function:description>
+HTTP GET on the given url, using the username and password, if present. It follows redirects.
+If there is an error, a non-zero is returned by error. Errorcodes see in [https://curl.haxx.se/libcurl/c/libcurl-errors.html]
+@param	url					the url to get
+@param	extraHeaders		if this list is not emtpy, the list is passed to the server as HTTP Headers
+@param	user				if this string is not empty, this user name is passed to to the server
+@param	password			if this string is not empty, this password is passed to the server
+@param	error				the returned error code
+@param	requestTimeout		This is the maximum time in seconds that you allow the libcurl transfer operation to take. Normally, name lookups can take a considerable time
+and limiting operations to less than a few minutes risk aborting perfectly normal operations. Default timeout is 0 (zero) which means it never times out.
+@param	connectionTimeout	This is the maximum time in seconds that you allow the connection to the server to take. This only limits the connection phase, once it has connected, this option is of no more use. Set to zero to switch to the default built-in connection timeout - 120 seconds.
+@return	the received http message body
+        </function:description>
+        <function:prototype cppName="">public rstring httpGet(rstring url,list&lt;rstring> extraHeaders, rstring user, rstring password, mutable int32 error, int32 requestTimeout, int32 connectionTimeout)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+HTTP GET on the given url, using the username and password, if present. It follows redirects. Received header information are provided in headers parameter.
+If there is an error, a non-zero is returned by error. Errorcodes see in [https://curl.haxx.se/libcurl/c/libcurl-errors.html]
+@param	url					the url to get
+@param	extraHeaders		if this list is not emtpy, the list is passed to the server as HTTP Headers
+@param	user				if this string is not empty, this user name is passed to to the server
+@param	password			if this string is not empty, this password is passed to the server
+@param	headers				the returned header data
+@param	error				the returned error code
+@param	requestTimeout		This is the maximum time in seconds that you allow the libcurl transfer operation to take. Normally, name lookups can take a considerable time
+and limiting operations to less than a few minutes risk aborting perfectly normal operations. Default timeout is 0 (zero) which means it never times out.
+@param	connectionTimeout	This is the maximum time in seconds that you allow the connection to the server to take. This only limits the connection phase, once it has connected, this option is of no more use. Set to zero to switch to the default built-in connection timeout - 120 seconds.
+@return	the received http message body
+        </function:description>
+        <function:prototype cppName="">public rstring httpGet(rstring url,list&lt;rstring> extraHeaders, rstring user, rstring password, mutable list&lt;rstring> headers, mutable int32 error, int32 requestTimeout, int32 connectionTimeout)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+HTTP DELETE on the given url, using the username and password, if present. It follows redirects.
+If there is an error, a non-zero is returned by error. Errorcodes see in [https://curl.haxx.se/libcurl/c/libcurl-errors.html]
+@param	url					the url to delete
+@param	extraHeaders		if this list is not emtpy, the list is passed to the server as HTTP Headers
+@param	user				if this string is not empty, this user name is passed to to the server
+@param	password			if this string is not empty, this password is passed to the server
+@param	error				the returned error code
+@return	the received http message body
+        </function:description>
         <function:prototype cppName="">public rstring httpDelete(rstring url,list&lt;rstring> extraHeaders, rstring user, rstring password, mutable int32 error)</function:prototype>
       </function:function>
       <function:function>
-        <function:description>HTTP PUT data to the given url using the username and password given if not empty.  Does not follow redirects.  Headers are returned in the headers list, error is set to a non-zero if there is an error, and the result of the PUT is returned in the rstring.</function:description>
+        <function:description>
+HTTP DELETE on the given url, using the username and password, if present. It follows redirects.
+If there is an error, a non-zero is returned by error. Errorcodes see in [https://curl.haxx.se/libcurl/c/libcurl-errors.html]
+@param	url					the url to delete
+@param	extraHeaders		if this list is not emtpy, the list is passed to the server as HTTP Headers
+@param	user				if this string is not empty, this user name is passed to to the server
+@param	password			if this string is not empty, this password is passed to the server
+@param	error				the returned error code
+@param	requestTimeout		This is the maximum time in seconds that you allow the libcurl transfer operation to take. Normally, name lookups can take a considerable time
+and limiting operations to less than a few minutes risk aborting perfectly normal operations. Default timeout is 0 (zero) which means it never times out.
+@param	connectionTimeout	This is the maximum time in seconds that you allow the connection to the server to take. This only limits the connection phase, once it has connected, this option is of no more use. Set to zero to switch to the default built-in connection timeout - 120 seconds.
+@return	the received http message body
+        </function:description>
+        <function:prototype cppName="">public rstring httpDelete(rstring url,list&lt;rstring> extraHeaders, rstring user, rstring password, mutable int32 error, int32 requestTimeout, int32 connectionTimeout)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+HTTP PUT data to the given url using the username and password given if not empty. Does not follow redirects. Headers are returned in the headers list, error is set to a non-zero if there is an error, and the result of the PUT is returned in the rstring.
+Errorcodes see in [https://curl.haxx.se/libcurl/c/libcurl-errors.html]
+@param	data				the content to put
+@param	url					the url to put
+@param	extraHeaders		if this list is not emtpy, the list is passed to the server as HTTP Headers
+@param	username			if this string is not empty, this user name is passed to to the server
+@param	password			if this string is not empty, this password is passed to the server
+@param	error				the returned error code
+@return	the received http message body
+        </function:description>
         <function:prototype>public rstring httpPut(rstring data, rstring url, list&lt;rstring> extraHeaders, rstring username, rstring password, mutable list&lt;rstring> headers, mutable int32 error)</function:prototype>
       </function:function>
       <function:function>
-        <function:description>HTTP POST data to the given url using the username and password (if non-empty).  Does not follow redirects.  Headers are returned in the headers list.  Error is set to non-zero if there is an error.  The result of the POST is returned as an rstring. </function:description>
+        <function:description>
+HTTP PUT data to the given url using the username and password given if not empty. Does not follow redirects. Headers are returned in the headers list, error is set to a non-zero if there is an error, and the result of the PUT is returned in the rstring.
+Errorcodes see in [https://curl.haxx.se/libcurl/c/libcurl-errors.html]
+@param	data				the content to put
+@param	url					the url to put
+@param	extraHeaders		if this list is not emtpy, the list is passed to the server as HTTP Headers
+@param	username			if this string is not empty, this user name is passed to to the server
+@param	password			if this string is not empty, this password is passed to the server
+@param	error				the returned error code
+@param	requestTimeout		This is the maximum time in seconds that you allow the libcurl transfer operation to take. Normally, name lookups can take a considerable time
+and limiting operations to less than a few minutes risk aborting perfectly normal operations. Default timeout is 0 (zero) which means it never times out.
+@param	connectionTimeout	This is the maximum time in seconds that you allow the connection to the server to take. This only limits the connection phase, once it has connected, this option is of no more use. Set to zero to switch to the default built-in connection timeout - 120 seconds.
+@return	the received http message body
+        </function:description>
+        <function:prototype>public rstring httpPut(rstring data, rstring url, list&lt;rstring> extraHeaders, rstring username, rstring password, mutable list&lt;rstring> headers, mutable int32 error, int32 requestTimeout, int32 connectionTimeout)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+HTTP POST data to the given url using the username and password (if non-empty). Does not follow redirects. Headers are returned in the headers list.
+Error is set to non-zero if there is an error.  The result of the POST is returned as an rstring.
+Errorcodes see in [https://curl.haxx.se/libcurl/c/libcurl-errors.html]
+@param	data				the content to post
+@param	url					the url to post
+@param	extraHeaders		if this list is not emtpy, the list is passed to the server as HTTP Headers
+@param	username			if this string is not empty, this user name is passed to to the server
+@param	password			if this string is not empty, this password is passed to the server
+@param	headers				the returned header data
+@param	error				the returned error code
+@return	the received http message body
+        </function:description>
         <function:prototype>public rstring httpPost(rstring data, rstring url, list&lt;rstring> extraHeaders, rstring username, rstring password, mutable list&lt;rstring> headers, mutable int32 error)</function:prototype>
+      </function:function>
+      <function:function>
+        <function:description>
+HTTP POST data to the given url using the username and password (if non-empty). Does not follow redirects. Headers are returned in the headers list.
+Error is set to non-zero if there is an error.  The result of the POST is returned as an rstring.
+Errorcodes see in [https://curl.haxx.se/libcurl/c/libcurl-errors.html]
+@param	data				the content to post
+@param	url					the url to post
+@param	extraHeaders		if this list is not emtpy, the list is passed to the server as HTTP Headers
+@param	username			if this string is not empty, this user name is passed to to the server
+@param	password			if this string is not empty, this password is passed to the server
+@param	headers				the returned header data
+@param	error				the returned error code
+@param	requestTimeout		This is the maximum time in seconds that you allow the libcurl transfer operation to take. Normally, name lookups can take a considerable time
+and limiting operations to less than a few minutes risk aborting perfectly normal operations. Default timeout is 0 (zero) which means it never times out.
+@param	connectionTimeout	This is the maximum time in seconds that you allow the connection to the server to take. This only limits the connection phase, once it has connected, this option is of no more use. Set to zero to switch to the default built-in connection timeout - 120 seconds.
+@return	the received http message body
+        </function:description>
+        <function:prototype>public rstring httpPost(rstring data, rstring url, list&lt;rstring> extraHeaders, rstring username, rstring password, mutable list&lt;rstring> headers, mutable int32 error, int32 requestTimeout, int32 connectionTimeout)</function:prototype>
       </function:function>
       <function:function>
         <function:description>Decode a URL encoded rstring.</function:description>
