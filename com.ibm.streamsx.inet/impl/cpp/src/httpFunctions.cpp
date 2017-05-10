@@ -172,7 +172,6 @@ namespace com_ibm_streamsx_inet_http {
     CURLcode addCommonOpts(CURL * curl, const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, const SPL::int32 * requestTimeout, const SPL::int32 * connectionTimeout) {
 
         CURLcode res = curl_easy_setopt(curl,CURLOPT_URL,url.c_str());
-
         if (res != CURLE_OK) {
             SPLAPPTRC(L_ERROR, "Error " << res << " setting URL", logTag);
             return res;
@@ -181,14 +180,12 @@ namespace com_ibm_streamsx_inet_http {
         if (extraHeaders.size() > 0) {
             struct curl_slist * extraHeadersSlist = getSList(extraHeaders);
             res = curl_easy_setopt(curl,CURLOPT_HTTPHEADER,extraHeadersSlist);
-            if (res!= CURLE_OK) {
-                return res;
-            }
         }
         else {
             res = curl_easy_setopt(curl,CURLOPT_HTTPHEADER,NULL);
         }
         if (res != CURLE_OK) {
+            SPLAPPTRC(L_ERROR, "Error " << res << " setting http header", logTag);
             return res;
         }
 
@@ -214,6 +211,7 @@ namespace com_ibm_streamsx_inet_http {
         }
         if (requestTimeout) {
             if (! asyncDnsSupport) {
+                //std::cout << "Setting CURLOPT_NOSIGNAL=1" << std::endl;
                 long nosig = 1;
                 res = curl_easy_setopt(curl, CURLOPT_NOSIGNAL, nosig);
                 if (res != CURLE_OK) {
@@ -233,6 +231,7 @@ namespace com_ibm_streamsx_inet_http {
             }
         } else {
             if (! asyncDnsSupport) {
+                //std::cout << "Setting CURLOPT_NOSIGNAL=0" << std::endl;
                 long nosig = 0;
                 res = curl_easy_setopt(curl, CURLOPT_NOSIGNAL, nosig);
                 if (res != CURLE_OK) {
@@ -343,11 +342,15 @@ namespace com_ibm_streamsx_inet_http {
      * use httpDelete
      */
     SPL::rstring httpDelete_(const SPL::rstring & url, const SPL::list<SPL::rstring> &extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::int32 & error, const SPL::int32 * requestTimeout, const SPL::int32 * connectionTimeout) {
-
         static __thread CURL* curlDelete = NULL;
         error = 0;
         if (curlDelete == NULL) {
             curlDelete = curl_easy_init();
+            if (curlDelete == NULL) {
+                SPLAPPTRC(L_ERROR, "Error on curl_easy_init", logTag);
+                error = -1;
+                return "";
+            }
             addCurlHandle(curlDelete);
         }
 
@@ -358,6 +361,7 @@ namespace com_ibm_streamsx_inet_http {
         }
         res = curl_easy_setopt(curlDelete,CURLOPT_CUSTOMREQUEST,"DELETE");
         if (res != CURLE_OK) {
+            SPLAPPTRC(L_ERROR, "Error code " << res << " setting delete request", logTag);
             error = res;
             return "";
         }
@@ -369,6 +373,7 @@ namespace com_ibm_streamsx_inet_http {
         }
         res = curl_easy_perform(curlDelete);
         if (res != CURLE_OK) {
+            SPLAPPTRC(L_ERROR, "Error " << res << " on curl_easy_perform", logTag);
             error = res;
             return "";
         }
@@ -387,9 +392,13 @@ namespace com_ibm_streamsx_inet_http {
         static __thread CURL* curlPost =NULL;
         error = 0;
         // curlPost is defined as a thread-local static variable.
-
         if (curlPost == NULL) {
             curlPost = curl_easy_init();
+            if (curlPost == NULL) {
+                SPLAPPTRC(L_ERROR, "Error on curl_easy_init", logTag);
+                error = -1;
+                return "";
+            }
             addCurlHandle(curlPost);
         }
 
@@ -414,11 +423,13 @@ namespace com_ibm_streamsx_inet_http {
 
         res = curl_easy_setopt(curlPost,CURLOPT_POSTFIELDS,data.data());
         if (res != CURLE_OK) {
+            SPLAPPTRC(L_ERROR, "Error code " << res << " setting post data", logTag);
             error = res;
             return "";
         }
         curl_easy_setopt(curlPost,CURLOPT_POSTFIELDSIZE,data.length());
         if (res!= CURLE_OK) {
+            SPLAPPTRC(L_ERROR, "Error code " << res << " setting post data size", logTag);
             error = res;
             return "";
         }
@@ -432,6 +443,7 @@ namespace com_ibm_streamsx_inet_http {
         }
         res = curl_easy_setopt(curlPost,CURLOPT_FOLLOWLOCATION,0);
         if (res != CURLE_OK) {
+        	SPLAPPTRC(L_ERROR, "Error code " << res << " setting follow action = 0", logTag);
             error = res;
             return "";
         }
@@ -439,8 +451,6 @@ namespace com_ibm_streamsx_inet_http {
         SPLAPPTRC(L_DEBUG,"About to perform",logTag);
         // ALL DONE!  Do action.
         res = curl_easy_perform(curlPost);
-
-
         if (res != CURLE_OK) {
             SPLAPPTRC(L_ERROR, "Error " << res << " on curl_easy_perform", logTag);
             error =res;
@@ -462,14 +472,23 @@ namespace com_ibm_streamsx_inet_http {
     SPL::rstring httpPut_(const SPL::rstring & data, const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> & headers, SPL::int32 & error, const SPL::int32 * requestTimeout, const SPL::int32 * connectionTimeout) {
         static __thread CURL* curlPut = NULL;
         // curlPut is a thread-local static variable.
-
         if (curlPut == NULL) {
             curlPut = curl_easy_init();
+            if (curlPut == NULL) {
+                SPLAPPTRC(L_ERROR, "Error on curl_easy_init", logTag);
+                error = -1;
+                return "";
+            }
             addCurlHandle(curlPut);
         }
+
         headers.clear();
-        addCommonOpts(curlPut,url,extraHeaders,username, password, requestTimeout, connectionTimeout);
-        CURLcode res = curl_easy_setopt(curlPut,CURLOPT_HEADERDATA,(void*)&headers);
+        CURLcode res = addCommonOpts(curlPut,url,extraHeaders,username, password, requestTimeout, connectionTimeout);
+        if (res != CURLE_OK) {
+            error = res;
+            return "";
+        }
+        res = curl_easy_setopt(curlPut,CURLOPT_HEADERDATA,(void*)&headers);
         if (res != CURLE_OK) {
             SPLAPPTRC(L_ERROR,"Error code " << res << " setting header data",logTag);
             error = res;
@@ -530,6 +549,7 @@ namespace com_ibm_streamsx_inet_http {
             error = res;
             return "";
         }
+        error = 0; //all went well
         return toReturn;
     }
 
@@ -543,76 +563,78 @@ namespace com_ibm_streamsx_inet_http {
 
     // First pass as curl_get.
     SPL::rstring httpGet_(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> * headers, SPL::int32& error, const SPL::int32 * requestTimeout, const SPL::int32 * connectionTimeout) {
-
         // Curl is more efficient if we let it reuse handles
         static __thread CURL* curlGet = NULL;
         if (curlGet == NULL) {
             curlGet = curl_easy_init();
+            if (curlGet == NULL) {
+                SPLAPPTRC(L_ERROR, "Error on curl_easy_init", logTag);
+                error = -1;
+                return "";
+            }
             addCurlHandle(curlGet);
         }
+
         SPL::rstring toReturn;
         CURLcode res;
         // Let's make sure someone didn't forget to initialize before calling
         error = 0;
-        if (curlGet) {
-            res = addCommonOpts(curlGet,url,extraHeaders,username, password, requestTimeout, connectionTimeout);
-            if (res != 0 ) {
-                error = res;
-                return toReturn;
-            }
-            res = readResultAsRstring(curlGet,&toReturn);
-
+        res = addCommonOpts(curlGet,url,extraHeaders,username, password, requestTimeout, connectionTimeout);
+        if (res != 0 ) {
+            error = res;
+            return toReturn;
+        }
+        res = readResultAsRstring(curlGet,&toReturn);
+        if (res != CURLE_OK) {
+            error = res;
+            return toReturn;
+        }
+        res = curl_easy_setopt(curlGet,CURLOPT_FOLLOWLOCATION,1);
+        if (res != CURLE_OK) {
+            SPLAPPTRC(L_ERROR,"Error " << res << " setting follow location",logTag);
+            error = res;
+            return toReturn;
+        }
+        //add header function if headers are requested from the interface
+        if (headers) {
+            CURLcode res = curl_easy_setopt(curlGet,CURLOPT_HEADERDATA,(void*)headers);
             if (res != CURLE_OK) {
+                SPLAPPTRC(L_ERROR,"Error code " << res << " setting header data",logTag);
                 error = res;
-                return toReturn;
+                return "";
             }
-            res = curl_easy_setopt(curlGet,CURLOPT_FOLLOWLOCATION,1);
+            res = curl_easy_setopt(curlGet,CURLOPT_HEADERFUNCTION,&addToHeaderList);
             if (res != CURLE_OK) {
-                SPLAPPTRC(L_ERROR,"Error " << res << " setting follow location",logTag);
+                SPLAPPTRC(L_ERROR, "Error code " << res << " setting header function", logTag);
                 error = res;
-                return toReturn;
+                return "";
             }
-            //add header function if headers are requested from the interface
-            if (headers) {
-                CURLcode res = curl_easy_setopt(curlGet,CURLOPT_HEADERDATA,(void*)headers);
-                if (res != CURLE_OK) {
-                    SPLAPPTRC(L_ERROR,"Error code " << res << " setting header data",logTag);
-                    error = res;
-                    return "";
-                }
-                res = curl_easy_setopt(curlGet,CURLOPT_HEADERFUNCTION,&addToHeaderList);
-                if (res != CURLE_OK) {
-                    SPLAPPTRC(L_ERROR, "Error code " << res << " setting header function", logTag);
-                    error = res;
-                    return "";
-                }
-            } else {
-                res = curl_easy_setopt(curlGet,CURLOPT_HEADERFUNCTION,NULL);
-                if (res != CURLE_OK) {
-                    SPLAPPTRC(L_ERROR, "Error code " << res << " setting header function", logTag);
-                    error = res;
-                    return "";
-                }
-                CURLcode res = curl_easy_setopt(curlGet,CURLOPT_HEADERDATA,NULL);
-                if (res != CURLE_OK) {
-                    SPLAPPTRC(L_ERROR,"Error code " << res << " setting header data",logTag);
-                    error = res;
-                    return "";
-                }
-            }
-            //perform operation
-            res = curl_easy_perform(curlGet);
+        } else {
+            res = curl_easy_setopt(curlGet,CURLOPT_HEADERFUNCTION,NULL);
             if (res != CURLE_OK) {
-                SPLAPPTRC(L_ERROR, "Error " << res << " on curl_easy_perform", logTag);
+                SPLAPPTRC(L_ERROR, "Error code " << res << " setting header function", logTag);
                 error = res;
-                return toReturn;
+                return "";
             }
-            long responseCode = 0;
-            curl_easy_getinfo(curlGet,CURLINFO_RESPONSE_CODE,&responseCode);
-            if (responseCode != 200) {
-                SPLAPPTRC(L_ERROR,"Unexpected response code " << responseCode,logTag);
-                error = -1;
+            CURLcode res = curl_easy_setopt(curlGet,CURLOPT_HEADERDATA,NULL);
+            if (res != CURLE_OK) {
+                SPLAPPTRC(L_ERROR,"Error code " << res << " setting header data",logTag);
+                error = res;
+                return "";
             }
+        }
+        //perform operation
+        res = curl_easy_perform(curlGet);
+        if (res != CURLE_OK) {
+            SPLAPPTRC(L_ERROR, "Error " << res << " on curl_easy_perform", logTag);
+            error = res;
+            return toReturn;
+        }
+        long responseCode = 0;
+        curl_easy_getinfo(curlGet,CURLINFO_RESPONSE_CODE,&responseCode);
+        if (responseCode != 200) {
+            SPLAPPTRC(L_ERROR,"Unexpected response code " << responseCode,logTag);
+            error = -1;
         }
         return toReturn;
     }
