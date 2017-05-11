@@ -1,0 +1,17 @@
+
+Tests the using the Python unittest modules. 
+
+Prerequisites:
+	
+	* Python 3.5, Anaconda. This can be downloaded and installed,  no need to install in su. 
+	              As of 4/10/2017 recommended Python is 3.5, which can be at
+	              at : https://repo.continuum.io/archive/index.html. 
+
+	* Streams topology toolkit, this can be installed from using pip, which is part of the Python install, 
+	  The command to install is ...
+	  > pip install streamsx==1.6.0rc1 --upgrade
+   
+   * Need to make sure that streams can find the correct version of python, assuming that
+     anadonca3 is installed /home/streamsadmin/anaconda3
+	 
+	   streamtool setproperty --application-ev PYTHONHOME=/home/streamsadmin/anaconda3
