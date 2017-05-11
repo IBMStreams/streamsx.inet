@@ -79,7 +79,7 @@ public class HTTPTupleRequest extends AbstractOperator implements ReqHandlerInte
 	static final String DESC = "Operator accepts a web request and generates corresponding response.  The request is injected into "
 			+ "streams on the output port, the input port receives the response. The request is coorolated to the response with an attribute 'key' on the output and input port's.\\n" 
 			+ "\\n" 
-			+ "Input and output ports has two possible formats: tuple and json. With tuple format, each web input fields is mapped to an attribute. "
+			+ "Input and output ports have two possible formats: tuple and json. With tuple format, each web input fields is mapped to an attribute. "
 			+ "Json format has one attribute ('jsonString'), each web field is mapped to a json object field. "
 			+ "\\n\\n"
 			+ "The output attributes of a web reqeust, only the 'key' attribute on the tuple is mandatory, all others are optional. The jsonString object will be "
@@ -126,6 +126,7 @@ public class HTTPTupleRequest extends AbstractOperator implements ReqHandlerInte
 	
 	// input port
 	private String responseAttributeName = defaultResponseAttributeName;
+	private String jsonStringAttributeName = defaultJsonStringAttributeName; 
 	private String responseJsonStringAttributeName = defaultJsonStringAttributeName;
 	private String statusAttributeName = defaultStatusAttributeName;	
 	private String statusMessageAttributeName = defaultStatusMessageAttributeName;
@@ -133,6 +134,7 @@ public class HTTPTupleRequest extends AbstractOperator implements ReqHandlerInte
 	private String responseContentTypeAttributeName = defaultContentTypeAttributeName;
 	
 	private static final String RESPONSEATTRNAME_DESC = "Input port's attribute response (body of the web response), default:  \\\"" + defaultResponseAttributeName + "\\\".  ";
+	private static final String RESPONSEJSONSTRINGATTRNAME_DESC = "Input port's json results (complete response), default:  \\\"" + defaultJsonStringAttributeName + "\\\".  ";	
 	private static final String STATUSATTRNAME_DESC = "Input port's attribute web status, default:  \\\"" + defaultStatusAttributeName + "\\\".  ";
 	private static final String STATUSMESSAGEATTRNAME_DESC = "Input port's web status message response, when the 'status' value is >= 400 (SC_BAD_REQUEST), default:  \\\"" + defaultStatusMessageAttributeName + "\\\".  ";
 	// TODO is this used ??? 
@@ -187,8 +189,15 @@ public class HTTPTupleRequest extends AbstractOperator implements ReqHandlerInte
 		exchangeWebServer.setWebtimeout(webTimeout);
 		exchangeWebServer.setResponseContentType(responseContentTypeAttributeName);
 		
-		jsonFormatOutPort = (getOutput(0).getStreamSchema().getAttributeCount() == 1) && (getOutput(0).getStreamSchema().getAttributeNames().toArray()[0] == defaultJsonStringAttributeName);
-		jsonFormatInPort = (getInput(0).getStreamSchema().getAttributeCount() == 1) && (getInput(0).getStreamSchema().getAttributeNames().toArray()[0] == defaultJsonStringAttributeName);
+		jsonFormatOutPort = (getOutput(0).getStreamSchema().getAttributeCount() == 1) && (jsonStringAttributeName.equals(getOutput(0).getStreamSchema().getAttributeNames().toArray()[0])); 
+		for (int idx = 0; getOutput(0).getStreamSchema().getAttributeCount() != idx; idx++) {
+			trace.info(String.format(" -- OutPort@initalize attribute[%d]:%s ", idx, (getOutput(0).getStreamSchema().getAttributeNames().toArray()[idx])));		
+		}		
+		jsonFormatInPort = (getInput(0).getStreamSchema().getAttributeCount() == 1) && (responseJsonStringAttributeName.equals(getInput(0).getStreamSchema().getAttributeNames().toArray()[0]));
+		for (int idx = 0; getInput(0).getStreamSchema().getAttributeCount() != idx; idx++) {
+			trace.info(String.format(" -- InPort@initalize attribute[%d]:%s ", idx, (getInput(0).getStreamSchema().getAttributeNames().toArray()[idx])));		
+		}
+
 
 		if (jsonFormatOutPort) {
 			Logger.getLogger(this.getClass()).trace("Operator " + context.getName() + " single column output ");
@@ -261,8 +270,8 @@ public class HTTPTupleRequest extends AbstractOperator implements ReqHandlerInte
 			Logger.getLogger(this.getClass()).trace("Operator " + context.getName() + " single column input ");
 		} else {
 		// key, in port
-		if (getOutput(0).getStreamSchema().getAttribute(keyAttributeName) == null) {
-			throw new Exception("Could not detect the data field for output port 0. "
+			if (getOutput(0).getStreamSchema().getAttribute(keyAttributeName) == null) {
+				throw new Exception("Could not detect the data field for output port 0. "
 					+ "Specify a valid value for \"keyAttributeName\"");
 		}
 		MetaType keyResponseParamType = getOutput(0).getStreamSchema().getAttribute(keyAttributeName)
@@ -422,6 +431,11 @@ public class HTTPTupleRequest extends AbstractOperator implements ReqHandlerInte
 	public void setResponseAttributeName(String responseAttributeName) {
 		this.responseAttributeName = responseAttributeName;
 	}
+	
+	@Parameter(optional = true, description = RESPONSEJSONSTRINGATTRNAME_DESC)
+	public void setResponseJsonAttributeName(String jsonAttributeName) {
+		this.responseJsonStringAttributeName = jsonAttributeName;
+	}	
 
 	@Parameter(optional = true, description = STATUSATTRNAME_DESC)
 	public void setStatusAttributeName(String statusAttributeName) {
@@ -480,7 +494,11 @@ public class HTTPTupleRequest extends AbstractOperator implements ReqHandlerInte
 			}
 		}
 
-		if (jsonFormatOutPort)  {
+		for (int idx = 0; getInput(0).getStreamSchema().getAttributeCount() != idx; idx++) {
+			trace.info(String.format(" -- InPort@process attribute[%d]:%s ", idx, (getInput(0).getStreamSchema().getAttributeNames().toArray()[idx])));		
+		}		
+		
+		if (jsonFormatInPort)  {
 			trace.trace("processResponse - DUMP JSON:" + tuple.toString());
 			trace.info("processResponse JSON");			
 			jsonString = tuple.getString(responseJsonStringAttributeName);
@@ -531,6 +549,7 @@ public class HTTPTupleRequest extends AbstractOperator implements ReqHandlerInte
 				activeWebMessage.setResponseContentType((String) json.get(defaultContentTypeAttributeName));									
 			}			
 		} else {
+			trace.info("processResponse TUPLE");						
 			trackingKey = tuple.getLong(keyAttributeName);
 
 			activeWebMessage = retrieveExchangeWebMessage(trackingKey);
@@ -582,7 +601,7 @@ public class HTTPTupleRequest extends AbstractOperator implements ReqHandlerInte
 		
 		if (jsonFormatOutPort) {
 			String jsonRequestString = exchangeWebMessage.jsonRequest();
-			outTuple.setString(defaultJsonStringAttributeName, jsonRequestString);
+			outTuple.setString(jsonStringAttributeName, jsonRequestString);
 			trace.info("initiateWebRequest - single attribute, contents : " + jsonRequestString);			
 		} else {
 			outTuple.setInt(keyAttributeName, exchangeWebMessage.trackingKey);
