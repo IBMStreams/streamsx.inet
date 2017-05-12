@@ -37,12 +37,16 @@ def lowerString(tuple):
 
 def sleepMacbeth(tuple):
     """ He does -  """
-    time.sleep(3);
+    time.sleep(1);
     return True
 
 def tupleToJson(tuple):
     return json.dumps(tuple)
 
+def strToDict(str):
+    t1 = str.decode('UTF-8')
+    t2 = t1.replace("\'", '\"')
+    return json.loads(t2)
 
 def webEntryLog(inTuple):
     print("webEntryLog:", inTuple, flush=True)
@@ -82,13 +86,14 @@ class TestSimpleFilter(unittest.TestCase):
 
     def setUp(self):
         Tester.setup_distributed(self)
-        # Testing cannot workout when application to start the local_check()
-        #   not enough api's to look into the application. Does not work yet.
+        # Standalone does ot work yet....
+        # Testing cannot work out when application to start the local_check(),
+        # not enough api's to look into the application. 
         # Tester.setup_standalone(self)
 
 
 
-    def xtest_filter(self):
+    def test_filter(self):
         """basic validation of testing framework"""
 
         topology = Topology()
@@ -128,7 +133,7 @@ class TestSimpleFilter(unittest.TestCase):
 
       """
 
-    def xtest_basic(self):
+    def test_basic(self):
         topo = Topology("Basic")
         self.tester = Tester(topo)
 
@@ -195,7 +200,7 @@ class TestSimpleFilter(unittest.TestCase):
 
 
 
-    def xtest_pathInfo(self):
+    def test_pathInfo(self):
         """TEST test_routine, validate that the pathInfo can be used for routing. 
 
         The context defines the base of incoming messages, beyond that is in 
@@ -308,121 +313,11 @@ class TestSimpleFilter(unittest.TestCase):
 
 
 
+    def reflect(self, expected_requests, local_check_function ):
+        """Reflect base : request back to request, check results in Python VM. 
 
-    def xtest_method(self):
-        """TEST validate method. 
-
-        The rest call can make a number of different invocation, get, post, put and delete
-        that identify the method is applied to the reqeust. Test that we can handle
-        the standard methods.
-
-        """
-        topo = Topology("Method")
-        self.tester = Tester(topo)
-       
-        tk.add_toolkit(topo, inetToolkit)
-
-        pending_source = PendingStream(topo)
-
-        rsp = pending_source.stream.map(lambda t : t)
-        ss = topo.source([], name="onRamp")
-        rsp = ss.union({rsp})
-        # FormatResponse : 
-        rspFormatted = rsp.map(lambda x : json.dumps(x) ).as_string();
-        rawRequest = op.Map("com.ibm.streamsx.inet.rest::HTTPTupleRequest",
-                            stream=rspFormatted,
-                            schema='tuple<int64 key, rstring request, rstring method, rstring pathInfo >',
-                            params={'port': PORT,
-                                    'webTimeout':5.0,
-                                    'responseJsonAttributeName':'string',
-                                    'context':'/MethodTest'},
-                            name = "TupleRequest")
-
-        rawRequest.stream.sink(webEntryLog) ## log what we have received.
-
-        # determine what to work on
-        onlyGet = rawRequest.stream.filter(lambda t : t["method"]=="get", 
-                                             name="getFilter")
-        onlyPut = rawRequest.stream.filter(lambda t : t["method"]=="PUT", 
-                                             name="putFilter")
-        onlyPost = rawRequest.stream.filter(lambda t : t["method"]=="POST", 
-                                             name="postFilter")
-        onlyDelete = rawRequest.stream.filter(lambda t : t["method"]=="DELETE", 
-                                             name="deleteFilter")
-
-        # do the work
-        getDone = onlyGet.transform(setResult("GOTaGET:"), 
-                                        name="getCase")
-        putDone = onlyPut.transform(setResult("GOTaPUT:"), 
-                                        name="putCase")
-        postDone = onlyPost.transform(setResult("GOTaPOST"), 
-                                        name="postCase")
-        deleteDone = onlyDelete.transform(setResult("GOTaDELETE"), 
-                                        name="deleteCase")
-
-        # do tests on what we have processed.
-        self.tester.tuple_count(getDone, 1)
-        self.tester.tuple_count(putDone, 1)
-        self.tester.tuple_count(postDone, 1)
-        self.tester.tuple_count(deleteDone, 1)
-
-
-        # union - put it all back together
-        unionResult = getDone.union({putDone, postDone, deleteDone})
-
-        # loopback to sending
-        pending_source.complete(unionResult)  # loopback
-
-
-        ## All done building the graph......
-
-        # setup the code that will invoke this test. 
-        self.tester.local_check = self.method_request
-
-        # submit the application for test
-        self.tester.test(self.test_ctxtype, self.test_config)
-
-
-
-    def method_request(self):
-        """Test the application, this runs in the Python VM"""
-        self.jobHealthy(4)
-        testMessage = "THIS+is+a+test+MESSAGE"
-        contentBase = '/MethodTest'
-        # get 
-        self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/get?' + testMessage
-        print("Methdo REQ:" + self.url, flush=True)
-        rsp = requests.get(url=self.url)
-        print("RSP: %s\nSTATUS:%s\nCONTENT:%s" % (rsp, rsp.status_code, rsp.content), flush=True)
-        self.assertEqual(rsp.status_code, 200)
-        self.assertTrue(rsp.content.startswith(b"GOTaGET"))
-        # put
-        self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/put?' + testMessage
-        print("Long REQ:" + self.url, flush=True)
-        rsp = requests.put(url=self.url)
-        print("RSP: %s\nSTATUS:%s\nCONTENT:%s" % (rsp, rsp.status_code, rsp.content), flush=True)
-        self.assertEqual(rsp.status_code, 200)
-        self.assertTrue(rsp.content.startswith(b"GOTaPUT"))
-        # post
-        self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/post?' + testMessage
-        print("LONGLOWER REQ:" + self.url, flush=True)
-        rsp = requests.post(url=self.url)
-        print("RSP: %s\nSTATUS:%s\nCONTENT:%s" % (rsp, rsp.status_code, rsp.content), flush=True)
-        self.assertEqual(rsp.status_code, 200)
-        self.assertTrue(rsp.content.startswith(b"GOTaPOST"))
-        # delete
-        self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/delete?' + testMessage
-        print("LONGLOWER REQ:" + self.url, flush=True)
-        rsp = requests.delete(url=self.url)
-        print("RSP: %s\nSTATUS:%s\nCONTENT:%s" % (rsp, rsp.status_code, rsp.content), flush=True)
-        self.assertEqual(rsp.status_code, 200)
-        self.assertTrue(rsp.content.startswith(b"GOTaDELETE"))
-
-
-    def test_reflect(self):
-        """Reflect request back to request, check results in Python VM. 
-
-        Reflect the request back in order that we can check check in the Python VM.
+        Basis for other tests where the processing of the results are done in PYTHON.
+         - expected_requests : number of requests that the local_check_function will make
         """
         topo = Topology("Reflect")
         self.tester = Tester(topo)
@@ -449,22 +344,18 @@ class TestSimpleFilter(unittest.TestCase):
 
         # wait for 
         lastAct = rawRequest.stream.filter(sleepMacbeth)
-
         # do the work
         getReflect = lastAct.transform(reflectResult("RAW:"), 
                                         name="reflectResult")
-
         # do tests on what we have processed.
-        self.tester.tuple_count(getReflect, 1)
-
+        self.tester.tuple_count(getReflect, expected_requests)
         # loopback to sending
         pending_source.complete(getReflect)  # loopback
-
 
         ## All done building the graph......
 
         # setup the code that will invoke this test. 
-        self.tester.local_check = self.reflect_request
+        self.tester.local_check = local_check_function
 
         # enable tracing info.
         job_config = streamsx.topology.context.JobConfig(job_name='Reflect', tracing="info")        
@@ -474,6 +365,11 @@ class TestSimpleFilter(unittest.TestCase):
         self.tester.test(self.test_ctxtype, self.test_config)
 
 
+    def test_reflect(self):
+        """ Test the reflect facility. 
+           
+        """
+        self.reflect(expected_requests=1, local_check_function=self.reflect_request)
 
     def reflect_request(self):
         """Test the application, this runs in the Python VM"""
@@ -487,5 +383,64 @@ class TestSimpleFilter(unittest.TestCase):
         print("RSP: %s\nSTATUS:%s\nCONTENT:%s" % (rsp, rsp.status_code, rsp.content), flush=True)
         self.assertEqual(rsp.status_code, 200)
         self.assertTrue(rsp.content.startswith(b"RAW:"))
+        dict =  strToDict(rsp.content[4:])
+        self.assertEqual(dict["method"], "GET")
+
+
+    def test_method(self):
+        """ Test that we get the various methods
+
+        Methods that are checked : GET, PUT, POST, DELETE
+        """
+        self.reflect(expected_requests=4, local_check_function=self.method_request)
+
+
+    def method_request(self):
+        """Test the application, this runs in the Python VM"""
+        self.jobHealthy(4)
+        testMessage = "THIS+is+a+test+MESSAGE"
+        contentBase = '/Reflect'
+
+        # get 
+        self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/get?' + testMessage
+        print("Method REQ:" + self.url, flush=True)
+        rsp = requests.get(url=self.url)
+        print("RSP: %s\nSTATUS:%s\nCONTENT:%s" % (rsp, rsp.status_code, rsp.content), flush=True)
+        self.assertEqual(rsp.status_code, 200)
+        self.assertTrue(rsp.content.startswith(b"RAW:"))
+        dict =  strToDict(rsp.content[4:])
+        self.assertEqual(dict["method"], "GET")
+
+        # put
+        self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/put?' + testMessage
+        print("Method REQ:" + self.url, flush=True)
+        rsp = requests.put(url=self.url)
+        print("RSP: %s\nSTATUS:%s\nCONTENT:%s" % (rsp, rsp.status_code, rsp.content), flush=True)
+        self.assertEqual(rsp.status_code, 200)
+        self.assertTrue(rsp.content.startswith(b"RAW:"))
+        dict =  strToDict(rsp.content[4:])
+        self.assertEqual(dict["method"], "PUT")
+
+        # post
+        self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/post?' + testMessage
+        print("Method REQ:" + self.url, flush=True)
+        rsp = requests.post(url=self.url)
+        print("RSP: %s\nSTATUS:%s\nCONTENT:%s" % (rsp, rsp.status_code, rsp.content), flush=True)
+        self.assertEqual(rsp.status_code, 200)
+        self.assertTrue(rsp.content.startswith(b"RAW:"))
+        dict =  strToDict(rsp.content[4:])
+        self.assertEqual(dict["method"], "POST")
+
+        # delete
+        self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/delete?' + testMessage
+        print("Method REQ:" + self.url, flush=True)
+        rsp = requests.delete(url=self.url)
+        print("RSP: %s\nSTATUS:%s\nCONTENT:%s" % (rsp, rsp.status_code, rsp.content), flush=True)
+        self.assertEqual(rsp.status_code, 200)
+        self.assertTrue(rsp.content.startswith(b"RAW:"))
+        dict =  strToDict(rsp.content[4:])
+        self.assertEqual(dict["method"], "DELETE")
+
+
 
 
