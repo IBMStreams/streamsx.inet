@@ -18,8 +18,27 @@ import org.eclipse.jetty.continuation.Continuation;
 import org.eclipse.jetty.continuation.ContinuationSupport;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-
-
+/**
+ * <p>
+ * Processes the message from the web and builds the response, timeout (Streams taking too long) are handled here as well. 
+ * </p>
+ * <p>
+ * Dependent on how Jetty drives the interaction.
+ * Web request arrives via Jetty, the actions that ensue are dependent on the state of the request's state: 
+ *</p>
+ * <ul>
+ *  <li>Initial : A new request has arrived, move the request into a Streams tuple, the web request is suspended. 
+ *     The suspended request pushed back to Jetty with a timeout. </li>
+ * 	<li>Resumed : Streams has finished processing the request and the answer is ready to be returned, the suspended web request
+ * has been continued by the arrival of the tuple on the operators Input port.  All the initial web request values are available. 
+ * The response is built from the arriving tuple and sent out the web.   </li>   
+ * 	<li>Expired : Streams has taken too long and the request has expired, generate a timeout response.</li> 
+ * 	<li>Suspend : Streams is still working on the request, this should not happen.</li>
+ * </ul>
+ *
+ * @author mags
+ *
+ */
 public class ReqHandlerSuspend extends AbstractHandler {
 	static Logger trace = Logger.getLogger(ReqHandlerSuspend.class.getName());
 	String greeting;
@@ -147,7 +166,7 @@ public class ReqHandlerSuspend extends AbstractHandler {
 					+ " REQ:" + request.getQueryString());
 			buildWebErrResponse(response, exchangeWebMessage, HttpServletResponse.SC_REQUEST_TIMEOUT);
 		} else if (continuation.isResumed()) {
-			// TODO * Must destroy the KEY in order that you can find a mismatch....
+			// TODO * Must destroy the KEY in order that you can find a mismatch....has this been done yet
 			exchangeWebMessage = (ReqWebMessage) continuation.getAttribute(Constant.EXCHANGEWEBMESSAGE);
 			trace.info("continuation - resumed, web response being sent trackingKey:" + exchangeWebMessage.trackingKey
 					+ " RSP:" + exchangeWebMessage.getResponse());

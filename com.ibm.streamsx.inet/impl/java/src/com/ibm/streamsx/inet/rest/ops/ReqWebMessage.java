@@ -19,6 +19,10 @@ import org.eclipse.jetty.continuation.Continuation;
 import com.ibm.json.java.JSONObject;
 import com.ibm.streams.operator.Tuple;
 
+/** Bridge between the WWW request, Streams processing and corresponding WWW response. 
+* 
+* 
+*/ 
 public class ReqWebMessage {
 	static Logger trace = Logger.getLogger(ReqHandlerSuspend.class.getName());
 

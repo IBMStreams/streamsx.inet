@@ -16,7 +16,12 @@ import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 
 /**
- *  
+ * Brings up the web side of the processing, requests that come in from the web drive the 
+ * output port of the operator via <i>ReqHandlerSuspend</i> that starts out here.  
+ * 
+ * Se
+ * 
+ * 
  * @author streamsadmin
  *
  */

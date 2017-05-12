@@ -3,10 +3,7 @@
 # Copyright IBM Corp. 2017
 # author  
 */
-
-
 package com.ibm.streamsx.inet.rest.ops;
-
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,6 +12,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 
 import com.ibm.json.java.JSONObject;
 import com.ibm.json.java.*;
@@ -43,7 +41,51 @@ import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
 import com.ibm.streams.operator.types.RString;
 
-
+/**
+ * <p>
+ * HTTPTupleRequest - Enable Streams to process web requests . A request arrives via the web which injects a
+ * tuple out the output port; processing happens; input port receives the processing results which are
+ * communicated to the orgininating web requester. This is a gateway between web requests and Streams processing of the requests.
+ * </p>
+ * <p>
+ * This relies on an embedded Jetty server. The Jetty portion: accepts a request from the web, suspends the web request
+ * while Stream's processes the request, continues the web connection when Streams completes the processing and finally responds to 
+ * the original request. 
+ * </p>
+ * <p>
+ * The following is a brief description of the classes and their interaction. 
+ * </p>
+ * <dl>
+ * <dt>{@link HTTPTupleReqeust}</dt>
+ * <dd>
+ * Operator Entry.  Web requests for Streams are injected into the Streams via the operators Output port. Responses, 
+ * completed requests enter via the Input port. The request and response are packaged into ReqWebMessage objects.
+ * </dd>
+ * <dt>ReqWebServer </dt>
+ * <dd>
+ * Invoked by HTTPTupleRequest, starts the Jetty Web server. Sets up callback framework to accept requests {@link ReqHandlerInterface} from the web to Streams.
+ * </dd>
+ * <dt>ReqWebMessage</dt>
+ * <dd>
+ * Bridge between the Streams and WWW portion of the processing.
+ * </dd>
+ * <dt>ReqHandlerInterface</dt>
+ * <dd>
+ * Enable request from web into Streams.
+ * </dd>
+ * <dt>ReqHandlerSuspend extends AbstractHandler</dt>
+ * <dd>
+ * Waits around for an answer
+ * </dd>
+ * </dl>
+ * <p>
+ * This operator generates a key attribute on the output port and expects the same key attribute 
+ * value on the input port, this is correlation key. If keys is corrupted, no response will be generated, 
+ * the request will time out. 
+ * </p> 
+ * @author mags
+ *
+ */
 
 @PrimitiveOperator(name = "HTTPTupleRequest", namespace = "com.ibm.streamsx.inet.rest", description = HTTPTupleRequest.DESC)
 @Libraries(value = { "opt/eclipse-4.2.2/plugins/*" })
@@ -473,7 +515,7 @@ public class HTTPTupleRequest extends AbstractOperator implements ReqHandlerInte
 	
 	/**
 	 * The arriving tuple is used to build a web response.  The response is related to the output tuples that was generated
-	 * by initateRequestFromTheWeb(). Based upon the tuples attributes that are received the response is built. 
+	 * by initateRequestFromTheWeb(). Based upon the tuples attributes received the response is built. 
 	 * If the attribute is not present on the tuple a default is provided, except for the mandatory key. 
 	 */
 	@Override
@@ -585,9 +627,10 @@ public class HTTPTupleRequest extends AbstractOperator implements ReqHandlerInte
 	}
 
 	/*
-	 * A web request will arrive from the web and be idr
+	 * A web request will arrive from the web and be injected into the Stream. 
+	 * A request is injected into the stream response will enter through
+	 * the process() method above. 
 	 */
-	// implement the interface
 	public void initiateRequestFromWeb(ReqWebMessage exchangeWebMessage) {
 		getnMessagesReceived().incrementValue(1L);
 		trace.info("initiateWebRequest ENTER # " + getnMessagesReceived().getValue() +" trackingKey: " + exchangeWebMessage.trackingKey);
