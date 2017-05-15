@@ -9,8 +9,8 @@ namespace com.ibm.streamsx.inet.ftp;
  * * ftp - simple ftp protocol,
  * * ftpSSLAll - The client requires SSL/TLS encryption for the control and data connections
  * * ftpSSLControl - The client requires SSL/TLS encryption for the control connection.
- * * ftpSSTTry - The client tries to establish encryption, but it continues unencrypted if the server does not support encryption.
- * * ftps - use explicit TLS (default port 990)
+ * * ftpSSLTry - The client tries to establish encryption, but it continues unencrypted if the server does not support encryption.
+ * * ftps - use implicit TLS (default port 990)
  * * sftp - use ssh connection available form lib curl version 7.16.3
 */
 type Protocol = enum {
