@@ -1,4 +1,7 @@
-all:	filter	
+all:	basic
 
-filter:
-	python -m unittest basicTests
+header:
+	python -m unittest headerTests.py
+
+basic:
+	python -m unittest basicTests.py
