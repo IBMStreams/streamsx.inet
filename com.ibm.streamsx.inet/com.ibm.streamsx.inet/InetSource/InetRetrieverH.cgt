@@ -27,7 +27,7 @@ public:
   /*
    *  Constructor
    *
-   * targURL:   The URL, including protocol designation, of the target to be retrieved.
+   * url        The URL, including protocol designation, of the target to be retrieved.
    *            This value may not be altered after the object has been constructed.
    *
    * Throws:    An integer if there was a problem during the construction of this object.
@@ -36,7 +36,7 @@ public:
    *            If the constructor throws an exception, the results from further use of the
    *            object are unpredictable.
    */
-  InetRetriever(const std::string& targURL) throw(int);
+  InetRetriever(const std::string& url, const int timer=0) throw(int);
 
   virtual ~InetRetriever();
 
@@ -65,6 +65,11 @@ public:
   void disableCurlTrace();
 
   std::string targetURL() const;
+  std::string effectiveURL() const;
+  std::string contentType() const;
+  long responseCode() const;
+  double fetchTime() const;
+
   // Returns true if the URL was updated, false if it stayed the same.
   bool updateURL(std::string newURL);
 
@@ -105,8 +110,10 @@ private:
    */
 
   size_t        _bytesTransferredTotal, _bytesTransferredLastFetch;
-  std::string   _targetURL, _curlBuffer, _fileCache;
+  std::string   _targetURL, _effectiveURL, _contentType, _curlBuffer, _fileCache;
   long          _lastModTime;
+  int           _timeout, _responseCode;
+  double        _fetchTime;
   bool          _ignoreLastModTime, _incrementalFetch, _dataCameBack;
   CURL*         _curlHandle;
 

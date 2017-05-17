@@ -31,6 +31,7 @@ import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
 import com.ibm.streams.operator.state.ConsistentRegionContext;
+import com.ibm.streamsx.inet.messages.Messages;
 import com.ibm.streamsx.inet.http.HTTPPostOper;
 
 @OutputPorts({@OutputPortSet(cardinality=1, optional=false, windowPunctuationOutputMode=WindowPunctuationOutputMode.Generating,
@@ -145,7 +146,7 @@ public class HTTPStreamReader extends AbstractOperator {
 				checker.getOperatorContext().getOptionalContext(ConsistentRegionContext.class);
 		
 		if(consistentRegionContext != null) {
-			checker.setInvalidContext( HTTPStreamReader.OPER_NAME + " operator cannot be used inside a consistent region.", new String[] {});
+			checker.setInvalidContext(Messages.getString("CONSISTENT_CHECK_2"), new String[] {HTTPStreamReader.OPER_NAME});
 		}
 	}
 	
@@ -216,7 +217,7 @@ public class HTTPStreamReader extends AbstractOperator {
 	}
 
 	void connectionSuccess() throws Exception {
-		trace.log(LogLevel.INFO, "Connection successful");
+		trace.log(LogLevel.INFO, Messages.getString("CONNECTION_SUCCESS"));
 		rc.connectionSuccess();
 	}
 

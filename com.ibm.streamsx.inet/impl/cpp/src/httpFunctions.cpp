@@ -37,11 +37,17 @@ namespace com_ibm_streamsx_inet_http {
     /// or until the destructor is called.
     static __thread HeaderCache* headerCache = NULL;
 
+    static bool asyncDnsSupport;
     /**
      * curl_global_init is not thread-safe, so we must call it before the program is multi-threaded.
      */
     __attribute__((constructor)) void initializeCurl() {
         curl_global_init(CURL_GLOBAL_ALL);
+        //read the async dns support flag and store into static var
+        curl_version_info_data * dat =  curl_version_info(CURLVERSION_NOW);
+        if (dat->features & CURL_VERSION_ASYNCHDNS) asyncDnsSupport = true; else asyncDnsSupport = false;
+        SPLAPPTRC(L_INFO, "Async DNS supported="<< asyncDnsSupport, logTag);
+        std::cout << logTag << ": Async DNS supported="<< asyncDnsSupport << std::endl;
     }
 
     /**
@@ -153,7 +159,9 @@ namespace com_ibm_streamsx_inet_http {
      */
     size_t addToHeaderList(char * buffer, size_t size, size_t nitems, void * userdata) {
         SPL::list<SPL::rstring> * theList = (SPL::list<SPL::rstring>*)userdata;
+        //std::cout << "addToHeaderList size=" << size << " nitems=" << nitems << std::endl;
         SPL::rstring newString(buffer,size*nitems);
+        //std::cout << "newString=" << newString << std::endl;
         theList->push_back(newString);
         return size*nitems;
     }
@@ -161,10 +169,9 @@ namespace com_ibm_streamsx_inet_http {
     /**
      * Add common options to the curl pointer
      */
-    CURLcode addCommonOpts(CURL * curl, const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password) {
+    CURLcode addCommonOpts(CURL * curl, const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, const SPL::int32 * requestTimeout, const SPL::int32 * connectionTimeout) {
 
         CURLcode res = curl_easy_setopt(curl,CURLOPT_URL,url.c_str());
-
         if (res != CURLE_OK) {
             SPLAPPTRC(L_ERROR, "Error " << res << " setting URL", logTag);
             return res;
@@ -173,14 +180,12 @@ namespace com_ibm_streamsx_inet_http {
         if (extraHeaders.size() > 0) {
             struct curl_slist * extraHeadersSlist = getSList(extraHeaders);
             res = curl_easy_setopt(curl,CURLOPT_HTTPHEADER,extraHeadersSlist);
-            if (res!= CURLE_OK) {
-                return res;
-            }
         }
         else {
             res = curl_easy_setopt(curl,CURLOPT_HTTPHEADER,NULL);
         }
         if (res != CURLE_OK) {
+            SPLAPPTRC(L_ERROR, "Error " << res << " setting http header", logTag);
             return res;
         }
 
@@ -201,6 +206,47 @@ namespace com_ibm_streamsx_inet_http {
             CURLcode res = curl_easy_setopt(curl,CURLOPT_PASSWORD,(char*)(password.c_str()));
             if (res != CURLE_OK) {
                 SPLAPPTRC(L_ERROR, "Error " << res << " setting password", logTag);
+                return res;
+            }
+        }
+        if (requestTimeout) {
+            if (! asyncDnsSupport) {
+                //std::cout << "Setting CURLOPT_NOSIGNAL=1" << std::endl;
+                long nosig = 1;
+                res = curl_easy_setopt(curl, CURLOPT_NOSIGNAL, nosig);
+                if (res != CURLE_OK) {
+                    SPLAPPTRC(L_ERROR, "Error " << res << " CURLOPT_NOSIGNAL=1", logTag);
+                    return res;
+                }
+            }
+            res = curl_easy_setopt(curl, CURLOPT_TIMEOUT, *requestTimeout);
+            if (res != CURLE_OK) {
+                SPLAPPTRC(L_ERROR, "Error " << res << " requestTimeout=" << *requestTimeout, logTag);
+                return res;
+            }
+            res = curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, *connectionTimeout);
+            if (res != CURLE_OK) {
+                SPLAPPTRC(L_ERROR, "Error " << res << " connectionTimeout=" << *connectionTimeout, logTag);
+                return res;
+            }
+        } else {
+            if (! asyncDnsSupport) {
+                //std::cout << "Setting CURLOPT_NOSIGNAL=0" << std::endl;
+                long nosig = 0;
+                res = curl_easy_setopt(curl, CURLOPT_NOSIGNAL, nosig);
+                if (res != CURLE_OK) {
+                    SPLAPPTRC(L_ERROR, "Error " << res << " CURLOPT_NOSIGNAL=0", logTag);
+                    return res;
+                }
+            }
+            res = curl_easy_setopt(curl, CURLOPT_TIMEOUT, 0);
+            if (res != CURLE_OK) {
+                SPLAPPTRC(L_ERROR, "Error " << res << " requestTimeout=0", logTag);
+                return res;
+            }
+            res = curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 120);
+            if (res != CURLE_OK) {
+                SPLAPPTRC(L_ERROR, "Error " << res << " connectionTimeout=120", logTag);
                 return res;
             }
         }
@@ -286,7 +332,7 @@ namespace com_ibm_streamsx_inet_http {
             buffer[i] = *(toSend->data() + theStruct->numSent);
         }
         if (size*nitems < toSend->length()) {
-            SPLAPPTRC(L_ERROR,"Size is " << size*nitems << " blob size is " << toSend->length(), logTag);
+            SPLAPPTRC(L_DEBUG,"Libcurl buffer size is " << size*nitems << " blob size is " << toSend->length(), logTag);
         }
         SPLAPPTRC(L_DEBUG,"sent " << i << " bytes, numSent is " << theStruct->numSent,logTag);
         return i;
@@ -295,22 +341,27 @@ namespace com_ibm_streamsx_inet_http {
     /*
      * use httpDelete
      */
-    SPL::rstring httpDelete(const SPL::rstring & url, const SPL::list<SPL::rstring> &extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::int32 & error) {
-
+    SPL::rstring httpDelete_(const SPL::rstring & url, const SPL::list<SPL::rstring> &extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::int32 & error, const SPL::int32 * requestTimeout, const SPL::int32 * connectionTimeout) {
         static __thread CURL* curlDelete = NULL;
         error = 0;
         if (curlDelete == NULL) {
             curlDelete = curl_easy_init();
+            if (curlDelete == NULL) {
+                SPLAPPTRC(L_ERROR, "Error on curl_easy_init", logTag);
+                error = -1;
+                return "";
+            }
             addCurlHandle(curlDelete);
         }
 
-        CURLcode res=addCommonOpts(curlDelete, url, extraHeaders, username, password);
+        CURLcode res=addCommonOpts(curlDelete, url, extraHeaders, username, password, requestTimeout, connectionTimeout);
         if (res != CURLE_OK) {
             error = res;
             return "";
         }
         res = curl_easy_setopt(curlDelete,CURLOPT_CUSTOMREQUEST,"DELETE");
         if (res != CURLE_OK) {
+            SPLAPPTRC(L_ERROR, "Error code " << res << " setting delete request", logTag);
             error = res;
             return "";
         }
@@ -322,24 +373,37 @@ namespace com_ibm_streamsx_inet_http {
         }
         res = curl_easy_perform(curlDelete);
         if (res != CURLE_OK) {
+            SPLAPPTRC(L_ERROR, "Error " << res << " on curl_easy_perform", logTag);
             error = res;
             return "";
         }
         return toReturn;
     }
 
-    SPL::rstring httpPost(const SPL::rstring & data, const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> & headers,SPL::int32 & error) {
+    SPL::rstring httpDelete(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::int32 & error) {
+       return httpDelete_(url, extraHeaders, username, password, error, NULL, NULL);
+    }
+    SPL::rstring httpDelete(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::int32 & error, const SPL::int32 requestTimeout, const SPL::int32 connectionTimeout) {
+        return httpDelete_(url, extraHeaders, username, password, error, &requestTimeout, &connectionTimeout);
+    }
+
+
+    SPL::rstring httpPost_(const SPL::rstring & data, const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> & headers,SPL::int32 & error, const SPL::int32 * requestTimeout, const SPL::int32 * connectionTimeout) {
         static __thread CURL* curlPost =NULL;
         error = 0;
         // curlPost is defined as a thread-local static variable.
-
         if (curlPost == NULL) {
             curlPost = curl_easy_init();
+            if (curlPost == NULL) {
+                SPLAPPTRC(L_ERROR, "Error on curl_easy_init", logTag);
+                error = -1;
+                return "";
+            }
             addCurlHandle(curlPost);
         }
 
         headers.clear();
-        CURLcode res = addCommonOpts(curlPost,url,extraHeaders,username, password);
+        CURLcode res = addCommonOpts(curlPost,url,extraHeaders,username, password, requestTimeout, connectionTimeout);
         if (res != CURLE_OK) {
             error = res;
             return "";
@@ -359,16 +423,16 @@ namespace com_ibm_streamsx_inet_http {
 
         res = curl_easy_setopt(curlPost,CURLOPT_POSTFIELDS,data.data());
         if (res != CURLE_OK) {
+            SPLAPPTRC(L_ERROR, "Error code " << res << " setting post data", logTag);
             error = res;
             return "";
         }
         curl_easy_setopt(curlPost,CURLOPT_POSTFIELDSIZE,data.length());
         if (res!= CURLE_OK) {
+            SPLAPPTRC(L_ERROR, "Error code " << res << " setting post data size", logTag);
             error = res;
             return "";
         }
-
-
 
         // Now handle read, for error checking and exception handling
         SPL::rstring toReturn;
@@ -379,6 +443,7 @@ namespace com_ibm_streamsx_inet_http {
         }
         res = curl_easy_setopt(curlPost,CURLOPT_FOLLOWLOCATION,0);
         if (res != CURLE_OK) {
+        	SPLAPPTRC(L_ERROR, "Error code " << res << " setting follow action = 0", logTag);
             error = res;
             return "";
         }
@@ -386,8 +451,6 @@ namespace com_ibm_streamsx_inet_http {
         SPLAPPTRC(L_DEBUG,"About to perform",logTag);
         // ALL DONE!  Do action.
         res = curl_easy_perform(curlPost);
-
-
         if (res != CURLE_OK) {
             SPLAPPTRC(L_ERROR, "Error " << res << " on curl_easy_perform", logTag);
             error =res;
@@ -398,19 +461,34 @@ namespace com_ibm_streamsx_inet_http {
 
     }
 
+    SPL::rstring httpPost(const SPL::rstring &  data, const  SPL::rstring &  url, const SPL::list<SPL::rstring> & extraHeaders,  const SPL::rstring &  username, const SPL::rstring & password, SPL::list<SPL::rstring>& headers, SPL::int32 & error) {
+        return httpPost_(data, url, extraHeaders, username, password, headers, error, NULL, NULL);
+    }
+    SPL::rstring httpPost(const SPL::rstring &  data, const  SPL::rstring &  url, const SPL::list<SPL::rstring> & extraHeaders,  const SPL::rstring &  username, const SPL::rstring & password, SPL::list<SPL::rstring>& headers, SPL::int32 & error, const SPL::int32 requestTimeout, const SPL::int32 connectionTimeout) {
+        return httpPost_(data, url, extraHeaders, username, password, headers, error, &requestTimeout, &connectionTimeout);
+    }
 
 
-    SPL::rstring httpPut(const SPL::rstring & data, const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> & headers, SPL::int32 & error) {
+    SPL::rstring httpPut_(const SPL::rstring & data, const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> & headers, SPL::int32 & error, const SPL::int32 * requestTimeout, const SPL::int32 * connectionTimeout) {
         static __thread CURL* curlPut = NULL;
         // curlPut is a thread-local static variable.
-
         if (curlPut == NULL) {
             curlPut = curl_easy_init();
+            if (curlPut == NULL) {
+                SPLAPPTRC(L_ERROR, "Error on curl_easy_init", logTag);
+                error = -1;
+                return "";
+            }
             addCurlHandle(curlPut);
         }
+
         headers.clear();
-        addCommonOpts(curlPut,url,extraHeaders,username, password);
-        CURLcode res = curl_easy_setopt(curlPut,CURLOPT_HEADERDATA,(void*)&headers);
+        CURLcode res = addCommonOpts(curlPut,url,extraHeaders,username, password, requestTimeout, connectionTimeout);
+        if (res != CURLE_OK) {
+            error = res;
+            return "";
+        }
+        res = curl_easy_setopt(curlPut,CURLOPT_HEADERDATA,(void*)&headers);
         if (res != CURLE_OK) {
             SPLAPPTRC(L_ERROR,"Error code " << res << " setting header data",logTag);
             error = res;
@@ -471,55 +549,107 @@ namespace com_ibm_streamsx_inet_http {
             error = res;
             return "";
         }
+        error = 0; //all went well
         return toReturn;
+    }
+
+    SPL::rstring httpPut(const SPL::rstring &  data, const  SPL::rstring &  url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring &  username, const SPL::rstring & password, SPL::list<SPL::rstring>& headers, SPL::int32 & error) {
+        return httpPut_(data, url, extraHeaders, username, password, headers, error, NULL, NULL);
+    }
+    SPL::rstring httpPut(const SPL::rstring &  data, const  SPL::rstring &  url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring &  username, const SPL::rstring & password, SPL::list<SPL::rstring>& headers, SPL::int32 & error, const SPL::int32 requestTimeout, const SPL::int32 connectionTimeout) {
+        return httpPut_(data, url, extraHeaders, username, password, headers, error, &requestTimeout, &connectionTimeout);
     }
 
 
     // First pass as curl_get.
-    SPL::rstring httpGet(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::int32& error) {
-
+    SPL::rstring httpGet_(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> * headers, SPL::int32& error, const SPL::int32 * requestTimeout, const SPL::int32 * connectionTimeout) {
         // Curl is more efficient if we let it reuse handles
         static __thread CURL* curlGet = NULL;
         if (curlGet == NULL) {
             curlGet = curl_easy_init();
+            if (curlGet == NULL) {
+                SPLAPPTRC(L_ERROR, "Error on curl_easy_init", logTag);
+                error = -1;
+                return "";
+            }
             addCurlHandle(curlGet);
         }
+
         SPL::rstring toReturn;
         CURLcode res;
         // Let's make sure someone didn't forget to initialize before calling
         error = 0;
-        if (curlGet) {
-            res = addCommonOpts(curlGet,url,extraHeaders,username, password);
-            if (res != 0 ) {
-                error = res;
-                return toReturn;
-            }
-            res = readResultAsRstring(curlGet,&toReturn);
-
+        res = addCommonOpts(curlGet,url,extraHeaders,username, password, requestTimeout, connectionTimeout);
+        if (res != 0 ) {
+            error = res;
+            return toReturn;
+        }
+        res = readResultAsRstring(curlGet,&toReturn);
+        if (res != CURLE_OK) {
+            error = res;
+            return toReturn;
+        }
+        res = curl_easy_setopt(curlGet,CURLOPT_FOLLOWLOCATION,1);
+        if (res != CURLE_OK) {
+            SPLAPPTRC(L_ERROR,"Error " << res << " setting follow location",logTag);
+            error = res;
+            return toReturn;
+        }
+        //add header function if headers are requested from the interface
+        if (headers) {
+            CURLcode res = curl_easy_setopt(curlGet,CURLOPT_HEADERDATA,(void*)headers);
             if (res != CURLE_OK) {
+                SPLAPPTRC(L_ERROR,"Error code " << res << " setting header data",logTag);
                 error = res;
-                return toReturn;
+                return "";
             }
-            res = curl_easy_setopt(curlGet,CURLOPT_FOLLOWLOCATION,1);
+            res = curl_easy_setopt(curlGet,CURLOPT_HEADERFUNCTION,&addToHeaderList);
             if (res != CURLE_OK) {
-                SPLAPPTRC(L_ERROR,"Error " << res << " setting follow location",logTag);
+                SPLAPPTRC(L_ERROR, "Error code " << res << " setting header function", logTag);
                 error = res;
-                return toReturn;
+                return "";
             }
-            res = curl_easy_perform(curlGet);
+        } else {
+            res = curl_easy_setopt(curlGet,CURLOPT_HEADERFUNCTION,NULL);
             if (res != CURLE_OK) {
-                SPLAPPTRC(L_ERROR, "Error " << res << " on curl_easy_perform", logTag);
+                SPLAPPTRC(L_ERROR, "Error code " << res << " setting header function", logTag);
                 error = res;
-                return toReturn;
+                return "";
             }
-            long responseCode = 0;
-            curl_easy_getinfo(curlGet,CURLINFO_RESPONSE_CODE,&responseCode);
-            if (responseCode != 200) {
-                SPLAPPTRC(L_ERROR,"Unexpected response code " << responseCode,logTag);
-                error = -1;
+            CURLcode res = curl_easy_setopt(curlGet,CURLOPT_HEADERDATA,NULL);
+            if (res != CURLE_OK) {
+                SPLAPPTRC(L_ERROR,"Error code " << res << " setting header data",logTag);
+                error = res;
+                return "";
             }
         }
+        //perform operation
+        res = curl_easy_perform(curlGet);
+        if (res != CURLE_OK) {
+            SPLAPPTRC(L_ERROR, "Error " << res << " on curl_easy_perform", logTag);
+            error = res;
+            return toReturn;
+        }
+        long responseCode = 0;
+        curl_easy_getinfo(curlGet,CURLINFO_RESPONSE_CODE,&responseCode);
+        if (responseCode != 200) {
+            SPLAPPTRC(L_ERROR,"Unexpected response code " << responseCode,logTag);
+            error = -1;
+        }
         return toReturn;
+    }
+
+    SPL::rstring httpGet(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::int32& error) {
+        return httpGet_(url, extraHeaders, username, password, NULL, error, NULL, NULL);
+    }
+    SPL::rstring httpGet(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> & headers, SPL::int32& error) {
+        return httpGet_(url, extraHeaders, username, password, &headers, error, NULL, NULL);
+    }
+    SPL::rstring httpGet(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::int32 & error, const SPL::int32 requestTimeout, const SPL::int32 connectionTimeout) {
+        return httpGet_(url, extraHeaders, username, password, NULL, error, &requestTimeout, &connectionTimeout);
+    }
+    SPL::rstring httpGet(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> & headers, SPL::int32 & error, const SPL::int32 requestTimeout, const SPL::int32 connectionTimeout) {
+        return httpGet_(url, extraHeaders, username, password, &headers, error, &requestTimeout, &connectionTimeout);
     }
 
 }

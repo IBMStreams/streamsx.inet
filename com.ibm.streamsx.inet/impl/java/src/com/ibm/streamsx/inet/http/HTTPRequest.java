@@ -40,13 +40,12 @@ class HTTPRequest {
 	private Map<String, String> headers =
 			new HashMap<String, String> ();
 
-	public static enum RequestType {GET, POST};
-	private RequestType type = RequestType.GET;
+	private HTTPMethod method = HTTPMethod.GET;
 	private boolean insecure = false;
 
 	private HttpUriRequest req = null;
 	private HttpEntity entity = null;
-	private double connectionTimeout = -1.0;
+	private double connectionTimeout = 20.0;
         private HttpParams httpParams = null;
 
 	public HTTPRequest(String url) {
@@ -61,12 +60,12 @@ class HTTPRequest {
 		headers.put(name, value);
 	}
 
-	public RequestType getType() {
-		return type;
+	public HTTPMethod getMethod() {
+		return method;
 	}
 
-	public void setType(RequestType type) {
-		this.type = type;
+	public void setMethod(HTTPMethod type) {
+		this.method = type;
 	}
 
 	HttpUriRequest getReq() {
@@ -127,7 +126,7 @@ class HTTPRequest {
 			client = new DefaultHttpClient();
 		}
 		
-		if(type == RequestType.GET) {
+		if(method == HTTPMethod.GET) {
 			HttpGet get = new HttpGet(url);
 			req=get;
 		}

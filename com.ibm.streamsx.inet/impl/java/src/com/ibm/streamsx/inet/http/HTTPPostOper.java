@@ -43,7 +43,7 @@ import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
 import com.ibm.streams.operator.state.ConsistentRegionContext;
-import com.ibm.streamsx.inet.http.HTTPRequest.RequestType;
+import com.ibm.streamsx.inet.messages.Messages;
 
 @InputPorts(@InputPortSet(cardinality=1, 
 			description="By default, all attributes of the input stream are sent as POST data to the specified HTTP server."))
@@ -230,11 +230,9 @@ public class HTTPPostOper extends AbstractOperator
 				checker.getOperatorContext().getOptionalContext(ConsistentRegionContext.class);
 		
 		if(consistentRegionContext != null && consistentRegionContext.isStartOfRegion()) {
-			checker.setInvalidContext( HTTPPostOper.OPER_NAME + " operator cannot be placed at the start of a consistent region.", 
-					new String[] {});
+			checker.setInvalidContext(Messages.getString("CONSISTENT_CHECK_1"), new String[] {HTTPPostOper.OPER_NAME});
 		}
 	}
-
 	
 	@Override
 	public void initialize(OperatorContext op) throws Exception  {
@@ -304,7 +302,7 @@ public class HTTPPostOper extends AbstractOperator
 
 		HTTPRequest req = new HTTPRequest(url);
 		req.setHeader("Content-Type", headerContentType);
-		req.setType(RequestType.POST);
+		req.setMethod(HTTPMethod.POST);
 		req.setInsecure(acceptAllCertificates);
 		req.setConnectionTimeout(connectionTimeout);
 		trace.log(TraceLevel.TRACE, "Set connectionTimeout: " + connectionTimeout);					

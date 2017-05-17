@@ -9,8 +9,9 @@
 // As it references MY_OPERATOR, it's meant to be included in a cgt file.
 
 
-MY_OPERATOR::InetRetriever::InetRetriever(const std::string& targURL) throw(int) :
-  _targetURL(targURL)
+MY_OPERATOR::InetRetriever::InetRetriever(const std::string& url, const int timer) throw(int) :
+  _targetURL(url),
+  _timeout(timer)
   {
     reset();
     _ignoreLastModTime = _incrementalFetch = false;
@@ -23,6 +24,10 @@ MY_OPERATOR::InetRetriever::InetRetriever(const std::string& targURL) throw(int)
         throw 12;
       }
 
+#if 0
+    printf(">>>>>>>>>>>>>>>> retriever for URL %s, timeout=%d\n", _targetURL.c_str(), _timeout);
+#endif
+
     // what to do with returned data - call the class' static callback method
     curl_easy_setopt(_curlHandle, CURLOPT_WRITEFUNCTION, consumeData_static);
 
@@ -31,11 +36,30 @@ MY_OPERATOR::InetRetriever::InetRetriever(const std::string& targURL) throw(int)
     // to resolve the particular instance that the callback should be directed to.
     curl_easy_setopt(_curlHandle, CURLOPT_WRITEDATA, this);
 
-    // Set the URL that we're retrieving from
+    // Set the URL that we are fetching
     curl_easy_setopt(_curlHandle, CURLOPT_URL, _targetURL.c_str());
 
-    // Tell curl to have the server provide the "last modified at" timestamp when we retrieve
+    // Tell curl to follow any redirects for the URL that the server returns
+    curl_easy_setopt(_curlHandle, CURLOPT_FOLLOWLOCATION, 1L);
+
+    // Tell curl to ask the server to provide the "last modified at" timestamp when fetching a file
     curl_easy_setopt(_curlHandle, CURLOPT_FILETIME, 1);
+
+    // accept all supported built-in compression methods
+#ifdef CURLOPT_ACCEPT_ENCODING
+    curl_easy_setopt(_curlHandle, CURLOPT_ACCEPT_ENCODING, "");
+#elseif CURLOPT_ENCODING
+    curl_easy_setopt(_curlHandle, CURLOPT_ENCODING, "");
+#endif
+
+    // some servers insist on knowing who is asking
+    curl_easy_setopt(_curlHandle, CURLOPT_USERAGENT, "IBMStreams/4.0");
+
+    // set timeout, if specified
+    if (_timeout) {
+      curl_easy_setopt(_curlHandle, CURLOPT_NOSIGNAL, 1);
+      curl_easy_setopt(_curlHandle, CURLOPT_TIMEOUT, _timeout);
+    } 
   }
 
 MY_OPERATOR::InetRetriever::~InetRetriever()
@@ -43,36 +67,26 @@ MY_OPERATOR::InetRetriever::~InetRetriever()
     curl_easy_cleanup(_curlHandle);
   }
 
-std::string MY_OPERATOR::InetRetriever::targetURL() const
-  {
-    return _targetURL;
-  }
-
-bool MY_OPERATOR::InetRetriever::updateURL(std::string newURL) {
-    if (newURL != _targetURL) {
-        reset();
-        _targetURL = newURL;
-        curl_easy_setopt(_curlHandle, CURLOPT_URL, newURL.c_str());
-        return true;
-    }
-    return false;
-  }
-
 std::string MY_OPERATOR::InetRetriever::fetch() throw(CURLcode)
   {
+
+    // function result will be stored here
+    std::string result;
+
+    // clear state variables for other results that can be assigned to output attributes
     _curlBuffer.clear();
     _dataCameBack = false;
     _bytesTransferredLastFetch = 0;
-
-    std::string result;
+    _responseCode = 0;
+    _fetchTime = 0;
+    _effectiveURL.clear();
+    _contentType.clear();
 
     // Unless requested, don't retrieve again if unmodified since last retrieval
-    if (!_ignoreLastModTime)
+    if (!_ignoreLastModTime && _lastModTime>0)
       {
         // Tell curl to not retrieve the file if it hasn't changed since our last retrieval
-        curl_easy_setopt(_curlHandle, CURLOPT_TIMECONDITION,
-            CURL_TIMECOND_IFMODSINCE);
-
+        curl_easy_setopt(_curlHandle, CURLOPT_TIMECONDITION, CURL_TIMECOND_IFMODSINCE);
         curl_easy_setopt(_curlHandle, CURLOPT_TIMEVALUE, _lastModTime);
       }
     else
@@ -89,10 +103,31 @@ std::string MY_OPERATOR::InetRetriever::fetch() throw(CURLcode)
       {
         if (_dataCameBack) // data came back
           {
+            CURLcode rc2;
+
+            char* effectiveURL = NULL;
+            rc2 = curl_easy_getinfo(_curlHandle, CURLINFO_EFFECTIVE_URL, &effectiveURL);
+            if (rc2==CURLE_OK && effectiveURL) _effectiveURL = effectiveURL;
+
+            char* contentType = NULL;
+            rc2 = curl_easy_getinfo(_curlHandle, CURLINFO_CONTENT_TYPE, &contentType);
+            if (rc2==CURLE_OK && contentType) _contentType = contentType;
+
+            curl_easy_getinfo(_curlHandle, CURLINFO_RESPONSE_CODE, &_responseCode);
+
+            curl_easy_getinfo(_curlHandle, CURLINFO_TOTAL_TIME, &_fetchTime);
+
+#if 0
+            printf(">>>>>>>>>>>>>>>>>>> target URL %s\n", _targetURL.c_str());
+            printf(">>>>>>>>>>>>>>>> effective URL %s\n", _effectiveURL.c_str());
+            printf(">>>>>>>>>>>>>>>> content type %s\n", _contentType.c_str());
+            printf(">>>>>>>>>>>>>>>> response code is %d\n", _responseCode);
+            printf(">>>>>>>>>>>>>>>> total time is %lf\n", _fetchTime);
+#endif
+
             long lastModTime;
-            CURLcode rc2 = curl_easy_getinfo(_curlHandle, CURLINFO_FILETIME,
-                &lastModTime);
-            if (CURLE_OK == rc2)
+            rc2 = curl_easy_getinfo(_curlHandle, CURLINFO_FILETIME, &lastModTime);
+            if (rc2==CURLE_OK)
               {
                 if (_incrementalFetch) // incremental mode
                   {
@@ -160,8 +195,7 @@ std::string MY_OPERATOR::InetRetriever::fetch() throw(CURLcode)
 
           {
             long lastModTime;
-            CURLcode rc2 = curl_easy_getinfo(_curlHandle, CURLINFO_FILETIME,
-                &lastModTime);
+            CURLcode rc2 = curl_easy_getinfo(_curlHandle, CURLINFO_FILETIME, &lastModTime);
             if (CURLE_OK == rc2)
               {
                 // Leave the cached version of the file as-is
@@ -198,6 +232,45 @@ void MY_OPERATOR::InetRetriever::reset()
     _fileCache.clear();
     _lastModTime = -1;
     _dataCameBack = false;
+    _responseCode = 0;
+    _fetchTime = 0;
+    _effectiveURL.clear();
+    _contentType.clear();
+  }
+
+std::string MY_OPERATOR::InetRetriever::targetURL() const
+  {
+    return _targetURL;
+  }
+
+std::string MY_OPERATOR::InetRetriever::effectiveURL() const
+  {
+    return _effectiveURL;
+  }
+
+std::string MY_OPERATOR::InetRetriever::contentType() const
+  {
+    return _contentType;
+  }
+
+long MY_OPERATOR::InetRetriever::responseCode() const
+  {
+    return _responseCode;
+  }
+
+double MY_OPERATOR::InetRetriever::fetchTime() const
+  {
+    return _fetchTime;
+  }
+
+bool MY_OPERATOR::InetRetriever::updateURL(std::string newURL) {
+    if (newURL != _targetURL) {
+        reset();
+        _targetURL = newURL;
+        curl_easy_setopt(_curlHandle, CURLOPT_URL, newURL.c_str());
+        return true;
+    }
+    return false;
   }
 
 std::string MY_OPERATOR::InetRetriever::lastknownContents() const
