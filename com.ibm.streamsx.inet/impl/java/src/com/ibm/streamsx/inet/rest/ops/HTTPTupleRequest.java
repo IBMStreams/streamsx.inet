@@ -90,7 +90,7 @@ import com.ibm.streams.operator.types.RString;
 @PrimitiveOperator(name = "HTTPTupleRequest", namespace = "com.ibm.streamsx.inet.rest", description = HTTPTupleRequest.DESC)
 @Libraries(value = { "opt/eclipse-4.2.2/plugins/*" })
 @InputPorts({
-		@InputPortSet(description = "Response to be returned to the web requestor.", cardinality = 1, optional = false, windowingMode = WindowMode.NonWindowed, windowPunctuationInputMode = WindowPunctuationInputMode.Oblivious)})
+		@InputPortSet(description = "Response to be returned to the web requestor.", cardinality = 1, optional = false, controlPort=true, windowingMode = WindowMode.NonWindowed, windowPunctuationInputMode = WindowPunctuationInputMode.Oblivious)})
 		//@InputPortSet(description = "Optional input ports", optional = true, windowingMode = WindowMode.NonWindowed, windowPunctuationInputMode = WindowPunctuationInputMode.Oblivious) })
 @OutputPorts({
 		@OutputPortSet(description = "Request from web to process.", cardinality = 1, optional = false, windowPunctuationOutputMode = WindowPunctuationOutputMode.Generating) })
