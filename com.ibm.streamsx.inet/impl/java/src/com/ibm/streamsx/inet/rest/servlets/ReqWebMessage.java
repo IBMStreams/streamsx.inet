@@ -1,4 +1,4 @@
-package com.ibm.streamsx.inet.rest.ops;
+package com.ibm.streamsx.inet.rest.servlets;
 /**
 * Licensed Materials - Property of IBM
 * Copyright IBM Corp. 2017 
@@ -18,7 +18,7 @@ import org.eclipse.jetty.continuation.Continuation;
 
 import com.ibm.json.java.JSONObject;
 import com.ibm.streams.operator.Tuple;
-import com.ibm.streamsx.inet.rest.servlets.InjectWithResponse;
+import com.ibm.streamsx.inet.rest.ops.HTTPTupleRequest;
 
 /** Bridge between the WWW request, Streams processing and corresponding WWW response. 
 * 
@@ -50,7 +50,7 @@ public class ReqWebMessage {
 	 */
 
 	private String responseFromStreams = "";
-	static final String defaultResponseContentType = "text/html; charset=utf-8";
+	public static final String defaultResponseContentType = "text/html; charset=utf-8";
 	private String responseContentType = defaultResponseContentType; 
 	
 	private Map<String, String> responseHeaders = new Hashtable<String, String>();
@@ -201,7 +201,7 @@ public class ReqWebMessage {
 	/**
 	 * Issue the respnse back to the requester (through the servlet & continuation).
 	 */
-	void issueResponseFromStreams() {
+	public void issueResponseFromStreams() {
 		handler.asyncResume(this);
 	}
 }

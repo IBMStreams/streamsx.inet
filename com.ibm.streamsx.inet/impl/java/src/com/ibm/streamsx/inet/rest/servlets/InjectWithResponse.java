@@ -20,7 +20,6 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
 import com.ibm.streamsx.inet.rest.ops.HTTPTupleRequest;
-import com.ibm.streamsx.inet.rest.ops.ReqWebMessage;
 import com.ibm.streamsx.inet.rest.ops.ReqWebServer;
 /**
  * <p>

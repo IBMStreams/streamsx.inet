@@ -40,6 +40,7 @@ import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.model.PrimitiveOperator;
 import com.ibm.streams.operator.types.RString;
+import com.ibm.streamsx.inet.rest.servlets.ReqWebMessage;
 
 /**
  * <p>

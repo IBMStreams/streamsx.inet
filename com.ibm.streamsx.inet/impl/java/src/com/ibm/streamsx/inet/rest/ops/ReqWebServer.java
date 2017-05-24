@@ -10,6 +10,7 @@ import com.ibm.streams.operator.OutputTuple;
 import com.ibm.streams.operator.StreamingOutput;
 import com.ibm.streamsx.inet.rest.engine.ServletEngine;
 import com.ibm.streamsx.inet.rest.servlets.InjectWithResponse;
+import com.ibm.streamsx.inet.rest.servlets.ReqWebMessage;
 
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
