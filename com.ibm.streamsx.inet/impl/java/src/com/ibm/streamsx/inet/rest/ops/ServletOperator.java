@@ -12,9 +12,11 @@ import com.ibm.streams.operator.metrics.Metric;
 import com.ibm.streams.operator.metrics.Metric.Kind;
 import com.ibm.streams.operator.model.CustomMetric;
 import com.ibm.streams.operator.model.Parameter;
+import com.ibm.streams.operator.model.SharedLoader;
 import com.ibm.streamsx.inet.rest.engine.ServletEngine;
 import com.ibm.streamsx.inet.rest.engine.ServletEngineMBean;
 
+@SharedLoader
 public abstract class ServletOperator extends AbstractOperator {
 	
 	private ServletEngineMBean jetty;
