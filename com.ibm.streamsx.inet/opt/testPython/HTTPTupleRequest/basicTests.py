@@ -158,7 +158,8 @@ class TestSimpleFilter(unittest.TestCase):
                             params={'port': PORT,
                                     'webTimeout':5.0,
                                     'responseJsonAttributeName':'string',
-                                    'context':'/base'},
+                                    'context':'base',
+                                    'contextResourceBase':'opt/base' },
                             name = "TupleRequest")
 
         rawRequest.stream.sink(webEntryLog) ## log what we have received.
@@ -190,7 +191,7 @@ class TestSimpleFilter(unittest.TestCase):
         """Test the application, this runs in the Python VM"""
         self.jobHealthy(4)
         testMessage = "THIS+is+a+test+MESSAGE"
-        contentBase = '/base'
+        contentBase = '/base/TupleRequest/ports/analyze/0'
         self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/Tuple?' + testMessage
         print("REQ:" + self.url, flush=True)
         rsp = requests.get(url=self.url)
@@ -204,7 +205,7 @@ class TestSimpleFilter(unittest.TestCase):
         """TEST test_routine, validate that the pathInfo can be used for routing. 
 
         The context defines the base of incoming messages, beyond that is in 
-        the pathInfo. If the context is '/base' and the request url is 
+        the pathInfo. If the context is 'base' and the request url is 
         http://node:port/base/fred/route/my/request, the pathInfo 
         will be /fred/route/my/request.
 
@@ -227,7 +228,8 @@ class TestSimpleFilter(unittest.TestCase):
                             params={'port': PORT,
                                     'webTimeout':5.0,
                                     'responseJsonAttributeName':'string',
-                                    'context':'/base'},
+                                    'context':'base',
+                                    'contextResourceBase':'opt/base' },
                             name = "TupleRequest")
 
         rawRequest.stream.sink(webEntryLog) ## log what we have received.
@@ -281,7 +283,7 @@ class TestSimpleFilter(unittest.TestCase):
         """Test the application, this runs in the Python VM"""
         self.jobHealthy(4)
         testMessage = "THIS+is+a+test+MESSAGE"
-        contentBase = '/base'
+        contentBase = '/base/TupleRequest/ports/analyze/0'
         self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/Upper?' + testMessage
         print("Upper REQ:" + self.url, flush=True)
         rsp = requests.get(url=self.url)
@@ -337,7 +339,8 @@ class TestSimpleFilter(unittest.TestCase):
                             params={'port': PORT,
                                     'webTimeout':5.0,
                                     'responseJsonAttributeName':'string',
-                                    'context':'/Reflect'},
+                                    'context':'Reflect',
+                                    'contextResourceBase':'opt/Reflect' },
                             name = "TupleRequest")
 
         rawRequest.stream.sink(webEntryLog) ## log what we have received.
@@ -375,7 +378,7 @@ class TestSimpleFilter(unittest.TestCase):
         """Test the application, this runs in the Python VM"""
         self.jobHealthy(4)
         testMessage = "THIS+is+a+test+MESSAGE"
-        contentBase = '/Reflect'
+        contentBase = '/Reflect/TupleRequest/ports/analyze/0'
         # do a reflection
         self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/get?' + testMessage
         print("Method REQ:" + self.url, flush=True)
@@ -399,7 +402,7 @@ class TestSimpleFilter(unittest.TestCase):
         """Test the application, this runs in the Python VM"""
         self.jobHealthy(4)
         testMessage = "THIS+is+a+test+MESSAGE"
-        contentBase = '/Reflect'
+        contentBase = '/Reflect/TupleRequest/ports/analyze/0'
 
         # get 
         self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/get?' + testMessage

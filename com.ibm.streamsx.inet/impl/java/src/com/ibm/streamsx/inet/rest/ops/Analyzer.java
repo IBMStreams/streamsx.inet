@@ -6,21 +6,19 @@
 package com.ibm.streamsx.inet.rest.ops;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jetty.server.handler.AbstractHandler;
 
 import com.ibm.json.java.JSONObject;
-import com.ibm.json.java.*;
-import com.ibm.streams.operator.AbstractOperator;
 import com.ibm.streams.operator.Attribute;
 import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.OutputTuple;
-import com.ibm.streams.operator.StreamingData.Punctuation;
 import com.ibm.streams.operator.StreamingInput;
 import com.ibm.streams.operator.StreamingOutput;
 import com.ibm.streams.operator.Tuple;
@@ -33,7 +31,6 @@ import com.ibm.streams.operator.model.InputPortSet;
 import com.ibm.streams.operator.model.InputPortSet.WindowMode;
 import com.ibm.streams.operator.model.InputPortSet.WindowPunctuationInputMode;
 import com.ibm.streams.operator.model.InputPorts;
-import com.ibm.streams.operator.model.Libraries;
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPortSet.WindowPunctuationOutputMode;
 import com.ibm.streams.operator.model.OutputPorts;
@@ -97,7 +94,7 @@ import com.ibm.streamsx.inet.rest.servlets.ReqWebMessage;
 @Icons(location32="icons/HTTPTupleRequest_32.jpeg", location16="icons/HTTPTupleRequest_16.jpeg")
 
 //		@OutputPortSet(description = "Optional output ports", optional = true, windowPunctuationOutputMode = WindowPunctuationOutputMode.Generating) })
-public class Analyzer extends AbstractOperator implements ReqHandlerInterface {
+public class Analyzer extends ServletOperator {
 	static Logger trace = Logger.getLogger(Analyzer.class.getName());
 
 	
@@ -184,8 +181,8 @@ public class Analyzer extends AbstractOperator implements ReqHandlerInterface {
 	private static final String RESPONSEHEADERATTRNAME_DESC = "Input port's web response header objects<name,value>, default: \\\"" + defaultHeaderAttributeName + "\\\".  ";
 
 
-	int port = defaultPort;
-	String webContext = defaultContext;
+	/*int port = defaultPort;
+	String webContext = defaultContext; */
 	double webTimeout = defaultTimeout;
 	
 	/**
@@ -196,8 +193,7 @@ public class Analyzer extends AbstractOperator implements ReqHandlerInterface {
 	 * @throws Exception
 	 *             Operator failure, will cause the enclosing PE to terminate.
 	 */
-	ReqWebServer exchangeWebServer = null;
-	Map<Long, ReqWebMessage> activeMessages = null;
+	private Map<Long, ReqWebMessage> activeMessages;
 	private String keyAttributeName = defaultKeyAttributeName;
 	private String requestAttributeName = defaultRequestAttributeName;
 	private String methodAttributeName = defaultMethodAttributeName; // get/put/del/
@@ -217,19 +213,28 @@ public class Analyzer extends AbstractOperator implements ReqHandlerInterface {
 	private static Metric nMessagesResponded;
 	private static Metric nRequestTimeouts;	
 	private static Metric nMissingTrackingKey;
+	
+	/**
+	 * Conduit object between operator and servlet.
+	 * [0] - activeMessages
+	 * [1] - function to create output tuple.
+	 */
+	private Function<ReqWebMessage,OutputTuple> tupleCreator = this::initiateRequestFromWeb;
 
 	@Override
 	public synchronized void initialize(OperatorContext context) throws Exception {
 		// Must call super.initialize(context) to correctly setup an operator.
 		super.initialize(context);
 
-		activeMessages = new HashMap<Long, ReqWebMessage>();
+		activeMessages = Collections.synchronizedMap(new HashMap<>());
+		/*
 		exchangeWebServer = new ReqWebServer(this);
 
 		exchangeWebServer.setPort(port);
 		exchangeWebServer.setContext(webContext);
 		exchangeWebServer.setWebtimeout(webTimeout);
 		exchangeWebServer.setResponseContentType(responseContentTypeAttributeName);
+		*/
 		
 		jsonFormatOutPort = (getOutput(0).getStreamSchema().getAttributeCount() == 1) && (jsonStringAttributeName.equals(getOutput(0).getStreamSchema().getAttributeNames().toArray()[0])); 
 		for (int idx = 0; getOutput(0).getStreamSchema().getAttributeCount() != idx; idx++) {
@@ -361,31 +366,17 @@ public class Analyzer extends AbstractOperator implements ReqHandlerInterface {
 			if (methodParamType != MetaType.USTRING && methodParamType != MetaType.RSTRING)
 				throw new Exception("Only types \"" + MetaType.USTRING + "\" and \"" + MetaType.RSTRING
 						+ "\" allowed for param " + responseContentTypeAttributeName + "\"");
-		}		
-
+		}	
+		
 		Logger.getLogger(this.getClass()).trace("Operator " + context.getName() + " initializing in PE: "
 				+ context.getPE().getPEId() + " in Job: " + context.getPE().getJobId());
 		}
 
 	}
-
-	/**
-	 * Notification that initialization is complete and all input and output
-	 * ports are connected and ready to receive and submit tuples.
-	 * 
-	 * @throws Exception
-	 *             Operator failure, will cause the enclosing PE to terminate.
-	 */
-	@Override
-	public synchronized void allPortsReady() throws Exception {
-		// This method is commonly used by source operators.
-		// Operators that process incoming tuples generally do not need this
-		// notification.
-		OperatorContext context = getOperatorContext();
-		Logger.getLogger(this.getClass()).trace("Operator " + context.getName() + " all ports are ready in PE: "
-				+ context.getPE().getPEId() + " in Job: " + context.getPE().getJobId());
-		exchangeWebServer.start();
-	}
+	
+	   protected Object getConduit() {
+	        return tupleCreator;
+	    }
 
 	/**
 	 * Setup the metrics
@@ -418,23 +409,9 @@ public class Analyzer extends AbstractOperator implements ReqHandlerInterface {
     public static Metric getnMissingTrackingKey() {
         return nMissingTrackingKey;
     }   
-    
-    
-	/**
-	 * Get the parameters
-	 */
-	@Parameter(name = "port", optional = false, description = PORT_DESC)
-	public void setPort(int port) {
-		this.port = port;
-	}
-
-	@Parameter(name = "context", optional = false, description = CONTEXT_DESC)
-	public void setContext(String webContext) {
-		this.webContext = webContext;
-	}
 
 	@Parameter(optional = true, description = WEBTIMEOUT_DESC)
-	public void setwebTimeout(double webTimeout) {
+	public void setWebTimeout(double webTimeout) {
 		this.webTimeout = webTimeout;
 	}
 
@@ -631,10 +608,10 @@ public class Analyzer extends AbstractOperator implements ReqHandlerInterface {
 	 * A request is injected into the stream response will enter through
 	 * the process() method above. 
 	 */
-	public void initiateRequestFromWeb(ReqWebMessage exchangeWebMessage) {
+	private OutputTuple initiateRequestFromWeb(ReqWebMessage exchangeWebMessage) {
 		getnMessagesReceived().incrementValue(1L);
 		trace.info("initiateWebRequest ENTER # " + getnMessagesReceived().getValue() +" trackingKey: " + exchangeWebMessage.trackingKey);
-		activeMessages.put(new Long(exchangeWebMessage.trackingKey), exchangeWebMessage);
+		activeMessages.put(exchangeWebMessage.trackingKey, exchangeWebMessage);
 		StreamingOutput<OutputTuple> outStream = getOutput(0);
 		OutputTuple outTuple = outStream.newTuple();
 		trace.info("initiateWebRequest Sending key - attr name:" + keyAttributeName + " trackingKey:"
@@ -647,7 +624,7 @@ public class Analyzer extends AbstractOperator implements ReqHandlerInterface {
 			outTuple.setString(jsonStringAttributeName, jsonRequestString);
 			trace.info("initiateWebRequest - single attribute, contents : " + jsonRequestString);			
 		} else {
-			outTuple.setInt(keyAttributeName, exchangeWebMessage.trackingKey);
+			outTuple.setLong(keyAttributeName, exchangeWebMessage.trackingKey);
 			outTuple.setString(requestAttributeName, exchangeWebMessage.getRequestPayload());
 			if (methodAttributeName != null) {
 				outTuple.setString(methodAttributeName, exchangeWebMessage.getMethod());
@@ -667,49 +644,10 @@ public class Analyzer extends AbstractOperator implements ReqHandlerInterface {
 				}
 				trace.info("initiateWebRequest type:" + mapp.getClass().getName());
 				outTuple.setMap(headerAttributeName, transfer);
-			} try {
-				trace.info("initiateWebRequest - Sending tuple:" + exchangeWebMessage.requestFromWeb);
-				outStream.submit(outTuple);
-			} catch (Exception e) {
-				trace.error("initiateWebRequest - Failed on submit request from web");
-				e.printStackTrace();
 			}
-			trace.info("initiateWebRequest EXIT ");
+			
+			trace.info("initiateWebRequest EXIT ");		
 		}
+		return outTuple;
 	}
-
-	/**
-	 * Process an incoming punctuation that arrived on the specified port.
-	 * 
-	 * @param stream
-	 *            Port the punctuation is arriving on.
-	 * @param mark
-	 *            The punctuation mark
-	 * @throws Exception
-	 *             Operator failure, will cause the enclosing PE to terminate.
-	 */
-	@Override
-	public void processPunctuation(StreamingInput<Tuple> stream, Punctuation mark) throws Exception {
-		// For window markers, punctuate all output ports
-		super.processPunctuation(stream, mark);
-	}
-
-	/**
-	 * Shutdown this operator.
-	 * 
-	 * @throws Exception
-	 *             Operator failure, will cause the enclosing PE to terminate.
-	 */
-	public synchronized void shutdown() throws Exception {
-		OperatorContext context = getOperatorContext();
-		Logger.getLogger(this.getClass()).trace("Operator " + context.getName() + " shutting down in PE: "
-				+ context.getPE().getPEId() + " in Job: " + context.getPE().getJobId());
-		if (exchangeWebServer != null) {
-			exchangeWebServer.stopServer();
-			exchangeWebServer = null;
-		}
-		// Must call super.shutdown()
-		super.shutdown();
-	}
-
 }

@@ -47,8 +47,8 @@ public class ReqWebServer {
 		server = new Server(port);
 		
 		ContextHandler contextSuspend = new ContextHandler(context);
-		excHandlerSuspend = new InjectWithResponse(this);
-		contextSuspend.setHandler(excHandlerSuspend);
+		// excHandlerSuspend = new InjectWithResponse(this);
+		// contextSuspend.setHandler(excHandlerSuspend);
 		
         ContextHandlerCollection contexts = new ContextHandlerCollection();
         contexts.setHandlers(new Handler[] { contextSuspend });
