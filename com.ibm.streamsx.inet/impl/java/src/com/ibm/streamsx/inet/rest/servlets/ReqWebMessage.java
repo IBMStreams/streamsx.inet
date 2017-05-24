@@ -1,4 +1,4 @@
-package com.ibm.streamsx.inet.rest.ops;
+package com.ibm.streamsx.inet.rest.servlets;
 /**
 * Licensed Materials - Property of IBM
 * Copyright IBM Corp. 2017 
@@ -18,13 +18,14 @@ import org.eclipse.jetty.continuation.Continuation;
 
 import com.ibm.json.java.JSONObject;
 import com.ibm.streams.operator.Tuple;
+import com.ibm.streamsx.inet.rest.ops.Analyzer;
 
 /** Bridge between the WWW request, Streams processing and corresponding WWW response. 
 * 
 * 
 */ 
 public class ReqWebMessage {
-	static Logger trace = Logger.getLogger(ReqHandlerSuspend.class.getName());
+	static Logger trace = Logger.getLogger(InjectWithResponse.class.getName());
 
 	public int trackingKey = 0;	
 	
@@ -39,6 +40,7 @@ public class ReqWebMessage {
 	private String contentType = null;
 	private HttpServletRequest request = null;
 	StringBuffer readerSb = null;
+	private final InjectWithResponse handler;
 
 	private Hashtable<String, String> headers = new Hashtable<String, String>();
 	private Continuation continuation;
@@ -48,7 +50,7 @@ public class ReqWebMessage {
 	 */
 
 	private String responseFromStreams = "";
-	static final String defaultResponseContentType = "text/html; charset=utf-8";
+	public static final String defaultResponseContentType = "text/html; charset=utf-8";
 	private String responseContentType = defaultResponseContentType; 
 	
 	private Map<String, String> responseHeaders = new Hashtable<String, String>();
@@ -56,7 +58,8 @@ public class ReqWebMessage {
 	public int statusCode = HttpServletResponse.SC_OK;
 	private String statusMessage = null;	
 
-	public ReqWebMessage(HttpServletRequest request) {
+	public ReqWebMessage(InjectWithResponse handler, HttpServletRequest request) {
+		this.handler = handler;
 		this.trackingKey = trackingKeyGenerator++;
 		this.request = request;
 		getPayload();
@@ -130,14 +133,14 @@ public class ReqWebMessage {
 	public String jsonRequest() {
 	
 		JSONObject jsonObj = new JSONObject();
-		jsonObj.put(HTTPTupleRequest.defaultKeyAttributeName, this.trackingKey);
-		jsonObj.put(HTTPTupleRequest.defaultMethodAttributeName, this.getMethod());
-		jsonObj.put(HTTPTupleRequest.defaultContentTypeAttributeName, this.getContentType());
-		jsonObj.put(HTTPTupleRequest.defaultContextPathAttributeName,  this.contextPath);
-		jsonObj.put(HTTPTupleRequest.defaultPathInfoAttributeName, this.getPathInfo());
-		jsonObj.put(HTTPTupleRequest.defaultRequestAttributeName, this.getRequestPayload());
-		jsonObj.put(HTTPTupleRequest.defaultUrlAttributeName, this.requestUrl);
-		jsonObj.put(HTTPTupleRequest.defaultHeaderAttributeName, this.getHeaders());
+		jsonObj.put(Analyzer.defaultKeyAttributeName, this.trackingKey);
+		jsonObj.put(Analyzer.defaultMethodAttributeName, this.getMethod());
+		jsonObj.put(Analyzer.defaultContentTypeAttributeName, this.getContentType());
+		jsonObj.put(Analyzer.defaultContextPathAttributeName,  this.contextPath);
+		jsonObj.put(Analyzer.defaultPathInfoAttributeName, this.getPathInfo());
+		jsonObj.put(Analyzer.defaultRequestAttributeName, this.getRequestPayload());
+		jsonObj.put(Analyzer.defaultUrlAttributeName, this.requestUrl);
+		jsonObj.put(Analyzer.defaultHeaderAttributeName, this.getHeaders());
 		return(jsonObj.toString());
 	} 
 	
@@ -195,5 +198,10 @@ public class ReqWebMessage {
 		return this.statusCode < HttpServletResponse.SC_CONTINUE ? HttpServletResponse.SC_OK :this.statusCode;
 	}
 
-
+	/**
+	 * Issue the respnse back to the requester (through the servlet & continuation).
+	 */
+	public void issueResponseFromStreams() {
+		handler.asyncResume(this);
+	}
 }

@@ -9,6 +9,8 @@ import org.apache.log4j.Logger;
 import com.ibm.streams.operator.OutputTuple;
 import com.ibm.streams.operator.StreamingOutput;
 import com.ibm.streamsx.inet.rest.engine.ServletEngine;
+import com.ibm.streamsx.inet.rest.servlets.InjectWithResponse;
+import com.ibm.streamsx.inet.rest.servlets.ReqWebMessage;
 
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
@@ -32,7 +34,7 @@ public class ReqWebServer {
     String context = "/suspend";
     double webTimeout =  1.0;
 	StreamingOutput<OutputTuple> outStream;
-	ReqHandlerSuspend excHandlerSuspend= null;
+	private InjectWithResponse excHandlerSuspend;
 	ReqHandlerInterface excHandler;
 	private String responseContentType;	
 	
@@ -45,7 +47,7 @@ public class ReqWebServer {
 		server = new Server(port);
 		
 		ContextHandler contextSuspend = new ContextHandler(context);
-		excHandlerSuspend = new ReqHandlerSuspend(this);
+		excHandlerSuspend = new InjectWithResponse(this);
 		contextSuspend.setHandler(excHandlerSuspend);
 		
         ContextHandlerCollection contexts = new ContextHandlerCollection();
@@ -101,9 +103,6 @@ public class ReqWebServer {
 	}
 	public void requestToStreams(ReqWebMessage activeWebMessage) {
 		excHandler.initiateRequestFromWeb(activeWebMessage);
-	}
-	public void responseFromStreams(ReqWebMessage activeWebMessage) {
-		excHandlerSuspend.asyncResume(activeWebMessage);
 	}
 	public void setResponseContentType(String responseContentType) {
 		this.responseContentType = responseContentType; 

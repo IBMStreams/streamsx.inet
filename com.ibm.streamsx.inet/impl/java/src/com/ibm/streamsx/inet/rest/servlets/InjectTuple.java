@@ -7,11 +7,11 @@ package com.ibm.streamsx.inet.rest.servlets;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ibm.streams.operator.Attribute;
+import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.OutputTuple;
 import com.ibm.streams.operator.StreamingOutput;
 
@@ -19,17 +19,15 @@ import com.ibm.streams.operator.StreamingOutput;
  * Inject a tuple into an output port from a HTTP GET or POST.
  *
  */
-public class InjectTuple extends HttpServlet {
+public class InjectTuple extends SubmitterServlet {
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1938530466506624733L;
-
-	private final StreamingOutput<OutputTuple> port;
 	
-	public InjectTuple(StreamingOutput<OutputTuple> port) {
-		this.port = port;
+	public InjectTuple(OperatorContext context, StreamingOutput<OutputTuple> port) {
+		super(context, port);
 	}
 	
 	@Override
@@ -43,14 +41,9 @@ public class InjectTuple extends HttpServlet {
 		       HttpServletResponse response)
 	throws ServletException, IOException
  {
-	OutputTuple tuple = port.newTuple();
+	OutputTuple tuple = getPort().newTuple();
 	populateTupleFromRequest(request, tuple);
-
-	try {
-		port.submit(tuple);
-	} catch (Exception e) {
-		throw new IOException(e);
-	}
+	submit(tuple);
 	
 	response.setStatus(HttpServletResponse.SC_NO_CONTENT);
  }

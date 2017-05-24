@@ -40,7 +40,7 @@ public class PostXMLSetup implements OperatorServletSetup {
             exposed.add(ep);
 
             String path = "/output/" + port.getPortNumber() + "/inject";
-            ports.addServlet(new ServletHolder(new InjectXML(port)),
+            ports.addServlet(new ServletHolder(new InjectXML(context, port)),
                     path);
             ep.addURL("inject", path);
             

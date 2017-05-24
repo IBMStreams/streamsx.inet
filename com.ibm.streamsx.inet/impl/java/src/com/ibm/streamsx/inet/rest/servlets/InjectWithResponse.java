@@ -1,4 +1,4 @@
-package com.ibm.streamsx.inet.rest.ops;
+package com.ibm.streamsx.inet.rest.servlets;
 /**
 * Licensed Materials - Property of IBM
 * Copyright IBM Corp. 2017
@@ -18,6 +18,9 @@ import org.eclipse.jetty.continuation.Continuation;
 import org.eclipse.jetty.continuation.ContinuationSupport;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+
+import com.ibm.streamsx.inet.rest.ops.Analyzer;
+import com.ibm.streamsx.inet.rest.ops.ReqWebServer;
 /**
  * <p>
  * Processes the message from the web and builds the response, timeout (Streams taking too long) are handled here as well. 
@@ -39,8 +42,8 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
  * @author mags
  *
  */
-public class ReqHandlerSuspend extends AbstractHandler {
-	static Logger trace = Logger.getLogger(ReqHandlerSuspend.class.getName());
+public class InjectWithResponse extends AbstractHandler {
+	static Logger trace = Logger.getLogger(InjectWithResponse.class.getName());
 	String greeting;
 	String body;
 	
@@ -56,7 +59,7 @@ public class ReqHandlerSuspend extends AbstractHandler {
 
 	// Integer trackingKey = 0;
 
-	public ReqHandlerSuspend(ReqWebServer exchangeWebServer) {
+	public InjectWithResponse(ReqWebServer exchangeWebServer) {
 		this.exchangeWebServer = exchangeWebServer;
 	}
 
@@ -66,7 +69,7 @@ public class ReqHandlerSuspend extends AbstractHandler {
 	 * 
 	 * @param ewm
 	 */
-	void asyncResume(ReqWebMessage ewm) {
+	public void asyncResume(ReqWebMessage ewm) {
 		trace.info("asyncResume - Web to transmit Stream response trackingKey:" + ewm.trackingKey);
 
 		Continuation resuming = ewm.getContinuation();
@@ -133,8 +136,8 @@ public class ReqHandlerSuspend extends AbstractHandler {
 		switch(errCode) {
 		case HttpServletResponse.SC_REQUEST_TIMEOUT:
 			response.setStatus(errCode);
-			if (HTTPTupleRequest.getnMissingTrackingKey().getValue() > 0) {
-				out.print("<h1>Request timeout. Unable to find tracking key #" + HTTPTupleRequest.getnMissingTrackingKey().getValue() +" times is it being dropped/corrupted?</h1>");				
+			if (Analyzer.getnMissingTrackingKey().getValue() > 0) {
+				out.print("<h1>Request timeout. Unable to find tracking key #" + Analyzer.getnMissingTrackingKey().getValue() +" times is it being dropped/corrupted?</h1>");				
 			} else {
 				out.print("<h1>Request timeout</h1>");
 			}
@@ -160,7 +163,7 @@ public class ReqHandlerSuspend extends AbstractHandler {
 				+ continuation.isExpired() + ", wrapped : " + continuation.isResponseWrapped());
 
 		if (continuation.isExpired()) {
-			HTTPTupleRequest.getnRequestTimeouts().incrementValue(1L);
+			Analyzer.getnRequestTimeouts().incrementValue(1L);
 			exchangeWebMessage = (ReqWebMessage) continuation.getAttribute(Constant.EXCHANGEWEBMESSAGE);
 			trace.warn("continuation - expired, timeout response sent. trackingKey:" + exchangeWebMessage.trackingKey
 					+ " REQ:" + request.getQueryString());
@@ -175,7 +178,7 @@ public class ReqHandlerSuspend extends AbstractHandler {
 			}
 			trace.info("continuation - Complete, with NO ERR web response trackingKey:" + exchangeWebMessage.trackingKey);
 		} else {
-			exchangeWebMessage = new ReqWebMessage(request);
+			exchangeWebMessage = new ReqWebMessage(this, request);
 			trace.info("continuation - Initiated, send request to streams and suspend, trackingKey:"
 					+ exchangeWebMessage.trackingKey + " REQ:" + request.getQueryString());
 
