@@ -1,4 +1,4 @@
-package com.ibm.streamsx.inet.rest.ops;
+package com.ibm.streamsx.inet.rest.servlets;
 /**
 * Licensed Materials - Property of IBM
 * Copyright IBM Corp. 2017
@@ -18,6 +18,10 @@ import org.eclipse.jetty.continuation.Continuation;
 import org.eclipse.jetty.continuation.ContinuationSupport;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+
+import com.ibm.streamsx.inet.rest.ops.HTTPTupleRequest;
+import com.ibm.streamsx.inet.rest.ops.ReqWebMessage;
+import com.ibm.streamsx.inet.rest.ops.ReqWebServer;
 /**
  * <p>
  * Processes the message from the web and builds the response, timeout (Streams taking too long) are handled here as well. 
@@ -39,8 +43,8 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
  * @author mags
  *
  */
-public class ReqHandlerSuspend extends AbstractHandler {
-	static Logger trace = Logger.getLogger(ReqHandlerSuspend.class.getName());
+public class InjectWithResponse extends AbstractHandler {
+	static Logger trace = Logger.getLogger(InjectWithResponse.class.getName());
 	String greeting;
 	String body;
 	
@@ -56,7 +60,7 @@ public class ReqHandlerSuspend extends AbstractHandler {
 
 	// Integer trackingKey = 0;
 
-	public ReqHandlerSuspend(ReqWebServer exchangeWebServer) {
+	public InjectWithResponse(ReqWebServer exchangeWebServer) {
 		this.exchangeWebServer = exchangeWebServer;
 	}
 
@@ -66,7 +70,7 @@ public class ReqHandlerSuspend extends AbstractHandler {
 	 * 
 	 * @param ewm
 	 */
-	void asyncResume(ReqWebMessage ewm) {
+	public void asyncResume(ReqWebMessage ewm) {
 		trace.info("asyncResume - Web to transmit Stream response trackingKey:" + ewm.trackingKey);
 
 		Continuation resuming = ewm.getContinuation();

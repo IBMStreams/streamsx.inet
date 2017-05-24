@@ -18,13 +18,14 @@ import org.eclipse.jetty.continuation.Continuation;
 
 import com.ibm.json.java.JSONObject;
 import com.ibm.streams.operator.Tuple;
+import com.ibm.streamsx.inet.rest.servlets.InjectWithResponse;
 
 /** Bridge between the WWW request, Streams processing and corresponding WWW response. 
 * 
 * 
 */ 
 public class ReqWebMessage {
-	static Logger trace = Logger.getLogger(ReqHandlerSuspend.class.getName());
+	static Logger trace = Logger.getLogger(InjectWithResponse.class.getName());
 
 	public int trackingKey = 0;	
 	
@@ -39,7 +40,7 @@ public class ReqWebMessage {
 	private String contentType = null;
 	private HttpServletRequest request = null;
 	StringBuffer readerSb = null;
-	private final ReqHandlerSuspend handler;
+	private final InjectWithResponse handler;
 
 	private Hashtable<String, String> headers = new Hashtable<String, String>();
 	private Continuation continuation;
@@ -57,7 +58,7 @@ public class ReqWebMessage {
 	public int statusCode = HttpServletResponse.SC_OK;
 	private String statusMessage = null;	
 
-	public ReqWebMessage(ReqHandlerSuspend handler, HttpServletRequest request) {
+	public ReqWebMessage(InjectWithResponse handler, HttpServletRequest request) {
 		this.handler = handler;
 		this.trackingKey = trackingKeyGenerator++;
 		this.request = request;
