@@ -102,9 +102,6 @@ public class ReqWebServer {
 	public void requestToStreams(ReqWebMessage activeWebMessage) {
 		excHandler.initiateRequestFromWeb(activeWebMessage);
 	}
-	public void responseFromStreams(ReqWebMessage activeWebMessage) {
-		excHandlerSuspend.asyncResume(activeWebMessage);
-	}
 	public void setResponseContentType(String responseContentType) {
 		this.responseContentType = responseContentType; 
     }

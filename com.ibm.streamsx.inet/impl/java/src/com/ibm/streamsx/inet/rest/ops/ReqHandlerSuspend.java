@@ -175,7 +175,7 @@ public class ReqHandlerSuspend extends AbstractHandler {
 			}
 			trace.info("continuation - Complete, with NO ERR web response trackingKey:" + exchangeWebMessage.trackingKey);
 		} else {
-			exchangeWebMessage = new ReqWebMessage(request);
+			exchangeWebMessage = new ReqWebMessage(this, request);
 			trace.info("continuation - Initiated, send request to streams and suspend, trackingKey:"
 					+ exchangeWebMessage.trackingKey + " REQ:" + request.getQueryString());
 

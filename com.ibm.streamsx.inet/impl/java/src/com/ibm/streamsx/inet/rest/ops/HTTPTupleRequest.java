@@ -622,7 +622,7 @@ public class HTTPTupleRequest extends AbstractOperator implements ReqHandlerInte
 
 		getnMessagesResponded().incrementValue(1L);
 		trace.info("processResponse Received #" + getnMessagesResponded().getValue() + " response:" + response);
-		exchangeWebServer.responseFromStreams(activeWebMessage);
+		activeWebMessage.issueResponseFromStreams();
 		trace.info("processResponse EXIT response : trackingKey:" + trackingKey);		
 	}
 

@@ -39,6 +39,7 @@ public class ReqWebMessage {
 	private String contentType = null;
 	private HttpServletRequest request = null;
 	StringBuffer readerSb = null;
+	private final ReqHandlerSuspend handler;
 
 	private Hashtable<String, String> headers = new Hashtable<String, String>();
 	private Continuation continuation;
@@ -56,7 +57,8 @@ public class ReqWebMessage {
 	public int statusCode = HttpServletResponse.SC_OK;
 	private String statusMessage = null;	
 
-	public ReqWebMessage(HttpServletRequest request) {
+	public ReqWebMessage(ReqHandlerSuspend handler, HttpServletRequest request) {
+		this.handler = handler;
 		this.trackingKey = trackingKeyGenerator++;
 		this.request = request;
 		getPayload();
@@ -195,5 +197,10 @@ public class ReqWebMessage {
 		return this.statusCode < HttpServletResponse.SC_CONTINUE ? HttpServletResponse.SC_OK :this.statusCode;
 	}
 
-
+	/**
+	 * Issue the respnse back to the requester (through the servlet & continuation).
+	 */
+	void issueResponseFromStreams() {
+		handler.asyncResume(this);
+	}
 }
