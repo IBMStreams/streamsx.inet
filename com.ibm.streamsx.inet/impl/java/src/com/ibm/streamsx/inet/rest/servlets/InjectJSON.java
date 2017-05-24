@@ -8,11 +8,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ibm.streams.operator.Attribute;
+import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.OutputTuple;
 import com.ibm.streams.operator.StreamingOutput;
 
@@ -21,18 +21,17 @@ import com.ibm.streams.operator.StreamingOutput;
  * using application/json mime type.
  *
  */
-public class InjectJSON extends HttpServlet {
+public class InjectJSON extends SubmitterServlet {
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 3189619562362906581L;
 	
-	private final StreamingOutput<OutputTuple> port;
 	private final int attributeIndex;
 	
-	public InjectJSON(StreamingOutput<OutputTuple> port) {
-		this.port = port;
+	public InjectJSON(OperatorContext context, StreamingOutput<OutputTuple> port) {
+	    super(context, port);
 
 		Attribute jsonString = port.getStreamSchema().getAttribute("jsonString");
 		if (jsonString != null)
@@ -67,13 +66,9 @@ public class InjectJSON extends HttpServlet {
 		}
 		br.close();
 
-		OutputTuple tuple = port.newTuple();
+		OutputTuple tuple = getPort().newTuple();
 		tuple.setString(attributeIndex, sb.toString());
-		try {
-			port.submit(tuple);
-		} catch (Exception e) {
-			throw new IOException(e);
-		}
+		submit(tuple);
 		response.setStatus(HttpServletResponse.SC_NO_CONTENT);
 	}
 }

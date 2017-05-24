@@ -41,7 +41,7 @@ public class PostTupleSetup implements OperatorServletSetup {
             exposed.add(ep);
             
             String path = "/output/" + port.getPortNumber() + "/inject";
-            ports.addServlet(new ServletHolder(new InjectTuple(port)),
+            ports.addServlet(new ServletHolder(new InjectTuple(context, port)),
                     path);
             
             ep.addURL("inject", path);

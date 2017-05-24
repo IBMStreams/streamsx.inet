@@ -40,7 +40,7 @@ public class PostJSONSetup implements OperatorServletSetup {
             exposed.add(ep);
 
             String path = "/output/" + port.getPortNumber() + "/inject";
-            ports.addServlet(new ServletHolder(new InjectJSON(port)),
+            ports.addServlet(new ServletHolder(new InjectJSON(context, port)),
                     path);
             ep.addURL("inject", path);
             
