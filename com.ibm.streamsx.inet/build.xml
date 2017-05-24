@@ -29,9 +29,16 @@ artifacts were left around and caused issues with the ant build.
 	<property name="downloads.dir"     location="opt/downloaded" />
 	<property name="jarfile"           value="com.ibm.streamsx.inet.jar" />
 
-	<!-- if a file .no_download is present in the opt/donwnloaded directory, the maven download is supressed.
+	<!-- if property no.library.download is true or
+	     if a file .no_download is present in the opt/donwnloaded directory, the maven download is supressed.
 	     In this case the libraries must be supplied from external build environment -->
-	<available file="opt/downloaded/.no_download" type="file" property="no.maven.deps"/>
+	<available property="no.download.file" file="opt/downloaded/.no_download" type="file"/>
+	<condition property="no.maven.deps">
+		<or>
+			<istrue value="${no.download.file}"/>
+			<istrue value="${no.library.download}"/>
+		</or>
+	</condition>
 
 	<defaultexcludes add="**/.gitkeep"/>
 	
