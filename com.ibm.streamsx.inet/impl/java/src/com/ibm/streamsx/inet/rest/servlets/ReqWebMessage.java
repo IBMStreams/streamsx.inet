@@ -18,7 +18,7 @@ import org.eclipse.jetty.continuation.Continuation;
 
 import com.ibm.json.java.JSONObject;
 import com.ibm.streams.operator.Tuple;
-import com.ibm.streamsx.inet.rest.ops.HTTPTupleRequest;
+import com.ibm.streamsx.inet.rest.ops.Analyzer;
 
 /** Bridge between the WWW request, Streams processing and corresponding WWW response. 
 * 
@@ -133,14 +133,14 @@ public class ReqWebMessage {
 	public String jsonRequest() {
 	
 		JSONObject jsonObj = new JSONObject();
-		jsonObj.put(HTTPTupleRequest.defaultKeyAttributeName, this.trackingKey);
-		jsonObj.put(HTTPTupleRequest.defaultMethodAttributeName, this.getMethod());
-		jsonObj.put(HTTPTupleRequest.defaultContentTypeAttributeName, this.getContentType());
-		jsonObj.put(HTTPTupleRequest.defaultContextPathAttributeName,  this.contextPath);
-		jsonObj.put(HTTPTupleRequest.defaultPathInfoAttributeName, this.getPathInfo());
-		jsonObj.put(HTTPTupleRequest.defaultRequestAttributeName, this.getRequestPayload());
-		jsonObj.put(HTTPTupleRequest.defaultUrlAttributeName, this.requestUrl);
-		jsonObj.put(HTTPTupleRequest.defaultHeaderAttributeName, this.getHeaders());
+		jsonObj.put(Analyzer.defaultKeyAttributeName, this.trackingKey);
+		jsonObj.put(Analyzer.defaultMethodAttributeName, this.getMethod());
+		jsonObj.put(Analyzer.defaultContentTypeAttributeName, this.getContentType());
+		jsonObj.put(Analyzer.defaultContextPathAttributeName,  this.contextPath);
+		jsonObj.put(Analyzer.defaultPathInfoAttributeName, this.getPathInfo());
+		jsonObj.put(Analyzer.defaultRequestAttributeName, this.getRequestPayload());
+		jsonObj.put(Analyzer.defaultUrlAttributeName, this.requestUrl);
+		jsonObj.put(Analyzer.defaultHeaderAttributeName, this.getHeaders());
 		return(jsonObj.toString());
 	} 
 	

@@ -88,8 +88,7 @@ import com.ibm.streamsx.inet.rest.servlets.ReqWebMessage;
  *
  */
 
-@PrimitiveOperator(name = "HTTPTupleRequest", namespace = "com.ibm.streamsx.inet.rest", description = HTTPTupleRequest.DESC)
-@Libraries(value = { "opt/eclipse-4.2.2/plugins/*" })
+@PrimitiveOperator(name = "HTTPTupleRequest", description = Analyzer.DESC)
 @InputPorts({
 		@InputPortSet(description = "Response to be returned to the web requestor.", cardinality = 1, optional = false, controlPort=true, windowingMode = WindowMode.NonWindowed, windowPunctuationInputMode = WindowPunctuationInputMode.Oblivious)})
 		//@InputPortSet(description = "Optional input ports", optional = true, windowingMode = WindowMode.NonWindowed, windowPunctuationInputMode = WindowPunctuationInputMode.Oblivious) })
@@ -98,8 +97,8 @@ import com.ibm.streamsx.inet.rest.servlets.ReqWebMessage;
 @Icons(location32="icons/HTTPTupleRequest_32.jpeg", location16="icons/HTTPTupleRequest_16.jpeg")
 
 //		@OutputPortSet(description = "Optional output ports", optional = true, windowPunctuationOutputMode = WindowPunctuationOutputMode.Generating) })
-public class HTTPTupleRequest extends AbstractOperator implements ReqHandlerInterface {
-	static Logger trace = Logger.getLogger(HTTPTupleRequest.class.getName());
+public class Analyzer extends AbstractOperator implements ReqHandlerInterface {
+	static Logger trace = Logger.getLogger(Analyzer.class.getName());
 
 	
 	// communication

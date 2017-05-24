@@ -19,7 +19,7 @@ import org.eclipse.jetty.continuation.ContinuationSupport;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
-import com.ibm.streamsx.inet.rest.ops.HTTPTupleRequest;
+import com.ibm.streamsx.inet.rest.ops.Analyzer;
 import com.ibm.streamsx.inet.rest.ops.ReqWebServer;
 /**
  * <p>
@@ -136,8 +136,8 @@ public class InjectWithResponse extends AbstractHandler {
 		switch(errCode) {
 		case HttpServletResponse.SC_REQUEST_TIMEOUT:
 			response.setStatus(errCode);
-			if (HTTPTupleRequest.getnMissingTrackingKey().getValue() > 0) {
-				out.print("<h1>Request timeout. Unable to find tracking key #" + HTTPTupleRequest.getnMissingTrackingKey().getValue() +" times is it being dropped/corrupted?</h1>");				
+			if (Analyzer.getnMissingTrackingKey().getValue() > 0) {
+				out.print("<h1>Request timeout. Unable to find tracking key #" + Analyzer.getnMissingTrackingKey().getValue() +" times is it being dropped/corrupted?</h1>");				
 			} else {
 				out.print("<h1>Request timeout</h1>");
 			}
@@ -163,7 +163,7 @@ public class InjectWithResponse extends AbstractHandler {
 				+ continuation.isExpired() + ", wrapped : " + continuation.isResponseWrapped());
 
 		if (continuation.isExpired()) {
-			HTTPTupleRequest.getnRequestTimeouts().incrementValue(1L);
+			Analyzer.getnRequestTimeouts().incrementValue(1L);
 			exchangeWebMessage = (ReqWebMessage) continuation.getAttribute(Constant.EXCHANGEWEBMESSAGE);
 			trace.warn("continuation - expired, timeout response sent. trackingKey:" + exchangeWebMessage.trackingKey
 					+ " REQ:" + request.getQueryString());
