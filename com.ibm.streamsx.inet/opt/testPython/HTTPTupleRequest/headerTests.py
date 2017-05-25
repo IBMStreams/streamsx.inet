@@ -197,7 +197,7 @@ class TestSimpleFilter(unittest.TestCase):
         rawRequest = op.Map("com.ibm.streamsx.inet.rest::HTTPTupleRequest",
                             stream=rspFormatted,
                             schema='tuple<int64 key, rstring request, rstring method, rstring pathInfo >',
-                            params={'port': PORT,'webTimeout':5.0,'responseJsonAttributeName':'string','context':'/base'},
+                            params={'port': PORT,'webTimeout':5.0,'responseJsonAttributeName':'string','context':'base', 'contextResourceBase':'opt/base'},
                             name = "TupleRequest")
 
         rawRequest.stream.sink(webEntryLog) ## log what we have received.
@@ -228,7 +228,7 @@ class TestSimpleFilter(unittest.TestCase):
         """Test the application, this runs in the Python VM"""
         self.jobHealthy(4)
         testMessage = "THIS+is+a+test+MESSAGE"
-        contentBase = '/base'
+        contentBase = '/base/TupleRequest/ports/analyze/0'
         self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/Tuple?' + testMessage
         print("REQ:" + self.url, flush=True)
         rsp = requests.get(url=self.url)
@@ -264,7 +264,8 @@ class TestSimpleFilter(unittest.TestCase):
                             params={'port': PORT,
                                     'webTimeout':5.0,
                                     'responseJsonAttributeName':'string',
-                                    'context':'/Reflect'},
+                                    'context':'Reflect',
+                                    'contextResourceBase': 'opt/Reflect'},
                             name = "TupleRequest")
 
         rawRequest.stream.sink(webEntryLog) ## log what we have received.
@@ -309,7 +310,7 @@ class TestSimpleFilter(unittest.TestCase):
 
         """
         self.jobHealthy(4)
-        contentBase = '/Reflect'
+        contentBase = '/Reflect/TupleRequest/ports/analyze/0'
         # request : 
         headerTest = 3
         self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/get?' + "this+is+a+test"
@@ -360,7 +361,8 @@ class TestSimpleFilter(unittest.TestCase):
                             params={'port': PORT,
                                     'webTimeout':5.0,
                                     'responseJsonAttributeName':'string',
-                                    'context':'/Reflect'},
+                                    'context':'Reflect',
+                                    'contextResourceBase': 'opt/Reflect'},
                             name = "TupleRequest")
 
         rawRequest.stream.sink(webEntryLog) ## log what we have received.
@@ -400,7 +402,7 @@ class TestSimpleFilter(unittest.TestCase):
 
         """
         self.jobHealthy(4)
-        contentBase = '/Reflect'
+        contentBase = '/Reflect/TupleRequest/ports/analyze/0'
         # request : 
         self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/post?'
         print("Method REQ:" + self.url, flush=True)

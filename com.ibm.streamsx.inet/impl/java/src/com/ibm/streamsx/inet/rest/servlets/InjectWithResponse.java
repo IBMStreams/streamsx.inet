@@ -1,26 +1,30 @@
 package com.ibm.streamsx.inet.rest.servlets;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.function.Function;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 /**
 * Licensed Materials - Property of IBM
 * Copyright IBM Corp. 2017
 * @author mags
 */
 import org.apache.log4j.Logger;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Iterator;
-import java.util.Map;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.eclipse.jetty.continuation.Continuation;
 import org.eclipse.jetty.continuation.ContinuationSupport;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.AbstractHandler;
 
+import com.ibm.streams.operator.OperatorContext;
+import com.ibm.streams.operator.OutputTuple;
+import com.ibm.streams.operator.StreamingOutput;
 import com.ibm.streamsx.inet.rest.ops.Analyzer;
-import com.ibm.streamsx.inet.rest.ops.ReqWebServer;
 /**
  * <p>
  * Processes the message from the web and builds the response, timeout (Streams taking too long) are handled here as well. 
@@ -42,7 +46,7 @@ import com.ibm.streamsx.inet.rest.ops.ReqWebServer;
  * @author mags
  *
  */
-public class InjectWithResponse extends AbstractHandler {
+public class InjectWithResponse extends SubmitterServlet {
 	static Logger trace = Logger.getLogger(InjectWithResponse.class.getName());
 	String greeting;
 	String body;
@@ -55,13 +59,34 @@ public class InjectWithResponse extends AbstractHandler {
 		public static final String EXCHANGEWEBMESSAGE = "exchangeWebMessage";
 	}
 
-	ReqWebServer exchangeWebServer = null;
+	// ReqWebServer exchangeWebServer = null;
 
 	// Integer trackingKey = 0;
+	
+	private final long webTimeout;
+	
+	private Function<ReqWebMessage,OutputTuple> tupleCreator;
 
-	public InjectWithResponse(ReqWebServer exchangeWebServer) {
-		this.exchangeWebServer = exchangeWebServer;
+	public InjectWithResponse(OperatorContext context, StreamingOutput<OutputTuple> port) {
+	    super(context, port);
+		// this.exchangeWebServer = exchangeWebServer;
+
+	    if (context.getParameterNames().contains("webTimeout")) {
+	        double wtd = Double.valueOf(context.getParameterValues("webTimeout").get(0));
+	        webTimeout = (long) (1000.0 * wtd);
+	    } else {
+	        webTimeout = SECONDS.toMillis(15);
+	    }
 	}
+	
+    @SuppressWarnings("unchecked")
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+
+        tupleCreator = (Function<ReqWebMessage, OutputTuple>) config.getServletContext()
+                .getAttribute("operator.conduit");
+    }
 
 	/**
 	 * Callback from Streams side with the results, the results are in the from
@@ -152,8 +177,8 @@ public class InjectWithResponse extends AbstractHandler {
 	}
 
 	@Override
-	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException {
+	public void service(HttpServletRequest request, HttpServletResponse response)
+	            throws ServletException, IOException {
 
 		Continuation continuation = ContinuationSupport.getContinuation(request);
 		ReqWebMessage exchangeWebMessage = null;
@@ -184,20 +209,18 @@ public class InjectWithResponse extends AbstractHandler {
 
 			exchangeWebMessage.setContinuation(continuation);
 			continuation.setAttribute(Constant.EXCHANGEWEBMESSAGE, exchangeWebMessage);
-			if (exchangeWebServer.getWebtimeout() != 0.0) {
-				continuation.setTimeout((long) (1000.0 * exchangeWebServer.getWebtimeout()));
+			if (webTimeout != 0) {
+				continuation.setTimeout(webTimeout);
 			}
 			continuation.suspend();         // !important suspend before sending request
-			exchangeWebServer.requestToStreams(exchangeWebMessage); // send request
+			submit(tupleCreator.apply(exchangeWebMessage)); // send request
 			trace.info("continuation - Suspending trackingKey : " + exchangeWebMessage.trackingKey + "timeout:"
-					+ exchangeWebServer.getWebtimeout());
+					+ webTimeout);
 			if (!continuation.isSuspended()) {
 				trace.warn("continuation - failed to suspend, trackingKey:" + exchangeWebMessage.trackingKey
-						+ "timeout:" + exchangeWebServer.getWebtimeout());
+						+ "timeout:" + webTimeout);
 			}
 		}
-		baseRequest.setHandled(true);
-		return;
 	}
 
 }

@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,9 +28,9 @@ import com.ibm.streamsx.inet.rest.ops.Analyzer;
 public class ReqWebMessage {
 	static Logger trace = Logger.getLogger(InjectWithResponse.class.getName());
 
-	public int trackingKey = 0;	
+	public final long trackingKey;	
 	
-	protected static int trackingKeyGenerator = 0;
+	private static AtomicLong trackingKeyGenerator = new AtomicLong();
 	public Tuple tuple = null;
 	public String requestFromWeb;
 	private String method = null;
@@ -60,7 +61,7 @@ public class ReqWebMessage {
 
 	public ReqWebMessage(InjectWithResponse handler, HttpServletRequest request) {
 		this.handler = handler;
-		this.trackingKey = trackingKeyGenerator++;
+		this.trackingKey = trackingKeyGenerator.incrementAndGet();
 		this.request = request;
 		getPayload();
 		dumpPayload();
