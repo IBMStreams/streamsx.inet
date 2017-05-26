@@ -169,7 +169,7 @@ namespace com_ibm_streamsx_inet_http {
     /**
      * Add common options to the curl pointer
      */
-    CURLcode addCommonOpts(CURL * curl, const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, const SPL::int32 * requestTimeout, const SPL::int32 * connectionTimeout) {
+    CURLcode addCommonOpts(CURL * curl, const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, const SPL::int32 * requestTimeout, const SPL::int32 * connectionTimeout, const SPL::rstring &certFile, const SPL::rstring &certType, const SPL::rstring &keyFile, const SPL::rstring &keyType, const SPL::rstring &keyPass) {
 
         CURLcode res = curl_easy_setopt(curl,CURLOPT_URL,url.c_str());
         if (res != CURLE_OK) {
@@ -250,6 +250,46 @@ namespace com_ibm_streamsx_inet_http {
                 return res;
             }
         }
+// Certificates given
+	if (certFile.size() > 1) 
+	{
+		res = curl_easy_setopt(curl, CURLOPT_SSLCERT, certFile.c_str());
+		if (res != CURLE_OK) {
+			SPLAPPTRC(L_ERROR, "Error code " << res << " setting certificate location", logTag);
+			return res;
+		}
+
+		if (certType.size() > 1) {
+			res = curl_easy_setopt(curl, CURLOPT_SSLCERTTYPE, certType.c_str());
+			if (res != CURLE_OK) {
+				SPLAPPTRC(L_ERROR, "Error code " << res << " setting certificate type " << certType, logTag);
+				return res;
+			}
+		}
+		if (keyFile.size() > 1) 
+		{
+			res = curl_easy_setopt(curl, CURLOPT_SSLKEY, keyFile.c_str());
+			if (res != CURLE_OK) {
+				SPLAPPTRC(L_ERROR, "Error code " << res << " setting SSL keyfile ", logTag);
+				return res;
+			}
+		}
+		if (keyType.size() > 1)
+		{
+			res = curl_easy_setopt(curl, CURLOPT_SSLKEYTYPE, keyType.c_str());
+			if (res != CURLE_OK) {
+				SPLAPPTRC(L_ERROR, "Error code " << res << " setting SSL key type", logTag);
+				return res;
+			}
+		}
+		if (keyPass.size() > 1) {
+			res = curl_easy_setopt(curl, CURLOPT_KEYPASSWD, keyPass.c_str());
+			if (res != CURLE_OK) {
+				SPLAPPTRC(L_ERROR, "Error code " << res << " setting SSL password ", logTag);
+				return res;
+			}
+		}
+	}
         return CURLE_OK;
     }
 
@@ -341,7 +381,11 @@ namespace com_ibm_streamsx_inet_http {
     /*
      * use httpDelete
      */
-    SPL::rstring httpDelete_(const SPL::rstring & url, const SPL::list<SPL::rstring> &extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::int32 & error, const SPL::int32 * requestTimeout, const SPL::int32 * connectionTimeout) {
+    SPL::rstring httpDelete_(const SPL::rstring & url, const SPL::list<SPL::rstring> &extraHeaders, 
+		const SPL::rstring & username, const SPL::rstring & password, 
+		const SPL::rstring &certFile, const SPL::rstring &certType,
+		const SPL::rstring &keyFile, const SPL::rstring &keyType, const SPL::rstring &keyPass,
+		SPL::int32 & error, const SPL::int32 * requestTimeout, const SPL::int32 * connectionTimeout) {
         static __thread CURL* curlDelete = NULL;
         error = 0;
         if (curlDelete == NULL) {
@@ -354,7 +398,7 @@ namespace com_ibm_streamsx_inet_http {
             addCurlHandle(curlDelete);
         }
 
-        CURLcode res=addCommonOpts(curlDelete, url, extraHeaders, username, password, requestTimeout, connectionTimeout);
+        CURLcode res=addCommonOpts(curlDelete, url, extraHeaders, username, password, requestTimeout, connectionTimeout, certFile, certType, keyFile, keyType, keyPass);
         if (res != CURLE_OK) {
             error = res;
             return "";
@@ -381,14 +425,27 @@ namespace com_ibm_streamsx_inet_http {
     }
 
     SPL::rstring httpDelete(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::int32 & error) {
-       return httpDelete_(url, extraHeaders, username, password, error, NULL, NULL);
+       return httpDelete_(url, extraHeaders, username, password, NULL, NULL, NULL, NULL, NULL, error, NULL, NULL);
     }
+
     SPL::rstring httpDelete(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::int32 & error, const SPL::int32 requestTimeout, const SPL::int32 connectionTimeout) {
-        return httpDelete_(url, extraHeaders, username, password, error, &requestTimeout, &connectionTimeout);
+        return httpDelete_(url, extraHeaders, username, password, NULL, NULL, NULL, NULL, NULL, error, &requestTimeout, &connectionTimeout);
+    }
+
+    SPL::rstring httpDelete(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, 
+		const SPL::rstring & username, const SPL::rstring & password,
+		const SPL::rstring & certFile, const SPL::rstring & certType,
+		const SPL::rstring & keyFile, const SPL::rstring & keyType, const SPL::rstring &keyPass,
+		SPL::int32 & error, const SPL::int32 requestTimeout, const SPL::int32 connectionTimeout) {
+        return httpDelete_(url, extraHeaders, username, password, certFile, certType, keyFile, keyType, keyPass, error, &requestTimeout, &connectionTimeout);
     }
 
 
-    SPL::rstring httpPost_(const SPL::rstring & data, const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> & headers,SPL::int32 & error, const SPL::int32 * requestTimeout, const SPL::int32 * connectionTimeout) {
+    SPL::rstring httpPost_(const SPL::rstring & data, const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, 
+	const SPL::rstring & username, const SPL::rstring & password, 
+	const SPL::rstring & certFile, const SPL::rstring &certType,
+	const SPL::rstring & keyFile, const SPL::rstring &keyType, const SPL::rstring &keyPass, 
+	SPL::list<SPL::rstring> & headers,SPL::int32 & error, const SPL::int32 * requestTimeout, const SPL::int32 * connectionTimeout) {
         static __thread CURL* curlPost =NULL;
         error = 0;
         // curlPost is defined as a thread-local static variable.
@@ -403,7 +460,7 @@ namespace com_ibm_streamsx_inet_http {
         }
 
         headers.clear();
-        CURLcode res = addCommonOpts(curlPost,url,extraHeaders,username, password, requestTimeout, connectionTimeout);
+        CURLcode res = addCommonOpts(curlPost,url,extraHeaders,username, password, requestTimeout, connectionTimeout, certFile, certType, keyFile, keyType, keyPass);
         if (res != CURLE_OK) {
             error = res;
             return "";
@@ -462,14 +519,25 @@ namespace com_ibm_streamsx_inet_http {
     }
 
     SPL::rstring httpPost(const SPL::rstring &  data, const  SPL::rstring &  url, const SPL::list<SPL::rstring> & extraHeaders,  const SPL::rstring &  username, const SPL::rstring & password, SPL::list<SPL::rstring>& headers, SPL::int32 & error) {
-        return httpPost_(data, url, extraHeaders, username, password, headers, error, NULL, NULL);
+        return httpPost_(data, url, extraHeaders, username, password, NULL, NULL, NULL, NULL, NULL, headers, error, NULL, NULL);
     }
     SPL::rstring httpPost(const SPL::rstring &  data, const  SPL::rstring &  url, const SPL::list<SPL::rstring> & extraHeaders,  const SPL::rstring &  username, const SPL::rstring & password, SPL::list<SPL::rstring>& headers, SPL::int32 & error, const SPL::int32 requestTimeout, const SPL::int32 connectionTimeout) {
-        return httpPost_(data, url, extraHeaders, username, password, headers, error, &requestTimeout, &connectionTimeout);
+        return httpPost_(data, url, extraHeaders, username, password, NULL, NULL, NULL, NULL, NULL, headers, error, &requestTimeout, &connectionTimeout);
+    }
+    SPL::rstring httpPost(const SPL::rstring &  data, const  SPL::rstring &  url, const SPL::list<SPL::rstring> & extraHeaders,  
+		const SPL::rstring &  username, const SPL::rstring & password, 
+		const SPL::rstring & certFile, const SPL::rstring &certType,
+		const SPL::rstring & keyFile, const SPL::rstring &keyType, const SPL::rstring &keyPass,
+		SPL::list<SPL::rstring>& headers, SPL::int32 & error, const SPL::int32 requestTimeout, const SPL::int32 connectionTimeout) {
+        return httpPost_(data, url, extraHeaders, username, password, certFile, certType, keyFile, keyType, keyPass, headers, error, &requestTimeout, &connectionTimeout);
     }
 
 
-    SPL::rstring httpPut_(const SPL::rstring & data, const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> & headers, SPL::int32 & error, const SPL::int32 * requestTimeout, const SPL::int32 * connectionTimeout) {
+    SPL::rstring httpPut_(const SPL::rstring & data, const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, 
+		const SPL::rstring & username, const SPL::rstring & password, 
+		const SPL::rstring & certFile, const SPL::rstring & certType,
+		const SPL::rstring & keyFile, const SPL::rstring & keyType,  const SPL::rstring &keyPass,
+		SPL::list<SPL::rstring> & headers, SPL::int32 & error, const SPL::int32 * requestTimeout, const SPL::int32 * connectionTimeout) {
         static __thread CURL* curlPut = NULL;
         // curlPut is a thread-local static variable.
         if (curlPut == NULL) {
@@ -483,7 +551,7 @@ namespace com_ibm_streamsx_inet_http {
         }
 
         headers.clear();
-        CURLcode res = addCommonOpts(curlPut,url,extraHeaders,username, password, requestTimeout, connectionTimeout);
+        CURLcode res = addCommonOpts(curlPut,url,extraHeaders,username, password, requestTimeout, connectionTimeout, certFile, certType, keyFile, keyType, keyPass);
         if (res != CURLE_OK) {
             error = res;
             return "";
@@ -554,15 +622,31 @@ namespace com_ibm_streamsx_inet_http {
     }
 
     SPL::rstring httpPut(const SPL::rstring &  data, const  SPL::rstring &  url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring &  username, const SPL::rstring & password, SPL::list<SPL::rstring>& headers, SPL::int32 & error) {
-        return httpPut_(data, url, extraHeaders, username, password, headers, error, NULL, NULL);
+        return httpPut_(data, url, extraHeaders, username, password, NULL, NULL, NULL, NULL, NULL, headers, error, NULL, NULL);
     }
     SPL::rstring httpPut(const SPL::rstring &  data, const  SPL::rstring &  url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring &  username, const SPL::rstring & password, SPL::list<SPL::rstring>& headers, SPL::int32 & error, const SPL::int32 requestTimeout, const SPL::int32 connectionTimeout) {
-        return httpPut_(data, url, extraHeaders, username, password, headers, error, &requestTimeout, &connectionTimeout);
+        return httpPut_(data, url, extraHeaders, username, password, NULL, NULL, NULL, NULL, NULL, headers, error, &requestTimeout, &connectionTimeout);
+    }
+    SPL::rstring httpPut(const SPL::rstring &  data, const  SPL::rstring &  url, const SPL::list<SPL::rstring> & extraHeaders, 
+		const SPL::rstring &  username, const SPL::rstring & password, 
+		const SPL::rstring & certFile, const SPL::rstring & certType,
+		const SPL::rstring & keyFile, const SPL::rstring &keyType, const SPL::rstring &keyPass,
+		SPL::list<SPL::rstring>& headers, SPL::int32 & error, const SPL::int32 requestTimeout, const SPL::int32 connectionTimeout) {
+        return httpPut_(data, url, extraHeaders, username, password, certFile, certType, keyFile, keyType, keyPass, headers, error, &requestTimeout, &connectionTimeout);
     }
 
 
     // First pass as curl_get.
-    SPL::rstring httpGet_(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> * headers, SPL::int32& error, const SPL::int32 * requestTimeout, const SPL::int32 * connectionTimeout) {
+    SPL::rstring httpGet_(const SPL::rstring & url, 
+    						const SPL::list<SPL::rstring> & extraHeaders, 
+    						const SPL::rstring & username, 
+    						const SPL::rstring & password, 
+							const SPL::rstring &certFile, 
+							const SPL::rstring &certType,
+							const SPL::rstring &keyFile,
+							const SPL::rstring &keyType,
+							const SPL::rstring &keyPass,
+							SPL::list<SPL::rstring> * headers, SPL::int32& error, const SPL::int32 * requestTimeout, const SPL::int32 * connectionTimeout) {
         // Curl is more efficient if we let it reuse handles
         static __thread CURL* curlGet = NULL;
         if (curlGet == NULL) {
@@ -579,7 +663,7 @@ namespace com_ibm_streamsx_inet_http {
         CURLcode res;
         // Let's make sure someone didn't forget to initialize before calling
         error = 0;
-        res = addCommonOpts(curlGet,url,extraHeaders,username, password, requestTimeout, connectionTimeout);
+        res = addCommonOpts(curlGet,url,extraHeaders,username, password, requestTimeout, connectionTimeout, certFile, certType, keyFile, keyType, keyPass);
         if (res != 0 ) {
             error = res;
             return toReturn;
@@ -623,6 +707,8 @@ namespace com_ibm_streamsx_inet_http {
                 return "";
             }
         }
+
+	
         //perform operation
         res = curl_easy_perform(curlGet);
         if (res != CURLE_OK) {
@@ -639,17 +725,27 @@ namespace com_ibm_streamsx_inet_http {
         return toReturn;
     }
 
+    SPL::rstring httpGet (const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> * headers, SPL::int32& error, const SPL::int32 * requestTimeout, const SPL::int32 * connectionTimeout) {
+	return httpGet_(url, extraHeaders, username, password, NULL, NULL, NULL, NULL, NULL, NULL, error, NULL, NULL);
+    }
     SPL::rstring httpGet(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::int32& error) {
-        return httpGet_(url, extraHeaders, username, password, NULL, error, NULL, NULL);
+        return httpGet_(url, extraHeaders, username, password, NULL, NULL, NULL, NULL, NULL, NULL, error, NULL, NULL);
     }
     SPL::rstring httpGet(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> & headers, SPL::int32& error) {
-        return httpGet_(url, extraHeaders, username, password, &headers, error, NULL, NULL);
+        return httpGet_(url, extraHeaders, username, password, NULL, NULL, NULL, NULL, NULL, &headers, error, NULL, NULL);
     }
     SPL::rstring httpGet(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::int32 & error, const SPL::int32 requestTimeout, const SPL::int32 connectionTimeout) {
-        return httpGet_(url, extraHeaders, username, password, NULL, error, &requestTimeout, &connectionTimeout);
+        return httpGet_(url, extraHeaders, username, password, NULL, NULL, NULL, NULL, NULL, NULL, error, &requestTimeout, &connectionTimeout);
     }
     SPL::rstring httpGet(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> & headers, SPL::int32 & error, const SPL::int32 requestTimeout, const SPL::int32 connectionTimeout) {
-        return httpGet_(url, extraHeaders, username, password, &headers, error, &requestTimeout, &connectionTimeout);
+        return httpGet_(url, extraHeaders, username, password, NULL, NULL, NULL, NULL, NULL, &headers, error, &requestTimeout, &connectionTimeout);
     }
 
+    SPL::rstring httpGet(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, 
+    					const SPL::rstring & certFile, const SPL::rstring &certType, 
+						const SPL::rstring & keyFile, const SPL::rstring &keyType,
+						const SPL::rstring &keyPass, SPL::list<SPL::rstring> & headers, SPL::int32 & error, const SPL::int32 requestTimeout, const SPL::int32 connectionTimeout) {
+        return httpGet_(url, extraHeaders, username, password, certFile, certType, keyFile, keyType, keyPass, &headers, error, &requestTimeout, &connectionTimeout);
+    }
+   
 }
