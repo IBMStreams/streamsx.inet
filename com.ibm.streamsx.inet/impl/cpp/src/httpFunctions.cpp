@@ -425,11 +425,11 @@ namespace com_ibm_streamsx_inet_http {
     }
 
     SPL::rstring httpDelete(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::int32 & error) {
-       return httpDelete_(url, extraHeaders, username, password, NULL, NULL, NULL, NULL, NULL, error, NULL, NULL);
+       return httpDelete_(url, extraHeaders, username, password, "","","","","", error, NULL, NULL);
     }
 
     SPL::rstring httpDelete(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::int32 & error, const SPL::int32 requestTimeout, const SPL::int32 connectionTimeout) {
-        return httpDelete_(url, extraHeaders, username, password, NULL, NULL, NULL, NULL, NULL, error, &requestTimeout, &connectionTimeout);
+        return httpDelete_(url, extraHeaders, username, password, "","","","","", error, &requestTimeout, &connectionTimeout);
     }
 
     SPL::rstring httpDelete(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, 
@@ -519,10 +519,10 @@ namespace com_ibm_streamsx_inet_http {
     }
 
     SPL::rstring httpPost(const SPL::rstring &  data, const  SPL::rstring &  url, const SPL::list<SPL::rstring> & extraHeaders,  const SPL::rstring &  username, const SPL::rstring & password, SPL::list<SPL::rstring>& headers, SPL::int32 & error) {
-        return httpPost_(data, url, extraHeaders, username, password, NULL, NULL, NULL, NULL, NULL, headers, error, NULL, NULL);
+        return httpPost_(data, url, extraHeaders, username, password, "","","","","", headers, error, NULL, NULL);
     }
     SPL::rstring httpPost(const SPL::rstring &  data, const  SPL::rstring &  url, const SPL::list<SPL::rstring> & extraHeaders,  const SPL::rstring &  username, const SPL::rstring & password, SPL::list<SPL::rstring>& headers, SPL::int32 & error, const SPL::int32 requestTimeout, const SPL::int32 connectionTimeout) {
-        return httpPost_(data, url, extraHeaders, username, password, NULL, NULL, NULL, NULL, NULL, headers, error, &requestTimeout, &connectionTimeout);
+        return httpPost_(data, url, extraHeaders, username, password, "","","","","", headers, error, &requestTimeout, &connectionTimeout);
     }
     SPL::rstring httpPost(const SPL::rstring &  data, const  SPL::rstring &  url, const SPL::list<SPL::rstring> & extraHeaders,  
 		const SPL::rstring &  username, const SPL::rstring & password, 
@@ -622,10 +622,10 @@ namespace com_ibm_streamsx_inet_http {
     }
 
     SPL::rstring httpPut(const SPL::rstring &  data, const  SPL::rstring &  url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring &  username, const SPL::rstring & password, SPL::list<SPL::rstring>& headers, SPL::int32 & error) {
-        return httpPut_(data, url, extraHeaders, username, password, NULL, NULL, NULL, NULL, NULL, headers, error, NULL, NULL);
+        return httpPut_(data, url, extraHeaders, username, password, "","","","","", headers, error, NULL, NULL);
     }
     SPL::rstring httpPut(const SPL::rstring &  data, const  SPL::rstring &  url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring &  username, const SPL::rstring & password, SPL::list<SPL::rstring>& headers, SPL::int32 & error, const SPL::int32 requestTimeout, const SPL::int32 connectionTimeout) {
-        return httpPut_(data, url, extraHeaders, username, password, NULL, NULL, NULL, NULL, NULL, headers, error, &requestTimeout, &connectionTimeout);
+        return httpPut_(data, url, extraHeaders, username, password, "","","","","", headers, error, &requestTimeout, &connectionTimeout);
     }
     SPL::rstring httpPut(const SPL::rstring &  data, const  SPL::rstring &  url, const SPL::list<SPL::rstring> & extraHeaders, 
 		const SPL::rstring &  username, const SPL::rstring & password, 
@@ -726,19 +726,19 @@ namespace com_ibm_streamsx_inet_http {
     }
 
     SPL::rstring httpGet (const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> * headers, SPL::int32& error, const SPL::int32 * requestTimeout, const SPL::int32 * connectionTimeout) {
-	return httpGet_(url, extraHeaders, username, password, NULL, NULL, NULL, NULL, NULL, NULL, error, NULL, NULL);
+	return httpGet_(url, extraHeaders, username, password, "","","","","", NULL, error, NULL, NULL);
     }
     SPL::rstring httpGet(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::int32& error) {
-        return httpGet_(url, extraHeaders, username, password, NULL, NULL, NULL, NULL, NULL, NULL, error, NULL, NULL);
+        return httpGet_(url, extraHeaders, username, password, "","","","","", NULL, error, NULL, NULL);
     }
     SPL::rstring httpGet(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> & headers, SPL::int32& error) {
-        return httpGet_(url, extraHeaders, username, password, NULL, NULL, NULL, NULL, NULL, &headers, error, NULL, NULL);
+        return httpGet_(url, extraHeaders, username, password, "","","","","", &headers, error, NULL, NULL);
     }
     SPL::rstring httpGet(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::int32 & error, const SPL::int32 requestTimeout, const SPL::int32 connectionTimeout) {
-        return httpGet_(url, extraHeaders, username, password, NULL, NULL, NULL, NULL, NULL, NULL, error, &requestTimeout, &connectionTimeout);
+        return httpGet_(url, extraHeaders, username, password, "","","","","", NULL, error, &requestTimeout, &connectionTimeout);
     }
     SPL::rstring httpGet(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, SPL::list<SPL::rstring> & headers, SPL::int32 & error, const SPL::int32 requestTimeout, const SPL::int32 connectionTimeout) {
-        return httpGet_(url, extraHeaders, username, password, NULL, NULL, NULL, NULL, NULL, &headers, error, &requestTimeout, &connectionTimeout);
+        return httpGet_(url, extraHeaders, username, password, "","","","","", &headers, error, &requestTimeout, &connectionTimeout);
     }
 
     SPL::rstring httpGet(const SPL::rstring & url, const SPL::list<SPL::rstring> & extraHeaders, const SPL::rstring & username, const SPL::rstring & password, 
