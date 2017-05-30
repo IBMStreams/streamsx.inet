@@ -1,0 +1,49 @@
+namespace com.ibm.streamsx.inet.sample.rest;
+use spl.file::*;
+use com.ibm.streamsx.inet.rest::*;
+
+composite HttpBlobInjectTest {
+	graph
+		// This operator can receive any binary data sent from
+		// one or more HTTP clients (.wav, .jpg, .mov, .tar etc.)
+		stream<blob x> BinData = HTTPBLOBInjection() {
+			param
+				port: 8080;
+		}
+		
+		() as MySink1 = Custom(BinData as BD) {
+			logic
+				state: {
+					mutable int32 _tupleCnt = 0;
+					list<rstring> _files = ["dummy", "result1", "result2"];
+				}
+				
+				onTuple BD: {
+					printStringLn("HTTP binary Content Length for tuple " +
+						(rstring)++_tupleCnt + "=" + (rstring)size(BD.x));
+					
+					if (_tupleCnt <= 2) {
+						// Write the received binary content to a file to
+						// verify the received blob is same as the
+						// original content sent by the HTTP client.
+						mutable int32 fileError = 0;
+						mutable uint64 fileHandle = 0ul;
+						rstring fileName = dataDirectory() + "/" + _files[_tupleCnt];
+						printStringLn("Open file : " + fileName);
+						fileHandle = fopen(fileName, "w+", fileError);
+						
+						if (fileError != 0) {
+							printStringLn ("Error while creating the file " + fileName + 
+								". (Error: " + (rstring) fileError + ") Giving up.\n");
+							abort();
+						}
+						
+						list<uint8> binaryContent = (list<uint8>)BD.x;
+						fwrite(binaryContent, fileHandle, 0ul, (uint64)size(binaryContent), fileError);
+						fclose(fileHandle, fileError);
+					} else {
+						printStringLn("Else");
+					}
+				}
+		}
+}
