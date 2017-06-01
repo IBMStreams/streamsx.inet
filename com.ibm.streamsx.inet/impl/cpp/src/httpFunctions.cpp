@@ -1,5 +1,6 @@
 #include "httpFunctions.h"
 #include "SPL/Runtime/Common/RuntimeDebug.h"
+#include <SPL/Runtime/ProcessingElement/ProcessingElement.h>
 #include <SPL/Runtime/Type/List.h>
 #include <tr1/unordered_map>
 #include <vector>
@@ -253,7 +254,8 @@ namespace com_ibm_streamsx_inet_http {
 // Certificates given
 	if (certFile.size() > 1) 
 	{
-		res = curl_easy_setopt(curl, CURLOPT_SSLCERT, certFile.c_str());
+		std::string fullpath = (certFile[0] == '/')? certFile.string() : SPL::ProcessingElement::pe().getDataDirectory()+"/" + certFile.string();
+		res = curl_easy_setopt(curl, CURLOPT_SSLCERT, fullpath.c_str());
 		if (res != CURLE_OK) {
 			SPLAPPTRC(L_ERROR, "Error code " << res << " setting certificate location", logTag);
 			return res;
@@ -268,7 +270,8 @@ namespace com_ibm_streamsx_inet_http {
 		}
 		if (keyFile.size() > 1) 
 		{
-			res = curl_easy_setopt(curl, CURLOPT_SSLKEY, keyFile.c_str());
+			std::string fullKey = (keyFile[0] == '/')? keyFile.string() : SPL::ProcessingElement::pe().getDataDirectory() + "/" + keyFile.string();
+			res = curl_easy_setopt(curl, CURLOPT_SSLKEY, fullKey.c_str());
 			if (res != CURLE_OK) {
 				SPLAPPTRC(L_ERROR, "Error code " << res << " setting SSL keyfile ", logTag);
 				return res;
