@@ -6,6 +6,9 @@ package com.ibm.streamsx.inet.rest.servlets;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -16,6 +19,7 @@ import com.ibm.streams.operator.OutputTuple;
 import com.ibm.streams.operator.StreamingOutput;
 import com.ibm.streams.operator.types.ValueFactory;
 import com.ibm.streams.operator.types.Blob;
+import com.ibm.streams.operator.types.RString;
 
 /**
  * Inject a tuple into an output port from a HTTP GET or POST.
@@ -47,6 +51,28 @@ public class InjectBLOB extends HttpServlet {
 	InputStream in = request.getInputStream();
 	Blob blob = ValueFactory.readBlob(in);
 	tuple.setBlob(0, blob) ;
+
+	// Output tuple may optionally have a second attribute for receiving all the HTTP request headers.
+	// If this second tuple attribute is present, its type must be map<rstring, rstring>.
+	// If the type matches, we will assign the HTTP request headers into this map attribute. Otherwise, we will skip this step.
+	if ((port.getStreamSchema().getAttributeCount() > 1) && 
+	    (port.getStreamSchema().getAttribute(1).getType().getLanguageType().equals("map<rstring,rstring>") == true)) {
+		// Output tuple for this operator has an optional second attribute.
+		// Collect the HTTP Request headers and assign them to the second attribute which is a map<rstring, rstring>.
+		Map<RString, RString> map = new HashMap<RString, RString>();
+		Enumeration headerNames = request.getHeaderNames();
+
+		while (headerNames.hasMoreElements()) {
+			String str = (String)headerNames.nextElement();
+			RString key = new RString(str);
+			RString value = new RString((String)request.getHeader(str));
+			map.put(key, value);
+			// System.out.println("Key=" + key + ", Value=" + value);
+		}
+
+		tuple.setMap(1, map);	
+	}
+
 	try {
 		port.submit(tuple);
 	} catch (Exception e) {
