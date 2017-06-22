@@ -1,12 +1,7 @@
 package com.ibm.streamsx.inet.rest.servlets;
-/**
-* Licensed Materials - Property of IBM
-* Copyright IBM Corp. 2017 
-* @author mags
-*/
-import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -15,6 +10,12 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+* Licensed Materials - Property of IBM
+* Copyright IBM Corp. 2017 
+* @author mags
+*/
+import org.apache.log4j.Logger;
 import org.eclipse.jetty.continuation.Continuation;
 
 import com.ibm.json.java.JSONObject;
@@ -128,7 +129,7 @@ public class ReqWebMessage {
 		return requestUrl == null ? "" : requestUrl;
 	}
 	public Hashtable<String, String> getHeaders() {
-		return headers;
+	        return headers;
 	}
 	// Build the Json request from all the components. 
 	public String jsonRequest() {
@@ -141,7 +142,14 @@ public class ReqWebMessage {
 		jsonObj.put(Analyzer.defaultPathInfoAttributeName, this.getPathInfo());
 		jsonObj.put(Analyzer.defaultRequestAttributeName, this.getRequestPayload());
 		jsonObj.put(Analyzer.defaultUrlAttributeName, this.requestUrl);
-		jsonObj.put(Analyzer.defaultHeaderAttributeName, this.getHeaders());
+		if (JSONObject.isValidObject(this.getHeaders())) {
+			jsonObj.put(Analyzer.defaultHeaderAttributeName, this.getHeaders());			
+		} else {
+		        //Invalid for JSON (Hashtable), switch over to jsonObject
+			JSONObject jsonHead = new JSONObject();
+			jsonHead.putAll(this.getHeaders());
+			jsonObj.put(Analyzer.defaultHeaderAttributeName, jsonHead);									
+		}
 		return(jsonObj.toString());
 	} 
 	
