@@ -226,6 +226,7 @@ public class Analyzer extends ServletOperator {
 	private static Metric nMessagesResponded;
 	private static Metric nRequestTimeouts;	
 	private static Metric nMissingTrackingKey;
+	private static Metric nActiveRequests;	
 	
 	/**
 	 * Conduit object between operator and servlet.
@@ -422,6 +423,12 @@ public class Analyzer extends ServletOperator {
     public static Metric getnMissingTrackingKey() {
         return nMissingTrackingKey;
     }   
+    // 
+    
+    @CustomMetric(description="Number of requests currently being processed.", kind=Kind.GAUGE)
+    public void setnActiveRequests(Metric metric) {this.nActiveRequests = metric;}
+    public Metric getnActiveRequests() { return nActiveRequests; }    
+    
 
 	@Parameter(optional = true, description = WEBTIMEOUT_DESC)
 	public void setWebTimeout(double webTimeout) {
@@ -498,6 +505,7 @@ public class Analyzer extends ServletOperator {
 			trace.error("retrieveExchangeWebMessage: failed to locate trackingKey. Has the key been corrupted or failed to propogate through the Stream? trackingKey:" + trackingKey + " missingTackingKeyCountt:" + getnMissingTrackingKey().getValue());							
 			return null;
 		}
+		getnActiveRequests().setValue((long)activeMessages.size());
 		activeWebMessage = activeMessages.get(trackingKey);
 		activeMessages.remove(trackingKey);
 		return activeWebMessage;

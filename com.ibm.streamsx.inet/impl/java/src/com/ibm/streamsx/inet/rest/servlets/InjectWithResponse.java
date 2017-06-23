@@ -194,7 +194,6 @@ public class InjectWithResponse extends SubmitterServlet {
 					+ " REQ:" + request.getQueryString());
 			buildWebErrResponse(response, exchangeWebMessage, HttpServletResponse.SC_REQUEST_TIMEOUT);
 		} else if (continuation.isResumed()) {
-			// TODO * Must destroy the KEY in order that you can find a mismatch....has this been done yet
 			exchangeWebMessage = (ReqWebMessage) continuation.getAttribute(Constant.EXCHANGEWEBMESSAGE);
 			trace.info("continuation - resumed, web response being sent trackingKey:" + exchangeWebMessage.trackingKey
 					+ " RSP:" + exchangeWebMessage.getResponse());
