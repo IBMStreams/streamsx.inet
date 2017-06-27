@@ -21,7 +21,7 @@ distributed:
 standalone:
 	$(SPLC) $(SPLC_FLAGS) -T -M $(SPL_MAIN_COMPOSITE) $(SPL_CMD_ARGS)
 
-run:
+run:	standalone
 	./output/bin/standalone
 
 clean:

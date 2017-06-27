@@ -12,7 +12,7 @@ namespace application ;
 
 use com.ibm.streamsx.inet.rest::HTTPRequestProcess ;
 use com.ibm.streamsx.inet.rest::WebContext ;
-use com.ibm.streamsx.inet.http::HTTPExchange ;
+use com.ibm.streamsx.inet.http::HTTPRequest ;
 use com.ibm.streamsx.json::JSONToTuple ;
 use com.ibm.streamsx.json::TupleToJSON ;
 
@@ -21,9 +21,9 @@ use com.ibm.streamsx.json::TupleToJSON ;
 composite DynJson
 {
 	type
-		ReqProc = HTTPExchange reqRsp, rstring templateFile, map<rstring,
+		ReqProc = HTTPRequest reqRsp, rstring templateFile, map<rstring,
 			rstring> context ;
-		ReqRsp = tuple<HTTPExchange ex> ;
+		ReqRsp = tuple<HTTPRequest ex> ;
 	graph
 		(stream<rstring string> TupleToJSON_12_out0) as TupleToJSON_12 =
 			TupleToJSON(httpResponse)
@@ -40,13 +40,13 @@ composite DynJson
 				port : 8080 ;
 		}
 
-		(stream<HTTPExchange> Custom_10_out0 as O) as JsonShred = Custom(httpRequest
+		(stream<HTTPRequest> Custom_10_out0 as O) as JsonShred = Custom(httpRequest
 			as I)
 		{
 			logic
 				state :
 				{
-					mutable HTTPExchange tupleOut ;
+					mutable HTTPRequest tupleOut ;
 					mutable list<rstring> body ;
 					mutable list<rstring> header ;
 					mutable rstring headStr ;
@@ -64,7 +64,6 @@ composite DynJson
 
 				onTuple I :
 				{
-				println(I.jsonString);
 					tokenize(I.jsonString, '"header":{', false, false, body) ;
 					tokenize(body [ 1 ], '},', false, false, header) ;
 					bodyStr = body [ 0 ] + header [ 1 ] ;
@@ -87,7 +86,6 @@ composite DynJson
 					tokenize(bodyChop, '","', false, false, body) ;
 					for(rstring data in body)
 					{
-					println("data:" + data);
 						tokenize(data, '":"', false, true, ele) ;
 						if (size(ele) > 1) {
 							if("request" == ele [ 0 ]) tupleOut.request = ele [ 1 ] ;
@@ -200,13 +198,13 @@ composite DynJson
 		 * the template file with the variables, javascript + jquery cool like dynamite and dangerous - like 
 		 * nitro-glycerince. 
 		 */
-			(stream<HTTPExchange> htmlFormatted as O) as BuildHtml = Custom(processed as
+			(stream<HTTPRequest> htmlFormatted as O) as BuildHtml = Custom(processed as
 					I)
 				{
 					logic
 						state :
 						{
-							mutable HTTPExchange rRsp ;
+							mutable HTTPRequest rRsp ;
 							mutable rstring bstr ;
 							rstring preHtml =
 								'<!DOCTYPE html> <html lang="en"><title>Demonstration</title><head><script>' ;
@@ -252,7 +250,7 @@ $(document.body).append(html);});
 						flush : 1u ;
 				}
 
-			(stream<HTTPExchange> httpResponse as O) as PrepHttp = Custom(htmlFormatted
+			(stream<HTTPRequest> httpResponse as O) as PrepHttp = Custom(htmlFormatted
 					as I)
 				{
 					logic

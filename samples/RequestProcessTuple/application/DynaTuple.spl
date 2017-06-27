@@ -19,17 +19,15 @@ namespace application ;
 
 use com.ibm.streamsx.inet.rest::HTTPRequestProcess ;
 use com.ibm.streamsx.inet.rest::WebContext ;
+use com.ibm.streamsx.inet.http::HTTPRequest ;
 
 composite DynTuple
 {
-	type
-		ReqRsp = int64 key, rstring request, rstring contentType, map<rstring,
-			rstring> header, rstring response, rstring method, rstring pathInfo,
-			int32 status, rstring statusMessage ;
-		ReqProc = ReqRsp reqRsp, rstring templateFile, map<rstring,
+	type		
+		ReqProc = HTTPRequest reqRsp, rstring templateFile, map<rstring,
 			rstring> context ;
 	graph
-		(stream<ReqRsp> httpRequest) as HttpTuple = HTTPRequestProcess(httpResponse)
+		(stream<HTTPRequest> httpRequest) as HttpTuple = HTTPRequestProcess(httpResponse)
 		{
 			param
 				context : "livepage" ;
@@ -37,7 +35,7 @@ composite DynTuple
 				port : 8080 ;
 		}
 
-		(stream<ReqRsp> functorLogin as O) as LoginFilter = Functor(httpRequest as I)
+		(stream<HTTPRequest> functorLogin as O) as LoginFilter = Functor(httpRequest as I)
 		{ // /login request ? drop on floor if not. Real code with have multiple branches. 
 
 			param
@@ -68,6 +66,7 @@ composite DynTuple
 					{
 						for(rstring entry in dict)
 						{
+						println("entry:" + entry);
 							keyval = tokenize(entry, "=", true) ;
 							if(size(keyval) > 1) context = insert(context, keyval [ 0 ], keyval [ 1
 								]) ;
@@ -100,8 +99,8 @@ composite DynTuple
 				logic
 					state :
 					{
-						mutable rstring normalFile = "/livepage/normal.hbs" ;
-						mutable rstring junkFile = "/livepage/junk.hbs" ;
+						mutable rstring normalFile = "/normal.hbs" ;
+						mutable rstring junkFile = "/junk.hbs" ;
 						mutable rstring name ;
 						map<rstring, rstring> newShort = { "occupation" : "developer software",
 							"profession" : "create software" } ;
@@ -130,23 +129,23 @@ composite DynTuple
 		 * the template file with the variables, javascript + jquery cool like dynamite and dangerous - like 
 		 * nitro-glycerince. 
 		 */
-		(stream<ReqRsp> htmlFormatted as O) as BuildHtml = Custom(processed as I)
+		(stream<HTTPRequest> htmlFormatted as O) as BuildHtml = Custom(processed as I)
 			{
 				logic
 					state :
 					{
-						mutable ReqRsp rRsp ;
+						mutable HTTPRequest rRsp ;
 						mutable rstring bstr ;
 						rstring preHtml =
 							'<!DOCTYPE html> <html lang="en"><title>Demonstration</title><head><script>' ;
 						mutable rstring buildResponse ;
 						mutable rstring dataForTemplate_File = // example of how it should look. 
-						'var templateFile = "/livepage/junk.hbs";' ;
+						'var templateFile = "/junk.hbs";' ;
 						mutable rstring dataForTemplate_Context = // example of how it should look.
 						'var context = { "name" : "Joe Shome", "occupation" : "developer" , "profession" : "hack"};' ;
 						rstring postHtml = '</script><meta charset="UTF-8">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
-</script><script src="/livepage/libs/handlebars.min-latest.js">
+</script><script src="/libs/handlebars.min-latest.js">
 </script></head><body><script>
 $.get(templateFile).done(function(template) {
 var templateScript = Handlebars.compile(template);
@@ -181,7 +180,7 @@ $(document.body).append(html);});
 					flush : 1u ;
 			}
 
-		(stream<ReqRsp> httpResponse as O) as PrepHttp = Custom(htmlFormatted as I)
+		(stream<HTTPRequest> httpResponse as O) as PrepHttp = Custom(htmlFormatted as I)
 			{
 				logic
 					onTuple I :

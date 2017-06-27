@@ -9,8 +9,8 @@ namespace com.ibm.streamsx.inet.http;
  */
 type HTTPResponse = rstring data, rstring errorMessage, int32 responseCode, int32 dataSize;
 /** 
- *  Exchange of data used for the HTTTupleRequest that gets a request from the web
- *  and is expected to respond to the reqeust. 
+ *  Output and Input schema, web request output from HTTPRequestProcess operator and corresponding 
+    response on the input port are returned to the web. The key forms the correlation.  
  *  * key - correlation id generated on request, must appear on the response.
  *  * request - request from the web
  *  * response - response to the web.
@@ -21,6 +21,6 @@ type HTTPResponse = rstring data, rstring errorMessage, int32 responseCode, int3
  *  * status - indicates of the request completion. 
  *  * statusMessage - on request, only populated if status is > 300.  
  */
-type HTTPExchange = int64 key, rstring request, rstring contentType, map<rstring,
+type HTTPRequest = int64 key, rstring request, rstring contentType, map<rstring,
 			rstring> header, rstring response, rstring method, rstring pathInfo,
 			int32 status, rstring statusMessage ;
