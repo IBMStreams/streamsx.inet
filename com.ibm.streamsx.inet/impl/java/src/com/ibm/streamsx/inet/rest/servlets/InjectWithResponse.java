@@ -24,7 +24,7 @@ import org.eclipse.jetty.continuation.ContinuationSupport;
 import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.OutputTuple;
 import com.ibm.streams.operator.StreamingOutput;
-import com.ibm.streamsx.inet.rest.ops.Analyzer;
+import com.ibm.streamsx.inet.rest.ops.RequestProcess;
 /**
  * <p>
  * Processes the message from the web and builds the response, timeout (Streams taking too long) are handled here as well. 
@@ -161,8 +161,8 @@ public class InjectWithResponse extends SubmitterServlet {
 		switch(errCode) {
 		case HttpServletResponse.SC_REQUEST_TIMEOUT:
 			response.setStatus(errCode);
-			if (Analyzer.getnMissingTrackingKey().getValue() > 0) {
-				out.print("<h1>Request timeout. Unable to find tracking key #" + Analyzer.getnMissingTrackingKey().getValue() +" times is it being dropped/corrupted?</h1>");				
+			if (RequestProcess.getnMissingTrackingKey().getValue() > 0) {
+				out.print("<h1>Request timeout. Unable to find tracking key #" + RequestProcess.getnMissingTrackingKey().getValue() +" times is it being dropped/corrupted?</h1>");				
 			} else {
 				out.print("<h1>Request timeout</h1>");
 			}
@@ -188,7 +188,7 @@ public class InjectWithResponse extends SubmitterServlet {
 				+ continuation.isExpired() + ", wrapped : " + continuation.isResponseWrapped());
 
 		if (continuation.isExpired()) {
-			Analyzer.getnRequestTimeouts().incrementValue(1L);
+			RequestProcess.getnRequestTimeouts().incrementValue(1L);
 			exchangeWebMessage = (ReqWebMessage) continuation.getAttribute(Constant.EXCHANGEWEBMESSAGE);
 			trace.warn("continuation - expired, timeout response sent. trackingKey:" + exchangeWebMessage.trackingKey
 					+ " REQ:" + request.getQueryString());

@@ -20,7 +20,7 @@ import org.eclipse.jetty.continuation.Continuation;
 
 import com.ibm.json.java.JSONObject;
 import com.ibm.streams.operator.Tuple;
-import com.ibm.streamsx.inet.rest.ops.Analyzer;
+import com.ibm.streamsx.inet.rest.ops.RequestProcess;
 
 /** Bridge between the WWW request, Streams processing and corresponding WWW response. 
 * 
@@ -135,20 +135,21 @@ public class ReqWebMessage {
 	public String jsonRequest() {
 	
 		JSONObject jsonObj = new JSONObject();
-		jsonObj.put(Analyzer.defaultKeyAttributeName, this.trackingKey);
-		jsonObj.put(Analyzer.defaultMethodAttributeName, this.getMethod());
-		jsonObj.put(Analyzer.defaultContentTypeAttributeName, this.getContentType());
-		jsonObj.put(Analyzer.defaultContextPathAttributeName,  this.contextPath);
-		jsonObj.put(Analyzer.defaultPathInfoAttributeName, this.getPathInfo());
-		jsonObj.put(Analyzer.defaultRequestAttributeName, this.getRequestPayload());
-		jsonObj.put(Analyzer.defaultUrlAttributeName, this.requestUrl);
+
+		jsonObj.put(RequestProcess.defaultKeyAttributeName, this.trackingKey);
+		jsonObj.put(RequestProcess.defaultMethodAttributeName, this.getMethod());
+		jsonObj.put(RequestProcess.defaultContentTypeAttributeName, this.getContentType());
+		jsonObj.put(RequestProcess.defaultContextPathAttributeName,  this.contextPath);
+		jsonObj.put(RequestProcess.defaultPathInfoAttributeName, this.getPathInfo());
+		jsonObj.put(RequestProcess.defaultRequestAttributeName, this.getRequestPayload());
+		jsonObj.put(RequestProcess.defaultUrlAttributeName, this.requestUrl);
 		if (JSONObject.isValidObject(this.getHeaders())) {
-			jsonObj.put(Analyzer.defaultHeaderAttributeName, this.getHeaders());			
+			jsonObj.put(RequestProcess.defaultHeaderAttributeName, this.getHeaders());			
 		} else {
 		        //Invalid for JSON (Hashtable), switch over to jsonObject
 			JSONObject jsonHead = new JSONObject();
 			jsonHead.putAll(this.getHeaders());
-			jsonObj.put(Analyzer.defaultHeaderAttributeName, jsonHead);									
+			jsonObj.put(RequestProcess.defaultHeaderAttributeName, jsonHead);									
 		}
 		return(jsonObj.toString());
 	} 
