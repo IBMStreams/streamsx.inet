@@ -1,0 +1,281 @@
+namespace application ;
+
+/**
+* This has the same functioinality as DysonTuple application, excpet this one gets 
+* processes the request/response as json. Refer to the DysonTuple for and description. 
+* 
+* This code is needs to parse the JSON object since json JSONToTuple does not handle 
+* handle maps(objects). This example is tenitive at best since it has not error processing, 
+* using this operator with Python and the topology tookit is the way to go. 
+*
+*/
+
+use com.ibm.streamsx.inet.rest::HTTPRequestProcess ;
+use com.ibm.streamsx.inet.rest::WebContext ;
+use com.ibm.streamsx.inet.http::HTTPExchange ;
+use com.ibm.streamsx.json::JSONToTuple ;
+use com.ibm.streamsx.json::TupleToJSON ;
+
+
+
+composite DynJson
+{
+	type
+		ReqProc = HTTPExchange reqRsp, rstring templateFile, map<rstring,
+			rstring> context ;
+		ReqRsp = tuple<HTTPExchange ex> ;
+	graph
+		(stream<rstring string> TupleToJSON_12_out0) as TupleToJSON_12 =
+			TupleToJSON(httpResponse)
+		{
+		}
+
+		(stream<rstring jsonString> httpRequest) as HttpTuple =
+			HTTPRequestProcess(TupleToJSON_12_out0 as inPort0Alias)
+		{
+			param
+				context : "livepage" ;
+				contextResourceBase : getThisToolkitDir() + "/opt/html" ;  
+				responseJsonAttributeName : "string" ;
+				port : 8080 ;
+		}
+
+		(stream<HTTPExchange> Custom_10_out0 as O) as JsonShred = Custom(httpRequest
+			as I)
+		{
+			logic
+				state :
+				{
+					mutable HTTPExchange tupleOut ;
+					mutable list<rstring> body ;
+					mutable list<rstring> header ;
+					mutable rstring headStr ;
+					mutable rstring bodyStr ;
+					mutable list<rstring> entry ;
+					mutable list<rstring> ele ;
+					mutable int32 idxStart, idxEnd ;
+					mutable rstring bodyChop ;
+					mutable rstring tstStr ;
+					mutable map<rstring, rstring> headMap = { } ;
+					mutable int64 keyVal ;
+					mutable rstring keyStr ;
+					rstring keyTxt = '"key":' ;
+				}
+
+				onTuple I :
+				{
+				println(I.jsonString);
+					tokenize(I.jsonString, '"header":{', false, false, body) ;
+					tokenize(body [ 1 ], '},', false, false, header) ;
+					bodyStr = body [ 0 ] + header [ 1 ] ;
+					// drop the 1st last character
+					bodyStr = substring(bodyStr, 1, length(bodyStr) - 2) ;
+					headStr = "" ;
+					for(rstring tmp in header [ : 1 ]) headStr += tmp ;
+					// drop the 1st & last character
+					headStr = substring(headStr, 1, length(headStr) - 2) ;
+
+					// find the key (a numeric value) and extract the value.
+					idxStart = findFirst(bodyStr, keyTxt) ;
+					idxEnd = findFirst(bodyStr, ',', idxStart) ;
+					keyStr = substring(bodyStr, idxStart, idxEnd - idxStart) ;
+					keyVal =(int64) keyStr [ length(keyTxt) : ] ;
+					tupleOut.key = keyVal ;
+					// drop the key entry from string. 
+					bodyChop = bodyStr [ : idxStart ] + bodyStr [ idxEnd : ] ;
+					bodyChop = substring(bodyChop, 1, length(bodyChop) - 2) ;
+					tokenize(bodyChop, '","', false, false, body) ;
+					for(rstring data in body)
+					{
+					println("data:" + data);
+						tokenize(data, '":"', false, true, ele) ;
+						if (size(ele) > 1) {
+							if("request" == ele [ 0 ]) tupleOut.request = ele [ 1 ] ;
+							if("contentType" == ele [ 0 ]) tupleOut.contentType = ele [ 1 ] ;
+							if("method" == ele [ 0 ]) tupleOut.method = ele [ 1 ] ;
+							if("pathInfo" == ele [ 0 ]) tupleOut.pathInfo = ele [ 1 ][1:] ;
+							if("statusMessage" == ele [ 0 ]) tupleOut.statusMessage = ele [ 1 ] ;
+						}
+					}
+
+					clearM(headMap) ;
+					tokenize(headStr, '","', false, false, header) ;
+					// get header;
+					for(rstring data in header)
+					{
+						tokenize(data, '":"', false, false, ele) ;
+						insertM(headMap, ele [ 0 ], ele [ 1 ]) ;
+					}
+
+					tupleOut.header = headMap ;
+					println("exit:pathInfo -- >" + tupleOut.pathInfo + "<");
+					submit(tupleOut, O) ;
+
+				}
+
+			}
+
+		(stream<ReqProc> normalizedRequest as O) as Normalize =
+				Custom(Functor_10_out0 as I)
+			{
+				logic
+					state :
+					{
+						mutable ReqProc rProc ;
+						mutable map<rstring, rstring> context ;
+						map<rstring, rstring> contextError = { "ERROR-requestInput" :
+							"had no entry parsed" } ;
+						mutable list<rstring> dict ;
+						mutable list<rstring> keyval ;
+					}
+
+					onTuple I :
+					{
+						dict = tokenize(I.request, "&", true) ;
+						clearM(context) ;
+						if(size(dict) > 0)
+						{
+							for(rstring entry in dict)
+							{
+								keyval = tokenize(entry, "=", true) ;
+								if(size(keyval) > 1) context = insert(context, keyval [ 0 ], keyval [ 1
+									]) ;
+								else if(size(keyval) == 1) context = insert(context, keyval [ 0 ],
+									"") ;
+								else context = insert(context, "ERROR-nameValueParse", "FAILUE") ;
+							}
+
+						}
+
+						else
+						{
+							keyval = tokenize(I.request, "=", true) ;
+							if(size(keyval) > 1) context = insert(context, keyval [ 0 ], keyval [ 1
+								]) ;
+							else if(size(keyval) == 1) context = insert(context, keyval [ 0 ], "") ;
+							else context = insert(context, "ERROR-nameValueParse",
+								"FAILURE single entry") ;
+						}
+
+						assignFrom(rProc.reqRsp, I) ;
+						rProc.context = context ;
+						submit(rProc, O) ;
+					}
+
+				}
+
+			(stream<normalizedRequest> processed as O) as ProcessingPhase =
+					Custom(normalizedRequest as I)
+				{
+					logic
+						state :
+						{
+							mutable rstring normalFile = "/livepage/normal.hbs" ;
+							mutable rstring junkFile = "/livepage/junk.hbs" ;
+							mutable rstring name ;
+							map<rstring, rstring> newShort = { "occupation" : "developer software",
+								"profession" : "create software" } ;
+							map<rstring, rstring> newLong = { "occupation" : "developer land",
+								"profession" : "build buildings" } ;
+							mutable map<rstring, rstring> newContext ;
+						}
+
+						onTuple I :
+						{
+							I.templateFile =(length(I.context [ 'password' ]) > 0) ? normalFile :
+								junkFile ;
+							name = I.context [ 'name' ] ;
+							I.context =(length(name) > 4) ? newLong : newShort ;
+							I.context = insert(I.context, "name", name) ;
+							submit(I, O) ;
+						}
+
+				}
+
+				/*
+		 * This is very hack but it's cool - This builds the HTML that is to returned to the browser. 
+		 * The page will invokes the template passed in the I.templateFile attribute, the variables
+		 * that the template file will be using variables that are in the I.context (map<rstring, rstring>).
+		 * When the html page gets loaded it invokes the <script> that gets the template file then invokes
+		 * the template file with the variables, javascript + jquery cool like dynamite and dangerous - like 
+		 * nitro-glycerince. 
+		 */
+			(stream<HTTPExchange> htmlFormatted as O) as BuildHtml = Custom(processed as
+					I)
+				{
+					logic
+						state :
+						{
+							mutable HTTPExchange rRsp ;
+							mutable rstring bstr ;
+							rstring preHtml =
+								'<!DOCTYPE html> <html lang="en"><title>Demonstration</title><head><script>' ;
+							mutable rstring buildResponse ;
+							mutable rstring dataForTemplate_File = // example of how it should look. 
+							'var templateFile = "/livepage/junk.hbs";' ;
+							mutable rstring dataForTemplate_Context = // example of how it should look.
+							'var context = { "name" : "Joe Shome", "occupation" : "developer" , "profession" : "hack"};' ;
+							rstring postHtml = '</script><meta charset="UTF-8">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+</script><script src="/livepage/libs/handlebars.min-latest.js">
+</script></head><body><script>
+$.get(templateFile).done(function(template) {
+var templateScript = Handlebars.compile(template);
+var html = templateScript(context);
+$(document.body).append(html);});
+</script></body>' ;
+						}
+
+						onTuple I :
+						{
+							assignFrom(rRsp, I.reqRsp) ;
+							dataForTemplate_File = 'var templateFile = "' + I.templateFile + '";' ;
+							bstr = 'var context = {' ;
+							for(rstring key in keys(I.context))
+							{
+								bstr += '"' + key + '":"' + I.context [ key ] + '",' ;
+							}
+
+							dataForTemplate_Context = bstr + '};' ;
+							buildResponse = preHtml + dataForTemplate_File + dataForTemplate_Context
+								+ postHtml ;
+							rRsp.response = buildResponse ;
+							submit(rRsp, O) ;
+						}
+
+				}
+
+			() as DebugView = FileSink(httpResponse as Functor_7_out0)
+				{
+					param
+						file : "/dev/stdout" ;
+						flush : 1u ;
+				}
+
+			(stream<HTTPExchange> httpResponse as O) as PrepHttp = Custom(htmlFormatted
+					as I)
+				{
+					logic
+						onTuple I :
+						{
+						// TODO * default? done by operator?
+							I.header [ "Content-Type" ] = "text/html" ;
+							// TODO * this should be done in the operator
+							I.header [ "Content-Length" ] =(rstring) length(I.response) ;
+							submit(I, O) ;
+						}
+
+				}
+
+
+			(stream<Custom_10_out0> Functor_10_out0 as O) as FilterRequest =
+					Functor(Custom_10_out0 as I)
+				{
+					param
+						filter : I.pathInfo == "/login" ;
+					output
+						O : response = upper(I.request);
+				}
+
+		}
+
