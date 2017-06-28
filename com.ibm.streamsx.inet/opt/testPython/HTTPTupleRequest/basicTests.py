@@ -113,7 +113,7 @@ class TestSimpleFilter(unittest.TestCase):
 
         The diagram illustrates the flow, 
 
-	TupleRequest: the HTTPTupleRequest operator where the inputPort 
+	RequestProcess: the HTTPRequestProcess operator where the inputPort 
         is sent to the web, the outputPort is injected to streams.
 
         Pending/PendingComplete : Makes the looping possible. 
@@ -123,8 +123,8 @@ class TestSimpleFilter(unittest.TestCase):
                                            ------+------ 
                                              ^      \
  +---------+      +--------+   +---------+   +-------++   +-------+   +-------+
- | onRamp  +-->---+ Union  |   | Format  |   |Tuple   +->-+input  +->-+ upper |
- |         |    +>|        +->-+ Response+->-+ Request|   | Filter|   |  Case |
+ | onRamp  +-->---+ Union  |   | Format  |   |Request   +->-+input  +->-+ upper |
+ |         |    +>|        +->-+ Response+->-+ Process|   | Filter|   |  Case |
  +---------+   /  +--------+   +---------+   +--------+   +-------+   +--/----+
  +---------+  /  						 +------/--+
  | Pending +>+                                  		 |Pending |
@@ -152,7 +152,7 @@ class TestSimpleFilter(unittest.TestCase):
         rsp = ss.union({rsp})
         # FormatResponse : 
         rspFormatted = rsp.map(lambda x : json.dumps(x) ).as_string();
-        rawRequest = op.Map("com.ibm.streamsx.inet.rest::HTTPTupleRequest",
+        rawRequest = op.Map("com.ibm.streamsx.inet.rest::HTTPRequestProcess",
                             stream=rspFormatted,
                             schema='tuple<int64 key, rstring request, rstring method, rstring pathInfo >',
                             params={'port': PORT,
@@ -160,7 +160,7 @@ class TestSimpleFilter(unittest.TestCase):
                                     'responseJsonAttributeName':'string',
                                     'context':'base',
                                     'contextResourceBase':'opt/base' },
-                            name = "TupleRequest")
+                            name = "RequestProcess")
 
         rawRequest.stream.sink(webEntryLog) ## log what we have received.
 
@@ -179,6 +179,9 @@ class TestSimpleFilter(unittest.TestCase):
 
         ## All done building the graph......
 
+        self.test_config['topology.keepArtifacts']=True 
+
+
         # setup the code that will invoke this test. 
         self.tester.local_check = self.basic_request
 
@@ -191,7 +194,7 @@ class TestSimpleFilter(unittest.TestCase):
         """Test the application, this runs in the Python VM"""
         self.jobHealthy(4)
         testMessage = "THIS+is+a+test+MESSAGE"
-        contentBase = '/base/TupleRequest/ports/analyze/0'
+        contentBase = '/base/RequestProcess/ports/analyze/0'
         self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/Tuple?' + testMessage
         print("REQ:" + self.url, flush=True)
         rsp = requests.get(url=self.url)
@@ -222,7 +225,7 @@ class TestSimpleFilter(unittest.TestCase):
         rsp = ss.union({rsp})
         # FormatResponse : 
         rspFormatted = rsp.map(lambda x : json.dumps(x) ).as_string();
-        rawRequest = op.Map("com.ibm.streamsx.inet.rest::HTTPTupleRequest",
+        rawRequest = op.Map("com.ibm.streamsx.inet.rest::HTTPRequestProcess",
                             stream=rspFormatted,
                             schema='tuple<int64 key, rstring request, rstring method, rstring pathInfo >',
                             params={'port': PORT,
@@ -230,7 +233,7 @@ class TestSimpleFilter(unittest.TestCase):
                                     'responseJsonAttributeName':'string',
                                     'context':'base',
                                     'contextResourceBase':'opt/base' },
-                            name = "TupleRequest")
+                            name = "RequestProcess")
 
         rawRequest.stream.sink(webEntryLog) ## log what we have received.
 
@@ -283,7 +286,7 @@ class TestSimpleFilter(unittest.TestCase):
         """Test the application, this runs in the Python VM"""
         self.jobHealthy(4)
         testMessage = "THIS+is+a+test+MESSAGE"
-        contentBase = '/base/TupleRequest/ports/analyze/0'
+        contentBase = '/base/RequestProcess/ports/analyze/0'
         self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/Upper?' + testMessage
         print("Upper REQ:" + self.url, flush=True)
         rsp = requests.get(url=self.url)
@@ -333,7 +336,7 @@ class TestSimpleFilter(unittest.TestCase):
         rsp = ss.union({rsp})
         # FormatResponse : 
         rspFormatted = rsp.map(lambda x : json.dumps(x) ).as_string();
-        rawRequest = op.Map("com.ibm.streamsx.inet.rest::HTTPTupleRequest",
+        rawRequest = op.Map("com.ibm.streamsx.inet.rest::HTTPRequestProcess",
                             stream=rspFormatted,
                             schema='tuple<int64 key, rstring request, rstring method, rstring pathInfo >',
                             params={'port': PORT,
@@ -341,7 +344,7 @@ class TestSimpleFilter(unittest.TestCase):
                                     'responseJsonAttributeName':'string',
                                     'context':'Reflect',
                                     'contextResourceBase':'opt/Reflect' },
-                            name = "TupleRequest")
+                            name = "RequestProcess")
 
         rawRequest.stream.sink(webEntryLog) ## log what we have received.
 
@@ -378,7 +381,7 @@ class TestSimpleFilter(unittest.TestCase):
         """Test the application, this runs in the Python VM"""
         self.jobHealthy(4)
         testMessage = "THIS+is+a+test+MESSAGE"
-        contentBase = '/Reflect/TupleRequest/ports/analyze/0'
+        contentBase = '/Reflect/RequestProcess/ports/analyze/0'
         # do a reflection
         self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/get?' + testMessage
         print("Method REQ:" + self.url, flush=True)
@@ -402,7 +405,7 @@ class TestSimpleFilter(unittest.TestCase):
         """Test the application, this runs in the Python VM"""
         self.jobHealthy(4)
         testMessage = "THIS+is+a+test+MESSAGE"
-        contentBase = '/Reflect/TupleRequest/ports/analyze/0'
+        contentBase = '/Reflect/RequestProcess/ports/analyze/0'
 
         # get 
         self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/get?' + testMessage
