@@ -15,7 +15,16 @@ import requests
 import time
 import argparse
 
+"""
+Notes : 
+Testing the tuple aspect of the operator. Python likes JSON it's not very comfortable
+with Streams tuples. This is moving Streams Tuples out/in of the operator in the Python 
+world.
 
+The JSONToTuple operator does not process the header since it's map it 
+not handled. I drops the fields on the way out, doing a .spl 
+application with no JSONToTuple is ok.
+"""
 
 PORT = 8080
 IP =  '172.16.49.167'
@@ -139,7 +148,6 @@ class TestTupleProcessing(unittest.TestCase):
         # Create an 'onRamp' that creates and input (that does nothing) in order 
         # that a graph graph can be built. 
 
-        # rsp = pending_source.stream.map(lambda t : t)
         rsp = pending_source.stream
         ss = topo.source([], name="onRamp")
         rsp = ss.union({rsp})
@@ -211,23 +219,16 @@ class TestTupleProcessing(unittest.TestCase):
 
 
 
-    def Xtest_reflect(self):
+    def test_reflect(self):
         topo = Topology("TupleReflect")
         self.tester = Tester(topo)
 
         tk.add_toolkit(topo, inetToolkit)
 
-        # Loop back not natural in a directed graph, need
-        # to have place holder while the graph gets built,
-        # At the end of the graph, connect back to the
-        # begining. 
+        # Looping
         pending_source = PendingStream(topo)
 
-        # Within a topology a directed graph has a start, this loop does not. 
-        # Create an 'onRamp' that creates and input (that does nothing) in order 
-        # that a graph graph can be built. 
-
-        # rsp = pending_source.stream.map(lambda t : t)
+        # Build the onramp.
         rsp = pending_source.stream
         ss = topo.source([], name="onRamp")
         rsp = ss.union({rsp})
@@ -235,31 +236,36 @@ class TestTupleProcessing(unittest.TestCase):
         # FormatResponse : 
         rspFormatted = rsp.map(lambda x : json.dumps(x) ).as_string();
 
-        # Convert the tuple json object that we have been working with to 
-        # 'tuple' that is native to Streams. 
+        # Convert to 'tuple' that is native to Streams, stripping of everything: key, response.
         toTuple = op.Map("com.ibm.streamsx.json::JSONToTuple", 
                              stream=rspFormatted, 
                              schema='tuple<int64 key, rstring response>',
+                             params = {'ignoreParsingError':True}, 
                              name = "JSONToTuple")
 
         # Get to the Streams. 
         rspFormatted = toTuple.stream     
 
+        # Output : return  to web, 
+        # Input :  get from web
         rawRequest = op.Map("com.ibm.streamsx.inet.rest::HTTPRequestProcess",
                             stream = rspFormatted,
+                            #schema ='tuple<int64 key, rstring request, rstring method, rstring pathInfo >',
                             schema='tuple<int64 key, rstring request, rstring contentType, map<rstring, rstring> header, rstring response, rstring method,rstring pathInfo, int32 status, rstring statusMessage>',
+
                             params={'port': PORT,
                                     'webTimeout':5.0,
                                     'contextResourceBase':'opt/base',
                                     'context':CONTEXTBASE},
                             name = "HttpRequestProcess")
 
+        rawRequest.stream.sink(webEntryLog) ## log what we have received.
 
         # determine what to work on
         onlyTuple = rawRequest.stream.filter(lambda t : t["pathInfo"]=="/Tuple", 
                                              name="inputFilter")
         # do the work
-        reflected = onlyTuple.transform(reflect2Result("REF:"))
+        reflected = onlyTuple.transform(reflect2Result("REF:"), name="refectStream")
         #
         self.tester.tuple_count(reflected, 3)
 
@@ -267,7 +273,8 @@ class TestTupleProcessing(unittest.TestCase):
         pending_source.complete(reflected)  # loopback
 
         ## All done building the graph......
-        
+
+        ## Set parameters
         self.test_config['topology.keepArtifacts']=True 
 
         # setup the code that will invoke this test. 
@@ -286,8 +293,10 @@ class TestTupleProcessing(unittest.TestCase):
         self.jobHealthy(20)
         testMessage = "THIS+is+a+test+MESSAGE"
         # Send a reqeust
-        self.url = PROTOCOL + IP + ':' + str(PORT) + CONTEXTBASE + '/Tuple?' + testMessage
+        contextBuilt = '/' + CONTEXTBASE + '/HttpRequestProcess/ports/analyze/0'
+        self.url = PROTOCOL + IP + ':' + str(PORT) + contextBuilt  + '/Tuple?' + testMessage
         print("REQ:" + self.url, flush=True)
+
         rsp = requests.get(url=self.url)
         print("RSP: %s\nSTATUS:%s\nCONTENT:%s" % (rsp, rsp.status_code, rsp.content), flush=True)
         self.assertEqual(rsp.status_code, 200)
@@ -312,21 +321,21 @@ class TestTupleProcessing(unittest.TestCase):
         self.assertIn('Connection', js['header'])
         self.assertIn('Host', js['header'])
 
-        # Send a reqeust - 
-        self.url = PROTOCOL + IP + ':' + str(PORT) + CONTEXTBASE + '/Tuple?' + testMessage
+        # build/send a request - 
+        self.url = PROTOCOL + IP + ':' + str(PORT) + contextBuilt  + '/Tuple?' + testMessage
         print("REQ:" + self.url, flush=True)
         rsp = requests.get(url=self.url)
         print("RSP: %s\nSTATUS:%s\nCONTENT:%s" % (rsp, rsp.status_code, rsp.content), flush=True)
         self.assertEqual(rsp.status_code, 200)
 
-        # convert response to dict that fields can be validated
+        # unpack
         p0 = rsp.content
         p1 = p0.decode('utf-8')
         p2 = p1.replace("'", "\"")
         p3 = p2[4:]
         js = json.loads(p3)
 
-        # start checking fields, do they exist
+        # check
         self.assertIn('contentType', js)
         self.assertIn('pathInfo', js)
 
@@ -341,22 +350,22 @@ class TestTupleProcessing(unittest.TestCase):
         self.assertEqual(js['pathInfo'], u"/Tuple")
 
 
-        # Send a reqeust - 
+        # build/send 
         testHeaders = {'test1':'value1', 'test2':'value2', 'test3':'value3'}
-        self.url = PROTOCOL + IP + ':' + str(PORT) + CONTEXTBASE + '/Tuple?' + testMessage
+        self.url = PROTOCOL + IP + ':' + str(PORT) + contextBuilt  + '/Tuple?' + testMessage
         print("REQ:" + self.url, flush=True)
         rsp = requests.get(url=self.url, headers=testHeaders)
         print("RSP: %s\nSTATUS:%s\nCONTENT:%s" % (rsp, rsp.status_code, rsp.content), flush=True)
         self.assertEqual(rsp.status_code, 200)
-
-        # convert response to dict that fields can be validated
+        
+        #unpack
         p0 = rsp.content
         p1 = p0.decode('utf-8')
         p2 = p1.replace("'", "\"")
         p3 = p2[4:]
         js = json.loads(p3)
 
-        # start checking fields, do they exist
+        # check 
         self.assertIn('contentType', js)
         self.assertIn('pathInfo', js)
 
@@ -367,6 +376,7 @@ class TestTupleProcessing(unittest.TestCase):
         self.assertIn('User-Agent', js['header'])
         self.assertTrue(js['header']['User-Agent'].startswith("python"))
 
+        # check if header. 
         self.assertIn('test1', js['header'])
         self.assertEqual('value1', js['header']['test1'])
         self.assertIn('test2', js['header'])
@@ -377,92 +387,6 @@ class TestTupleProcessing(unittest.TestCase):
         # do they have the right value
         self.assertEqual(js['pathInfo'], u"/Tuple")
 
-
-    def Xtest_responseHeader(self):
-        topo = Topology("ResponseHeader")
-        self.tester = Tester(topo)
-
-        tk.add_toolkit(topo, inetToolkit)
-
-        # Loop back not natural in a directed graph, need
-        # to have place holder while the graph gets built,
-        # At the end of the graph, connect back to the
-        # begining. 
-        pending_source = PendingStream(topo)
-
-        # Within a topology a directed graph has a start, this loop does not. 
-        # Create an 'onRamp' that creates and input (that does nothing) in order 
-        # that a graph graph can be built. 
-
-        # rsp = pending_source.stream.map(lambda t : t)
-        rsp = pending_source.stream
-        ss = topo.source([], name="onRamp")
-        rsp = ss.union({rsp})
-
-        # FormatResponse : 
-        rspFormatted = rsp.map(lambda x : json.dumps(x) ).as_string();
-
-        # Convert the tuple json object that we have been working with to 
-        # 'tuple' that is native to Streams. 
-        toTuple = op.Map("com.ibm.streamsx.json::JSONToTuple", 
-                             stream=rspFormatted, 
-                             schema='tuple<int64 key, rstring response, map<rstring, rstring> header>',
-                             name = "JSONToTuple")
-
-        # Get to the Streams. 
-        rspFormatted = toTuple.stream     
-
-        rawRequest = op.Map("com.ibm.streamsx.inet.rest::HTTPRequestProcess",
-                            stream = rspFormatted,
-                            schema ='tuple<int64 key, rstring request, rstring method, rstring pathInfo >',
-                            params={'port': PORT,
-                                    'webTimeout':5.0,
-                                    'contextResourceBase':'opt/base',
-                                    'context':CONTEXTBASE},
-                            name = "HttpRequestProcess")
-
-        rawRequest.stream.sink(webEntryLog) ## log what we have received.
-
-        # determine what to work on
-        onlyTuple = rawRequest.stream.filter(lambda t : t["pathInfo"]=="/Tuple", 
-                                             name="inputFilter")
-        # do the work
-        upperDone = onlyTuple.transform(addHeader, 
-                                        name="addHeader")
-        #
-        self.tester.tuple_count(upperDone, 1)
-
-        # loopback to sending
-        pending_source.complete(upperDone)  # loopback
-
-        ## All done building the graph......
-        
-        self.test_config['topology.keepArtifacts']=True 
-
-        # setup the code that will invoke this test. 
-        self.tester.local_check = self.responseHeader_client
-
-        # enable tracing info.
-        job_config = streamsx.topology.context.JobConfig(job_name='Tuple', tracing="trace")        
-        job_config.add(self.test_config) 
-
-        # submit the application for test
-        self.tester.test(self.test_ctxtype, self.test_config)
-
-
-    def responseHeader_client(self):
-        """Test the application, this runs in the Python VM"""
-        self.jobHealthy(20)
-        testMessage = "THIS+is+a+test+MESSAGE"
-        self.url = PROTOCOL + IP + ':' + str(PORT) + CONTEXTBASE + '/Tuple?' + testMessage
-        print("REQ:" + self.url, flush=True)
-        rsp = requests.get(url=self.url)
-        print("RSP: %s\nSTATUS:%s\nCONTENT:%s" % (rsp, rsp.status_code, rsp.content), flush=True)
-        print("HEAD:" + rsp.headers)
-        self.assertIn('head1', rsp.headers)
-        self.assertEqual(rsp.headers['head1'], 'value1')
-        self.assertEqual(rsp.status_code, 200)
-        self.assertEqual(rsp.content, b"THIS+IS+A+TEST+MESSAGE")
 
         
         
