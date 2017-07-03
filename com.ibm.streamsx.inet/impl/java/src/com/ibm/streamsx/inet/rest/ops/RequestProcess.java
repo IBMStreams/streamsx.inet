@@ -343,8 +343,10 @@ public class RequestProcess extends ServletOperator {
 			throw new Exception(
 					"Only types \"" + MetaType.INT64 + "\" allowed for param " + keyAttributeName + "\"");
 		
-		// response, in port
-		if (getInput(0).getStreamSchema().getAttribute(responseHeaderAttributeName) == null) {
+		// response, in port - getting Null exception on the else added more protection.
+		if ((getInput(0).getStreamSchema().getAttribute(responseHeaderAttributeName) == null) || 
+					(getInput(0).getStreamSchema().getAttribute(responseHeaderAttributeName).getType() == null))		
+		{
 			responseHeaderAttributeName = null;
 		} else {
 			MetaType headerParamType = getOutput(0).getStreamSchema().getAttribute(responseHeaderAttributeName).getType()

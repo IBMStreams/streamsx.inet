@@ -21,9 +21,7 @@ PORT = 8080
 IP =  '172.16.49.167'
 IP = 'localhost'
 PROTOCOL = "http://"
-
 inetToolkit = "../../../../com.ibm.streamsx.inet"
-#inetToolkit = "/home/streamsadmin/Development/streamsx.inet/com.ibm.streamsx.inet"
 
 
 def upperString(tuple):
@@ -56,22 +54,6 @@ def webExitLog(inTuple):
     print("webExitLog:", inTuple, flush=True)
     return None
 
-class setResult():
-    def __init__(self, text):
-        self.preamble = text
-
-    def __call__(self, tuple):
-        tuple['response'] = self.preamble + tuple['request']
-
-class reflectResult():
-    def __init__(self, text):
-        self.preamble = text
-
-    def __call__(self, tuple):
-        """ removes the Content-Length """
-        del tuple['Content-Length']
-        tuple['response'] = self.preamble + str(tuple)
-        return tuple
 
 class buildHeaderResponse():
     """ Generate a response
@@ -186,43 +168,6 @@ class TestSize(unittest.TestCase):
         # submit the application for test
         self.tester.test(self.test_ctxtype, self.test_config)
 
-
-    def Xtest_getHeaders(self):
-        """ Send headers to the streams make sure they get reflected back. 
-           
-        """
-        self.reflectHeaders(expected_requests=1, local_check_function=self.header_getHeaders)
-
-
-
-    def header_getHeaders(self):
-        """Simple get headers
-
-        """
-        self.jobHealthy(4)
-        contentBase = '/Reflect/RequestProcess/ports/analyze/0'
-        # request : 
-        headerTest = 3
-        self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/get?' + "this+is+a+test"
-        print("Method REQ:" + self.url, flush=True)
-        payload = {}
-        reqHeaders = {}
-        for idx in range(headerTest):
-            reqHeaders['header' + str(idx)] = 'hValue'  + str(idx)
-
-        rsp = requests.get(url=self.url, headers=reqHeaders)
-
-        # response
-        print("RSP: %s\nSTATUS:%s\nCONTENT:%s" % (rsp, rsp.status_code, rsp.text), flush=True)
-        print("RSP::%s" % (rsp.text), flush=True)
-        self.assertEqual(rsp.status_code, 200, "incorrect completion code")
-        self.assertTrue(rsp.content.startswith(b"HED:"), msg="preamble missing - data loss")
-        
-        for idx in range(headerTest):
-            head = 'header' + str(idx)
-            value = 'hValue' + str(idx)
-            self.assertTrue(head in rsp.content.decode('utf8'), msg="failed to find:" + head)
-            self.assertTrue(value in rsp.content.decode('utf8'), msg="failed to find:"+ value)
 
 
 
