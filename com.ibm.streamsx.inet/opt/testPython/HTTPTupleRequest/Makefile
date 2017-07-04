@@ -1,4 +1,3 @@
-all:	basic
 
 cruft:
 	rm -rf tk[0-9]*
@@ -19,3 +18,4 @@ size:	cruft
 asyn:	cruft
 	python -m unittest asynTests.py
 
+all:	basic header size

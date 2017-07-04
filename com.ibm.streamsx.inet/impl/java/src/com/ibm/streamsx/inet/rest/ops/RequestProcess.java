@@ -116,11 +116,12 @@ public class RequestProcess extends ServletOperator {
 	private static final double defaultTimeout = 15.0f;	
 	
 	static final String DESC = "Operator accepts a web request and generates corresponding response.  The request is injected into "
-			+ "streams on the output port, the input port receives the response."
-	        + "Thus the response is derived from analytical processing of the request by the graph downstream of "
-			+ "this operator that loops back into the input port."
-			+ "The request is coorolated to the response with an attribute 'key' on the output and input port's.\\n" 
-			+ "\\n" 
+		+ "streams on the output port, the input port receives the response."
+	        + "This enables a developer to process HTTP form's and REST calls. The request arrives on the output port, results are " 
+	        + "presented on the input port."
+		+ "The request is coorolated to the response with an attribute 'key' that arrives with the request parameters' on the output port "
+	        + "and must accompany the response on the input port."
+		+ "\\n\\n" 
 	        + "The URLs defined by this operator are:\\n"
 	        + "* *prefix*`/ports/analyze/`*port index*`/` - Injects a tuple into the output and the response is taken from the matching tuple on the input port.\\n"
 	        + "* *prefix*`/ports/input/`*port index*`/info` - Output port meta-data including the stream attribute names and types (content type `application/json`).\\n"
@@ -134,11 +135,14 @@ public class RequestProcess extends ServletOperator {
 			+ "Input and output ports have two possible formats: tuple and json. With tuple format, each web input fields is mapped to an attribute. "
 			+ "Json format has one attribute ('jsonString'), each web field is mapped to a json object field. "
 			+ "\\n\\n"
-			+ "The output attributes of a web request, only the 'key' attribute on the tuple is mandatory, all others are optional. The jsonString object will be "
+			+ "The jsonString object will be "
 			+ "populated with all the fields. The default attribute names can be"
-			+ "overridden for tuple, specifying an attributeName when processing jsonString is futile. "
+			+ "overridden for tuple. "
 			+ "\\n\\n" 
-			+ "For the input attributes of a web response, only the 'key' is mandatory for both json and tuple. The following lists the default values if the field or attribute is not provided. "
+			+ "The operator handles two flavors of http requests, forms and REST. In the case of forms, webpages can be served up from the contextResourceBase, "
+                        + "this can be to static html or template. . Refer to the spl example for a form processed by the operator using a template to format the response."
+			+ "\\n\\n "
+			+ "For the input port (the web response), only the 'key' is mandatory for both json and tuple. The following lists the default values if the field or attribute is not provided. "
 			+ "\\n"
 			+ "* rstring response : 0 length response.  \\n"
 			+ "* int32 statusCode : 200 (OK) \\n"
@@ -146,11 +150,8 @@ public class RequestProcess extends ServletOperator {
 			+ "* rstring contentType : '" + ReqWebMessage.defaultResponseContentType + "'. \\n"
 			+ "* Map<rstring,rstring> headers : No headers provided \\n "
 			+ "\\n\\n "
-			+ "The operator handle two flavors of http requests, forms and REST. In the case of forms may want serve up static web pages, this can be to static html or templates that that will b"
-			+ "expanded at the browser. Less likly but possible for REST - the context fiel path."
-			+ " "
 			+ "# Notes:\\n\\n "
-			+ "* If the input port's response key cannot be located, missing corresponding output port's key, no web response will be generated.\\n "
+			+ "* The 'key' attribute on the output and input port's are correlated. Losing the correlation loses the request.\\n "
 			+ "* If the input port's response key cannot be located the web request will timeout, metrics will be incremented.\\n "
 			+ "* If the input jsonString value cannot be converted to an jsonObject, no response will be generated and web request will timeout.\\n "
 			+ "* Only the first input port's key will produce a web response.\\n "
@@ -514,6 +515,8 @@ public class RequestProcess extends ServletOperator {
 		activeMessages.remove(trackingKey);
 		return activeWebMessage;
 	}
+
+
 	
 	/**
 	 * The arriving tuple is used to build a web response.  The response is related to the output tuples that was generated
