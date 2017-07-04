@@ -1,3 +1,7 @@
+/**
+# Licensed Materials - Property of IBM
+# Copyright IBM Corp. 2017 
+*/
 package com.ibm.streamsx.inet.rest.servlets;
 import java.io.IOException;
 import java.util.Enumeration;
@@ -10,11 +14,6 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
-* Licensed Materials - Property of IBM
-* Copyright IBM Corp. 2017 
-* @author mags
-*/
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.continuation.Continuation;
 

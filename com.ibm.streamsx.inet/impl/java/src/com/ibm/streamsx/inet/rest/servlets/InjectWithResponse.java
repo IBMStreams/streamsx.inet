@@ -1,3 +1,8 @@
+/**
+# Licensed Materials - Property of IBM
+# Copyright IBM Corp. 2017
+*/
+
 package com.ibm.streamsx.inet.rest.servlets;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -12,11 +17,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
-* Licensed Materials - Property of IBM
-* Copyright IBM Corp. 2017
-* @author mags
-*/
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.continuation.Continuation;
 import org.eclipse.jetty.continuation.ContinuationSupport;
@@ -42,8 +42,6 @@ import com.ibm.streamsx.inet.rest.ops.RequestProcess;
  * 	<li>Expired : Streams has taken too long and the request has expired, generate a timeout response.</li> 
  * 	<li>Suspend : Streams is still working on the request, this should not happen.</li>
  * </ul>
- *
- * @author mags
  *
  */
 public class InjectWithResponse extends SubmitterServlet {

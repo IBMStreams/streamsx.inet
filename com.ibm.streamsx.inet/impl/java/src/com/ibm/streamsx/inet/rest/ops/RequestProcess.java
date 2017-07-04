@@ -1,7 +1,6 @@
 /*
 # Licensed Materials - Property of IBM
 # Copyright IBM Corp. 2017
-# author  
 */
 package com.ibm.streamsx.inet.rest.ops;
 import java.io.IOException;
@@ -81,7 +80,6 @@ import com.ibm.streamsx.inet.rest.servlets.ReqWebMessage;
  * value on the input port, this is correlation key. If keys is corrupted, no response will be generated, 
  * the request will time out. 
  * </p> 
- * @author mags
  *
  */
 
