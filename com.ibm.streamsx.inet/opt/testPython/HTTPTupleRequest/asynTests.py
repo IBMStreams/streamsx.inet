@@ -177,10 +177,10 @@ class TestAsync(unittest.TestCase):
     def test_multiRequests(self):
         print("doing the postForm")
         self.slpCount = 4
-        self.reflectPost(expected_requests=11, local_check_function=self.asyn_multiResponse)
+        self.reflectPost(expected_requests=11, local_check_function=self.multiResponse)
 
 
-    def asyn_multiResponse(self):
+    def multiResponse(self):
         """More complicated posts with a headers, this is how forms with name/values are sent.
 
         """
@@ -212,8 +212,52 @@ class TestAsync(unittest.TestCase):
             self.assertTrue(rsp.content.startswith(b"SLP:"), msg="preamble missing - data loss")
             self.assertGreater(len(rsp.text), self.slpCount, msg="under fill count - data loss" )
 
+    def XXtest_asncRequests(self):
+        print("doing the postForm")
+        self.slpCount = 4
+        self.reflectPost(expected_requests=11, local_check_function=self.asyncRequest)
 
 
+    def asyncRequest(self):
+        """More complicated posts with a headers, this is how forms with name/values are sent.
+
+        """
+        self.jobHealthy(4)
+        contentBase = '/Reflect/RequestProcess/ports/analyze/0'
+        # request : 1
+        self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/post?'
+        payload = {"SLEEP":str(self.slpCount)}
+        print("** ASC: %s  Payload len/data:%d/%s" % (self.url, len(payload), payload),  flush=True)
+        rsp = requests.post(url=self.url, data=payload)
+
+        # response
+        self.assertEqual(rsp.status_code, 200, "incorrect completion code")
+        print("** RSP: text:%s" % (rsp.text))
+        self.assertTrue(rsp.content.startswith(b"SLP:"), msg="preamble missing - data loss")
+        self.assertGreater(len(rsp.text), self.slpCount, msg="under fill count - data loss" )
+
+
+
+""""
+Template of where we are going ....
+
+import grequests
+## request 
+urls = [
+    'http://www.heroku.com',   # request to be made 
+    'http://python-tablib.org',
+    'http://httpbin.org',
+    'http://python-requests.org',
+    'http://fakedomain/',
+    'http://kennethreitz.com'
+]
+rs = (grequests.get(u) for u in urls)
+rsp = grequests.map(rs)  # make the requests
+## response
+len(rsp[1].text)   # -> 15257
+>>> len(rsp[2].text) # -> 12793
+
+"""
 
 
 
