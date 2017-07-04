@@ -92,7 +92,7 @@ class sleepResponse():
         startTime = datetime.datetime.utcnow();
         time.sleep(slp)
         endTime = datetime.datetime.utcnow();        
-        tuple['response']  = self.preamble + slpStr + "[" + "] KEY:" + int(tuple['key'])
+        tuple['response']  = self.preamble + slpStr + "[" + " processed sleep " +  "] KEY:" + str(tuple['key'])
         return tuple
 
 
@@ -140,7 +140,7 @@ class TestAsync(unittest.TestCase):
                             stream=rspFormatted,
                             schema='tuple<int64 key, rstring request, rstring contentType, map<rstring, rstring> header, rstring response, rstring method,rstring pathInfo, int32 status, rstring statusMessage>',
                             params={'port': PORT,
-                                    'webTimeout':5.0,
+                                    'webTimeout':10.0,
                                     'responseJsonAttributeName':'string',
                                     'context':'Reflect',
                                     'contextResourceBase': 'opt/Reflect'},
@@ -174,33 +174,44 @@ class TestAsync(unittest.TestCase):
         """
         Various length responses.
         """
-    def test_asynResp2(self):
+    def test_multiRequests(self):
         print("doing the postForm")
-        self.tstCount = 2
-        self.reflectPost(expected_requests=1, local_check_function=self.asyn_postRsp)
+        self.slpCount = 4
+        self.reflectPost(expected_requests=11, local_check_function=self.asyn_multiResponse)
 
 
-    def asyn_postRsp(self):
+    def asyn_multiResponse(self):
         """More complicated posts with a headers, this is how forms with name/values are sent.
 
         """
         self.jobHealthy(4)
         contentBase = '/Reflect/RequestProcess/ports/analyze/0'
-        # request : 
+        # request : 1
         self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/post?'
-        payload = {"SLEEP":str(self.tstCount)}
-        print("** REQ: %s  Payload len:%d" % (self.url, len(payload)),  flush=True)
+        payload = {"SLEEP":str(self.slpCount)}
+        print("** REQ: %s  Payload len/data:%d/%s" % (self.url, len(payload), payload),  flush=True)
         rsp = requests.post(url=self.url, data=payload)
 
         # response
-        #print("RSP: %s\nSTATUS:%s\nCONTENT:%s" % (rsp, rsp.status_code, rsp.text), flush=True)
-        #print("RSP::%s" % (rsp.text), flush=True)
         self.assertEqual(rsp.status_code, 200, "incorrect completion code")
-        self.assertTrue(rsp.content.startswith(b"RSP:"), msg="preamble missing - data loss")
-        print("** RSP: " + rsp.content)
+        print("** RSP: text:%s" % (rsp.text))
+        self.assertTrue(rsp.content.startswith(b"SLP:"), msg="preamble missing - data loss")
+        self.assertGreater(len(rsp.text), self.slpCount, msg="under fill count - data loss" )
 
-        time.sleep(120)
-        self.assertGreater(len(rsp.text), self.tstCount, msg="under fill count - data loss" )
+
+        # request : 2-11
+        for idx in range(10):
+            self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/post?'
+            payload = {"SLEEP":str(self.slpCount)}
+            print("** REQ: %s  Payload len/data:%d/%s" % (self.url, len(payload), payload),  flush=True)
+            rsp = requests.post(url=self.url, data=payload)
+
+        # response
+            self.assertEqual(rsp.status_code, 200, "incorrect completion code")
+            print("** RSP: text:%s" % (rsp.text))
+            self.assertTrue(rsp.content.startswith(b"SLP:"), msg="preamble missing - data loss")
+            self.assertGreater(len(rsp.text), self.slpCount, msg="under fill count - data loss" )
+
 
 
 
