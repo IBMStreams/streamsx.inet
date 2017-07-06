@@ -1,7 +1,6 @@
 /*
 # Licensed Materials - Property of IBM
 # Copyright IBM Corp. 2017
-# author  
 */
 package com.ibm.streamsx.inet.rest.ops;
 import java.io.IOException;
@@ -41,7 +40,7 @@ import com.ibm.streamsx.inet.rest.servlets.ReqWebMessage;
 
 /**
  * <p>
- * HTTPTupleRequest - Enable Streams to process web requests . A request arrives via the web which injects a
+ * HTTPRequestProcess - Enable Streams to process web requests . A request arrives via the web which injects a
  * tuple out the output port; processing happens; input port receives the processing results which are
  * communicated to the orgininating web requester. This is a gateway between web requests and Streams processing of the requests.
  * </p>
@@ -54,7 +53,7 @@ import com.ibm.streamsx.inet.rest.servlets.ReqWebMessage;
  * The following is a brief description of the classes and their interaction. 
  * </p>
  * <dl>
- * <dt>{@link HTTPTupleReqeust}</dt>
+ * <dt>{@link HTTPReqeustProcess}</dt>
  * <dd>
  * Operator Entry.  Web requests for Streams are injected into the Streams via the operators Output port. Responses, 
  * completed requests enter via the Input port. The request and response are packaged into ReqWebMessage objects.
@@ -81,11 +80,10 @@ import com.ibm.streamsx.inet.rest.servlets.ReqWebMessage;
  * value on the input port, this is correlation key. If keys is corrupted, no response will be generated, 
  * the request will time out. 
  * </p> 
- * @author mags
  *
  */
 
-@PrimitiveOperator(name = "HTTPTupleRequest", description = Analyzer.DESC)
+@PrimitiveOperator(name = "HTTPRequestProcess", description = RequestProcess.DESC)
 @InputPorts({
 		@InputPortSet(description = "Response to be returned to the web requestor.", cardinality = 1, optional = false, controlPort=true, windowingMode = WindowMode.NonWindowed, windowPunctuationInputMode = WindowPunctuationInputMode.Oblivious)})
 		//@InputPortSet(description = "Optional input ports", optional = true, windowingMode = WindowMode.NonWindowed, windowPunctuationInputMode = WindowPunctuationInputMode.Oblivious) })
@@ -94,8 +92,8 @@ import com.ibm.streamsx.inet.rest.servlets.ReqWebMessage;
 @Icons(location32="icons/HTTPTupleRequest_32.jpeg", location16="icons/HTTPTupleRequest_16.jpeg")
 
 //		@OutputPortSet(description = "Optional output ports", optional = true, windowPunctuationOutputMode = WindowPunctuationOutputMode.Generating) })
-public class Analyzer extends ServletOperator {
-	static Logger trace = Logger.getLogger(Analyzer.class.getName());
+public class RequestProcess extends ServletOperator {
+	static Logger trace = Logger.getLogger(RequestProcess.class.getName());
 
 	
 	// communication
@@ -116,11 +114,12 @@ public class Analyzer extends ServletOperator {
 	private static final double defaultTimeout = 15.0f;	
 	
 	static final String DESC = "Operator accepts a web request and generates corresponding response.  The request is injected into "
-			+ "streams on the output port, the input port receives the response."
-	        + "Thus the response is derived from analytical processing of the request by the graph downstream of "
-			+ "this operator that loops back into the input port."
-			+ "The request is coorolated to the response with an attribute 'key' on the output and input port's.\\n" 
-			+ "\\n" 
+		+ "streams on the output port, the input port receives the response."
+	        + "This enables a developer to process HTTP form's and REST calls. The request arrives on the output port, results are " 
+	        + "presented on the input port."
+		+ "The request is coorolated to the response with an attribute 'key' that arrives with the request parameters' on the output port "
+	        + "and must accompany the response on the input port."
+		+ "\\n\\n" 
 	        + "The URLs defined by this operator are:\\n"
 	        + "* *prefix*`/ports/analyze/`*port index*`/` - Injects a tuple into the output and the response is taken from the matching tuple on the input port.\\n"
 	        + "* *prefix*`/ports/input/`*port index*`/info` - Output port meta-data including the stream attribute names and types (content type `application/json`).\\n"
@@ -134,11 +133,14 @@ public class Analyzer extends ServletOperator {
 			+ "Input and output ports have two possible formats: tuple and json. With tuple format, each web input fields is mapped to an attribute. "
 			+ "Json format has one attribute ('jsonString'), each web field is mapped to a json object field. "
 			+ "\\n\\n"
-			+ "The output attributes of a web reqeust, only the 'key' attribute on the tuple is mandatory, all others are optional. The jsonString object will be "
+			+ "The jsonString object will be "
 			+ "populated with all the fields. The default attribute names can be"
-			+ "overridden for tuple, specifying an attributeName when processing jsonString is futile. "
+			+ "overridden for tuple. "
 			+ "\\n\\n" 
-			+ "For the input attributes of a web response, only the 'key' is mandatory for both json and tuple. The following lists the default values if the field or attribute is not provided. "
+			+ "The operator handles two flavors of http requests, forms and REST. In the case of forms, webpages can be served up from the contextResourceBase, "
+                        + "this can be to static html or template. . Refer to the spl example for a form processed by the operator using a template to format the response."
+			+ "\\n\\n "
+			+ "For the input port (the web response), only the 'key' is mandatory for both json and tuple. The following lists the default values if the field or attribute is not provided. "
 			+ "\\n"
 			+ "* rstring response : 0 length response.  \\n"
 			+ "* int32 statusCode : 200 (OK) \\n"
@@ -146,9 +148,8 @@ public class Analyzer extends ServletOperator {
 			+ "* rstring contentType : '" + ReqWebMessage.defaultResponseContentType + "'. \\n"
 			+ "* Map<rstring,rstring> headers : No headers provided \\n "
 			+ "\\n\\n "
-			+ " "
 			+ "# Notes:\\n\\n "
-			+ "* If the input port's response key cannot be located, missing corresponding output port's key, no web response will be generated.\\n "
+			+ "* The 'key' attribute on the output and input port's are correlated. Losing the correlation loses the request.\\n "
 			+ "* If the input port's response key cannot be located the web request will timeout, metrics will be incremented.\\n "
 			+ "* If the input jsonString value cannot be converted to an jsonObject, no response will be generated and web request will timeout.\\n "
 			+ "* Only the first input port's key will produce a web response.\\n "
@@ -226,11 +227,20 @@ public class Analyzer extends ServletOperator {
 	private static Metric nMessagesResponded;
 	private static Metric nRequestTimeouts;	
 	private static Metric nMissingTrackingKey;
+	private static Metric nActiveRequests;	
 	
 	/**
 	 * Conduit object between operator and servlet.
 	 * [0] - activeMessages
 	 * [1] - function to create output tuple.
+	 Notes - 
+	 	This is the heart of the 'conduit' which uses Function pointers. The function
+	 	pointer is tupleCreated invokes the initiateRequestFrom web via an apply function, 
+	 	which can be found in the injectWtihResponse.java.  
+	 	** TODO * need a complete explanation. 
+	 	The initalization is getting gets the iniitRequestFromWeb function handle to 
+	 	the servlet in order that messages arrive at the servlet get to the Streams code. 
+	 	
 	 */
 	private Function<ReqWebMessage,OutputTuple> tupleCreator = this::initiateRequestFromWeb;
 
@@ -240,14 +250,6 @@ public class Analyzer extends ServletOperator {
 		super.initialize(context);
 
 		activeMessages = Collections.synchronizedMap(new HashMap<>());
-		/*
-		exchangeWebServer = new ReqWebServer(this);
-
-		exchangeWebServer.setPort(port);
-		exchangeWebServer.setContext(webContext);
-		exchangeWebServer.setWebtimeout(webTimeout);
-		exchangeWebServer.setResponseContentType(responseContentTypeAttributeName);
-		*/
 		
 		jsonFormatOutPort = (getOutput(0).getStreamSchema().getAttributeCount() == 1) && (jsonStringAttributeName.equals(getOutput(0).getStreamSchema().getAttributeNames().toArray()[0])); 
 		for (int idx = 0; getOutput(0).getStreamSchema().getAttributeCount() != idx; idx++) {
@@ -340,8 +342,10 @@ public class Analyzer extends ServletOperator {
 			throw new Exception(
 					"Only types \"" + MetaType.INT64 + "\" allowed for param " + keyAttributeName + "\"");
 		
-		// response, in port
-		if (getInput(0).getStreamSchema().getAttribute(responseHeaderAttributeName) == null) {
+		// response, in port - getting Null exception on the else added more protection.
+		if ((getInput(0).getStreamSchema().getAttribute(responseHeaderAttributeName) == null) || 
+					(getInput(0).getStreamSchema().getAttribute(responseHeaderAttributeName).getType() == null))		
+		{
 			responseHeaderAttributeName = null;
 		} else {
 			MetaType headerParamType = getOutput(0).getStreamSchema().getAttribute(responseHeaderAttributeName).getType()
@@ -422,6 +426,12 @@ public class Analyzer extends ServletOperator {
     public static Metric getnMissingTrackingKey() {
         return nMissingTrackingKey;
     }   
+    // 
+    
+    @CustomMetric(description="Number of requests currently being processed.", kind=Kind.GAUGE)
+    public void setnActiveRequests(Metric metric) {this.nActiveRequests = metric;}
+    public Metric getnActiveRequests() { return nActiveRequests; }    
+    
 
 	@Parameter(optional = true, description = WEBTIMEOUT_DESC)
 	public void setWebTimeout(double webTimeout) {
@@ -498,10 +508,13 @@ public class Analyzer extends ServletOperator {
 			trace.error("retrieveExchangeWebMessage: failed to locate trackingKey. Has the key been corrupted or failed to propogate through the Stream? trackingKey:" + trackingKey + " missingTackingKeyCountt:" + getnMissingTrackingKey().getValue());							
 			return null;
 		}
+		getnActiveRequests().setValue((long)activeMessages.size());
 		activeWebMessage = activeMessages.get(trackingKey);
 		activeMessages.remove(trackingKey);
 		return activeWebMessage;
 	}
+
+
 	
 	/**
 	 * The arriving tuple is used to build a web response.  The response is related to the output tuples that was generated

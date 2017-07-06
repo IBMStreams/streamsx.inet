@@ -17,9 +17,9 @@ import com.ibm.streams.operator.StreamingOutput;
 import com.ibm.streamsx.inet.rest.servlets.InjectWithResponse;
 
 /**
- * Sets up the single servlet for JSON injection.
+ * Sets up the single servlet for HTTPRequestProcess.
  */
-public class AnalyzerSetup implements OperatorServletSetup {
+public class RequestProcessSetup implements OperatorServletSetup {
 
     /**
      * Servlet that accepts application/json POST and submits a

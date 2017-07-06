@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright (C) 2010,2012-2014, International Business Machines Corporation -->
 <!-- All Rights Reserved                                                   -->
-<toolkitInfoModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo" xsi:schemaLocation="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo toolkitInfoModel.xsd">
+<toolkitInfoModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo" xmlns:common="http://www.ibm.com/xmlns/prod/streams/spl/common" xsi:schemaLocation="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo toolkitInfoModel.xsd">
   <identity>
     <name>com.ibm.streamsx.inet</name>
     <description>
@@ -54,7 +54,12 @@ Alternatively, you can fully qualify the operators that are provided by toolkit 
     <version>2.8.2</version>
     <requiredProductVersion>4.0.1.0</requiredProductVersion>
   </identity>
-  <dependencies/>
+  <dependencies>
+    <toolkit>
+      <common:name>com.ibm.streamsx.json</common:name>
+      <common:version>[1.2.1,2.0.0)</common:version>
+    </toolkit>
+  </dependencies>
   <resources>
     <messageSet name="InetResource">
       <lang default="true">en_US/InetResource.xlf</lang>

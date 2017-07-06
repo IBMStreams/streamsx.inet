@@ -1,7 +1,6 @@
 import unittest
 
 from streamsx.topology.topology import *
-#from streamsx.topology.topology import Topology
 from streamsx.topology.tester import Tester
 
 from streamsx.topology.schema import *
@@ -22,9 +21,7 @@ PORT = 8080
 IP =  '172.16.49.167'
 IP = 'localhost'
 PROTOCOL = "http://"
-
 inetToolkit = "../../../../com.ibm.streamsx.inet"
-#inetToolkit = "/home/streamsadmin/Development/streamsx.inet/com.ibm.streamsx.inet"
 
 
 def upperString(tuple):
@@ -36,7 +33,7 @@ def lowerString(tuple):
     return tuple
 
 def sleepMacbeth(tuple):
-    """ He does -  """
+    """ Before Duncan's visit....  """
     time.sleep(1);
     return True
 
@@ -57,22 +54,6 @@ def webExitLog(inTuple):
     print("webExitLog:", inTuple, flush=True)
     return None
 
-class setResult():
-    def __init__(self, text):
-        self.preamble = text
-
-    def __call__(self, tuple):
-        tuple['response'] = self.preamble + tuple['request']
-
-class reflectResult():
-    def __init__(self, text):
-        self.preamble = text
-
-    def __call__(self, tuple):
-        """ removes the Content-Length """
-        del tuple['Content-Length']
-        tuple['response'] = self.preamble + str(tuple)
-        return tuple
 
 class buildHeaderResponse():
     """ Generate a response
@@ -110,7 +91,7 @@ class buildResponse():
 
 
 
-class TestSimpleFilter(unittest.TestCase):
+class TestSize(unittest.TestCase):
 
     def jobHealthy(self, count):
         """test to see if the application is ready to be tested
@@ -128,114 +109,8 @@ class TestSimpleFilter(unittest.TestCase):
 
     def setUp(self):
         Tester.setup_distributed(self)
-        # Standalone does ot work yet....
-        # Testing cannot work out when application to start the local_check(),
-        # not enough api's to look into the application. 
+        # This is how todo standalone, it does not work, yet??
         # Tester.setup_standalone(self)
-
-
-
-    def xtest_filter(self):
-        """basic validation of testing framework"""
-
-        topology = Topology()
-        s = topology.source([8, 7, 2, 4, 10])
-        s = s.filter(lambda x: x> 5)
-
-        # Create tester and assign contions
-        tester = Tester(topology)
-        tester.contents(s,[8,7,10])
-
-        # submit the application for test
-        #tester.test(self.test_ctxtype, self.test_config)
-        tester.test(self.test_ctxtype, self.test_config)
-
-
-        """TEST: test_basic  validate that the operator can talk 
-
-        The diagram illustrates the flow, 
-
-	RequestProcess: the HTTPRequestProcess operator where the inputPort 
-        is sent to the web, the outputPort is injected to streams.
-
-        Pending/PendingComplete : Makes the looping possible. 
-
-                                           -------------
-                                          (     WWW   	)
-                                           ------+------ 
-                                             ^      \
- +---------+      +--------+   +---------+   +-------++   +-------+   +-------+
- | onRamp  +-->---+ Union  |   | Format  |   |Request +->-+input  +->-+ upper |
- |         |    +>|        +->-+ Response+->-+ Process|   | Filter|   |  Case |
- +---------+   /  +--------+   +---------+   +--------+   +-------+   +--/----+
- +---------+  /  						 +------/--+
- | Pending +>+                                  		 |Pending |
- |-        |-------------<--------------------------<------------|Continue|
- +---------+							  +--------+
-
-      """
-
-    def testx_basic(self):
-        topo = Topology("header")
-        self.tester = Tester(topo)
-
-        tk.add_toolkit(topo, inetToolkit)
-
-        # Loop back not natural in a directed graph, need
-        # to have place holder while the graph gets built,
-        # At the end of the graph, connect back to the
-        # begining. 
-        pending_source = PendingStream(topo)
-
-        # Directed graph has start this loop loop does not.
-        # Need to give topology an "onRamp" so it can build the graph.
-        rsp = pending_source.stream.map(lambda t : t)
-        ss = topo.source([], name="onRamp")
-        rsp = ss.union({rsp})
-        # FormatResponse : 
-        rspFormatted = rsp.map(lambda x : json.dumps(x) ).as_string();
-        rawRequest = op.Map("com.ibm.streamsx.inet.rest::HTTPRequestProcess",
-                            stream=rspFormatted,
-                            schema='tuple<int64 key, rstring request, rstring method, rstring pathInfo >',
-                            params={'port': PORT,'webTimeout':5.0,'responseJsonAttributeName':'string','context':'base', 'contextResourceBase':'opt/base'},
-                            name = "RequestProcess")
-
-        rawRequest.stream.sink(webEntryLog) ## log what we have received.
-
-        # determine what to work on
-        onlyTuple = rawRequest.stream.filter(lambda t : t["pathInfo"]=="/Tuple", 
-                                             name="inputFilter")
-        # do the work
-        upperDone = onlyTuple.transform(upperString, 
-                                        name="upperCase")
-
-        #
-        self.tester.tuple_count(upperDone, 1)
-
-        # loopback to sending
-        pending_source.complete(upperDone)  # loopback
-
-        ## All done building the graph......
-
-        # setup the code that will invoke this test. 
-        self.tester.local_check = self.basic_request
-
-        # submit the application for test
-        self.tester.test(self.test_ctxtype, self.test_config)
-        
-        
-    def basic_request(self):
-        """Test the application, this runs in the Python VM"""
-        self.jobHealthy(4)
-        testMessage = "THIS+is+a+test+MESSAGE"
-        contentBase = '/base/RequestProcess/ports/analyze/0'
-        self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/Tuple?' + testMessage
-        print("REQ:" + self.url, flush=True)
-        rsp = requests.get(url=self.url)
-        print("RSP: %s\nSTATUS:%s\nCONTENT:%s" % (rsp, rsp.status_code, rsp.content), flush=True)
-        self.assertEqual(rsp.status_code, 200)
-        self.assertEqual(rsp.content, b"THIS+IS+A+TEST+MESSAGE")
-
 
 
 
@@ -296,48 +171,9 @@ class TestSimpleFilter(unittest.TestCase):
 
 
 
-
-    def test_getHeaders(self):
-        """ Send headers to the streams make sure they get reflected back. 
-           
-        """
-        self.reflectHeaders(expected_requests=1, local_check_function=self.header_getHeaders)
-
-
-
-    def header_getHeaders(self):
-        """Simple get headers
-
-        """
-        self.jobHealthy(4)
-        contentBase = '/Reflect/RequestProcess/ports/analyze/0'
-        # request : 
-        headerTest = 3
-        self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/get?' + "this+is+a+test"
-        print("Method REQ:" + self.url, flush=True)
-        payload = {}
-        reqHeaders = {}
-        for idx in range(headerTest):
-            reqHeaders['header' + str(idx)] = 'hValue'  + str(idx)
-
-        rsp = requests.get(url=self.url, headers=reqHeaders)
-
-        # response
-        print("RSP: %s\nSTATUS:%s\nCONTENT:%s" % (rsp, rsp.status_code, rsp.text), flush=True)
-        print("RSP::%s" % (rsp.text), flush=True)
-        self.assertEqual(rsp.status_code, 200, "incorrect completion code")
-        self.assertTrue(rsp.content.startswith(b"HED:"), msg="preamble missing - data loss")
-        
-        for idx in range(headerTest):
-            head = 'header' + str(idx)
-            value = 'hValue' + str(idx)
-            self.assertTrue(head in rsp.content.decode('utf8'), msg="failed to find:" + head)
-            self.assertTrue(value in rsp.content.decode('utf8'), msg="failed to find:"+ value)
-
-
-
     def reflectPost(self, expected_requests, local_check_function ):
-        """Reflect base : reflecting back post. 
+        """Reflect base : Reflect back the data that is send as well as sending amount 
+           specified in the repeat paramter. 
 
         Ran into a problem with reflecting back the header, if you include a Content-Length
         in the header a corrected Content-Length is *not* sent. When the data arrives
@@ -390,14 +226,48 @@ class TestSimpleFilter(unittest.TestCase):
         # submit the application for test
         self.tester.test(self.test_ctxtype, self.test_config)
 
-
-    def test_postForm(self):
-        """ Test the reflect facility. 
-           
         """
-        self.reflectPost(expected_requests=1, local_check_function=self.header_postForm)
+        Various length responses.
+        """
+    def test_postResp100(self):
+        print("doing the postForm")
+        self.tstCount = 100
+        self.reflectPost(expected_requests=1, local_check_function=self.header_postRsp)
 
-    def header_postForm(self):
+
+    def test_postResp1000(self):
+        print("doing the postForm")
+        self.tstCount = 1000
+        self.reflectPost(expected_requests=1, local_check_function=self.header_postRsp)
+
+    def test_postResp10000(self):
+        self.tstCount = 10000
+        self.reflectPost(expected_requests=1, local_check_function=self.header_postRsp)
+
+    def test_postResp100000(self):
+        self.tstCount = 100000
+        self.reflectPost(expected_requests=1, local_check_function=self.header_postRsp)
+
+    def test_postReq(self):
+        self.tstCount = 100
+        self.reflectPost(expected_requests=1, local_check_function=self.header_postReq)
+
+    def test_postReq1000(self):
+        self.tstCount = 1000
+        self.reflectPost(expected_requests=1, local_check_function=self.header_postReq)
+
+    def test_postReq10000(self):
+        self.tstCount = 10000
+        self.reflectPost(expected_requests=1, local_check_function=self.header_postReq)
+
+    def test_postReq10000(self):
+        self.tstCount = 10000
+        self.reflectPost(expected_requests=1, local_check_function=self.header_postReq)
+
+
+
+
+    def header_postRsp(self):
         """More complicated posts with a headers, this is how forms with name/values are sent.
 
         """
@@ -405,23 +275,37 @@ class TestSimpleFilter(unittest.TestCase):
         contentBase = '/Reflect/RequestProcess/ports/analyze/0'
         # request : 
         self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/post?'
-        print("Method REQ:" + self.url, flush=True)
-        fillCount = 100
-        payload = {"REPEAT":str(fillCount)}
-        for idx in range(3):
-            payload['payload' + str(idx)] = 'pValue'  + str(idx)
-        reqHeaders = {}
-        for idx in range(3):
-            reqHeaders['header' + str(idx)] = 'hValue'  + str(idx)
-
-        rsp = requests.post(url=self.url, headers=reqHeaders, data=payload)
+        payload = {"REPEAT":str(self.tstCount)}
+        print("** REQ: %s  Payload len:%d" % (self.url, len(payload)),  flush=True)
+        rsp = requests.post(url=self.url, data=payload)
 
         # response
-        print("RSP: %s\nSTATUS:%s\nCONTENT:%s" % (rsp, rsp.status_code, rsp.text), flush=True)
-        print("RSP::%s" % (rsp.text), flush=True)
+        #print("RSP: %s\nSTATUS:%s\nCONTENT:%s" % (rsp, rsp.status_code, rsp.text), flush=True)
+        #print("RSP::%s" % (rsp.text), flush=True)
         self.assertEqual(rsp.status_code, 200, "incorrect completion code")
         self.assertTrue(rsp.content.startswith(b"RSP:"), msg="preamble missing - data loss")
-        self.assertGreater(len(rsp.text), fillCount, msg="under fill count - data loss" )
+        print("** RSP: expected: %d received: %d" % (self.tstCount, len(rsp.text)))
+        self.assertGreater(len(rsp.text), self.tstCount, msg="under fill count - data loss" )
+
+
+    def header_postReq(self):
+        self.jobHealthy(4)
+        contentBase = '/Reflect/RequestProcess/ports/analyze/0'
+        # request : 
+        self.url = PROTOCOL + IP + ':' + str(PORT) + contentBase + '/post'
+        payData = "x" * self.tstCount 
+        payload = {"DATA": payData}
+        print("** REQ: %s  Payload len:%d" % (self.url, len(payData)),  flush=True)
+        rsp = requests.post(url=self.url, data=payload)
+
+        # response
+        #print("RSP: %s\nSTATUS:%s\nCONTENT:%s" % (rsp, rsp.status_code, rsp.text), flush=True)
+        #print("RSP::%s" % (rsp.text), flush=True)
+        self.assertEqual(rsp.status_code, 200, "incorrect completion code")
+        self.assertTrue(rsp.content.startswith(b"RSP:"), msg="preamble missing - data loss")
+        print("** RSP: expected: %d received: %d" % (self.tstCount, len(rsp.text)))
+        self.assertGreater(len(rsp.text), self.tstCount, msg="under fill count - data loss" )
+
 
 
         

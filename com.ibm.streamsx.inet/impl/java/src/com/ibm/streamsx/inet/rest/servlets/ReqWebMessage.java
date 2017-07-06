@@ -1,12 +1,11 @@
-package com.ibm.streamsx.inet.rest.servlets;
 /**
-* Licensed Materials - Property of IBM
-* Copyright IBM Corp. 2017 
-* @author mags
+# Licensed Materials - Property of IBM
+# Copyright IBM Corp. 2017 
 */
-import org.apache.log4j.Logger;
+package com.ibm.streamsx.inet.rest.servlets;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -15,11 +14,12 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.eclipse.jetty.continuation.Continuation;
 
 import com.ibm.json.java.JSONObject;
 import com.ibm.streams.operator.Tuple;
-import com.ibm.streamsx.inet.rest.ops.Analyzer;
+import com.ibm.streamsx.inet.rest.ops.RequestProcess;
 
 /** Bridge between the WWW request, Streams processing and corresponding WWW response. 
 * 
@@ -128,20 +128,28 @@ public class ReqWebMessage {
 		return requestUrl == null ? "" : requestUrl;
 	}
 	public Hashtable<String, String> getHeaders() {
-		return headers;
+	        return headers;
 	}
 	// Build the Json request from all the components. 
 	public String jsonRequest() {
 	
 		JSONObject jsonObj = new JSONObject();
-		jsonObj.put(Analyzer.defaultKeyAttributeName, this.trackingKey);
-		jsonObj.put(Analyzer.defaultMethodAttributeName, this.getMethod());
-		jsonObj.put(Analyzer.defaultContentTypeAttributeName, this.getContentType());
-		jsonObj.put(Analyzer.defaultContextPathAttributeName,  this.contextPath);
-		jsonObj.put(Analyzer.defaultPathInfoAttributeName, this.getPathInfo());
-		jsonObj.put(Analyzer.defaultRequestAttributeName, this.getRequestPayload());
-		jsonObj.put(Analyzer.defaultUrlAttributeName, this.requestUrl);
-		jsonObj.put(Analyzer.defaultHeaderAttributeName, this.getHeaders());
+
+		jsonObj.put(RequestProcess.defaultKeyAttributeName, this.trackingKey);
+		jsonObj.put(RequestProcess.defaultMethodAttributeName, this.getMethod());
+		jsonObj.put(RequestProcess.defaultContentTypeAttributeName, this.getContentType());
+		jsonObj.put(RequestProcess.defaultContextPathAttributeName,  this.contextPath);
+		jsonObj.put(RequestProcess.defaultPathInfoAttributeName, this.getPathInfo());
+		jsonObj.put(RequestProcess.defaultRequestAttributeName, this.getRequestPayload());
+		jsonObj.put(RequestProcess.defaultUrlAttributeName, this.requestUrl);
+		if (JSONObject.isValidObject(this.getHeaders())) {
+			jsonObj.put(RequestProcess.defaultHeaderAttributeName, this.getHeaders());			
+		} else {
+		        //Invalid for JSON (Hashtable), switch over to jsonObject
+			JSONObject jsonHead = new JSONObject();
+			jsonHead.putAll(this.getHeaders());
+			jsonObj.put(RequestProcess.defaultHeaderAttributeName, jsonHead);									
+		}
 		return(jsonObj.toString());
 	} 
 	

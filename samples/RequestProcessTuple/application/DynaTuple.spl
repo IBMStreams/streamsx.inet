@@ -1,0 +1,199 @@
+namespace application ;
+
+/**
+* This is an example of using the HTTPRequestProcess() operator to put up a form, 
+* get form input and generate a response. This uses the Tuple aspect of the operator,
+* the RequestProcessJson example does this same process with the Json aspect. 
+*
+* Description. 
+*  - Using th context put up the index.html page in /opt/html, which includes a form.
+*  - The forms action (/livepage/HttpTuple/ports/analyze/0/login) post to the operator.
+*  - The HTTPTupleProcess operator outputs the request, note the use of pathInfo to route the request.
+*  - On completion of the processing, the response is input to the originaling HTTPTupleProcess
+*    operator. 
+*    
+*    The goal...
+*      - Demonstrate the processing of forms.
+*      - Reinterate how important it is NOT to mess with the id. 
+*/
+
+use com.ibm.streamsx.inet.rest::HTTPRequestProcess ;
+use com.ibm.streamsx.inet.rest::WebContext ;
+use com.ibm.streamsx.inet.http::HTTPRequest ;
+
+composite DynTuple
+{
+	type		
+		ReqProc = HTTPRequest reqRsp, rstring templateFile, map<rstring,
+			rstring> context ;
+	graph
+		(stream<HTTPRequest> httpRequest) as HttpTuple = HTTPRequestProcess(httpResponse)
+		{
+			param
+				context : "livepage" ;
+				contextResourceBase : getThisToolkitDir() + "/opt/html" ;
+				port : 8080 ;
+		}
+
+		(stream<HTTPRequest> functorLogin as O) as LoginFilter = Functor(httpRequest as I)
+		{ // /login request ? drop on floor if not. Real code with have multiple branches. 
+
+			param
+				filter : I.pathInfo == "/login" ;
+			output
+				O : response = upper(I.request) ;
+		}
+
+		(stream<ReqProc> normalizedRequest as O) as Normalize = Custom(functorLogin
+			as I)
+		{
+			logic
+				state :
+				{
+					mutable ReqProc rProc ;
+					mutable map<rstring, rstring> context ;
+					map<rstring, rstring> contextError = { "ERROR-requestInput" :
+						"had no entry parsed" } ;
+					mutable list<rstring> dict ;
+					mutable list<rstring> keyval ;
+				}
+
+				onTuple I :
+				{
+					dict = tokenize(I.request, "&", true) ;
+					clearM(context) ;
+					if(size(dict) > 0)
+					{
+						for(rstring entry in dict)
+						{
+						println("entry:" + entry);
+							keyval = tokenize(entry, "=", true) ;
+							if(size(keyval) > 1) context = insert(context, keyval [ 0 ], keyval [ 1
+								]) ;
+							else if(size(keyval) == 1) context = insert(context, keyval [ 0 ], "") ;
+							else context = insert(context, "ERROR-nameValueParse", "FAILUE") ;
+						}
+
+					}
+
+					else
+					{
+						keyval = tokenize(I.request, "=", true) ;
+						if(size(keyval) > 1) context = insert(context, keyval [ 0 ], keyval [ 1
+							]) ;
+						else if(size(keyval) == 1) context = insert(context, keyval [ 0 ], "") ;
+						else context = insert(context, "ERROR-nameValueParse",
+							"FAILURE single entry") ;
+					}
+
+					assignFrom(rProc.reqRsp, I) ;
+					rProc.context = context ;
+					submit(rProc, O) ;
+				}
+
+			}
+
+		(stream<normalizedRequest> processed as O) as ProcessingPhase =
+				Custom(normalizedRequest as I)
+			{
+				logic
+					state :
+					{
+						mutable rstring normalFile = "/normal.hbs" ;
+						mutable rstring junkFile = "/junk.hbs" ;
+						mutable rstring name ;
+						map<rstring, rstring> newShort = { "occupation" : "developer software",
+							"profession" : "create software" } ;
+						map<rstring, rstring> newLong = { "occupation" : "developer land",
+							"profession" : "build buildings" } ;
+						mutable map<rstring, rstring> newContext ;
+					}
+
+					onTuple I :
+					{
+						I.templateFile =(length(I.context [ 'password' ]) > 0) ? normalFile :
+							junkFile ;
+						name = I.context [ 'name' ] ;
+						I.context =(length(name) > 4) ? newLong : newShort ;
+						I.context = insert(I.context, "name", name) ;
+						submit(I, O) ;
+					}
+
+			}
+
+			/*
+		 * This is very hack but it's cool - This builds the HTML that is to returned to the browser. 
+		 * The page will invokes the template passed in the I.templateFile attribute, the variables
+		 * that the template file will be using variables that are in the I.context (map<rstring, rstring>).
+		 * When the html page gets loaded it invokes the <script> that gets the template file then invokes
+		 * the template file with the variables, javascript + jquery cool like dynamite and dangerous - like 
+		 * nitro-glycerince. 
+		 */
+		(stream<HTTPRequest> htmlFormatted as O) as BuildHtml = Custom(processed as I)
+			{
+				logic
+					state :
+					{
+						mutable HTTPRequest rRsp ;
+						mutable rstring bstr ;
+						rstring preHtml =
+							'<!DOCTYPE html> <html lang="en"><title>Demonstration</title><head><script>' ;
+						mutable rstring buildResponse ;
+						mutable rstring dataForTemplate_File = // example of how it should look. 
+						'var templateFile = "/junk.hbs";' ;
+						mutable rstring dataForTemplate_Context = // example of how it should look.
+						'var context = { "name" : "Joe Shome", "occupation" : "developer" , "profession" : "hack"};' ;
+						rstring postHtml = '</script><meta charset="UTF-8">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+</script><script src="/libs/handlebars.min-latest.js">
+</script></head><body><script>
+$.get(templateFile).done(function(template) {
+var templateScript = Handlebars.compile(template);
+var html = templateScript(context);
+$(document.body).append(html);});
+</script></body>' ;
+					}
+
+					onTuple I :
+					{
+						assignFrom(rRsp, I.reqRsp) ;
+						dataForTemplate_File = 'var templateFile = "' + I.templateFile + '";' ;
+						bstr = 'var context = {' ;
+						for(rstring key in keys(I.context))
+						{
+							bstr += '"' + key + '":"' + I.context [ key ] + '",' ;
+						}
+
+						dataForTemplate_Context = bstr + '};' ;
+						buildResponse = preHtml + dataForTemplate_File + dataForTemplate_Context
+							+ postHtml ;
+						rRsp.response = buildResponse ;
+						submit(rRsp, O) ;
+					}
+
+			}
+
+		() as DebugView = FileSink(httpRequest as Functor_7_out0)
+			{
+				param
+					file : "/dev/stdout" ;
+					flush : 1u ;
+			}
+
+		(stream<HTTPRequest> httpResponse as O) as PrepHttp = Custom(htmlFormatted as I)
+			{
+				logic
+					onTuple I :
+					{
+					// TODO * default? done by operator?
+						I.header [ "Content-Type" ] = "text/html" ;
+						// TODO * this should be done in the operator
+						I.header [ "Content-Length" ] =(rstring) length(I.response) ;
+						submit(I, O) ;
+					}
+
+			}
+
+	}
+
+
