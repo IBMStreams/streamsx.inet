@@ -1,0 +1,71 @@
+/*
+# Licensed Materials - Property of IBM
+# Copyright IBM Corp. 2017
+*/
+namespace com.ibm.streamsx.inet.sample.rest;
+use spl.file::*;
+use com.ibm.streamsx.inet.rest::*;
+// =================================================================
+// To test the HTTPBLOBInjection operator, you can do the following.
+// 1) Compile this SPL application and run it.
+// 2) In this sample project directory, there is a python script: http_bin_test_client.py
+//    Run that script which will send the blob content from the two tar.gz files already present in the data directory. 
+//    python3 http_bin_test_client.py
+// 3) Ensure the blob contents are received by checking for the result messages printed either on the screen or in the PE stdouterr log file.
+// 4) You can now diff the files sent from the data directory and the received and saved files.
+// 5) In the end, you may want to delete the received and saved files in the /tmp directory.
+// =================================================================
+composite HttpBlobInjectTest {
+	graph
+		// This operator can receive any binary data sent from
+		// one or more HTTP clients (.wav, .jpg, .mov, .tar etc.)
+		// First attribute in the output stream must be of type blob.
+		// Second attribute in the output stream is optional. If present, it must be
+		// a map<rstring, rstring> where the HTTP request headers and their values will be stored.
+		stream<blob x, map<rstring, rstring> httpRequestHeaders> BinData = HTTPBLOBInjection() {
+			param
+				port: 8080;
+		}
+		
+		() as MySink1 = Custom(BinData as BD) {
+			logic
+				state: {
+					mutable int32 _tupleCnt = 0;
+					list<rstring> _files = ["dummy", "result1", "result2"];
+				}
+				
+				onTuple BD: {
+					printStringLn("HTTP binary Content Length for tuple " +
+						(rstring)++_tupleCnt + "=" + (rstring)size(BD.x));
+					printStringLn("HTTP Request Headers=" + (rstring)BD.httpRequestHeaders);
+
+					if (_tupleCnt <= 2) {
+						// Write the received binary content to a file to
+						// verify the received blob is same as the
+						// original content sent by the HTTP client.
+						mutable int32 fileError = 0;
+						mutable uint64 fileHandle = 0ul;
+						rstring fileName = "/tmp/" + _files[_tupleCnt];
+						printStringLn("Saving to file : " + fileName);
+						fileHandle = fopen(fileName, "w+", fileError);
+						
+						if (fileError != 0) {
+							printStringLn ("Error while creating the file " + fileName + 
+								". (Error: " + (rstring) fileError + ") Giving up.\n");
+							abort();
+						}
+						
+						list<uint8> binaryContent = (list<uint8>)BD.x;
+						fwrite(binaryContent, fileHandle, 0ul, (uint64)size(binaryContent), fileError);
+						fclose(fileHandle, fileError);
+
+						if (_tupleCnt == 2) {
+							printStringLn("You can do a diff of the two files sent from data directory with the ones we received and saved as shown above. You may want to delete those two saved files after doing the diff.");
+						}
+					} else {
+						printStringLn("Else");
+					}
+
+				}
+		}
+}
