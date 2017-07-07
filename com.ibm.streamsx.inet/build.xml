@@ -61,6 +61,7 @@ artifacts were left around and caused issues with the ant build.
 				<include name="com.ibm.streamsx.inet.rest/HTTPBLOBInjection/*"/>
 				<include name="com.ibm.streamsx.inet.rest/HTTPJSONInjection/*"/>
 				<include name="com.ibm.streamsx.inet.rest/HTTPTupleInjection/*"/>
+				<include name="com.ibm.streamsx.inet.rest/HTTPTRequestProcess/*"/>
 				<include name="com.ibm.streamsx.inet.rest/HTTPTupleView/*"/>
 				<include name="com.ibm.streamsx.inet.rest/HTTPXMLInjection/*"/>
 				<include name="com.ibm.streamsx.inet.rest/HTTPXMLView/*"/>

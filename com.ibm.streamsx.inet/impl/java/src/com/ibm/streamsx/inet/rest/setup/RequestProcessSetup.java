@@ -14,15 +14,15 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.OutputTuple;
 import com.ibm.streams.operator.StreamingOutput;
-import com.ibm.streamsx.inet.rest.servlets.InjectXML;
+import com.ibm.streamsx.inet.rest.servlets.InjectWithResponse;
 
 /**
- * Sets up the single servlet for XML injection.
+ * Sets up the single servlet for HTTPRequestProcess.
  */
-public class PostXMLSetup implements OperatorServletSetup {
+public class RequestProcessSetup implements OperatorServletSetup {
 
     /**
-     * Servlet that accepts application/xml POST and submits a
+     * Servlet that accepts application/json POST and submits a
      * corresponding tuple with the first attribute being an XML attribute.
      * @return 
      */
@@ -39,12 +39,12 @@ public class PostXMLSetup implements OperatorServletSetup {
             ExposedPort ep = new ExposedPort(context, port, ports.getContextPath());
             exposed.add(ep);
 
-            String path = "/output/" + port.getPortNumber() + "/inject";
-            ports.addServlet(new ServletHolder(new InjectXML(context, port)),
+            String path = "/analyze/" + port.getPortNumber() + "/*";
+            ports.addServlet(new ServletHolder(new InjectWithResponse(context, port)),
                     path);
-            ep.addURL("inject", path);
+            ep.addURL("analyze", path);
             
-            trace.info("Injection URL (application/xml): " + ports.getContextPath()
+            trace.info("Analyze URL: " + ports.getContextPath()
                     + path);
         }  
         
