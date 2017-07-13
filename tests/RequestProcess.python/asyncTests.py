@@ -20,12 +20,10 @@ from requests import get, post, put, patch, delete, options, head
 
 import argparse
 
-
-
 PORT = 8080
 IP = 'localhost'
 PROTOCOL = "http://"
-inetToolkit = "../../../../com.ibm.streamsx.inet"
+inetToolkit = "../../com.ibm.streamsx.inet"
 
 # map/transform : input -> output 
 def upperString(tuple):

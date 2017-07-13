@@ -16,15 +16,11 @@ import requests
 import time
 import argparse
 
-
-
 PORT = 8080
 IP =  '172.16.49.167'
 IP = 'localhost'
 PROTOCOL = "http://"
-
-inetToolkit = "../../../../com.ibm.streamsx.inet"
-#inetToolkit = "/home/streamsadmin/Development/streamsx.inet/com.ibm.streamsx.inet"
+inetToolkit = "../../com.ibm.streamsx.inet"
 
 
 def upperString(tuple):
