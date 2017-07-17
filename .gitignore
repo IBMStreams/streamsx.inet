@@ -16,6 +16,7 @@ toolkit.xml
 
 /com.ibm.streamsx.inet/com.ibm.streamsx.inet.rest/*/*.xml
 /com.ibm.streamsx.inet/com.ibm.streamsx.inet.rest/*/*.gif
+/com.ibm.streamsx.inet/com.ibm.streamsx.inet.rest/*/*.jpeg
 
 /com.ibm.streamsx.inet/com.ibm.streamsx.inet.wsserver/*/*.xml
 /com.ibm.streamsx.inet/com.ibm.streamsx.inet.wsserver/*/*.gif

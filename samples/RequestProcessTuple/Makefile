@@ -25,6 +25,6 @@ run:	standalone
 	./output/bin/standalone
 
 clean:
-	pkill -9 standalone
+	-pkill -9 standalone
 	$(SPLC) $(SPLC_FLAGS) -C -M $(SPL_MAIN_COMPOSITE)
 
