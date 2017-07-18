@@ -26,13 +26,14 @@ not handled. I drops the fields on the way out, doing a .spl
 application with no JSONToTuple is ok.
 """
 
+CONTEXTBASE = "base"
 PORT = 8080
 IP =  '172.16.49.167'
 IP = 'localhost'
 PROTOCOL = "http://"
-CONTEXTBASE = "base"
+inetToolkit = "../../com.ibm.streamsx.inet"
 
-inetToolkit = "../../../../com.ibm.streamsx.inet"
+
 
 def upperString(tuple):
     tuple["response"] = tuple["request"].upper()

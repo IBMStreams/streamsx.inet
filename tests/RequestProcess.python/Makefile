@@ -15,7 +15,7 @@ tuple:	cruft
 size:	cruft
 	python -m unittest sizeTests.py
 
-asyn:	cruft
-	python -m unittest asynTests.py
+async:	cruft
+	python -m unittest asyncTests.py
 
-all:	basic header size
+all:	basic header tuple size async 

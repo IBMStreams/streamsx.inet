@@ -16,16 +16,11 @@ import requests
 import time
 import argparse
 
-
-
 PORT = 8080
 IP =  '172.16.49.167'
 IP = 'localhost'
 PROTOCOL = "http://"
-
-inetToolkit = "../../../../com.ibm.streamsx.inet"
-#inetToolkit = "/home/streamsadmin/Development/streamsx.inet/com.ibm.streamsx.inet"
-
+inetToolkit = "../../com.ibm.streamsx.inet"
 
 def upperString(tuple):
     tuple["response"] = tuple["request"].upper()
@@ -207,7 +202,7 @@ class TestSimpleFilter(unittest.TestCase):
     def test_pathInfo(self):
         """TEST test_routine, validate that the pathInfo can be used for routing. 
 
-        The context defines the base of incoming messages, beyond that is in 
+        The context defines the base of incoming messages, beyond that it is in 
         the pathInfo. If the context is 'base' and the request url is 
         http://node:port/base/fred/route/my/request, the pathInfo 
         will be /fred/route/my/request.
