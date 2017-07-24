@@ -158,6 +158,18 @@ This example demonstrates how to use the `InetSource` operator:
       </parameter>
 
       <parameter>
+        <name>ignoreURIcheckException</name>
+        <description>
+          This optional parameter has the default value false. In the default case the supplied URI value is checked against RFC 2396. If the validation fails, an dynamically supplied URI is ignored and a statically supplied URI stops execution. If this parameter is set to true the result of the URI check is ignored and the URI is passed unchecked. In this case no canonical path extension and no adaptation to the data directory is available for file schema.
+        </description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>AttributeFree</expressionMode>
+        <type>boolean</type>
+        <cardinality>1</cardinality>
+      </parameter>
+
+      <parameter>
         <name>initDelay</name>
         <description>This parameter specifies an initial processing delay, in seconds, before the InetSource operator begins emitting tuples. This parameter is optional; if present, it must have exactly one value of type float64 that is an expression which can be evaluated at operator startup time.</description>
         <optional>true</optional>

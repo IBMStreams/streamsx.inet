@@ -34,6 +34,7 @@
 
   # create a variable to hold the parameters as I get them
   my $parameter = "";
+  my $ignoreURIcheckException = $model->getParameterByName("ignoreURIcheckException");
   my $initDelay = $model->getParameterByName("initDelay");
   my $incrementalFetch = $model->getParameterByName("incrementalFetch");
   my $doNotStreamInitialFetch = $model->getParameterByName("doNotStreamInitialFetch");
@@ -69,6 +70,14 @@
     }
   }
 
+  if ($ignoreURIcheckException)
+  {
+    $ignoreURIcheckException = $ignoreURIcheckException->getValueAt(0)->getCppExpression();
+  }
+  else
+  {
+    $ignoreURIcheckException ="false";
+  }
   if($initDelay)
   {
     $initDelay = $initDelay->getValueAt(0)->getCppExpression();
@@ -183,13 +192,13 @@ std::string MY_OPERATOR::checkURI(const std::string & url) {
     catch(DistilleryException& e) 
     {
       // Malformed input URL -- log error and return empty string
-      SPLAPPTRC(L_ERROR, "ignoring malformed URL " << url, "InetSource");
+      SPLAPPTRC(L_ERROR, "malformed URL " << url, "InetSource");
       return std::string();
     }
     catch(std::exception& e) 
     {
       // Malformed input URL -- log error and return empty string
-      SPLAPPTRC(L_ERROR, "ignoring malformed URL " << url, "InetSource");
+      SPLAPPTRC(L_ERROR, "malformed URL " << url, "InetSource");
       return std::string();
     }
 
@@ -255,6 +264,7 @@ void MY_OPERATOR::process(uint32_t idx)
 {
   SPLAPPTRC(L_TRACE, "Processing...", "InetSource");
 
+  bool ignoreURIcheckException = <%=$ignoreURIcheckException%>;
   std::string fetchContent; // content fetched from URL
   std::istringstream fetchBuffer; // buffer of content fetched from URL
 
@@ -281,24 +291,45 @@ void MY_OPERATOR::process(uint32_t idx)
     if (dynamicURL_ || firstTime) {
       firstTime = false;
 
-      // get list or URIs
-      SPL::list<SPL::rstring> newURI = <%=($model->getParameterByName("URIList")->getValueAt(0)->getCppExpression())%>; 
+      // Make the list with the checked uris to get the real number of required retrievers
+      SPL::list<SPL::rstring> newURIChecked;
+      {
+        // get list or URIs
+        SPL::list<SPL::rstring> newURI = <%=($model->getParameterByName("URIList")->getValueAt(0)->getCppExpression())%>;
+        bool oops = false;
+        for (std::size_t i = 0; i < newURI.size(); i++) {
+          std::string uri = checkURI(newURI.at(i));
+          if (uri.length()==0) {
+            if (ignoreURIcheckException) {
+              uri = newURI.at(i);
+              SPLAPPTRC(L_WARN, "Use uri after failed uri check! URL=" << uri, "InetSource");
+            } else {
+              oops = true;
+              SPLAPPTRC(L_ERROR, "ignoring malformed URL=" << newURI.at(i), "InetSource");
+              continue;
+            }
+          }
+          newURIChecked.push_back(uri);
+        }
+        // terminate if any of the URIs are invalid and won't change, otherwise continue with valid URIs
+        if ( oops && !dynamicURL_ ) {
+          SPLAPPTRC(L_ERROR, INET_MALFORMED_URI, "InetSource");
+          SPL::Functions::Utility::abort(__FILE__, __LINE__);
+        }
+      }
 
       // delete retrievers we won't need.
-      while (retrievers_.size() > newURI.size()) {
+      while (retrievers_.size() > newURIChecked.size()) {
         // save it so we can delete it.
-		InetRetriever* last = retrievers_.back();
-		retrievers_.erase(retrievers_.end() -1, retrievers_.end());
-		retCodeCounts_.erase(retCodeCounts_.end() -1, retCodeCounts_.end());
-		delete last;	
+        InetRetriever* last = retrievers_.back();
+        retrievers_.erase(retrievers_.end() -1, retrievers_.end());
+        retCodeCounts_.erase(retCodeCounts_.end() -1, retCodeCounts_.end());
+        delete last;
       }
 
       // If there's a retriever, re-use it.
-      bool oops = false;
       for (std::size_t i = 0; i < retrievers_.size() ; i++)  {
-        std::string uri = checkURI(newURI.at(i));
-        if (uri.length()==0) { oops = true; continue; }
-        if (retrievers_.at(i)->updateURL(uri)) {
+        if (retrievers_.at(i)->updateURL(newURIChecked.at(i))) {
           SPLAPPTRC(L_INFO, "URL " << i << " updated to " << retrievers_.at(i)->targetURL(), "InetSource");
         }
         else {
@@ -307,18 +338,9 @@ void MY_OPERATOR::process(uint32_t idx)
       } // end -- check URLs in list of 'retrievers' 
 
       // add a retriever for a new URI
-      for (std::size_t i = retrievers_.size(); i < newURI.size(); i++) {
-        std::string uri = checkURI(newURI.at(i));
-        if (uri.length()==0) { oops = true; continue; }
-        addRetriever(uri, timeout_);
+      for (std::size_t i = retrievers_.size(); i < newURIChecked.size(); i++) {
+        addRetriever(newURIChecked.at(i), timeout_);
       }
-
-      // terminate if any of the URIs are invalid and won't change, otherwise continue with valid URIs
-      if ( oops && !dynamicURL_ ) {
-        SPLAPPTRC(L_ERROR, INET_MALFORMED_URI, "InetSource");
-        SPL::Functions::Utility::shutdownPE();
-      }
-
     } // end -- if 'dynamicURL_' or 'firstTime'
 
     // now fetch content from each 'retriever' and emit zero or more tuples containing its data
