@@ -28,10 +28,10 @@ SPL_LINK_OPTIONS = $(shell $(SPL_PKGCFG) --libs $(SPL_PKG))
 # Folders
 # -----------------------------------------------------------------------------
 TRG := .
-INC:= $(TRG)/cpp/include
+INC:= $(TRG)/include
 LIB := $(TRG)/lib
 OBJ := $(TRG)/cpp/bin
-SRC := $(TRG)/cpp/src
+SRC := $(TRG)/src
 
 # -----------------------------------------------------------------------------
 # phony targets are targets being not in the filesystem but are always "active"
