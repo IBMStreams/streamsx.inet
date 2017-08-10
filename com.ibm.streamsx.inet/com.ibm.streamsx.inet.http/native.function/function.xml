@@ -264,7 +264,7 @@ and limiting operations to less than a few minutes risk aborting perfectly norma
           <common:lib>curl</common:lib>
           <common:lib>inettoolkit</common:lib>
           <common:libPath>../../impl/lib</common:libPath>
-          <common:includePath>../../impl/cpp/include</common:includePath>
+          <common:includePath>../../impl/include</common:includePath>
         </common:managedLibrary>
       </function:library>
     </function:dependencies>
