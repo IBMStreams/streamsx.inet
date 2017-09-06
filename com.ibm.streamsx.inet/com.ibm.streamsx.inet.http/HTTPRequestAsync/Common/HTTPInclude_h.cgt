@@ -1,0 +1,18 @@
+#include <SPL/Runtime/Type/SPLType.h>
+
+#include <streams_boost/bind.hpp>
+#include <streams_boost/make_shared.hpp>
+#include <streams_boost/pointer_cast.hpp>
+#include <streams_boost/thread/tss.hpp>
+#include <streams_boost/random/taus88.hpp>
+#include <streams_boost/random/uniform_int_distribution.hpp>
+#include "httpClientAsync.hpp"
+
+using streams_boost::make_shared;
+using streams_boost::shared_ptr;
+using streams_boost::static_pointer_cast;
+using streams_boost::thread_specific_ptr;
+
+using namespace streams_boost::random;
+
+typedef SPL::map<SPL::rstring,SPL::rstring> HMap;

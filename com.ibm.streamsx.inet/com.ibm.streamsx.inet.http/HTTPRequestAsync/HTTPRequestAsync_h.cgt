@@ -1,0 +1,14 @@
+/*
+ #######################################################################
+ # Copyright (C)2017, International Business Machines Corporation and
+ # others. All Rights Reserved.
+ #######################################################################
+ */
+
+@include "Common/HTTPInclude_h.cgt"
+
+<%SPL::CodeGen::headerPrologue($model);%>
+
+@include "Common/HTTPOperator_h.cgt"
+
+<%SPL::CodeGen::headerEpilogue($model);%>

@@ -1,0 +1,83 @@
+@include "HTTPCommon.cgt"
+
+<%my $timeout = ($_ = $model->getParameterByName('timeout')) ? $_->getValueAt(0)->getCppExpression() : 10;%>
+
+size_t MY_OPERATOR::limitThreads(size_t threads) {
+	if(threads < 1) {
+		threads = 1;
+		SPLAPPTRC(L_WARN, "Min thread pool size allowed is 1", "HTTPGET");
+	}
+	else if(threads > 64) {
+		threads = 64;
+		SPLAPPTRC(L_WARN, "Max thread pool size allowed is 64", "HTTPGET");
+	}
+	
+	return threads;
+}
+
+MY_OPERATOR::MY_OPERATOR() : threads_(limitThreads(<%=$threads%>)), randInt_(0, threads_ - 1) {
+
+	httpClients_.resize(threads_, make_shared<httpClient::HttpClient> (
+			streams_boost::bind(&MY_OPERATOR::handleSubmit, this, _1, _2, _3, _4, _5, _6),
+			<%=$timeout%>
+	));
+}
+
+MY_OPERATOR::~MY_OPERATOR() {}
+
+void MY_OPERATOR::allPortsReady() {
+	createThreads(threads_);
+}
+
+void MY_OPERATOR::prepareToShutdown() {
+	for(int i = 0; i < httpClients_.size(); i++)
+		httpClients_[i]->stop();
+}
+
+void MY_OPERATOR::process(uint32_t idx) {
+//	std::cout << "Thread " << idx << " created" << std::endl;
+//	threadInd_.reset(new int(idx));
+	httpClients_[idx]->run();
+}
+
+void MY_OPERATOR::process(Punctuation const & punct, uint32_t port) {
+	forwardWindowPunctuation(punct);
+}
+
+//void MY_OPERATOR::handleSubmit(void_ptr const& ituple, std::string const& body, iter_map const& headers_begin, iter_map const& headers_end) {
+void MY_OPERATOR::handleSubmit(void_ptr const& ituple, std::string const& body, resp_headers const& headers, std::string const& message, uint16_t status, uint32_t port) {
+//	std::cout << "Request is submitted from thread " << *threadInd_ << std::endl;
+	IPort0Type const & iport$0 = *static_pointer_cast<IPort0Type >(ituple);
+	
+	if(port) { //error port
+		<%if ($model->getNumberOfOutputPorts() > 1) {%>
+		  OPort1Type otuple;
+
+		  <%handleError('message', 'status', $model->getOutputPortAt(1)->getAttributes());%>
+		  submit(otuple, 1);
+		<%}%>
+
+	}
+	else {
+		OPort0Type & otuple = getOutputTuple();
+
+		<%handleOutput('body', 'headers', 'message', 'status', $model->getOutputPortAt(0)->getAttributes());%>
+		submit(otuple, 0);
+	}
+		
+}
+
+// static thread_specific_ptr initialization
+thread_specific_ptr<MY_OPERATOR::OPort0Type> MY_OPERATOR::otuplePtr_;
+thread_specific_ptr<int> MY_OPERATOR::threadInd_;
+
+MY_OPERATOR::OPort0Type & MY_OPERATOR::getOutputTuple() {
+	OPort0Type * otuplePtr = otuplePtr_.get();
+	if (!otuplePtr) {
+		otuplePtr_.reset(new OPort0Type());
+		otuplePtr = otuplePtr_.get();
+	}
+
+	return *otuplePtr;
+}
+
