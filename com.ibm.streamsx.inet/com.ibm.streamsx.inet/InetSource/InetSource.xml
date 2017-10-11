@@ -126,7 +126,7 @@ This example demonstrates how to use the `InetSource` operator:
         <library>
           <cmn:description>messages</cmn:description>
           <cmn:managedLibrary>
-            <cmn:includePath>../../impl/cpp/include</cmn:includePath>
+            <cmn:includePath>../../impl/include</cmn:includePath>
           </cmn:managedLibrary>
         </library>
       </libraryDependencies>

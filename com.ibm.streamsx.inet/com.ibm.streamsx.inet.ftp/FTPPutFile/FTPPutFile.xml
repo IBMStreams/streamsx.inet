@@ -136,7 +136,7 @@ The FTPPutFile operator must not be used inside a consistent region!</descriptio
           <cmn:managedLibrary>
             <cmn:lib>inettoolkit</cmn:lib>
             <cmn:libPath>../../impl/lib</cmn:libPath>
-            <cmn:includePath>../../impl/cpp/include</cmn:includePath>
+            <cmn:includePath>../../impl/include</cmn:includePath>
           </cmn:managedLibrary>
         </library>
       </libraryDependencies>

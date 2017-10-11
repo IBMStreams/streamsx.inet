@@ -129,7 +129,7 @@ The FTPCommand operator must not be used inside a consistent region!
           <cmn:managedLibrary>
             <cmn:lib>inettoolkit</cmn:lib>
             <cmn:libPath>../../impl/lib</cmn:libPath>
-            <cmn:includePath>../../impl/cpp/include</cmn:includePath>
+            <cmn:includePath>../../impl/include</cmn:includePath>
           </cmn:managedLibrary>
         </library>
       </libraryDependencies>
