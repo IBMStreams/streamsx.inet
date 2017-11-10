@@ -112,13 +112,13 @@ public composite HTTPRequestAsyncComposite (output Result, Error; input Request)
 					mutable rstring result_ = "";
 					mutable boolean request_ = true;
 					if ($method == "get") {
-						result_ = httpGet($url, requestHeaders, "" ,"", replyHeaders, error, 5, 0);
+						result_ = httpGet($url, requestHeaders, "" ,"", replyHeaders, error, $requestTimeout, $connectionTimeout);
 					} else if ($method == "post") {
-						result_ = httpPost($data, $url, requestHeaders, "" ,"", replyHeaders, error, 5, 0);
+						result_ = httpPost($data, $url, requestHeaders, "" ,"", replyHeaders, error, $requestTimeout, $connectionTimeout);
 					} else if ($method == "put") {
-						result_ = httpPut($data, $url, requestHeaders, "" ,"", replyHeaders, error, 5, 0);
+						result_ = httpPut($data, $url, requestHeaders, "" ,"", replyHeaders, error, $requestTimeout, $connectionTimeout);
 					} else if ($method == "delete") {
-						result_ = httpDelete($url, requestHeaders, "" ,"", error, 5, 0);
+						result_ = httpDelete($url, requestHeaders, "" ,"", error, $requestTimeout, $connectionTimeout);
 					} else {
 						appTrc(Trace.error,"Invalid method used "+$method+"Request is ignored");
 						request_ = false;
