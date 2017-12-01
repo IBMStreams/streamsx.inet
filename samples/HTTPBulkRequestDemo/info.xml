@@ -2,9 +2,9 @@
 <info:toolkitInfoModel xmlns:common="http://www.ibm.com/xmlns/prod/streams/spl/common"
  xmlns:info="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo">
  <info:identity>
-   <info:name>HTTPAsync</info:name>
+   <info:name>HTTPBulkRequestDemo</info:name>
    <info:description>
-     This sample demonstrates the composition of an asynchron request operator for the Internet Toolkit to
+     This sample demonstrates the usage of composition of HTTPBulkRequest operator of the Internet Toolkit to
      In cases where ordering isn't a requirement, it would be helpful to fire off an HTTP request per arriving 
      tuple and place the responses on the output stream whenever they arrive, 
      without causing synchronous bottlenecks or having to spawn multiple threads.

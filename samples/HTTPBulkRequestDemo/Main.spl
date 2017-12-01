@@ -1,0 +1,109 @@
+use com.ibm.streamsx.inet.http::*;
+
+/**
+ * This main composite invokes the HTTPRequestAsyncComposite cyclcal
+ * 
+ * @param	url				A list of urls url to get
+ * @param	method			The list with the method identifiers
+ * @param	data			A list with data (to push or put)
+ * @param	iterations		The number of operations to perform
+ * @param	period			The period of operations (if bult is false)
+ * @param	bulk			If set to true all requests are sent in a burst
+ * @param	noConn			Number of connections
+ * 
+ */
+public composite Main {
+	param
+		expression<list<rstring>>              $url    : (list<rstring>)             getSubmissionTimeValue(
+			"url", "[\"http://httpbin.org/get\",\"http://httpbin.org/gzip\",\"http://httpbin.org/redirect/3\",\"http://httpbin.org/get\",\"http://httpbin.org/get\"]"
+		);
+		expression<list<rstring>>              $method : (list<rstring>)             getSubmissionTimeValue(
+			"method", "[\"httpGet\",\"httpGet\",\"httpGet\",\"httpGet\",\"httpGet\"]"
+		);
+		expression<list<rstring>>              $data   : (list<rstring>)             getSubmissionTimeValue(
+			"data", "[\"\",\"\",\"\",\"\",\"\"]"
+		);
+		expression<int32>                      $iterations: (int32)                  getSubmissionTimeValue("iterations", "10");
+		expression<float64>                    $period : (float64)                   getSubmissionTimeValue("period", "0.01");
+		expression<boolean>                    $bulk   : (boolean)                   getSubmissionTimeValue("bulk", "false");
+		expression<int32>                      $noConn : (int32)                     getSubmissionTimeValue("noConn", "2");
+
+	graph
+		//provide a trigger stream
+		stream<rstring url, rstring someText, rstring data, HTTPBulkRequest.HttpMethod method> Trigger as O = Beacon() {
+			param
+				iterations : $iterations;
+				period     : $period;
+			output
+				O:
+					url = $url[(int32)IterationCount() % size($url)],
+					someText = "This is sequence number: " + (rstring)IterationCount(),
+					data = $data[(int32)IterationCount() % size($data)],
+					method = (HTTPBulkRequest.HttpMethod)$method[(int32)IterationCount() % size($method)];
+		}
+
+		stream<I> Request as O = Custom(Trigger as I) {
+			logic
+				state : mutable list<I> myList = [];
+				onTuple I : {
+					if ($bulk) {
+						appendM(myList, I);
+					} else {
+						submit(I, O);
+					}
+				}
+				onPunct I : {
+					if (currentPunct() == Sys.WindowMarker) {
+						mutable int32 i = 0;
+						while (i < size(myList)) {
+							submit(myList[i], O);
+							i++;
+						}
+						submit(Sys.WindowMarker, O);
+					}
+				}
+		}
+		
+		//Invocation of the async composite
+		(
+			stream<I, tuple<rstring body, list<rstring> headers, rstring message, int32 status>> HttpStream as H;
+			stream<rstring url, rstring message, int32 status> ErrorStream as E
+		) = HTTPBulkRequest(Trigger as I) {
+			param
+				//method : HTTPBulkRequest.httpGet;
+				method : method;
+				url : url;
+				urlEncode : passThrough;
+				data : data;
+				width : $noConn;
+		}
+
+		//Result printer
+		() as ResultSink = Custom(HttpStream as I) {
+			logic
+				onTuple I: {
+					printStringLn((rstring)method);
+					printStringLn("*** url ***");
+					printStringLn(url);
+					printStringLn("*** someText ***");
+					printStringLn(someText);
+					printStringLn("*** headers ***");
+					println(headers);
+					printStringLn("*** status ***");
+					println(status);
+					printStringLn("*** message ***");
+					printStringLn(message);
+					printStringLn("*** body ***");
+					printStringLn(body);
+				}
+				onPunct I : printStringLn("ResultSink: "+(rstring)currentPunct());
+		}
+
+		//Error printer
+		() as ErrorSink = Custom(ErrorStream as I) {
+			logic
+				onTuple I: printStringLn("ErrorSink: "+(rstring)I);
+				onPunct I: printStringLn("ErrorSink: "+(rstring)currentPunct());
+		}
+
+}
