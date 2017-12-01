@@ -17,11 +17,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.X509Certificate;
 
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.client.HttpClient;
@@ -95,6 +102,62 @@ public class HTTPUtils {
 			}
 		}, new SecureRandom());
 
+		SSLSocketFactory sf = new SSLSocketFactory(sslContext, new AllowAllHostnameVerifier());
+		Scheme httpsScheme = new Scheme("https", 443, sf);
+		SchemeRegistry schemeRegistry = new SchemeRegistry();
+		schemeRegistry.register(httpsScheme);
+
+		ClientConnectionManager cm = new BasicClientConnectionManager(schemeRegistry);
+
+		return new DefaultHttpClient(cm);
+	}
+	
+	//returns an HttpClient that will only connect to servers that can be validated using the certificates in the keyStore
+	//and where the client can identify itself using the keys in the keyStore
+	//Note that will prevent the client from connecting to any server that cannot be validated using the keystore, even those that are in the default one
+	public static HttpClient getHttpClientWithCustomSSlValidation(KeyStore keyStore, String password) throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, KeyManagementException{
+		SSLContext sslContext = SSLContext.getInstance("SSL");
+		
+		KeyManagerFactory kmFactory = KeyManagerFactory.getInstance("IbmX509");
+		kmFactory.init(keyStore, password.toCharArray());
+		
+		TrustManagerFactory tmFactory = TrustManagerFactory.getInstance("X509");
+		tmFactory.init(keyStore);
+		
+		sslContext.init(kmFactory.getKeyManagers(), tmFactory.getTrustManagers(), new SecureRandom());
+		
+		SSLSocketFactory sf = new SSLSocketFactory(sslContext, new AllowAllHostnameVerifier());
+		Scheme httpsScheme = new Scheme("https", 443, sf);
+		SchemeRegistry schemeRegistry = new SchemeRegistry();
+		schemeRegistry.register(httpsScheme);
+
+		ClientConnectionManager cm = new BasicClientConnectionManager(schemeRegistry);
+
+		return new DefaultHttpClient(cm);
+	}
+	
+	//returns an HttpClient where server certificates will not be checked but any private keys in the store
+	//will be used as identification by the client
+	public static HttpClient getHttpClientWithNoSSLServerValidation(KeyStore keyStore, String password) throws NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, KeyManagementException {
+		SSLContext sslContext = SSLContext.getInstance("SSL");
+		
+		KeyManagerFactory kmFactory = KeyManagerFactory.getInstance("IbmX509");
+		kmFactory.init(keyStore, password.toCharArray());
+		
+		TrustManager[] DummyManager = new TrustManager[] {
+			new X509TrustManager() {
+				public X509Certificate[] getAcceptedIssuers() {
+					return null;
+				}
+				public void checkClientTrusted(X509Certificate[] certs, String authType) {
+				}
+				public void checkServerTrusted(X509Certificate[] certs, String authType) {
+				}
+			}
+		};
+		
+		sslContext.init(kmFactory.getKeyManagers(), DummyManager, new SecureRandom());
+		
 		SSLSocketFactory sf = new SSLSocketFactory(sslContext, new AllowAllHostnameVerifier());
 		Scheme httpsScheme = new Scheme("https", 443, sf);
 		SchemeRegistry schemeRegistry = new SchemeRegistry();
