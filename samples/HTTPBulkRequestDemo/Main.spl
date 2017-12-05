@@ -24,7 +24,7 @@ public composite Main {
 			"data", "[\"\",\"\",\"\",\"\",\"\"]"
 		);
 		expression<int32>                      $iterations: (int32)                  getSubmissionTimeValue("iterations", "10");
-		expression<float64>                    $period : (float64)                   getSubmissionTimeValue("period", "0.01");
+		expression<float64>                    $period : (float64)                   getSubmissionTimeValue("period", "0.5");
 		expression<boolean>                    $bulk   : (boolean)                   getSubmissionTimeValue("bulk", "false");
 		expression<int32>                      $noConn : (int32)                     getSubmissionTimeValue("noConn", "2");
 
@@ -68,7 +68,7 @@ public composite Main {
 		(
 			stream<I, tuple<rstring body, list<rstring> headers, rstring message, int32 status>> HttpStream as H;
 			stream<rstring url, rstring message, int32 status> ErrorStream as E
-		) = HTTPBulkRequest(Trigger as I) {
+		) = HTTPBulkRequest(Request as I) {
 			param
 				//method : HTTPBulkRequest.httpGet;
 				method : method;

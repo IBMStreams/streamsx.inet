@@ -2,14 +2,21 @@ namespace com.ibm.streamsx.inet.http;
 
 /**
  * The operator HTTPBulkRequest implements http bulk operations and processes the results asynchronous from the input stream.
- * The operator opens on request up to *maxConnections*parallel http connections an sends the results downstream once the 
- * response is received.
+ * The operator opens on request up to *maxConnections* parallel http connections an sends the results downstream once the 
+ * response is received. The operator has one input stream. The attributes of the input stream may define the kind and the 
+ * parameters of the http operation like method, url, headers  and data. When the response to an request is received, the 
+ * result is passed in an output tuple of the *Result* port. If an http operation fails, the status information and the error
+ * is sent to the *Result* port and optionally to the *Error* port.
+ * The operator maintains a pool of up to *maxConnections* http connections. An incoming request is routed round-robin to 
+ * one of the connections. If the connection is busy the request is queued. The length of the queues is determined with 
+ * parameter *queue*. Finally the congestion policy of the queues is defined with parameter *congestionPolicy*.
+ * 
 
- * @input	Request				The request Stream with attributes of the http request
+ * @input	Request				The request Stream with attributes of the http request.
  * @output	Result				The result stream. One tuple is generated for each input tuple.
  * 								The minimum type is : tuple<rstring body, list<rstring> headers, rstring message, int32 status, rstring url> where
  * 								body is the response body, headers is the response header list, message is the error/success message, status is the error status of the operation, url is the encoded url
- * @output	Error				The error stream. One tuple indicates a failed http operation.
+ * @output	Error				The optional error stream. One tuple indicates a failed http operation.
  * 								The type is : <rstring url, rstring message, int32 status>.
  * 
  * @param	method				This required parameter determines the kind of the http request. Type HttpMethod
@@ -21,15 +28,15 @@ namespace com.ibm.streamsx.inet.http;
  * @param	requestTimeout		This is the maximum time in seconds that you allow the transfer operation to take. Normally, name lookups can take a considerable time and limiting operations to less than a few minutes risk aborting perfectly normal operations. Default timeout is 5
  * @param	connectionTimeout	This is the maximum time in seconds that you allow the connection to the server to take. This only limits the connection phase, once it has connected, this option is of no more use. Default is 20 seconds
  * @param	width				The number of parallel used threads. This conforms to the maximum number if used http connections. Default is 8
- * @param	queue				The length of the input queue ot each thread. Default 1
+ * @param	queue				The length of the input queue of each thread. Default 1
  * @param	congestionPolicy	The congestion policy of the input queue. Type *Sys.CongestionPolicy*. Default Sys.Wait
- * @param	user				If this string is not empty, this user name is passed to to the server.
- * @param	password			If this string is not empty, this password is passed to the server
- * @param	certFile			If this string is not empty, this is the absolute path to a certificate file sent to the server
- * @param	certType			If this string is not empty, this is the cert file type (PEM, P12)
- * @param	keyFile				If this string is not empty, this is the absolute path to a private key file to be sent to the server
- * @param	keyType				If this string is not empty, this is the key file type (PEM, P12)
- * @param	keyPass				If this string is not empty, this is the password for the private key
+ * @param	user				This user name for authentication is passed to to the server. Ignored if empty.
+ * @param	password			This password for authentication is passed to the server. Ignored if empty.
+ * @param	certFile			Absolute path to a certificate file sent to the server. Ignored if empty.
+ * @param	certType			The certification file type (PEM, P12). Ignored if empty.
+ * @param	keyFile				Absolute path to a private key file to be sent to the server. Ignored if empty.
+ * @param	keyType				The key file type (PEM, P12). Ignored if empty.
+ * @param	keyPass				The password for the private key. Ignored if empty.
  */
 public composite HTTPBulkRequest (output Result, Error; input Request) {
 	param
@@ -75,7 +82,8 @@ public composite HTTPBulkRequest (output Result, Error; input Request) {
 					}
 					rstring urlProcessed_ = $urlEncode($url);
 					mutable rstring result_ = "";
-					appTrc(Trace.trace, "Emit http request "+
+					if (isTraceable(Trace.trace)) {
+						appTrc(Trace.trace, "Emit http request "+
 									(rstring)$method+
 									" url:"+urlProcessed_+
 									" requestHeaders:"+(rstring)requestHeaders_+
@@ -88,6 +96,7 @@ public composite HTTPBulkRequest (output Result, Error; input Request) {
 									" keyPass:"+$keyPass+
 									" requestTimeout:"+(rstring)$requestTimeout+
 									" connectionTimeout:"+(rstring)$connectionTimeout);
+					}
 					if ($method == HttpMethod.httpGet) {
 						result_ = com.ibm.streamsx.inet.http::httpGet   (       urlProcessed_, requestHeaders_, $user, $password, $certFile, $certType, $keyFile, $keyType, $keyPass, replyHeaders_, error_, $requestTimeout, $connectionTimeout);
 					} else if ($method == HttpMethod.httpPost) {
