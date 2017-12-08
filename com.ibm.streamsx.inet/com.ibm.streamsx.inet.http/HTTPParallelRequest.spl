@@ -1,7 +1,7 @@
 namespace com.ibm.streamsx.inet.http;
 
 /**
- * The operator HTTPBulkRequest implements http bulk operations and processes the results asynchronous from the input stream.
+ * The operator HTTPParallelRequest implements parallel http operations and processes the results asynchronous from the input stream.
  * The operator opens on request up to *maxConnections* parallel http connections an sends the results downstream once the 
  * response is received. The operator has one input stream. The attributes of the input stream may define the kind and the 
  * parameters of the http operation like method, url, headers  and data. When the response to an request is received, the 
@@ -38,7 +38,7 @@ namespace com.ibm.streamsx.inet.http;
  * @param	keyType				The key file type (PEM, P12). Ignored if empty.
  * @param	keyPass				The password for the private key. Ignored if empty.
  */
-public composite HTTPBulkRequest (output Result, Error; input Request) {
+public composite HTTPParallelRequest (output Result, Error; input Request) {
 	param
 		expression<HttpMethod>    $method;
 		attribute                 $url;

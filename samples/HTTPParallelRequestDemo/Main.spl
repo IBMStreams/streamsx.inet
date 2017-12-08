@@ -8,7 +8,7 @@ use com.ibm.streamsx.inet.http::*;
  * @param	data			A list with data (to push or put)
  * @param	iterations		The number of operations to perform
  * @param	period			The period of operations (if bult is false)
- * @param	bulk			If set to true all requests are sent in a burst
+ * @param	burst			If set to true all requests are sent in a burst
  * @param	noConn			Number of connections
  * 
  */
@@ -24,13 +24,13 @@ public composite Main {
 			"data", "[\"\",\"\",\"\",\"\",\"\"]"
 		);
 		expression<int32>                      $iterations: (int32)                  getSubmissionTimeValue("iterations", "10");
-		expression<float64>                    $period : (float64)                   getSubmissionTimeValue("period", "0.5");
-		expression<boolean>                    $bulk   : (boolean)                   getSubmissionTimeValue("bulk", "false");
-		expression<int32>                      $noConn : (int32)                     getSubmissionTimeValue("noConn", "2");
+		expression<float64>                    $period    : (float64)                getSubmissionTimeValue("period", "0.5");
+		expression<boolean>                    $burst     : (boolean)                getSubmissionTimeValue("burst", "false");
+		expression<int32>                      $noConn    : (int32)                  getSubmissionTimeValue("noConn", "2");
 
 	graph
 		//provide a trigger stream
-		stream<rstring url, rstring someText, rstring data, HTTPBulkRequest.HttpMethod method> Trigger as O = Beacon() {
+		stream<rstring url, rstring someText, rstring data, HTTPParallelRequest.HttpMethod method> Trigger as O = Beacon() {
 			param
 				iterations : $iterations;
 				period     : $period;
@@ -39,14 +39,14 @@ public composite Main {
 					url = $url[(int32)IterationCount() % size($url)],
 					someText = "This is sequence number: " + (rstring)IterationCount(),
 					data = $data[(int32)IterationCount() % size($data)],
-					method = (HTTPBulkRequest.HttpMethod)$method[(int32)IterationCount() % size($method)];
+					method = (HTTPParallelRequest.HttpMethod)$method[(int32)IterationCount() % size($method)];
 		}
 
 		stream<I> Request as O = Custom(Trigger as I) {
 			logic
 				state : mutable list<I> myList = [];
 				onTuple I : {
-					if ($bulk) {
+					if ($burst) {
 						appendM(myList, I);
 					} else {
 						submit(I, O);
@@ -68,9 +68,9 @@ public composite Main {
 		(
 			stream<I, tuple<rstring body, list<rstring> headers, rstring message, int32 status>> HttpStream as H;
 			stream<rstring url, rstring message, int32 status> ErrorStream as E
-		) = HTTPBulkRequest(Request as I) {
+		) = HTTPParallelRequest(Request as I) {
 			param
-				//method : HTTPBulkRequest.httpGet;
+				//method : HTTPParallelRequest.httpGet;
 				method : method;
 				url : url;
 				urlEncode : passThrough;
