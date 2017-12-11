@@ -1,7 +1,7 @@
 namespace com.ibm.streamsx.inet.http;
 
 /**
- * The operator HTTPParallelRequest implements parallel http operations and processes the results asynchronous from the input stream.
+ * The operator HTTPParallelRequest issues HTTP requests in parallel asynchronously from the input stream.
  * The operator opens on request up to *maxConnections* parallel http connections an sends the results downstream once the 
  * response is received. The operator has one input stream. The attributes of the input stream may define the kind and the 
  * parameters of the http operation like method, url, headers  and data. When the response to an request is received, the 
@@ -21,14 +21,16 @@ namespace com.ibm.streamsx.inet.http;
  * 
  * @param	method				This required parameter determines the kind of the http request. Type HttpMethod
  * @param	url					The request url. Required parameter.
- * @param	urlEncode			Defines the function to be used to prepare the url. Useful values are *passThrough* or [function:com.ibm.streamsx.inet.http::urlEncode(rstring)] . Default is urlEncode.
+ * @param	urlEncode			Defines the function to be used to prepare the url. Predefined values are [function:com.ibm.streamsx.inet.http::urlEncode(rstring)] or *passThrough*. 
+ * 								The user may define an own function for url-preprocessing. This function must have a signature *rstring myfunction(rstring)*. 
+ * 								If the function returns an empty string, no http request is performed and an error tuple is sent. Default is urlEncode.
  * @param	data				The body of the operation. Default is the empty string.
  * @param	headers				http headers passes in the http request. Default is the empty list.
  * @param	contentTypeHeader	The content type header. If this header is not empty, it is appended to the headers list. Default is "ContentType: application/x-www-form-urlencoded"
  * @param	requestTimeout		This is the maximum time in seconds that you allow the transfer operation to take. Normally, name lookups can take a considerable time and limiting operations to less than a few minutes risk aborting perfectly normal operations. Default timeout is 5
  * @param	connectionTimeout	This is the maximum time in seconds that you allow the connection to the server to take. This only limits the connection phase, once it has connected, this option is of no more use. Default is 20 seconds
  * @param	width				The number of parallel used threads. This conforms to the maximum number if used http connections. Default is 8
- * @param	queue				The length of the input queue of each thread. Default 1
+ * @param	queue				The length of the input queue of each thread. Default 100
  * @param	congestionPolicy	The congestion policy of the input queue. Type *Sys.CongestionPolicy*. Default Sys.Wait
  * @param	user				This user name for authentication is passed to to the server. Ignored if empty.
  * @param	password			This password for authentication is passed to the server. Ignored if empty.
@@ -49,7 +51,7 @@ public composite HTTPParallelRequest (output Result, Error; input Request) {
 		expression<int32>         $requestTimeout : 5;
 		expression<int32>         $connectionTimeout : 120;
 		expression<int32>         $width: 8;
-		expression<int32>         $queue : 1;
+		expression<int32>         $queue : 100;
 		expression<Sys.CongestionPolicy> $congestionPolicy : Sys.Wait;
 		expression<rstring>       $user : "";
 		expression<rstring>       $password : "";
@@ -74,41 +76,46 @@ public composite HTTPParallelRequest (output Result, Error; input Request) {
 		) = Custom(Request as I) {
 			logic
 				onTuple I: {
-					mutable int32 error_ =0;
+					mutable int32 error_ = 0;
+					mutable rstring mess_="success";
+					mutable rstring result_ = "";
 					mutable list<rstring> replyHeaders_ = [];
 					mutable list<rstring> requestHeaders_ = $headers;
 					if (length($contentTypeHeader) > 0) {
 						appendM(requestHeaders_, $contentTypeHeader);
 					}
 					rstring urlProcessed_ = $urlEncode($url);
-					mutable rstring result_ = "";
-					if (isTraceable(Trace.trace)) {
-						appTrc(Trace.trace, "Emit http request "+
-									(rstring)$method+
-									" url:"+urlProcessed_+
-									" requestHeaders:"+(rstring)requestHeaders_+
-									" user:"+$user+
-									" password:*****"+
-									" certFile:"+$certFile+
-									" certType:"+$certType+
-									" keyFile:"+$keyFile+
-									" keyType:"+$keyType+
-									" keyPass:"+$keyPass+
-									" requestTimeout:"+(rstring)$requestTimeout+
-									" connectionTimeout:"+(rstring)$connectionTimeout);
+					if (urlProcessed_ == "") {
+						error = -1;
+						mess_ = "$urlEncode returned empty string";
+					} else {
+						if (isTraceable(Trace.trace)) {
+							appTrc(Trace.trace, "Emit http request "+
+										(rstring)$method+
+										" url:"+urlProcessed_+
+										" requestHeaders:"+(rstring)requestHeaders_+
+										" user:"+$user+
+										" password:*****"+
+										" certFile:"+$certFile+
+										" certType:"+$certType+
+										" keyFile:"+$keyFile+
+										" keyType:"+$keyType+
+										" keyPass:"+$keyPass+
+										" requestTimeout:"+(rstring)$requestTimeout+
+										" connectionTimeout:"+(rstring)$connectionTimeout);
+						}
+						if ($method == HttpMethod.httpGet) {
+							result_ = com.ibm.streamsx.inet.http::httpGet   (       urlProcessed_, requestHeaders_, $user, $password, $certFile, $certType, $keyFile, $keyType, $keyPass, replyHeaders_, error_, $requestTimeout, $connectionTimeout);
+						} else if ($method == HttpMethod.httpPost) {
+							result_ = com.ibm.streamsx.inet.http::httpPost  ($data, urlProcessed_, requestHeaders_, $user, $password, $certFile, $certType, $keyFile, $keyType, $keyPass, replyHeaders_, error_, $requestTimeout, $connectionTimeout);
+						} else if ($method == HttpMethod.httpPut) {
+							result_ = com.ibm.streamsx.inet.http::httpPut   ($data, urlProcessed_, requestHeaders_, $user, $password, $certFile, $certType, $keyFile, $keyType, $keyPass, replyHeaders_, error_, $requestTimeout, $connectionTimeout);
+						} else if ($method == HttpMethod.httpDelete) {
+							result_ = com.ibm.streamsx.inet.http::httpDelete(       urlProcessed_, requestHeaders_, $user, $password, $certFile, $certType, $keyFile, $keyType, $keyPass,                error_, $requestTimeout, $connectionTimeout);
+						}
 					}
-					if ($method == HttpMethod.httpGet) {
-						result_ = com.ibm.streamsx.inet.http::httpGet   (       urlProcessed_, requestHeaders_, $user, $password, $certFile, $certType, $keyFile, $keyType, $keyPass, replyHeaders_, error_, $requestTimeout, $connectionTimeout);
-					} else if ($method == HttpMethod.httpPost) {
-						result_ = com.ibm.streamsx.inet.http::httpPost  ($data, urlProcessed_, requestHeaders_, $user, $password, $certFile, $certType, $keyFile, $keyType, $keyPass, replyHeaders_, error_, $requestTimeout, $connectionTimeout);
-					} else if ($method == HttpMethod.httpPut) {
-						result_ = com.ibm.streamsx.inet.http::httpPut   ($data, urlProcessed_, requestHeaders_, $user, $password, $certFile, $certType, $keyFile, $keyType, $keyPass, replyHeaders_, error_, $requestTimeout, $connectionTimeout);
-					} else if ($method == HttpMethod.httpDelete) {
-						result_ = com.ibm.streamsx.inet.http::httpDelete(       urlProcessed_, requestHeaders_, $user, $password, $certFile, $certType, $keyFile, $keyType, $keyPass,                error_, $requestTimeout, $connectionTimeout);
-					}
-					mutable rstring mess_="success";
 					if (error_ != 0) {
-						mess_="error";
+						if ( mess_ == "" ) mess_="error";
 						appTrc(Trace.error,"Error code in method "+(rstring)$method+" url:"+urlProcessed_+" was "+(rstring)error_);
 						submit({url=urlProcessed_, message=mess_, status=error_}, E);
 					}
