@@ -12,26 +12,27 @@ namespace com.ibm.streamsx.inet.http;
  * parameter *queue*. Finally the congestion policy of the queues is defined with parameter *congestionPolicy*.
  * 
 
- * @input	Request				The request Stream with attributes of the http request.
+ * @input	Request				The request stream with attributes of the http request.
  * @output	Result				The result stream. One tuple is generated for each input tuple.
- * 								The minimum type is : tuple<rstring body, list<rstring> headers, rstring message, int32 status, rstring url> where
- * 								body is the response body, headers is the response header list, message is the error/success message, status is the error status of the operation, url is the encoded url
+ * 								The *Result* port must have at least the following attributes : *rstring body, list<rstring> headers, rstring message, int32 status, rstring url*
+ * 								where body is the response body, headers is the response header list, message is the error/success message, status is the error status of the operation, url is the encoded url. 
+ * 								All other attributes are assigned from the input stream.
  * @output	Error				The optional error stream. One tuple indicates a failed http operation.
- * 								The type is : <rstring url, rstring message, int32 status>.
+ * 								The type is : *tuple<rstring url, rstring message, int32 status>*
  * 
- * @param	method				This required parameter determines the kind of the http request. Type HttpMethod
+ * @param	method				This required parameter determines the kind of the http request. Type *HttpMethod*
  * @param	url					The request url. Required parameter.
  * @param	urlEncode			Defines the function to be used to prepare the url. Predefined values are [function:com.ibm.streamsx.inet.http::urlEncode(rstring)] or *passThrough*. 
- * 								The user may define an own function for url-preprocessing. This function must have a signature *rstring myfunction(rstring)*. 
- * 								If the function returns an empty string, no http request is performed and an error tuple is sent. Default is urlEncode.
+ * 								The user may define an own function for url-preprocessing. This function must have a signature *rstring myfunction(rstring)*
+ * 								If the function returns an empty string, no http request is performed and an error tuple is sent. Default is *urlEncode*
  * @param	data				The body of the operation. Default is the empty string.
  * @param	headers				http headers passes in the http request. Default is the empty list.
- * @param	contentTypeHeader	The content type header. If this header is not empty, it is appended to the headers list. Default is "ContentType: application/x-www-form-urlencoded"
+ * @param	contentTypeHeader	The content type header. If this header is not empty, it is appended to the headers list. Default is *"ContentType: application/x-www-form-urlencoded"*
  * @param	requestTimeout		This is the maximum time in seconds that you allow the transfer operation to take. Normally, name lookups can take a considerable time and limiting operations to less than a few minutes risk aborting perfectly normal operations. Default timeout is 5
  * @param	connectionTimeout	This is the maximum time in seconds that you allow the connection to the server to take. This only limits the connection phase, once it has connected, this option is of no more use. Default is 20 seconds
  * @param	width				The number of parallel used threads. This conforms to the maximum number if used http connections. Default is 8
  * @param	queue				The length of the input queue of each thread. Default 100
- * @param	congestionPolicy	The congestion policy of the input queue. Type *Sys.CongestionPolicy*. Default Sys.Wait
+ * @param	congestionPolicy	The congestion policy of the input queue. Type *Sys.CongestionPolicy*. Default *Sys.Wait*
  * @param	user				This user name for authentication is passed to to the server. Ignored if empty.
  * @param	password			This password for authentication is passed to the server. Ignored if empty.
  * @param	certFile			Absolute path to a certificate file sent to the server. Ignored if empty.
@@ -86,7 +87,7 @@ public composite HTTPParallelRequest (output Result, Error; input Request) {
 					}
 					rstring urlProcessed_ = $urlEncode($url);
 					if (urlProcessed_ == "") {
-						error = -1;
+						error_ = -1;
 						mess_ = "$urlEncode returned empty string";
 					} else {
 						if (isTraceable(Trace.trace)) {
@@ -134,7 +135,7 @@ public composite HTTPParallelRequest (output Result, Error; input Request) {
 }
 
 /**
- * This function passes the input string transparently
+ * This function passes the input string unchanged
  * @param	val the input string
  * @return	the unchanged input string
  */
