@@ -22,7 +22,7 @@ or the SPL compiler to be aware of the location of the toolkit.
 # Before you begin
 
 Install IBM InfoSphere Streams. Configure the product environment variables by entering the following command: 
-    source <product-installation-root-directory>/<product-version>/bin/streamsprofile.sh
+    source product-installation-root-directory/product-version/bin/streamsprofile.sh
 
 # About this task
 
