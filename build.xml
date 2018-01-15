@@ -6,8 +6,14 @@
   <property environment="env" />
   <property name="streams.install" value="${env.STREAMS_INSTALL}" />
   <property name="toolkit" location="com.ibm.streamsx.inet"/>
-  <property name="release.base" location="release-${ant.project.name}-" />
   <property name="toolkit.test" location="tests" />
+  <property name="release.dir" location="release" />
+  <property name="release.info.file"  value="${toolkit}/build.info"/>
+  <property name="spl-md"  value="${env.STREAMS_INSTALL}/bin/spl-make-doc" />
+  <property name="spl-st"  value="${env.STREAMS_INSTALL}/bin/streamtool" />
+
+  <!-- Create the time stamp -->
+  <tstamp/>
 
   <target name="all"
     description="Build the toolkit code, build the samples index and generate the spl documentation"
@@ -15,8 +21,6 @@
   />
 
   <target name="setcommitversion">
-    <!-- Create the time stamp -->
-    <tstamp/>
 
     <!-- Extract the git commit hash -->
     <exec executable="git" outputproperty="commithash">
@@ -44,7 +48,7 @@
     </exec>
     </target>
 
-  <target name="clean" depends="cleansamples"
+  <target name="clean" depends="cleansamples,releaseinfo-clean"
       description="clean up toolkit code and samples">
       <delete includeemptydirs="true">
           <fileset dir="${basedir}" includes="release-*/"/>
@@ -152,20 +156,127 @@
   </target>
 
   <!-- Targets to build releases -->
-  <target name="release" description="Build the release bundle"
-    depends="clean,setcommitversion,create_release_bundle,revertversion,toolkitIndexOnly"
-  />
-  <target name="create_release_bundle"  depends="all">
-      <property name="release.dir" location="${release.base}${commithash}" />
-      <mkdir dir="${release.dir}" />
-      <property name="releasefilename" value="${release.dir}/streamsx.inet.toolkits-${tkinfo.identity.version}-${DSTAMP}-${TSTAMP}.tgz"/>
-      <tar compression="gzip" longfile="gnu"
+  <target name="release" description="Make a toolkit release archive - purge workspace and build toolkit from scratch" depends="clean">
+  	<antcall target="release-target" inheritAll="true"/>
+  </target>
+
+  <target name="release-target" depends="releaseinfo">
+    <!-- prepare toolkit code and docs -->
+    <antcall target="all" inheritAll="true"/>
+    <antcall target="cleansamples" inheritAll="true"/> <!-- remove toolkit index from samples -->
+    <!-- get os type string -->
+    <property name="osVersion" value="${os.version}"/>
+    <condition property="osPlat" value="el7">
+      <contains string="${osVersion}" substring="el7" casesensitive="false"/>
+    </condition>
+    <condition property="osPlat" value="el6">
+      <contains string="${osVersion}" substring="el6" casesensitive="false"/>
+    </condition>
+    <!-- Extract the git commit hash -->
+    <exec executable="git" outputproperty="commithash.short">
+        <arg value="rev-parse"/>
+        <arg value="--short"/>
+        <arg value="HEAD"/>
+    </exec>
+    <!-- create release bundle -->
+    <mkdir dir="${release.dir}" />
+    <property name="releasefilename" value="${release.dir}/streamsx.inet.toolkit-${tkinfo.identity.version}-${osPlat}-${os.arch}-${commithash.short}-${DSTAMP}-${TSTAMP}.tgz"/>
+    <tar compression="gzip" longfile="gnu"
           destfile="${releasefilename}"
           basedir="${basedir}"
           includes="${tkinfo.identity.name}/** samples/**"
-          excludes="**/.gitignore **/.gitkeep **/.settings/** **/.settings **/.project **/.classpath com.ibm.streamsx.inet/impl/java/src-gen/** com.ibm.streamsx.inet/impl/java/classes/** com.ibm.streamsx.inet/impl/cpp/bin/**"
-      />
-      <checksum file="${releasefilename}"/>
-      <checksum algorithm="sha1" file="${releasefilename}"/>
+          excludes="**/.gitignore **/.gitkeep com.ibm.streamsx.inet/impl/java/src-gen/** com.ibm.streamsx.inet/impl/java/classes/** com.ibm.streamsx.inet/impl/cpp/bin/** com.ibm.streamsx.inet/.project com.ibm.streamsx.inet/.settings/** com.ibm.streamsx.inet/.classpath "
+    />
+    <checksum file="${releasefilename}"/>
+    <checksum algorithm="sha1" file="${releasefilename}"/>
+    <!-- revert commithash -->
+    <antcall target="revertversion" inheritAll="true"/>
   </target>
+
+  <!-- Extract the git commit hash and make release info -->
+  <target name="releaseinfo" depends="clean-ignored" description="Make the release information file ${release.info.file}">
+    <exec executable="git" outputproperty="commithash.long" failonerror="true">
+      <arg value="rev-parse" />
+      <arg value="HEAD" />
+    </exec>
+    <exec executable="bash" outputproperty="streamsversion" failonerror="true">
+      <arg value="-c"/>
+      <arg value="${spl-st} version | grep Version="/>
+    </exec>
+    <exec executable="bash" failonerror="true">
+      <arg value="-c" />
+      <arg value="echo -e &quot;commit_hash=${commithash.long}\nos=${os.version}\nStreams_${streamsversion}&quot; > ${release.info.file}"/>
+    </exec>
+    <echo message="Generated release info file ${release.info.file}"/>
+    <exec executable="bash" failonerror="true">
+      <arg value="-c" />
+      <arg value="cat ${release.info.file}" />
+    </exec>
+    <!-- Extract info from the toolkit's info.xml -->
+    <xmlproperty file="${toolkit}/info.xml" prefix="tkinfo" keepRoot="no"/>
+  </target>
+
+  <target name="releaseinfo-clean" description="remove the release information file ${release.info.file}">
+    <delete file="${release.info.file}"/>
+  </target>
+
+  <!--- Targets to purge the workspace before a release archive is ptroduced -->
+  <target name="clean-ignored" depends="warn-unclean" description="Remove all git-ignored files (exclude model files) and warn if workspace has uncommited changes"/>
+
+  <target name="warn-unclean" depends="check-unclean" if="has.uncommited">
+    <echo>!Your workspace is not clean!</echo>
+    <echo>Commit all changes before you produce a release</echo>
+    <echo>commitstatus:</echo>
+    <echo>${commitstatus}</echo>
+    <input>Press Return key to continue or ^C to exit...</input>
+  </target>
+
+  <target name="check-unclean" depends="warn-untracked">
+    <exec executable="git" outputproperty="commitstatus">
+      <arg value="status" />
+      <arg value="--porcelain" />
+    </exec>
+    <!-- set condition true if there are any non-whitespaces -->
+    <condition property="has.uncommited">
+      <matches string="${commitstatus}" pattern="\S" multiline="true"/>
+    </condition>
+    <echo message="has.uncommited=${has.uncommited}"/>
+  </target>
+
+  <target name="warn-untracked" depends="check-untracked" if="has.untracked">
+    <echo>!!! DANGER: Git-ignored files to be removed from your workspace:</echo>
+    <echo>${untracked}</echo>
+    <input>Press Return key to continue or ^C to exit...</input>
+    <exec executable="git" failonerror="true">
+      <arg value="clean"/>
+      <arg value="--force"/>
+      <arg value="-d"/>
+      <arg value="-x"/>
+      <arg value="--"/>
+      <arg value="${toolkit}/"/>
+      <arg value="samples/"/>
+      <arg value="README.md"/>
+      <arg value="doc/"/>
+    </exec>
+  </target>
+
+  <target name="check-untracked">
+    <exec executable="git" outputproperty="untracked" failonerror="true">
+      <arg value="clean"/>
+      <arg value="--dry-run"/>
+      <arg value="-d"/>
+      <arg value="-x"/>
+      <arg value="--"/>
+      <arg value="${toolkit}/"/>
+      <arg value="samples/"/>
+      <arg value="README.md"/>
+      <arg value="doc/"/>
+    </exec>
+    <!-- set condition true if there are any non-whitespaces -->
+    <condition property="has.untracked">
+      <matches string="${untracked}" pattern="\S" multiline="true"/>
+    </condition>
+    <echo message="has.untracked=${has.untracked}"/>
+  </target>
+
 </project>
