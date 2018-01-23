@@ -126,7 +126,7 @@ which will be fully resolved by the SPL compiler at compile time.
                 <dd class="dd">A path to a program that will be executed to retrieve <tt class="ph tt">includePath, libPath</tt>, and <tt class="ph tt">lib</tt>
 information. If the path to the program is relative, it is assumed to be rooted at the directory of the
 operator model. The program is executed three times, each time with a different argument, namely <tt class="ph tt">lib, 
-libPath</tt>, and <tt class="ph tt">includePath</tt>. 1 The standard output from these executions will be read and each line 
+libPath</tt>, and <tt class="ph tt">includePath</tt>. The standard output from these executions will be read and each line 
 (trimmed of white spaces) will be added to one of the <tt class="ph tt">lib, libPath</tt>, and <tt class="ph tt">includePath</tt> elements, depending
 on the type of the execution. A line that begins with # will be ignored. Relative paths are assumed to
 be rooted at the directory where the operator model XML document resides.
@@ -149,6 +149,7 @@ be rooted at the directory where the operator model XML document resides.
 
 <div class="section" id="spldoc_reference_function_model__example"><h2 class="title sectiontitle splhead-1">Example</h2>
   
+  
   <pre class="pre">
   &lt;functionModel 
    xmlns="http://www.ibm.com/xmlns/prod/streams/spl/function" 
@@ -156,7 +157,7 @@ be rooted at the directory where the operator model XML document resides.
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
    xsi:schemaLocation="http://www.ibm.com/xmlns/prod/streams/spl/function functionModel.xsd"&gt; 
   &lt;functionSet&gt; 
-    &lt;!-- header ?le to include from within C++ code --&gt; 
+    &lt;!-- header file to include from within C++ code --&gt; 
     &lt;headerFileName&gt;Sample.h&lt;/headerFileName&gt; 
     &lt;!-- functions lists the SPL prototypes of the functions implemented in this library --&gt; 
     &lt;functions&gt; 
@@ -178,10 +179,10 @@ be rooted at the directory where the operator model XML document resides.
         &lt;cmn:managedLibrary&gt; 
           &lt;!-- the name of the library for linking. Will be used as -lSample --&gt; 
           &lt;cmn:lib&gt;Sample&lt;/cmn:lib&gt; 
-          &lt;!-- Where to ?nd the library. Relative to the current directory. 
+          &lt;!-- Where to find the library. Relative to the current directory. 
                Will be used as -L&lt;dir&gt;/lib --&gt; 
           &lt;cmn:libPath&gt;lib&lt;/cmn:libPath&gt; 
-          &lt;!-- Where to ?nd the include ?le. Relative to the current directory. 
+          &lt;!-- Where to find the include file. Relative to the current directory. 
                Will be used as -I&lt;dir&gt; --&gt; 
           &lt;cmn:includePath&gt;./&lt;/cmn:includePath&gt; 
         &lt;/cmn:managedLibrary&gt; 
@@ -190,6 +191,7 @@ be rooted at the directory where the operator model XML document resides.
   &lt;/functionSet&gt; 
 &lt;/functionModel&gt;
 </pre>
+
 
 </div>
 

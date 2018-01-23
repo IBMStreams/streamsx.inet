@@ -22,12 +22,12 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.7.4</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.wsserver.html">com.ibm.streamsx.inet.wsserver</a> &gt; WebSocketInject</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.8.3</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.wsserver.html">com.ibm.streamsx.inet.wsserver</a> &gt; WebSocketInject</p>
 
 </div>
 
 <div class="section splprimop">
-  <embed class="image" src="../../image/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.wsserver$WebSocketInject.svg" width="672" height="112"/>
+  <embed class="image" src="../../image/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.wsserver$WebSocketInject.svg" width="872" height="112"/>
 </div>
 
 <div class="section">
@@ -43,7 +43,7 @@
  
   <dt class="dt dlterm">Ports</dt>
 
-  <dd class="dd">This operator has 0 input port and 1 output port.</dd>
+  <dd class="dd">This operator has 0 input ports and 1 output port.</dd>
 
  
  
@@ -55,7 +55,16 @@
  
   <dt class="dt dlterm">Parameters</dt>
 
-  <dd class="dd">This operator supports 5 parameters. (<tt class="ph tt">ackCount, initDelay, messageAttribute, port, senderIdAttribute</tt>)
+  <dd class="dd">This operator supports 5 parameters.
+<p class="p"> Required: 
+<a class="xref" href="#spldoc_operator__parameter__port">port</a>
+
+</p>
+
+<p class="p"> Optional: 
+<a class="xref" href="#spldoc_operator__parameter__ackCount">ackCount</a>, <a class="xref" href="#spldoc_operator__parameter__initDelay">initDelay</a>, <a class="xref" href="#spldoc_operator__parameter__messageAttribute">messageAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__senderIdAttribute">senderIdAttribute</a>
+
+</p>
 </dd>
 
  
@@ -137,9 +146,19 @@
 
 <div class="section">
 <p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters">Parameters</a></strong></p>
-This operator supports 5 parameters.<dl class="dl">
+This operator supports 5 parameters.
+<p class="p"> Required: 
+<a class="xref" href="#spldoc_operator__parameter__port">port</a>
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_ackCount"><tt class="ph tt">ackCount</tt></dt>
+</p>
+
+<p class="p"> Optional: 
+<a class="xref" href="#spldoc_operator__parameter__ackCount">ackCount</a>, <a class="xref" href="#spldoc_operator__parameter__initDelay">initDelay</a>, <a class="xref" href="#spldoc_operator__parameter__messageAttribute">messageAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__senderIdAttribute">senderIdAttribute</a>
+
+</p>
+<dl class="dl">
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__ackCount"><!-- --></a><tt class="ph tt">ackCount</tt></dt>
 
 <dd class="dd">
 <p class="p">The operator sends out an ack message to all currently connected clients.  An ack message is sent when the (totaslNumberOfMessagesRecieved % ackCount) == 0, The ack message is a in JSON format { status:'COUNT', text:&lt;totalNumberOfMessagesReceived&gt;}. Default value is 0, no ack messages will be sent.
@@ -170,7 +189,7 @@ This operator supports 5 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_initDelay"><tt class="ph tt">initDelay</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__initDelay"><!-- --></a><tt class="ph tt">initDelay</tt></dt>
 
 <dd class="dd">
 <p class="p">Delay in seconds before the operator starts producing tuples.
@@ -201,7 +220,7 @@ This operator supports 5 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_messageAttribute"><tt class="ph tt">messageAttribute</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__messageAttribute"><!-- --></a><tt class="ph tt">messageAttribute</tt></dt>
 
 <dd class="dd">
 <p class="p">Input port's attribute that the data received will be stored to. If the port has more than one attribute this parameter is required. 
@@ -232,7 +251,7 @@ This operator supports 5 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_port"><tt class="ph tt">port</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__port"><!-- --></a><tt class="ph tt">port</tt></dt>
 
 <dd class="dd">
 <p class="p">WebSocket network port that messages arrive on. The WebSocket client(s) use this port to transmit on.
@@ -263,7 +282,7 @@ This operator supports 5 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_senderIdAttribute"><tt class="ph tt">senderIdAttribute</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__senderIdAttribute"><!-- --></a><tt class="ph tt">senderIdAttribute</tt></dt>
 
 <dd class="dd">
 <p class="p">Input port attribute that will we loaded with the message sender's identifier, this identifier is consistent during the lifetime of the sender's session.

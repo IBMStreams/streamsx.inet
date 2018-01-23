@@ -22,18 +22,18 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.7.4</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet</a> &gt; <a class="xref" href="op$com.ibm.streamsx.inet$InetSource.html">InetSource</a> &gt; Examples</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.8.3</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet</a> &gt; <a class="xref" href="op$com.ibm.streamsx.inet$InetSource.html">InetSource</a> &gt; Examples</p>
 
 </div>
 
 
 <div class="section">
-<p class="p">This example demonstrates how to use the <tt class="ph tt">InetSource</tt> operator.
+<p class="p">This example demonstrates how to use the <tt class="ph tt">InetSource</tt> operator:
 </p>
 
 <div class="p">
 <pre class="pre codeblock">
-stream &lt;rstring metarObsRecord&gt; WxObservations = InetSource (){
+stream &lt;rstring metarObsRecord&gt; WxObservations = InetSource () {
   param
     URIList:
     ["http://weather.noaa.gov/pub/data/observations/meta/cycles/07Z.TXT",

@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.7.4</a> &gt; com.ibm.streamsx.inet.http</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.8.3</a> &gt; com.ibm.streamsx.inet.http</p>
 
 </div>
 
@@ -38,6 +38,9 @@
 <li class="sli"><strong class="ph b"><a class="xref" href="op$com.ibm.streamsx.inet.http$HTTPGetXMLContent.html">HTTPGetXMLContent</a></strong>: Periodically connects to an HTTP endpoint to GET XML content as a single tuple.
 </li>
 
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.inet.http$HTTPParallelRequest.html#spldoc_compilationunit__composite_operator__HTTPParallelRequest">HTTPParallelRequest</a></strong>: The operator HTTPParallelRequest issues HTTP requests in parallel asynchronously from the input stream.
+</li>
+
 <li class="sli"><strong class="ph b"><a class="xref" href="op$com.ibm.streamsx.inet.http$HTTPPost.html">HTTPPost</a></strong>: This operator sends incoming tuples to the specified HTTP server as part of a POST request.
 </li>
 
@@ -51,13 +54,46 @@
 <li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpDelete.rstring.list:.:rstring:.:.rstring.rstring.int32">httpDelete(rstring, list&lt;rstring&gt;, rstring, rstring, int32)</a></strong>: HTTP DELETE on the given url, using the username and password, if present.
 </li>
 
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpDelete.rstring.list:.:rstring:.:.rstring.rstring.int32.int32.int32">httpDelete(rstring, list&lt;rstring&gt;, rstring, rstring, int32, int32, int32)</a></strong>: HTTP DELETE on the given url, using the username and password, if present.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpDelete.rstring.list:.:rstring:.:.rstring.rstring.rstring.rstring.rstring.rstring.rstring.int32.int32.int32">httpDelete(rstring, list&lt;rstring&gt;, rstring, rstring, rstring, rstring, rstring, rstring, rstring, int32, int32, int32)</a></strong>: HTTP DELETE on the given url, using the username and password, if present and certificates.
+</li>
+
 <li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpGet.rstring.list:.:rstring:.:.rstring.rstring.int32">httpGet(rstring, list&lt;rstring&gt;, rstring, rstring, int32)</a></strong>: HTTP GET on the given url, using the username and password, if present.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpGet.rstring.list:.:rstring:.:.rstring.rstring.int32.int32.int32">httpGet(rstring, list&lt;rstring&gt;, rstring, rstring, int32, int32, int32)</a></strong>: HTTP GET on the given url, using the username and password, if present.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpGet.rstring.list:.:rstring:.:.rstring.rstring.list:.:rstring:.:.int32">httpGet(rstring, list&lt;rstring&gt;, rstring, rstring, list&lt;rstring&gt;, int32)</a></strong>: HTTP GET on the given url, using the username and password, if present.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpGet.rstring.list:.:rstring:.:.rstring.rstring.list:.:rstring:.:.int32.int32.int32">httpGet(rstring, list&lt;rstring&gt;, rstring, rstring, list&lt;rstring&gt;, int32, int32, int32)</a></strong>: HTTP GET on the given url, using the username and password, if present.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpGet.rstring.list:.:rstring:.:.rstring.rstring.rstring.rstring.rstring.rstring.rstring.list:.:rstring:.:.int32.int32.int32">httpGet(rstring, list&lt;rstring&gt;, rstring, rstring, rstring, rstring, rstring, rstring, rstring, list&lt;rstring&gt;, int32, int32, int32)</a></strong>: HTTP GET on the given url, using the username and password, if present, and using certificates/private keys.
 </li>
 
 <li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpPost.rstring.rstring.list:.:rstring:.:.rstring.rstring.list:.:rstring:.:.int32">httpPost(rstring, rstring, list&lt;rstring&gt;, rstring, rstring, list&lt;rstring&gt;, int32)</a></strong>: HTTP POST data to the given url using the username and password (if non-empty).
 </li>
 
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpPost.rstring.rstring.list:.:rstring:.:.rstring.rstring.list:.:rstring:.:.int32.int32.int32">httpPost(rstring, rstring, list&lt;rstring&gt;, rstring, rstring, list&lt;rstring&gt;, int32, int32, int32)</a></strong>: HTTP POST data to the given url using the username and password (if non-empty).
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpPost.rstring.rstring.list:.:rstring:.:.rstring.rstring.rstring.rstring.rstring.rstring.rstring.list:.:rstring:.:.int32.int32.int32">httpPost(rstring, rstring, list&lt;rstring&gt;, rstring, rstring, rstring, rstring, rstring, rstring, rstring, list&lt;rstring&gt;, int32, int32, int32)</a></strong>: HTTP POST data to the given url using the username and password (if non-empty).
+</li>
+
 <li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpPut.rstring.rstring.list:.:rstring:.:.rstring.rstring.list:.:rstring:.:.int32">httpPut(rstring, rstring, list&lt;rstring&gt;, rstring, rstring, list&lt;rstring&gt;, int32)</a></strong>: HTTP PUT data to the given url using the username and password given if not empty.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpPut.rstring.rstring.list:.:rstring:.:.rstring.rstring.list:.:rstring:.:.int32.int32.int32">httpPut(rstring, rstring, list&lt;rstring&gt;, rstring, rstring, list&lt;rstring&gt;, int32, int32, int32)</a></strong>: HTTP PUT data to the given url using the username and password given if not empty.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpPut.rstring.rstring.list:.:rstring:.:.rstring.rstring.rstring.rstring.rstring.rstring.rstring.list:.:rstring:.:.int32.int32.int32">httpPut(rstring, rstring, list&lt;rstring&gt;, rstring, rstring, rstring, rstring, rstring, rstring, rstring, list&lt;rstring&gt;, int32, int32, int32)</a></strong>: HTTP PUT data to the given url using the username and password given if not empty.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.inet.http$HTTPParallelRequest.html#spldoc_compilationunit__function__passThrough.rstring">passThrough(rstring)</a></strong>: This function passes the input string unchanged 
 </li>
 
 <li class="sli"><strong class="ph b"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__urlDecode.rstring">urlDecode(rstring)</a></strong>: Decode a URL encoded rstring.
@@ -73,7 +109,13 @@
 <div class="section"><h2 class="title sectiontitle splhead-1">Types</h2>
   
 <ul class="sl simple">
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.inet.http$HTTPTypes.html#spldoc_compilationunit__type__HTTPResponse">HTTPResponse</a></strong>: Output Stream Schema for HTTP operators data - Data sent by the receiver on its output stream errorMessage - Data sent by the receiver on its error stream responseCode - HTTP response code.
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.inet.http$HTTPParallelRequest.html#spldoc_compilationunit__composite_type__HTTPParallelRequest.HttpMethod">HTTPParallelRequest.HttpMethod</a></strong>: This type determines the kind of the http operation values are httpGet, httpPut, httpPost, httpDelete 
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.inet.http$HTTPTypes.html#spldoc_compilationunit__type__HTTPRequest">HTTPRequest</a></strong>: Output and Input schema, web request output from HTTPRequestProcess operator and corresponding  response on the input port are returned to the web.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.inet.http$HTTPTypes.html#spldoc_compilationunit__type__HTTPResponse">HTTPResponse</a></strong>: Output Stream Schema for HTTP operators 
 </li>
 
 </ul>

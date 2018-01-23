@@ -57,6 +57,10 @@
   
 </div>
 
+<div class="section splgraph">
+  <embed class="image" src="../../image/tk$FTP PutFile sample/op$com.ibm.streamsx.inet.ftp.sample$PutFile.svg" width="447" height="200"/>
+</div>
+
 <div class="section">
 
 <p class="p">This sample demonstrates the usage of the telco FTP toolkit. This sample uses the FTPFupFile operator to put a file from the local file system to an FTP server.  It scans the local directory and initiates file transfers for the found files.  The file transfer starts with a temporary file name. After successful file transfer the file  is re-named to the final name. Finally the local files are removed/moved into an archive directory. The results a printed to stdout. 
@@ -67,22 +71,22 @@
 <div class="section"><h2 class="title sectiontitle">Parameters</h2>
 
 <ul class="sl simple">
-<li class="sli"><strong class="ph b">protocol</strong>
+<li class="sli"><strong class="ph b">protocol</strong>: the transmission protocol
 </li>
 
-<li class="sli"><strong class="ph b">host</strong>
+<li class="sli"><strong class="ph b">host</strong>: the remote host name or IP address
 </li>
 
-<li class="sli"><strong class="ph b">path</strong>
+<li class="sli"><strong class="ph b">path</strong>: the remote path to a directory which will receive the transferred files. In case of sftp protocol the path should be an absolute path. In all other cases the path depends on the server configuration.
 </li>
 
-<li class="sli"><strong class="ph b">username</strong>
+<li class="sli"><strong class="ph b">username</strong>: the remote user
 </li>
 
-<li class="sli"><strong class="ph b">password</strong>
+<li class="sli"><strong class="ph b">password</strong>: the password
 </li>
 
-<li class="sli"><strong class="ph b">verbosity</strong>
+<li class="sli"><strong class="ph b">verbosity</strong>: the verbosity for the FTPPutFile operator
 </li>
 
 </ul>
@@ -93,14 +97,6 @@
 </div>
 
 <div class="section">
-</div>
-
-<div class="section"><h2 class="title sectiontitle splhead-2">Composite Operator Graph</h2>
-  
-</div>
-
-<div class="section splgraph">
-  <embed class="image" src="../../image/tk$FTP PutFile sample/op$com.ibm.streamsx.inet.ftp.sample$PutFile.svg" width="442" height="109"/>
 </div>
 
 </div>

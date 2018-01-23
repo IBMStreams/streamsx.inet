@@ -22,12 +22,12 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.7.4</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.ftp.html">com.ibm.streamsx.inet.ftp</a> &gt; FTPReader</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.8.3</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.ftp.html">com.ibm.streamsx.inet.ftp</a> &gt; FTPReader</p>
 
 </div>
 
 <div class="section splprimop">
-  <embed class="image" src="../../image/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.ftp$FTPReader.svg" width="672" height="112"/>
+  <embed class="image" src="../../image/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.ftp$FTPReader.svg" width="872" height="112"/>
 </div>
 
 <div class="section">
@@ -36,6 +36,9 @@
 </p>
 
 <p class="p">If the operator works as file source, the content of the file can be delivered either in binary format as a <tt class="ph tt">blob</tt> or in text format line by line.
+</p>
+
+<p class="p">The FTPReader operator must not be used inside a consistent region!
 </p>
 
 </div>
@@ -58,14 +61,14 @@
  
   <dt class="dt dlterm">Parameters</dt>
 
-  <dd class="dd">This operator supports 13 parameters.
+  <dd class="dd">This operator supports 15 parameters.
 <p class="p"> Required: 
-<a class="xref" href="#spldoc_operator__parameter__protocol">protocol</a>, <a class="xref" href="#spldoc_operator__parameter__host">host</a>, <a class="xref" href="#spldoc_operator__parameter__path">path</a>, <a class="xref" href="#spldoc_operator__parameter__username">username</a>
+<a class="xref" href="#spldoc_operator__parameter__host">host</a>, <a class="xref" href="#spldoc_operator__parameter__path">path</a>, <a class="xref" href="#spldoc_operator__parameter__protocol">protocol</a>, <a class="xref" href="#spldoc_operator__parameter__username">username</a>
 
 </p>
 
 <p class="p"> Optional: 
-<a class="xref" href="#spldoc_operator__parameter__isDirReader">isDirReader</a>, <a class="xref" href="#spldoc_operator__parameter__filename">filename</a>, <a class="xref" href="#spldoc_operator__parameter__password">password</a>, <a class="xref" href="#spldoc_operator__parameter__connectionCloseMode">connectionCloseMode</a>, <a class="xref" href="#spldoc_operator__parameter__curlVerbose">curlVerbose</a>, <a class="xref" href="#spldoc_operator__parameter__useEPSV">useEPSV</a>, <a class="xref" href="#spldoc_operator__parameter__useEPRT">useEPRT</a>, <a class="xref" href="#spldoc_operator__parameter__usePORT">usePORT</a>, <a class="xref" href="#spldoc_operator__parameter__skipPASVIp">skipPASVIp</a>
+<a class="xref" href="#spldoc_operator__parameter__connectionCloseMode">connectionCloseMode</a>, <a class="xref" href="#spldoc_operator__parameter__connectionTimeout">connectionTimeout</a>, <a class="xref" href="#spldoc_operator__parameter__curlVerbose">curlVerbose</a>, <a class="xref" href="#spldoc_operator__parameter__filename">filename</a>, <a class="xref" href="#spldoc_operator__parameter__isDirReader">isDirReader</a>, <a class="xref" href="#spldoc_operator__parameter__password">password</a>, <a class="xref" href="#spldoc_operator__parameter__skipPASVIp">skipPASVIp</a>, <a class="xref" href="#spldoc_operator__parameter__transferTimeout">transferTimeout</a>, <a class="xref" href="#spldoc_operator__parameter__useEPRT">useEPRT</a>, <a class="xref" href="#spldoc_operator__parameter__useEPSV">useEPSV</a>, <a class="xref" href="#spldoc_operator__parameter__usePORT">usePORT</a>
 
 </p>
 </dd>
@@ -361,6 +364,18 @@
 
             <dd class="dd">
 
+<p class="p">Deprecated: This function returns the number of completed ftp transfers. Use function TransferCount() instead.
+</p>
+              <p class="p"/>
+
+            </dd>
+
+                        
+              <dt class="dt dlterm">
+                <tt class="ph tt">   uint32 TransferCount()</tt>              </dt>
+
+            <dd class="dd">
+
 <p class="p">This function returns the number of completed ftp transfers.
 </p>
               <p class="p"/>
@@ -373,6 +388,18 @@
 
             <dd class="dd">
 
+<p class="p">Deprecated: This function returns the number of failed ftp transfers. Use function TransferFailureCount() instead.
+</p>
+              <p class="p"/>
+
+            </dd>
+
+                        
+              <dt class="dt dlterm">
+                <tt class="ph tt">   uint32 TransferFailureCount()</tt>              </dt>
+
+            <dd class="dd">
+
 <p class="p">This function returns the number of failed ftp transfers.
 </p>
               <p class="p"/>
@@ -382,6 +409,18 @@
                         
               <dt class="dt dlterm">
                 <tt class="ph tt">   uint64 NoBytesTransferred()</tt>              </dt>
+
+            <dd class="dd">
+
+<p class="p">Deprecated: This function returns the number of bytes transferred in successfully completed transfers. Use function BytesTransferred() instead.
+</p>
+              <p class="p"/>
+
+            </dd>
+
+                        
+              <dt class="dt dlterm">
+                <tt class="ph tt">   uint64 BytesTransferred()</tt>              </dt>
 
             <dd class="dd">
 
@@ -419,6 +458,150 @@
         </dd>
 
       
+      
+        <dt class="dt dlterm">GetError</dt>
+
+        <dd class="dd">
+          <dl class="dl">
+            <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+            
+              <dt class="dt dlterm">
+                <tt class="ph tt">   int32 Error()</tt>              </dt>
+
+            <dd class="dd">
+
+<p class="p">Deprecated: Get the error number. Use function ErrorCode() instead.
+</p>
+              <p class="p"/>
+
+            </dd>
+
+                        
+              <dt class="dt dlterm">
+                <tt class="ph tt">   int32 ErrorCode()</tt>              </dt>
+
+            <dd class="dd">
+
+<p class="p">Get the error number
+</p>
+              <p class="p"/>
+
+            </dd>
+
+                        
+              <dt class="dt dlterm">
+                <tt class="ph tt">   rstring ErrorText()</tt>              </dt>
+
+            <dd class="dd">
+
+<p class="p">Get the error description
+</p>
+              <p class="p"/>
+
+            </dd>
+
+                        
+              <dt class="dt dlterm">
+                <tt class="ph tt">   rstring Url()</tt>              </dt>
+
+            <dd class="dd">
+
+<p class="p">This function returns a string with the url including schema of the received file or scanned directory.
+</p>
+              <p class="p"/>
+
+            </dd>
+
+                        
+              <dt class="dt dlterm">
+                <tt class="ph tt">   uint32 NoTransfers()</tt>              </dt>
+
+            <dd class="dd">
+
+<p class="p">Deprecated: This function returns the number of completed ftp transfers. Use function TransferCount() instead.
+</p>
+              <p class="p"/>
+
+            </dd>
+
+                        
+              <dt class="dt dlterm">
+                <tt class="ph tt">   uint32 TransferCount()</tt>              </dt>
+
+            <dd class="dd">
+
+<p class="p">This function returns the number of completed ftp transfers.
+</p>
+              <p class="p"/>
+
+            </dd>
+
+                        
+              <dt class="dt dlterm">
+                <tt class="ph tt">   uint32 NoTransferFailures()</tt>              </dt>
+
+            <dd class="dd">
+
+<p class="p">Deprecated: This function returns the number of failed ftp transfers. Use function TransferFailureCount() instead.
+</p>
+              <p class="p"/>
+
+            </dd>
+
+                        
+              <dt class="dt dlterm">
+                <tt class="ph tt">   uint32 TransferFailureCount()</tt>              </dt>
+
+            <dd class="dd">
+
+<p class="p">This function returns the number of failed ftp transfers.
+</p>
+              <p class="p"/>
+
+            </dd>
+
+                        
+              <dt class="dt dlterm">
+                <tt class="ph tt">   uint64 NoBytesTransferred()</tt>              </dt>
+
+            <dd class="dd">
+
+<p class="p">Deprecated: This function returns the number of bytes transferred in successfully completed transfers. Use function BytesTransferred() instead.
+</p>
+              <p class="p"/>
+
+            </dd>
+
+                        
+              <dt class="dt dlterm">
+                <tt class="ph tt">   uint64 BytesTransferred()</tt>              </dt>
+
+            <dd class="dd">
+
+<p class="p">This function returns the number of bytes transferred in successfully completed transfers.
+</p>
+              <p class="p"/>
+
+            </dd>
+
+                        
+              <dt class="dt dlterm">
+                <tt class="ph tt">   &lt;any T&gt; T AsIs(T)</tt>              </dt>
+
+            <dd class="dd">
+
+<p class="p">Return the argument unchanged.
+</p>
+              <p class="p"/>
+
+            </dd>
+
+                      </dl>
+        </dd>
+
+      
       </dl>
 
     </dd>
@@ -431,14 +614,14 @@
 
    <dd class="dd">
 
-<p class="p">This mandatory port emits the file/directory content.
+<p class="p">This mandatory port emits the file/directory content. The GetData output functions must be applied to this port.
 </p>
 
     <dl class="dl">
       
         <dt class="dt dlterm">Assignments</dt>
 
-        <dd class="dd">This operator allows any SPL expression of the correct type to be assigned to output attributes. Attributes not assigned in the output clause will be automatically assigned from the attributes of the input ports that have the same name and type. If there is no such input attribute, an error is reported at compile-time.</dd>
+        <dd class="dd">This port set allows any SPL expression of the correct type to be assigned to output attributes. Attributes not assigned in the output clause will be automatically assigned from the attributes of the input ports that have the same name and type. If there is no such input attribute, an error is reported at compile-time.</dd>
 
       
     </dl>
@@ -478,14 +661,14 @@
 
    <dd class="dd">
 
-<p class="p">This optional port may be used to carry error information. This stream must have a single attribute of type <tt class="ph tt">rstring</tt>.
+<p class="p">This optional port may be used to carry error information and diagnostics. The GetError output functions may be applied to this port. If no output assignment is applied, the output stream must have a single attribute of type rstring.
 </p>
 
     <dl class="dl">
       
         <dt class="dt dlterm">Assignments</dt>
 
-        <dd class="dd">This port set does not allow assignments to output attributes.</dd>
+        <dd class="dd">This port set allows any SPL expression of the correct type to be assigned to output attributes.</dd>
 
       
     </dl>
@@ -526,12 +709,22 @@
 
 <div class="section">
 <p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters">Parameters</a></strong></p>
-This operator supports 13 parameters.<dl class="dl">
+This operator supports 15 parameters.
+<p class="p"> Required: 
+<a class="xref" href="#spldoc_operator__parameter__host">host</a>, <a class="xref" href="#spldoc_operator__parameter__path">path</a>, <a class="xref" href="#spldoc_operator__parameter__protocol">protocol</a>, <a class="xref" href="#spldoc_operator__parameter__username">username</a>
+
+</p>
+
+<p class="p"> Optional: 
+<a class="xref" href="#spldoc_operator__parameter__connectionCloseMode">connectionCloseMode</a>, <a class="xref" href="#spldoc_operator__parameter__connectionTimeout">connectionTimeout</a>, <a class="xref" href="#spldoc_operator__parameter__curlVerbose">curlVerbose</a>, <a class="xref" href="#spldoc_operator__parameter__filename">filename</a>, <a class="xref" href="#spldoc_operator__parameter__isDirReader">isDirReader</a>, <a class="xref" href="#spldoc_operator__parameter__password">password</a>, <a class="xref" href="#spldoc_operator__parameter__skipPASVIp">skipPASVIp</a>, <a class="xref" href="#spldoc_operator__parameter__transferTimeout">transferTimeout</a>, <a class="xref" href="#spldoc_operator__parameter__useEPRT">useEPRT</a>, <a class="xref" href="#spldoc_operator__parameter__useEPSV">useEPSV</a>, <a class="xref" href="#spldoc_operator__parameter__usePORT">usePORT</a>
+
+</p>
+<dl class="dl">
   
-     <dt class="dt dlterm"><a name="spldoc_operator__parameter__protocol"><!-- --></a><tt class="ph tt">protocol</tt></dt>
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__connectionCloseMode"><!-- --></a><tt class="ph tt">connectionCloseMode</tt></dt>
 
      <dd class="dd">
-<p class="p">Protocol and encryption properties of the connection. This parameter takes one value of type <a class="xref" href="spl$com.ibm.streamsx.inet.ftp$Definitions.html#spldoc_compilationunit__type__Protocol">Protocol</a>
+<p class="p">This optionally parameter controls when the closing of connection after transfer. The parameter takes one value of type <a class="xref" href="spl$com.ibm.streamsx.inet.ftp$Definitions.html#spldoc_compilationunit__type__ConnectionCloseMode">ConnectionCloseMode</a>. Default value is <tt class="ph tt">never</tt>.
 </p>
 
   <dl class="dl">
@@ -539,13 +732,13 @@ This operator supports 13 parameters.<dl class="dl">
      <dt class="dt dlterm">Properties</dt>
 
      <dd class="dd">   <ul class="sl simple">
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: enum{ftp,ftpSSLAll,ftpSSLControl,ftpSSLTry,ftps,sftp}
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: enum{never,ever,punct}
      </li>
 
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
      </li>
 
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: false
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
      </li>
 
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
@@ -563,10 +756,48 @@ This operator supports 13 parameters.<dl class="dl">
 
   
   
-     <dt class="dt dlterm"><a name="spldoc_operator__parameter__isDirReader"><!-- --></a><tt class="ph tt">isDirReader</tt></dt>
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__connectionTimeout"><!-- --></a><tt class="ph tt">connectionTimeout</tt></dt>
 
      <dd class="dd">
-<p class="p">If this parameter is true, the operator acts as directory scanner and each directory entry produces one line at the output.  Special output functions to get the properties of the directory entry are available in this case. Default is <tt class="ph tt">false</tt>
+<p class="p">This is the maximum time in seconds that you allow the connection to the server to take. This only limits the connection phase, once it has connected, this option is of no more use. Set to zero to switch to the default built-in connection timeout - 120 seconds. See also the <tt class="ph tt">transferTimeout</tt> parameter.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: int32
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Expression
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__portscope">PortScope</a>: 0
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__curlVerbose"><!-- --></a><tt class="ph tt">curlVerbose</tt></dt>
+
+     <dd class="dd">
+<p class="p">Verbose mode for curl lib. Default value is false. The curl information are sent stderr.
 </p>
 
   <dl class="dl">
@@ -583,7 +814,45 @@ This operator supports 13 parameters.<dl class="dl">
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
      </li>
 
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Constant
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__filename"><!-- --></a><tt class="ph tt">filename</tt></dt>
+
+     <dd class="dd">
+<p class="p">The filename part of the file/directory if the path does not contain a filename part.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Expression
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__portscope">PortScope</a>: 0
      </li>
 
    </ul>
@@ -636,10 +905,10 @@ This operator supports 13 parameters.<dl class="dl">
 
   
   
-     <dt class="dt dlterm"><a name="spldoc_operator__parameter__path"><!-- --></a><tt class="ph tt">path</tt></dt>
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__isDirReader"><!-- --></a><tt class="ph tt">isDirReader</tt></dt>
 
      <dd class="dd">
-<p class="p">The path of the remote fie/directory. The path may contain an filename part. If the filename part is omitted the parameter must end with a '/'.  The path should begin with '/'. In case of ftp protocols the path is relative to the home directory of the user and may depend on the server configuration.  In case of sftp the path is always an absolute path.
+<p class="p">If this parameter is true, the operator acts as directory scanner and each directory entry produces one line at the output.  Special output functions to get the properties of the directory entry are available in this case. Default is <tt class="ph tt">false</tt>
 </p>
 
   <dl class="dl">
@@ -647,45 +916,7 @@ This operator supports 13 parameters.<dl class="dl">
      <dt class="dt dlterm">Properties</dt>
 
      <dd class="dd">   <ul class="sl simple">
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
-     </li>
-
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
-     </li>
-
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: false
-     </li>
-
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Expression
-     </li>
-
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__portscope">PortScope</a>: 0
-     </li>
-
-   </ul>
-
-     <p class="p"/>
-     </dd>
-
-    
-  </dl>
-
-     </dd>
-
-  
-  
-     <dt class="dt dlterm"><a name="spldoc_operator__parameter__filename"><!-- --></a><tt class="ph tt">filename</tt></dt>
-
-     <dd class="dd">
-<p class="p">The filename part of the file/directory if the hostPath does not contain a filename part.
-</p>
-
-  <dl class="dl">
-    
-     <dt class="dt dlterm">Properties</dt>
-
-     <dd class="dd">   <ul class="sl simple">
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
      </li>
 
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
@@ -694,45 +925,7 @@ This operator supports 13 parameters.<dl class="dl">
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
      </li>
 
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Expression
-     </li>
-
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__portscope">PortScope</a>: 0
-     </li>
-
-   </ul>
-
-     <p class="p"/>
-     </dd>
-
-    
-  </dl>
-
-     </dd>
-
-  
-  
-     <dt class="dt dlterm"><a name="spldoc_operator__parameter__username"><!-- --></a><tt class="ph tt">username</tt></dt>
-
-     <dd class="dd">
-<p class="p">The ftp username. If the operator has two input ports and this parameter is an attribute parameter it must be supplied from the second input port.
-</p>
-
-  <dl class="dl">
-    
-     <dt class="dt dlterm">Properties</dt>
-
-     <dd class="dd">   <ul class="sl simple">
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
-     </li>
-
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
-     </li>
-
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: false
-     </li>
-
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Expression
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Constant
      </li>
 
    </ul>
@@ -782,10 +975,10 @@ This operator supports 13 parameters.<dl class="dl">
 
   
   
-     <dt class="dt dlterm"><a name="spldoc_operator__parameter__connectionCloseMode"><!-- --></a><tt class="ph tt">connectionCloseMode</tt></dt>
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__path"><!-- --></a><tt class="ph tt">path</tt></dt>
 
      <dd class="dd">
-<p class="p">This optionally parameter controls when the closing of connection after transfer. The parameter takes one value of type <a class="xref" href="spl$com.ibm.streamsx.inet.ftp$Definitions.html#spldoc_compilationunit__type__ConnectionCloseMode">ConnectionCloseMode</a>. Default value is <tt class="ph tt">never</tt>.
+<p class="p">The path of the remote fie/directory. The path may contain an filename part. If the filename part is omitted the parameter must end with a '/'.  The path should begin with '/'. In case of ftp protocols the path is relative to the home directory of the user and may depend on the server configuration. In case of ftp protocol an absolute path must start with '//'. In case of sftp the path is an absolute path. A path relative to users home directory may be entered in the form '~/'.
 </p>
 
   <dl class="dl">
@@ -793,7 +986,80 @@ This operator supports 13 parameters.<dl class="dl">
      <dt class="dt dlterm">Properties</dt>
 
      <dd class="dd">   <ul class="sl simple">
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: enum{never,ever,punct}
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: false
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Expression
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__portscope">PortScope</a>: 0
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__protocol"><!-- --></a><tt class="ph tt">protocol</tt></dt>
+
+     <dd class="dd">
+<p class="p">Protocol and encryption properties of the connection. This parameter takes one value of type <a class="xref" href="spl$com.ibm.streamsx.inet.ftp$Definitions.html#spldoc_compilationunit__type__Protocol">Protocol</a>
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: enum{ftp,ftpSSLAll,ftpSSLControl,ftpSSLTry,ftps,sftp}
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: false
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__skipPASVIp"><!-- --></a><tt class="ph tt">skipPASVIp</tt></dt>
+
+     <dd class="dd">
+<p class="p">If set to true, it instructs libcurl to not use the IP address the server suggests in its 227-response  to libcurl's PASV command when libcurl connects the data connection. Instead libcurl will re-use the same IP address  it already uses for the control connection. But it will use the port number from the 227-response.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
      </li>
 
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
@@ -817,10 +1083,48 @@ This operator supports 13 parameters.<dl class="dl">
 
   
   
-     <dt class="dt dlterm"><a name="spldoc_operator__parameter__curlVerbose"><!-- --></a><tt class="ph tt">curlVerbose</tt></dt>
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__transferTimeout"><!-- --></a><tt class="ph tt">transferTimeout</tt></dt>
 
      <dd class="dd">
-<p class="p">Verbose mode for curl lib. Default value is false. The curl information are sent stderr.
+<p class="p">This is the maximum time in seconds that you allow the libcurl transfer operation to take. Normally, name lookups can take a considerable time and limiting operations to less than a few minutes risk aborting perfectly normal operations. Default timeout is 0 (zero) which means it never times out.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: int32
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Expression
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__portscope">PortScope</a>: 0
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__useEPRT"><!-- --></a><tt class="ph tt">useEPRT</tt></dt>
+
+     <dd class="dd">
+<p class="p">If the value is true, it tells curl to use the EPRT (and LPRT) command when doing active FTP downloads  (which is enabled by ftpPORT) default true. Using EPRT means that it will first attempt to use EPRT and then LPRT before using PORT,  but if you pass false to this option, it will not try using EPRT or LPRT, only plain PORT.  If the server is an IPv6 host, this option will have no effect as of 7.12.3.
 </p>
 
   <dl class="dl">
@@ -856,41 +1160,6 @@ This operator supports 13 parameters.<dl class="dl">
 
      <dd class="dd">
 <p class="p">If the value is true, it tells curl to use the EPSV command when doing passive FTP downloads (default true)  Using EPSV means that it will first attempt to use EPSV before using PASV, but if you pass false to this option,  it will not try using EPSV, only plain PASV If the server is an IPv6 host, this option will have no effect.
-</p>
-
-  <dl class="dl">
-    
-     <dt class="dt dlterm">Properties</dt>
-
-     <dd class="dd">   <ul class="sl simple">
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
-     </li>
-
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
-     </li>
-
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
-     </li>
-
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
-     </li>
-
-   </ul>
-
-     <p class="p"/>
-     </dd>
-
-    
-  </dl>
-
-     </dd>
-
-  
-  
-     <dt class="dt dlterm"><a name="spldoc_operator__parameter__useEPRT"><!-- --></a><tt class="ph tt">useEPRT</tt></dt>
-
-     <dd class="dd">
-<p class="p">If the value is true, it tells curl to use the EPRT (and LPRT) command when doing active FTP downloads  (which is enabled by ftpPORT) default true. Using EPRT means that it will first attempt to use EPRT and then LPRT before using PORT,  but if you pass false to this option, it will not try using EPRT or LPRT, only plain PORT.  If the server is an IPv6 host, this option will have no effect as of 7.12.3.
 </p>
 
   <dl class="dl">
@@ -969,10 +1238,10 @@ This operator supports 13 parameters.<dl class="dl">
 
   
   
-     <dt class="dt dlterm"><a name="spldoc_operator__parameter__skipPASVIp"><!-- --></a><tt class="ph tt">skipPASVIp</tt></dt>
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__username"><!-- --></a><tt class="ph tt">username</tt></dt>
 
      <dd class="dd">
-<p class="p">If set to true, it instructs libcurl to not use the IP address the server suggests in its 227-response  to libcurl's PASV command when libcurl connects the data connection. Instead libcurl will re-use the same IP address  it already uses for the control connection. But it will use the port number from the 227-response.
+<p class="p">The ftp username. If the operator has two input ports and this parameter is an attribute parameter it must be supplied from the second input port.
 </p>
 
   <dl class="dl">
@@ -980,16 +1249,16 @@ This operator supports 13 parameters.<dl class="dl">
      <dt class="dt dlterm">Properties</dt>
 
      <dd class="dd">   <ul class="sl simple">
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
      </li>
 
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
      </li>
 
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: false
      </li>
 
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Expression
      </li>
 
    </ul>
@@ -1020,7 +1289,8 @@ stream&lt;rstring fileName, uint64 size, rstring date, rstring user, boolean isF
 	param
 		protocol : ftp;
 		isDirReader : true;
-		hostPath : "${host}//${path}/";
+		host : "${host}";
+		path : "${path}/";
 		username : "${username}";
 		password : "${password}";
 	output OUT :
@@ -1110,7 +1380,7 @@ stream&lt;blob content, int32 sequence&gt; ${FileStream} as OUT = FTPReader(${Fi
 
   <dd class="dd"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__dependencies__managedlibrary__libpath">Library Path</a>: <tt class="ph tt">../../impl/lib</tt></dd>
 
-  <dd class="dd"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__dependencies__managedlibrary__includepath">Include Path</a>: <tt class="ph tt">../../impl/cpp/include</tt></dd>
+  <dd class="dd"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__dependencies__managedlibrary__includepath">Include Path</a>: <tt class="ph tt">../../impl/include</tt></dd>
 
  
 </dl>

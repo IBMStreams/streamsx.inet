@@ -57,6 +57,10 @@
   
 </div>
 
+<div class="section splgraph">
+  <embed class="image" src="../../image/tk$FTP RemoteDirScanAndGet sample/op$com.ibm.streamsx.inet.ftp.sample$RemoteDirScanAndGet.svg" width="640" height="291"/>
+</div>
+
 <div class="section">
 
 <p class="p">This sample demonstrates the usage of the telco FTP toolkit. This sample uses the FTPReader operator and the FTPCommand operator. It scans a remote directory and initiates file transfers for the found files. Finally the transferred files are moved into an archive directory at the remote host. The sample initiates a text file transfer for files with names *.txt  and the sample initiates a binary file transfer for files with names *.bin. The results a printed to stdout and in separate output text files. 
@@ -67,31 +71,31 @@
 <div class="section"><h2 class="title sectiontitle">Parameters</h2>
 
 <ul class="sl simple">
-<li class="sli"><strong class="ph b">protocol</strong>
+<li class="sli"><strong class="ph b">protocol</strong>: the transmission protocol
 </li>
 
-<li class="sli"><strong class="ph b">host</strong>
+<li class="sli"><strong class="ph b">host</strong>: the remote host name or IP address
 </li>
 
-<li class="sli"><strong class="ph b">path</strong>
+<li class="sli"><strong class="ph b">path</strong>: the remote path to a directory which stores some files to be transferred  files with the extension .txt are handled as text files and files with extension .bin are transferred as binary files. In case of sftp protocol  the path should be an absolute path. In all other cases the path depends on the server configuration.
 </li>
 
-<li class="sli"><strong class="ph b">username</strong>
+<li class="sli"><strong class="ph b">username</strong>: the remote user
 </li>
 
-<li class="sli"><strong class="ph b">password</strong>
+<li class="sli"><strong class="ph b">password</strong>: the password
 </li>
 
-<li class="sli"><strong class="ph b">verbosityDirScan</strong>
+<li class="sli"><strong class="ph b">verbosityDirScan</strong>: the verbosity for the directory scan operator
 </li>
 
-<li class="sli"><strong class="ph b">verbosityTxtFile</strong>
+<li class="sli"><strong class="ph b">verbosityTxtFile</strong>: the verbosity for the text file transfer operator
 </li>
 
-<li class="sli"><strong class="ph b">verbosityBinFile</strong>
+<li class="sli"><strong class="ph b">verbosityBinFile</strong>: the verbosity for the binary file transfer operator
 </li>
 
-<li class="sli"><strong class="ph b">verbosityCommand</strong>
+<li class="sli"><strong class="ph b">verbosityCommand</strong>: the verbosity for the command execution operator
 </li>
 
 </ul>
@@ -102,14 +106,6 @@
 </div>
 
 <div class="section">
-</div>
-
-<div class="section"><h2 class="title sectiontitle splhead-2">Composite Operator Graph</h2>
-  
-</div>
-
-<div class="section splgraph">
-  <embed class="image" src="../../image/tk$FTP RemoteDirScanAndGet sample/op$com.ibm.streamsx.inet.ftp.sample$RemoteDirScanAndGet.svg" width="640" height="291"/>
 </div>
 
 </div>

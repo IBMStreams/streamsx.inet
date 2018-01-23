@@ -22,12 +22,12 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.7.4</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.rest.html">com.ibm.streamsx.inet.rest</a> &gt; WebContext</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.8.3</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.rest.html">com.ibm.streamsx.inet.rest</a> &gt; WebContext</p>
 
 </div>
 
 <div class="section splprimop">
-  <embed class="image" src="../../image/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.rest$WebContext.svg" width="672" height="112"/>
+  <embed class="image" src="../../image/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.rest$WebContext.svg" width="872" height="112"/>
 </div>
 
 <div class="section">
@@ -48,7 +48,7 @@
  
   <dt class="dt dlterm">Ports</dt>
 
-  <dd class="dd">This operator has 0 input port and 0 output port.</dd>
+  <dd class="dd">This operator has 0 input ports and 0 output ports.</dd>
 
  
  
@@ -60,7 +60,16 @@
  
   <dt class="dt dlterm">Parameters</dt>
 
-  <dd class="dd">This operator supports 9 parameters. (<tt class="ph tt">certificateAlias, context, contextResourceBase, keyPassword, keyStore, keyStorePassword, port, trustStore, trustStorePassword</tt>)
+  <dd class="dd">This operator supports 9 parameters.
+<p class="p"> Required: 
+<a class="xref" href="#spldoc_operator__parameter__context">context</a>, <a class="xref" href="#spldoc_operator__parameter__contextResourceBase">contextResourceBase</a>
+
+</p>
+
+<p class="p"> Optional: 
+<a class="xref" href="#spldoc_operator__parameter__certificateAlias">certificateAlias</a>, <a class="xref" href="#spldoc_operator__parameter__keyPassword">keyPassword</a>, <a class="xref" href="#spldoc_operator__parameter__keyStore">keyStore</a>, <a class="xref" href="#spldoc_operator__parameter__keyStorePassword">keyStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__port">port</a>, <a class="xref" href="#spldoc_operator__parameter__trustStore">trustStore</a>, <a class="xref" href="#spldoc_operator__parameter__trustStorePassword">trustStorePassword</a>
+
+</p>
 </dd>
 
  
@@ -88,9 +97,19 @@
 
 <div class="section">
 <p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters">Parameters</a></strong></p>
-This operator supports 9 parameters.<dl class="dl">
+This operator supports 9 parameters.
+<p class="p"> Required: 
+<a class="xref" href="#spldoc_operator__parameter__context">context</a>, <a class="xref" href="#spldoc_operator__parameter__contextResourceBase">contextResourceBase</a>
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_certificateAlias"><tt class="ph tt">certificateAlias</tt></dt>
+</p>
+
+<p class="p"> Optional: 
+<a class="xref" href="#spldoc_operator__parameter__certificateAlias">certificateAlias</a>, <a class="xref" href="#spldoc_operator__parameter__keyPassword">keyPassword</a>, <a class="xref" href="#spldoc_operator__parameter__keyStore">keyStore</a>, <a class="xref" href="#spldoc_operator__parameter__keyStorePassword">keyStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__port">port</a>, <a class="xref" href="#spldoc_operator__parameter__trustStore">trustStore</a>, <a class="xref" href="#spldoc_operator__parameter__trustStorePassword">trustStorePassword</a>
+
+</p>
+<dl class="dl">
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__certificateAlias"><!-- --></a><tt class="ph tt">certificateAlias</tt></dt>
 
 <dd class="dd">
 <p class="p">Alias of the certificate to use in the key store. When this parameter is set all connections use HTTPS.
@@ -121,7 +140,7 @@ This operator supports 9 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_context"><tt class="ph tt">context</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__context"><!-- --></a><tt class="ph tt">context</tt></dt>
 
 <dd class="dd">
 <p class="p">Define a URL context path that maps to the resources defined by<tt class="ph tt">contextResourceBase</tt>. This allows a composite that invokes this operator in a toolkit to provide resources regardless of the value of the application's data directory. For example setting it to <em class="ph i">maps</em> would result in the URL <em class="ph i">/maps/index.html</em> mapping to the file <em class="ph i">index.html</em> in the directory defined by <tt class="ph tt">contextResourceBase</tt>. Requires the parameter <tt class="ph tt">contextResourceBase</tt> to be set. If when the operator is initialized the context already exists then no action is taken. This allows multiple independent composites in the same toolkit to have common <tt class="ph tt">context</tt> and <tt class="ph tt">contextResourceBase</tt> settings, typically to point to a single set of HTML and Javascript resources for the toolkit.
@@ -158,7 +177,7 @@ This operator supports 9 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_contextResourceBase"><tt class="ph tt">contextResourceBase</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__contextResourceBase"><!-- --></a><tt class="ph tt">contextResourceBase</tt></dt>
 
 <dd class="dd">
 <p class="p">Directory location of resources that will be available through the the URL context defined by the parameter <tt class="ph tt">context</tt>. Typically used to allow a toolkit to provide a set of resources in a fixed location. The set of resources is recommended to be stored in the application_dir/opt directory, which is automatically included in the bundle by default. Path of this directory can be absolute or relative, if relative path is specified then it is relative to the application directory. A set of default resources is included in the toolkit directory under ToolkitDir/opt/resources and will be loaded by the operator. This default resources can be viewed at <tt class="ph tt">http://hostname:8080/streamsx.inet.resources</tt>. A path within the application is obtained using the SPL function <tt class="ph tt">getThisToolkitDir()</tt>. Thus a composite in the file <em class="ph i">maps.spl</em> in the namespace directory <tt class="ph tt">com.acme.streams.apps.map</tt> might have the following setting to map <tt class="ph tt">http://127.0.0.1:8080/maps</tt> to <tt class="ph tt">opt/resources/mapinfo</tt> in the application.
@@ -199,7 +218,7 @@ param
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_keyPassword"><tt class="ph tt">keyPassword</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__keyPassword"><!-- --></a><tt class="ph tt">keyPassword</tt></dt>
 
 <dd class="dd">
 <p class="p">Password to the certificate. If not provided, defaults to the value of <tt class="ph tt">keyStorePassword</tt>.
@@ -230,7 +249,7 @@ param
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_keyStore"><tt class="ph tt">keyStore</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__keyStore"><!-- --></a><tt class="ph tt">keyStore</tt></dt>
 
 <dd class="dd">
 <p class="p">URL to the key store containing the certificate. If a relative file path then it is taken as relative to the application directory.
@@ -261,7 +280,7 @@ param
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_keyStorePassword"><tt class="ph tt">keyStorePassword</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__keyStorePassword"><!-- --></a><tt class="ph tt">keyStorePassword</tt></dt>
 
 <dd class="dd">
 <p class="p">Password to the key store.
@@ -292,7 +311,7 @@ param
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_port"><tt class="ph tt">port</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__port"><!-- --></a><tt class="ph tt">port</tt></dt>
 
 <dd class="dd">
 <p class="p">Port number for the embedded Jetty HTTP server. Defaults to 8080.
@@ -323,7 +342,7 @@ param
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_trustStore"><tt class="ph tt">trustStore</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__trustStore"><!-- --></a><tt class="ph tt">trustStore</tt></dt>
 
 <dd class="dd">
 <p class="p">URL to the trust store containing client certificates. If a relative file path then it is taken as relative to the application directory. When this parameter is set, client authentication is required.
@@ -354,7 +373,7 @@ param
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_trustStorePassword"><tt class="ph tt">trustStorePassword</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__trustStorePassword"><!-- --></a><tt class="ph tt">trustStorePassword</tt></dt>
 
 <dd class="dd">
 <p class="p">Password to the trust store.

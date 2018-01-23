@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.7.4</a> &gt; com.ibm.streamsx.inet.rest</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.8.3</a> &gt; com.ibm.streamsx.inet.rest</p>
 
 </div>
 
@@ -81,7 +81,7 @@ This tables use the Dojo Javascript library from the Steams install, and thus do
 
   <dl class="dl"><dt class="dt dlterm"><a class="xref" href="ns$com.ibm.streamsx.inet.rest$1.html">HTTPS Support</a>
 </dt>
-<dd class="dd">Overview of HTTP and HTTPS support for <tt class="ph tt">com.ibm.streamsx.inet.rest</tt> operators. HTTP Support: By default the REST operators provide open ports with no authentication or encryption.
+<dd class="dd">Overview of HTTP and HTTPS support for <tt class="ph tt">com.ibm.streamsx.inet.rest</tt> operators. 
 </dd>
 </dl>
 
@@ -90,7 +90,13 @@ This tables use the Dojo Javascript library from the Steams install, and thus do
 <div class="section"><h2 class="title sectiontitle splhead-1">Operators</h2>
   
 <ul class="sl simple">
+<li class="sli"><strong class="ph b"><a class="xref" href="op$com.ibm.streamsx.inet.rest$HTTPBLOBInjection.html">HTTPBLOBInjection</a></strong>: Embeds a Jetty web server to allow HTTP or HTTPS POST requests to submit a tuple on its output ports.
+</li>
+
 <li class="sli"><strong class="ph b"><a class="xref" href="op$com.ibm.streamsx.inet.rest$HTTPJSONInjection.html">HTTPJSONInjection</a></strong>: Embeds a Jetty web server to allow HTTP or HTTPS POST requests with mime type <tt class="ph tt">application/json</tt> to submit a tuple on its output ports.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="op$com.ibm.streamsx.inet.rest$HTTPRequestProcess.html">HTTPRequestProcess</a></strong>: Operator accepts a web request and generates corresponding response.
 </li>
 
 <li class="sli"><strong class="ph b"><a class="xref" href="op$com.ibm.streamsx.inet.rest$HTTPTupleInjection.html">HTTPTupleInjection</a></strong>: Embeds a Jetty web server to allow HTTP or HTTPS POST requests to submit a tuple on its output ports.

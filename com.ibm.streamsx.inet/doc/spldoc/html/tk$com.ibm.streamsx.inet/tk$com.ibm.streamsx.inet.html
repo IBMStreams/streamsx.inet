@@ -7,22 +7,22 @@
 <meta name="copyright" content="(C) Copyright 2005"/>
 <meta name="DC.rights.owner" content="(C) Copyright 2005"/>
 <meta name="DC.Type" content="reference"/>
-<meta name="DC.Title" content="Toolkit com.ibm.streamsx.inet 2.7.4"/>
+<meta name="DC.Title" content="Toolkit com.ibm.streamsx.inet 2.8.3"/>
 <meta name="DC.Format" content="XHTML"/>
 <meta name="DC.Identifier" content="spldoc_toolkit"/>
 <link rel="stylesheet" type="text/css" href="../../html/commonltr.css"/>
 <link rel="stylesheet" type="text/css" href="../../html/spldoc.css"/>
-<title>Toolkit com.ibm.streamsx.inet 2.7.4</title>
+<title>Toolkit com.ibm.streamsx.inet 2.8.3</title>
 </head>
 <body id="spldoc_toolkit">
 
 
-<h1 class="title topictitle1 spltoolkitname">Toolkit <tt class="ph tt">com.ibm.streamsx.inet 2.7.4</tt></h1>
+<h1 class="title topictitle1 spltoolkitname">Toolkit <tt class="ph tt">com.ibm.streamsx.inet 2.8.3</tt></h1>
 
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; com.ibm.streamsx.inet 2.7.4</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; com.ibm.streamsx.inet 2.8.3</p>
 
 </div>
 
@@ -36,7 +36,7 @@
 <ul class="ul">
 <li class="li"> <a class="xref" href="ns$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet</a>: General purpose internet operator supporting a number of protocols.</li>
 
-<li class="li"> <a class="xref" href="namesapce:com.ibm.streamsx.inet.ftp">com.ibm.streamsx.inet.ftp</a>: Operators that interact with external FTP servers.</li>
+<li class="li"> <a class="xref" href="ns$com.ibm.streamsx.inet.ftp.html">com.ibm.streamsx.inet.ftp</a>: Operators that interact with external FTP servers.</li>
 
 <li class="li"> <a class="xref" href="ns$com.ibm.streamsx.inet.http.html">com.ibm.streamsx.inet.http</a>: Operators that interact with external HTTP servers.</li>
 
@@ -50,7 +50,7 @@
 
   <dl class="dl"><dt class="dt dlterm"><a class="xref" href="tk$com.ibm.streamsx.inet$1.html">Developing and running applications that use the Internet Toolkit</a>
 </dt>
-<dd class="dd">To create applications that use the Internet Toolkit, you must configure either Streams Studio or the SPL compiler to be aware of the location of the toolkit.
+<dd class="dd">
 </dd>
 </dl>
 
@@ -58,13 +58,13 @@
   
   <dt class="dt dlterm">Version</dt>
 
-  <dd class="dd">2.7.4</dd>
+  <dd class="dd">2.8.3</dd>
 
   
   
   <dt class="dt dlterm">Required Product Version</dt>
 
-  <dd class="dd">4.0.0.0</dd>
+  <dd class="dd">4.0.1.0</dd>
 
   
   
@@ -113,6 +113,20 @@
         <dd class="dd">
 <ul class="sl simple">
 <li class="sli"><a class="xref" href="op$com.ibm.streamsx.inet$InetSource.html">InetSource</a></li>
+
+</ul>
+
+        </dd>
+
+      </dl>
+</dd>
+
+      <dd class="dd"><dl class="dl">
+        <dt class="dt dlterm">Functions</dt>
+
+        <dd class="dd">
+<ul class="sl simple">
+<li class="sli"><a class="xref" href="fc$com.ibm.streamsx.inet.html#spldoc_functions__parseDatestring.rstring">parseDatestring(rstring)</a></li>
 
 </ul>
 
@@ -176,6 +190,8 @@
 
 <li class="sli"><a class="xref" href="op$com.ibm.streamsx.inet.http$HTTPGetXMLContent.html">HTTPGetXMLContent</a></li>
 
+<li class="sli"><a class="xref" href="spl$com.ibm.streamsx.inet.http$HTTPParallelRequest.html#spldoc_compilationunit__composite_operator__HTTPParallelRequest">HTTPParallelRequest</a></li>
+
 <li class="sli"><a class="xref" href="op$com.ibm.streamsx.inet.http$HTTPPost.html">HTTPPost</a></li>
 
 </ul>
@@ -192,11 +208,33 @@
 <ul class="sl simple">
 <li class="sli"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpDelete.rstring.list:.:rstring:.:.rstring.rstring.int32">httpDelete(rstring, list&lt;rstring&gt;, rstring, rstring, int32)</a></li>
 
+<li class="sli"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpDelete.rstring.list:.:rstring:.:.rstring.rstring.int32.int32.int32">httpDelete(rstring, list&lt;rstring&gt;, rstring, rstring, int32, int32, int32)</a></li>
+
+<li class="sli"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpDelete.rstring.list:.:rstring:.:.rstring.rstring.rstring.rstring.rstring.rstring.rstring.int32.int32.int32">httpDelete(rstring, list&lt;rstring&gt;, rstring, rstring, rstring, rstring, rstring, rstring, rstring, int32, int32, int32)</a></li>
+
 <li class="sli"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpGet.rstring.list:.:rstring:.:.rstring.rstring.int32">httpGet(rstring, list&lt;rstring&gt;, rstring, rstring, int32)</a></li>
+
+<li class="sli"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpGet.rstring.list:.:rstring:.:.rstring.rstring.int32.int32.int32">httpGet(rstring, list&lt;rstring&gt;, rstring, rstring, int32, int32, int32)</a></li>
+
+<li class="sli"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpGet.rstring.list:.:rstring:.:.rstring.rstring.list:.:rstring:.:.int32">httpGet(rstring, list&lt;rstring&gt;, rstring, rstring, list&lt;rstring&gt;, int32)</a></li>
+
+<li class="sli"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpGet.rstring.list:.:rstring:.:.rstring.rstring.list:.:rstring:.:.int32.int32.int32">httpGet(rstring, list&lt;rstring&gt;, rstring, rstring, list&lt;rstring&gt;, int32, int32, int32)</a></li>
+
+<li class="sli"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpGet.rstring.list:.:rstring:.:.rstring.rstring.rstring.rstring.rstring.rstring.rstring.list:.:rstring:.:.int32.int32.int32">httpGet(rstring, list&lt;rstring&gt;, rstring, rstring, rstring, rstring, rstring, rstring, rstring, list&lt;rstring&gt;, int32, int32, int32)</a></li>
 
 <li class="sli"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpPost.rstring.rstring.list:.:rstring:.:.rstring.rstring.list:.:rstring:.:.int32">httpPost(rstring, rstring, list&lt;rstring&gt;, rstring, rstring, list&lt;rstring&gt;, int32)</a></li>
 
+<li class="sli"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpPost.rstring.rstring.list:.:rstring:.:.rstring.rstring.list:.:rstring:.:.int32.int32.int32">httpPost(rstring, rstring, list&lt;rstring&gt;, rstring, rstring, list&lt;rstring&gt;, int32, int32, int32)</a></li>
+
+<li class="sli"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpPost.rstring.rstring.list:.:rstring:.:.rstring.rstring.rstring.rstring.rstring.rstring.rstring.list:.:rstring:.:.int32.int32.int32">httpPost(rstring, rstring, list&lt;rstring&gt;, rstring, rstring, rstring, rstring, rstring, rstring, rstring, list&lt;rstring&gt;, int32, int32, int32)</a></li>
+
 <li class="sli"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpPut.rstring.rstring.list:.:rstring:.:.rstring.rstring.list:.:rstring:.:.int32">httpPut(rstring, rstring, list&lt;rstring&gt;, rstring, rstring, list&lt;rstring&gt;, int32)</a></li>
+
+<li class="sli"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpPut.rstring.rstring.list:.:rstring:.:.rstring.rstring.list:.:rstring:.:.int32.int32.int32">httpPut(rstring, rstring, list&lt;rstring&gt;, rstring, rstring, list&lt;rstring&gt;, int32, int32, int32)</a></li>
+
+<li class="sli"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__httpPut.rstring.rstring.list:.:rstring:.:.rstring.rstring.rstring.rstring.rstring.rstring.rstring.list:.:rstring:.:.int32.int32.int32">httpPut(rstring, rstring, list&lt;rstring&gt;, rstring, rstring, rstring, rstring, rstring, rstring, rstring, list&lt;rstring&gt;, int32, int32, int32)</a></li>
+
+<li class="sli"><a class="xref" href="spl$com.ibm.streamsx.inet.http$HTTPParallelRequest.html#spldoc_compilationunit__function__passThrough.rstring">passThrough(rstring)</a></li>
 
 <li class="sli"><a class="xref" href="fc$com.ibm.streamsx.inet.http.html#spldoc_functions__urlDecode.rstring">urlDecode(rstring)</a></li>
 
@@ -214,6 +252,10 @@
 
         <dd class="dd">
 <ul class="sl simple">
+<li class="sli"><a class="xref" href="spl$com.ibm.streamsx.inet.http$HTTPParallelRequest.html#spldoc_compilationunit__composite_type__HTTPParallelRequest.HttpMethod">HTTPParallelRequest.HttpMethod</a></li>
+
+<li class="sli"><a class="xref" href="spl$com.ibm.streamsx.inet.http$HTTPTypes.html#spldoc_compilationunit__type__HTTPRequest">HTTPRequest</a></li>
+
 <li class="sli"><a class="xref" href="spl$com.ibm.streamsx.inet.http$HTTPTypes.html#spldoc_compilationunit__type__HTTPResponse">HTTPResponse</a></li>
 
 </ul>
@@ -237,7 +279,11 @@ A set of operators using HTTP REST apis to interact with streaming data.
 
         <dd class="dd">
 <ul class="sl simple">
+<li class="sli"><a class="xref" href="op$com.ibm.streamsx.inet.rest$HTTPBLOBInjection.html">HTTPBLOBInjection</a></li>
+
 <li class="sli"><a class="xref" href="op$com.ibm.streamsx.inet.rest$HTTPJSONInjection.html">HTTPJSONInjection</a></li>
+
+<li class="sli"><a class="xref" href="op$com.ibm.streamsx.inet.rest$HTTPRequestProcess.html">HTTPRequestProcess</a></li>
 
 <li class="sli"><a class="xref" href="op$com.ibm.streamsx.inet.rest$HTTPTupleInjection.html">HTTPTupleInjection</a></li>
 

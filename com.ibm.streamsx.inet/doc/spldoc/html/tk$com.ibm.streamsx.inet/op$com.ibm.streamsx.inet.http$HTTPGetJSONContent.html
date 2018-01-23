@@ -22,12 +22,12 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.7.4</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.http.html">com.ibm.streamsx.inet.http</a> &gt; HTTPGetJSONContent</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.8.3</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.http.html">com.ibm.streamsx.inet.http</a> &gt; HTTPGetJSONContent</p>
 
 </div>
 
 <div class="section splprimop">
-  <embed class="image" src="../../image/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.http$HTTPGetJSONContent.svg" width="672" height="112"/>
+  <embed class="image" src="../../image/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.http$HTTPGetJSONContent.svg" width="872" height="112"/>
 </div>
 
 <div class="section">
@@ -43,7 +43,7 @@
  
   <dt class="dt dlterm">Ports</dt>
 
-  <dd class="dd">This operator has 0 input port and 1 output port.</dd>
+  <dd class="dd">This operator has 0 input ports and 1 output port.</dd>
 
  
  
@@ -55,7 +55,16 @@
  
   <dt class="dt dlterm">Parameters</dt>
 
-  <dd class="dd">This operator supports 7 parameters. (<tt class="ph tt">acceptAllCertificates, contentAttribute, extraHeaders, initDelay, iterations, period, url</tt>)
+  <dd class="dd">This operator supports 7 parameters.
+<p class="p"> Required: 
+<a class="xref" href="#spldoc_operator__parameter__url">url</a>
+
+</p>
+
+<p class="p"> Optional: 
+<a class="xref" href="#spldoc_operator__parameter__acceptAllCertificates">acceptAllCertificates</a>, <a class="xref" href="#spldoc_operator__parameter__contentAttribute">contentAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__extraHeaders">extraHeaders</a>, <a class="xref" href="#spldoc_operator__parameter__initDelay">initDelay</a>, <a class="xref" href="#spldoc_operator__parameter__iterations">iterations</a>, <a class="xref" href="#spldoc_operator__parameter__period">period</a>
+
+</p>
 </dd>
 
  
@@ -137,9 +146,19 @@
 
 <div class="section">
 <p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters">Parameters</a></strong></p>
-This operator supports 7 parameters.<dl class="dl">
+This operator supports 7 parameters.
+<p class="p"> Required: 
+<a class="xref" href="#spldoc_operator__parameter__url">url</a>
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_acceptAllCertificates"><tt class="ph tt">acceptAllCertificates</tt></dt>
+</p>
+
+<p class="p"> Optional: 
+<a class="xref" href="#spldoc_operator__parameter__acceptAllCertificates">acceptAllCertificates</a>, <a class="xref" href="#spldoc_operator__parameter__contentAttribute">contentAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__extraHeaders">extraHeaders</a>, <a class="xref" href="#spldoc_operator__parameter__initDelay">initDelay</a>, <a class="xref" href="#spldoc_operator__parameter__iterations">iterations</a>, <a class="xref" href="#spldoc_operator__parameter__period">period</a>
+
+</p>
+<dl class="dl">
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__acceptAllCertificates"><!-- --></a><tt class="ph tt">acceptAllCertificates</tt></dt>
 
 <dd class="dd">
 <p class="p">Accept all SSL certificates, even those that are self-signed. Setting this option will allow potentially insecure connections. Default is false.
@@ -170,7 +189,7 @@ This operator supports 7 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_contentAttribute"><tt class="ph tt">contentAttribute</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__contentAttribute"><!-- --></a><tt class="ph tt">contentAttribute</tt></dt>
 
 <dd class="dd">
 <p class="p">Output attribute to assign content to.
@@ -204,7 +223,7 @@ This operator supports 7 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_extraHeaders"><tt class="ph tt">extraHeaders</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__extraHeaders"><!-- --></a><tt class="ph tt">extraHeaders</tt></dt>
 
 <dd class="dd">
 <p class="p">Extra headers to send with request, format is "Header-Name: value"
@@ -232,7 +251,7 @@ This operator supports 7 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_initDelay"><tt class="ph tt">initDelay</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__initDelay"><!-- --></a><tt class="ph tt">initDelay</tt></dt>
 
 <dd class="dd">
 <p class="p">Delay in seconds before the operator starts producing tuples.
@@ -263,7 +282,7 @@ This operator supports 7 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_iterations"><tt class="ph tt">iterations</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__iterations"><!-- --></a><tt class="ph tt">iterations</tt></dt>
 
 <dd class="dd">
 <p class="p">The number of tuples to submit. Negative value or zero means continually fetch and submit tuples.
@@ -294,7 +313,7 @@ This operator supports 7 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_period"><tt class="ph tt">period</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__period"><!-- --></a><tt class="ph tt">period</tt></dt>
 
 <dd class="dd">
 <p class="p">Polling period in seconds. Tuples will be fetched every <tt class="ph tt">period</tt> seconds.
@@ -325,7 +344,7 @@ This operator supports 7 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_url"><tt class="ph tt">url</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__url"><!-- --></a><tt class="ph tt">url</tt></dt>
 
 <dd class="dd">
 <p class="p">URL to HTTP GET content from.

@@ -22,12 +22,12 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.7.4</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.http.html">com.ibm.streamsx.inet.http</a> &gt; HTTPPost</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.8.3</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.http.html">com.ibm.streamsx.inet.http</a> &gt; HTTPPost</p>
 
 </div>
 
 <div class="section splprimop">
-  <embed class="image" src="../../image/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.http$HTTPPost.svg" width="672" height="112"/>
+  <embed class="image" src="../../image/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.http$HTTPPost.svg" width="872" height="112"/>
 </div>
 
 <div class="section">
@@ -61,7 +61,16 @@
  
   <dt class="dt dlterm">Parameters</dt>
 
-  <dd class="dd">This operator supports 11 parameters. (<tt class="ph tt">acceptAllCertificates, authenticationFile, authenticationProperty, authenticationType, connectionTimeout, extraHeaders, headerContentType, include, maxRetries, retryDelay, url</tt>)
+  <dd class="dd">This operator supports 13 parameters.
+<p class="p"> Required: 
+<a class="xref" href="#spldoc_operator__parameter__url">url</a>
+
+</p>
+
+<p class="p"> Optional: 
+<a class="xref" href="#spldoc_operator__parameter__acceptAllCertificates">acceptAllCertificates</a>, <a class="xref" href="#spldoc_operator__parameter__authenticationFile">authenticationFile</a>, <a class="xref" href="#spldoc_operator__parameter__authenticationProperty">authenticationProperty</a>, <a class="xref" href="#spldoc_operator__parameter__authenticationType">authenticationType</a>, <a class="xref" href="#spldoc_operator__parameter__connectionTimeout">connectionTimeout</a>, <a class="xref" href="#spldoc_operator__parameter__extraHeaders">extraHeaders</a>, <a class="xref" href="#spldoc_operator__parameter__headerContentType">headerContentType</a>, <a class="xref" href="#spldoc_operator__parameter__include">include</a>, <a class="xref" href="#spldoc_operator__parameter__keyStoreFile">keyStoreFile</a>, <a class="xref" href="#spldoc_operator__parameter__keyStorePassword">keyStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__maxRetries">maxRetries</a>, <a class="xref" href="#spldoc_operator__parameter__retryDelay">retryDelay</a>
+
+</p>
 </dd>
 
  
@@ -185,9 +194,19 @@
 
 <div class="section">
 <p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters">Parameters</a></strong></p>
-This operator supports 11 parameters.<dl class="dl">
+This operator supports 13 parameters.
+<p class="p"> Required: 
+<a class="xref" href="#spldoc_operator__parameter__url">url</a>
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_acceptAllCertificates"><tt class="ph tt">acceptAllCertificates</tt></dt>
+</p>
+
+<p class="p"> Optional: 
+<a class="xref" href="#spldoc_operator__parameter__acceptAllCertificates">acceptAllCertificates</a>, <a class="xref" href="#spldoc_operator__parameter__authenticationFile">authenticationFile</a>, <a class="xref" href="#spldoc_operator__parameter__authenticationProperty">authenticationProperty</a>, <a class="xref" href="#spldoc_operator__parameter__authenticationType">authenticationType</a>, <a class="xref" href="#spldoc_operator__parameter__connectionTimeout">connectionTimeout</a>, <a class="xref" href="#spldoc_operator__parameter__extraHeaders">extraHeaders</a>, <a class="xref" href="#spldoc_operator__parameter__headerContentType">headerContentType</a>, <a class="xref" href="#spldoc_operator__parameter__include">include</a>, <a class="xref" href="#spldoc_operator__parameter__keyStoreFile">keyStoreFile</a>, <a class="xref" href="#spldoc_operator__parameter__keyStorePassword">keyStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__maxRetries">maxRetries</a>, <a class="xref" href="#spldoc_operator__parameter__retryDelay">retryDelay</a>
+
+</p>
+<dl class="dl">
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__acceptAllCertificates"><!-- --></a><tt class="ph tt">acceptAllCertificates</tt></dt>
 
 <dd class="dd">
 <p class="p">Accept all SSL certificates, even those that are self-signed. Setting this option will allow potentially insecure connections. Default is false.
@@ -218,7 +237,7 @@ This operator supports 11 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_authenticationFile"><tt class="ph tt">authenticationFile</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__authenticationFile"><!-- --></a><tt class="ph tt">authenticationFile</tt></dt>
 
 <dd class="dd">
 <p class="p">Path to the properties file containing authentication information. Authentication file is recommended to be stored in the application_dir/etc directory. Path of this file can be absolute or relative, if relative path is specified then it is relative to the application directory. See http_auth_basic.properties in the toolkits etc directory for a sample of basic authentication properties.
@@ -249,7 +268,7 @@ This operator supports 11 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_authenticationProperty"><tt class="ph tt">authenticationProperty</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__authenticationProperty"><!-- --></a><tt class="ph tt">authenticationProperty</tt></dt>
 
 <dd class="dd">
 <p class="p">Properties to override those in the authentication file.
@@ -277,7 +296,7 @@ This operator supports 11 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_authenticationType"><tt class="ph tt">authenticationType</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__authenticationType"><!-- --></a><tt class="ph tt">authenticationType</tt></dt>
 
 <dd class="dd">
 <p class="p">Valid options are "basic" and "none". Default is "none".
@@ -308,7 +327,7 @@ This operator supports 11 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_connectionTimeout"><tt class="ph tt">connectionTimeout</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__connectionTimeout"><!-- --></a><tt class="ph tt">connectionTimeout</tt></dt>
 
 <dd class="dd">
 <p class="p">Optional parameter specifies amount of time (in seconds) that the operator waits for the connection for to be established. Default is 60.
@@ -339,7 +358,7 @@ This operator supports 11 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_extraHeaders"><tt class="ph tt">extraHeaders</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__extraHeaders"><!-- --></a><tt class="ph tt">extraHeaders</tt></dt>
 
 <dd class="dd">
 <p class="p">Extra headers to send with request, format is "Header-Name: value".
@@ -367,7 +386,7 @@ This operator supports 11 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_headerContentType"><tt class="ph tt">headerContentType</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__headerContentType"><!-- --></a><tt class="ph tt">headerContentType</tt></dt>
 
 <dd class="dd">
 <p class="p">Set the content type of the HTTP request.  If the value is set to "application/json" then the entire tuple is sent in JSON format using SPL's standard tuple to JSON encoding, if the input schema is <tt class="ph tt">tuple&lt;rstring jsonString&gt;</tt> then <tt class="ph tt">jsonString</tt> is assumed to already be JSON and its value is sent as the content.  Default is "application/x-www-form-urlencoded". Note that if a value other than the above mentioned ones is specified, the input stream can only have a single attribute.
@@ -398,7 +417,7 @@ This operator supports 11 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_include"><tt class="ph tt">include</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__include"><!-- --></a><tt class="ph tt">include</tt></dt>
 
 <dd class="dd">
 <p class="p">Specify attributes used to compose the POST. Comma separated list of attribute names that will be posted to the url. The parameter is invalid if HeaderContentType is not "application/json" or "application/x-www-form-urlencoded". Default is to send all attributes.
@@ -426,7 +445,69 @@ This operator supports 11 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_maxRetries"><tt class="ph tt">maxRetries</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__keyStoreFile"><!-- --></a><tt class="ph tt">keyStoreFile</tt></dt>
+
+<dd class="dd">
+<p class="p">Path to .jks file used for server and client authentication
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__keyStorePassword"><!-- --></a><tt class="ph tt">keyStorePassword</tt></dt>
+
+<dd class="dd">
+<p class="p">Password for the keyStore and the keys it contains
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__maxRetries"><!-- --></a><tt class="ph tt">maxRetries</tt></dt>
 
 <dd class="dd">
 <p class="p">Maximum number of retries in case of failures/disconnects.
@@ -457,7 +538,7 @@ This operator supports 11 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_retryDelay"><tt class="ph tt">retryDelay</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__retryDelay"><!-- --></a><tt class="ph tt">retryDelay</tt></dt>
 
 <dd class="dd">
 <p class="p">Wait time between retries in case of failures/disconnects.
@@ -488,7 +569,7 @@ This operator supports 11 parameters.<dl class="dl">
 
 
 
-<dt class="dt dlterm" id="spldoc_operator__parameter_url"><tt class="ph tt">url</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__url"><!-- --></a><tt class="ph tt">url</tt></dt>
 
 <dd class="dd">
 <p class="p">URL to connect to
