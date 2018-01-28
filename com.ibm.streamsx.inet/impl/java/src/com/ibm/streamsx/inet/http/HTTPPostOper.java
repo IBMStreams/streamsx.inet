@@ -130,6 +130,7 @@ public class HTTPPostOper extends AbstractOperator
 	private boolean acceptAllCertificates = false;
         private Set<String>includeAttributesSet = null;   // attributes to include in the http request
 	
+	private String keyStoreFile = null, keyStorePassword = null;
 	/**
 	 * How the input tuple is processed.
 	 */
@@ -157,6 +158,14 @@ public class HTTPPostOper extends AbstractOperator
 	@Parameter(optional=true, description="Properties to override those in the authentication file.")
 	public void setAuthenticationProperty(List<String> val) {
 		authenticationProperties.addAll(val);
+	}
+	@Parameter(optional=true, description="Path to .jks file used for server and client authentication")
+	public void setKeyStoreFile(String val){
+		keyStoreFile = val;
+	}
+	@Parameter(optional=true, description="Password for the keyStore and the keys it contains")
+	public void setKeyStorePassword(String val){
+		keyStorePassword = val;
 	}
 	@Parameter(optional=true, description="Maximum number of retries in case of failures/disconnects.")
 	public void setMaxRetries(int val) {
@@ -221,8 +230,23 @@ public class HTTPPostOper extends AbstractOperator
 	    if (header.equals(MIME_FORM) || header.equals(MIME_JSON)) return;
 	    checker.setInvalidContext( HTTPPostOper.OPER_NAME + " Invalid HeaderContextType: " + header + " when used with include.",
 					new String[] {});
-        }
-
+    }
+        
+    @ContextCheck(compile=true)
+    public static void checkKeyStoreParameters(OperatorContextChecker checker){
+    	OperatorContext operatorContext = checker.getOperatorContext();
+    	Set<String>parameterNames = operatorContext.getParameterNames();
+    	
+    	boolean hasFile = parameterNames.contains("keyStoreFile");
+    	boolean hasPassword = parameterNames.contains("keyStorePassword");
+    	
+    	//The pair of these parameters is optional, we either need both to be present or neither of them
+    	if(hasFile ^ hasPassword)
+    	{
+    		checker.setInvalidContext(HTTPPostOper.OPER_NAME + "Invalid keystore parameters, provide both a keyStoreFile and a keyStorePassword or provide neither", new String[]{});
+    	}
+    }
+        
 	//consistent region checks
 	@ContextCheck(compile = true)
 	public static void checkInConsistentRegion(OperatorContextChecker checker) {
@@ -244,7 +268,9 @@ public class HTTPPostOper extends AbstractOperator
         }
         URI baseConfigURI = op.getPE().getApplicationDirectory().toURI();
 		auth = AuthHelper.getAuthenticator(authenticationType, PathConversionHelper.convertToAbsPath(baseConfigURI, authenticationFile), authenticationProperties);
-
+		
+		keyStoreFile = PathConversionHelper.convertToAbsPath(baseConfigURI, keyStoreFile);
+		
 		rc = new RetryController(maxRetries, retryDelay);
 		hasOutputPort = op.getStreamingOutputs().size() == 1;
 		
@@ -305,6 +331,10 @@ public class HTTPPostOper extends AbstractOperator
 		req.setMethod(HTTPMethod.POST);
 		req.setInsecure(acceptAllCertificates);
 		req.setConnectionTimeout(connectionTimeout);
+		
+		if(keyStoreFile != null)
+			req.initializeKeyStore(keyStoreFile, keyStorePassword);
+		
 		trace.log(TraceLevel.TRACE, "Set connectionTimeout: " + connectionTimeout);					
 
 		switch (processType) {
@@ -375,9 +405,10 @@ public class HTTPPostOper extends AbstractOperator
 					trace.log(TraceLevel.TRACE, "Sending request: " + req.toString());
 				
 				resp = req.sendRequest(auth);
-				
 				if(trace.isLoggable(TraceLevel.TRACE))
+				{
 					trace.log(TraceLevel.TRACE, "Got response: " + resp.toString());
+				}
 				rc.readSuccess();
 				break;
 			}catch(Exception e) {
@@ -415,8 +446,9 @@ public class HTTPPostOper extends AbstractOperator
 			if(trace.isLoggable(TraceLevel.DEBUG))
 				trace.log(TraceLevel.DEBUG, "Response: " + resp.toString());
 			
-			if(resp.getErrorStreamData()!=null)
+			if(resp.getErrorStreamData()!=null){
 				otup.setString("errorMessage", resp.getErrorStreamData());
+			}
 	
 			if(resp.getOutputData() != null) {
 				otup.setString("data", resp.getOutputData());

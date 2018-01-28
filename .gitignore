@@ -34,7 +34,8 @@ samples/*/toolkit.xml
 samples/*/.toolkitList
 samples/*/bin
 /samples/*/doc
-/release-*
+/release/
+/com.ibm.streamsx.inet/build.info
 
 ## java excludes
 *.class

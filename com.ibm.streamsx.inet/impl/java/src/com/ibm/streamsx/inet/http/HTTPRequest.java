@@ -6,7 +6,14 @@
 //
 package com.ibm.streamsx.inet.http;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.charset.Charset;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +53,10 @@ class HTTPRequest {
 	private HttpUriRequest req = null;
 	private HttpEntity entity = null;
 	private double connectionTimeout = 20.0;
-        private HttpParams httpParams = null;
+	private HttpParams httpParams = null;
+    
+	private KeyStore keyStore = null;
+	private String keyStorePassword;
 
 	public HTTPRequest(String url) {
 		this.url =  url;
@@ -82,7 +92,18 @@ class HTTPRequest {
 	
 	public void setConnectionTimeout(double connectionTimeout) {
 		this.connectionTimeout = connectionTimeout;
-	}	
+	}
+	
+	public void initializeKeyStore(String file, String password) throws FileNotFoundException, IOException, NoSuchAlgorithmException, CertificateException, KeyStoreException
+	{
+		keyStorePassword = password;
+		
+		keyStore = KeyStore.getInstance("JKS");
+		
+		try (FileInputStream fis = new FileInputStream(file)) {
+	        keyStore.load(fis,password.toCharArray());
+	    }
+	}
 
 	/**
 	 * Set the parameters for a POST request
@@ -120,10 +141,16 @@ class HTTPRequest {
 	public HTTPResponse sendRequest(IAuthenticate auth) throws Exception {
 		HttpClient client;
 		if(insecure) {
-			client = HTTPUtils.getHttpClientWithNoSSLValidation();
+			if(keyStore == null)
+				client = HTTPUtils.getHttpClientWithNoSSLValidation();
+			else
+				client = HTTPUtils.getHttpClientWithNoSSLServerValidation(keyStore, keyStorePassword);
 		}
 		else {
-			client = new DefaultHttpClient();
+			if(keyStore == null)
+				client = new DefaultHttpClient();
+			else
+				client = HTTPUtils.getHttpClientWithCustomSSlValidation(keyStore, keyStorePassword);
 		}
 		
 		if(method == HTTPMethod.GET) {
