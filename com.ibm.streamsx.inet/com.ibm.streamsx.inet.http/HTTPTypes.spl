@@ -24,10 +24,3 @@ type HTTPResponse = rstring data, rstring errorMessage, int32 responseCode, int3
 type HTTPRequest = int64 key, rstring request, rstring contentType, map<rstring,
 			rstring> header, rstring response, rstring method, rstring pathInfo,
 			int32 status, rstring statusMessage ;
-
-/**
- *  Methods enum type for HTTPRequestAsync operator
- */
-public composite Method {
-	type static Methods = enum{DELETE, GET, HEAD, POST, PUT};
-}
