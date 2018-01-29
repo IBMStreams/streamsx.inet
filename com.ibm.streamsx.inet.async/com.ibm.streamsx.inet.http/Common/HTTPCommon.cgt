@@ -1,0 +1,139 @@
+<%
+
+my %ContentType = (
+	_7z => '"application/x-7z-compressed"',
+	aac => '"audio/aac"',
+	avi => '"video/x-msvideo"',
+	bin => '"application/octet-stream"',
+	bz => '"application/x-bzip"',
+	bz2 => '"application/x-bzip2"',
+	gif => '"image/gif"',
+	icon => '"image/x-icon"',
+	jpeg => '"image/jpeg"',
+	jar => '"application/jar"',
+	js => '"application/javascript"',
+	json => '"application/json"',
+	mpeg => '"video/mpeg"',
+	oga => '"audio/ogg"',
+	ogv => '"video/ogg"',
+	ogx => '"application/ogg"',
+	png => '"image/png"',
+	rar => '"application/x-rar-compressed"',
+	svg => '"image/svg+xml"',
+	tar => '"application/x-tar"',
+	tiff => '"image/tiff"',
+	urlencoded => '"application/x-www-form-urlencoded"',
+	wav => '"audio/x-wav"',
+	_xml => '"application/xml"',
+	xhtml => '"application/xhtml+xml"',
+	zip => '"application/zip"',
+	css => '"text/css"',
+	csv => '"text/csv"',
+	html => '"text/html"',
+	plain => '"text/plain"'
+);
+
+sub handleOutput(@) {
+	my ($body, $headers, $message, $status, $outputAttributes, $sourceLocation) = @_;
+
+		foreach my $attr (@{$outputAttributes}) {
+		  my $attrName = $attr->getName();
+		  my $attrType = $attr->getSPLType();
+
+		  if ($attr->hasAssignmentWithOutputFunction()) {
+			  my $operation = $attr->getAssignmentOutputFunctionName();
+			  if ($operation eq 'AsIs') {
+				my $paramValue = $attr->getAssignmentOutputFunctionParameterValueAt(0)->getCppExpression();
+				print qq(
+				  otuple.set_$attrName($paramValue);
+				);
+			  }
+			  elsif ($operation eq 'Body') {
+				if ($attrType eq 'blob') {
+			  	  $body = "SPL::blob(reinterpret_cast<const unsigned char*>($body.data()), $body.size())";
+				  print qq(
+					$body.swap(otuple.get_$attrName());
+				  );
+				}
+				elsif ($attrType eq 'rstring') {
+				  print qq(
+					otuple.set_$attrName($body);
+				  );
+				}
+				else {
+				  SPL::CodeGen::exitln("A type mismatch exists at the = infix operator for $attrName attribute. The left side type, which is type $attrType, is expected to be one of types as the right side, blob or rstring.", $sourceLocation);
+				}
+			  }
+			  elsif ($operation eq 'Headers') {
+				print qq(
+				  if(!$headers.empty()) otuple.set_$attrName(HMap($headers.begin(), $headers.end()));
+				);
+			  }
+			  elsif ($operation eq 'Message') {
+				print qq(
+				  otuple.set_$attrName($message);
+				);
+			  }
+			  elsif ($operation eq 'Status') {
+				print qq(
+				  otuple.set_$attrName($status);
+				);
+			  }
+			  else {
+				my $paramValues = $attr->getAssignmentOutputFunctionParameterValues();
+				print qq(
+				  otuple.set_$attrName($operation(join(",", map{$_->getCppExpression()} @{$paramValues})));
+				);
+			  }
+		  }
+		  elsif ($attr->getAssignmentValue()) {
+				my $assign = $attr->getAssignmentValue()->getCppExpression();
+				print qq(
+				  otuple.set_$attrName($assign);
+				);
+		  }
+		}
+}
+
+sub handleError(@) {
+	my ($message, $status, $outputAttributes) = @_;
+
+		foreach my $attr (@{$outputAttributes}) {
+		  my $attrName = $attr->getName();
+		  if ($attrName eq 'message') {
+			print qq(
+			  otuple.set_message($message);
+			);
+		  }
+		  elsif ($attrName eq 'status') {
+			print qq(
+			  otuple.set_status($status);
+			);
+		  }
+		  elsif ($attr->getAssignmentValue()) {
+			my $assign = $attr->getAssignmentValue()->getCppExpression();
+			print qq(
+			  otuple.set_$attrName($assign);
+			);
+		  }
+		}
+}
+
+sub validateErrorPort(@) {
+	my ($model) = @_;
+
+	if ($model->getNumberOfOutputPorts() > 1) {
+		my $input = $model->getInputPortAt(0);
+	
+		for my $outAttr (@{$model->getOutputPortAt(1)->getAttributes()}) {
+			my $inAttr = $input->getAttributeByName($outAttr->getName());
+			
+			SPL::CodeGen::exitln("attribute '" . $outAttr->getName() . "' of type '" . $outAttr->getSPLType() . "' is not part of the error port schema", $model->getContext()->getSourceLocation())
+				unless ( ($outAttr->getName() eq 'message' && $outAttr->getSPLType() eq 'rstring') ||
+						 ($outAttr->getName() eq 'status' && $outAttr->getSPLType() eq 'uint16') ||
+						 ($inAttr && $inAttr->getSPLType() eq $outAttr->getSPLType()));
+		}
+	}
+}
+
+%>

@@ -1,0 +1,9 @@
+namespace com.ibm.streamsx.inet.http;
+
+/**
+ * Static enum for HTTP actions
+ */
+public composite Method {
+	type
+		static Methods = enum{DELETE, GET, HEAD, POST, PUT};
+}

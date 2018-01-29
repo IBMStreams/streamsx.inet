@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+// *******************************************************************************
+// * Copyright (C)2018, International Business Machines Corporation and *
+// * others. All Rights Reserved. *
+// *******************************************************************************
+-->
+<project name="com.ibm.streamsx.inet.async" default="all">
+
+	<property environment="env" />
+	<property name="streams.install" value="${env.STREAMS_INSTALL}" />
+	<property name="src.dir" value="impl/src" />
+	<property name="build.dir" value="impl/build" />
+	<property name="lib.dir" value="impl/lib" />
+	<property name="ext.downloads.dir" value="opt/downloaded" />
+	<property name="boost-major" value="1" />
+	<property name="boost-minor" value="64" />
+	<property name="boost-patch" value="0" />
+	<property name="boost-base" value="boost_${boost-major}_${boost-minor}_${boost-patch}" />
+	<property name="boost-dir" location="${build.dir}/${boost-base}" />
+	<property name="boost-archive" value="${boost-base}.tar.gz" />
+	<property name="cpp-netlib-major" value="0" />
+	<property name="cpp-netlib-minor" value="13" />
+	<property name="cpp-netlib-base" value="${cpp-netlib-major}.${cpp-netlib-minor}-release" />
+	<property name="cpp-netlib-dir" value="${build.dir}/cpp-netlib-${cpp-netlib-base}" />
+	<property name="cpp-netlib-archive" value="${cpp-netlib-base}.zip" />
+	<property name="spl-mt" value="${streams.install}/bin/spl-make-toolkit" />
+
+	<target name="init">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${lib.dir}" />
+		<mkdir dir="${ext.downloads.dir}" />
+	</target>
+
+	<target name="clean" depends="cpp-clean">
+		<delete dir="${build.dir}" />
+		<delete dir="${lib.dir}" />
+		<delete dir="${ext.downloads.dir}" />
+		<delete dir="output" />
+	</target>
+
+	<target name="all" depends="clean,init,boost,cpp-netlib,make-lib,make-toolkit" />
+
+	<target name="boost" depends="boost_get,boost_extract">
+		<chmod dir="${boost-dir}" includes="**/*.sh" perm="+x" />
+		<exec dir="${boost-dir}" executable="./bootstrap.sh" />
+		<exec dir="${boost-dir}" executable="./b2">
+			<arg line="-j8 toolset=gcc variant=release link=static threading=multi address-model=64 cxxflags='-std=c++11 -fPIC' --with-system --with-thread" />
+		</exec>
+	</target>
+	
+	<target name="cpp-netlib" depends="boost,cn_get,cn_extract">
+		<mkdir dir="${cpp-netlib-dir}/build" />
+		<exec dir="${cpp-netlib-dir}/build" executable="cmake">
+			<arg value="-DBOOST_ROOT=${boost-dir}" />
+			<arg value="-DCPP-NETLIB_BUILD_SHARED_LIBS=ON" />
+			<arg value="-DCPP-NETLIB_BUILD_EXAMPLES=OFF" />
+			<arg value="-DCPP-NETLIB_BUILD_TESTS=OFF" />
+			<arg value="-DCPP-NETLIB_STATIC_BOOST=ON" />
+			<arg value="-DCMAKE_BUILD_TYPE=Release" />
+			<arg value="-DCMAKE_POSITION_INDEPENDENT_CODE=ON" />
+			<arg value="-DCMAKE_SHARED_LIBRARY_SONAME_CXX_FLAG='-U'" />
+			<arg value="-DCMAKE_SHARED_LINKER_FLAGS='-Wl,--whole-archive -lboost_system -lboost_thread -Wl,--no-whole-archive'" />
+			<arg value=".." />
+		</exec>
+		<exec dir="${cpp-netlib-dir}/build" executable="make">
+			<arg value="-j8" />
+		</exec>
+		<copy file="${cpp-netlib-dir}/build/libs/network/src/libcppnetlib-client-connections.so" todir="${lib.dir}" />
+		<copy file="${cpp-netlib-dir}/build/libs/network/src/libcppnetlib-uri.so" todir="${lib.dir}" />
+	</target>
+	
+	<target name="make-lib" depends="boost,cpp-netlib" >
+		<exec executable="make" >
+			<arg value="BOOST_HOME=${boost-dir}" />
+		</exec>
+	</target>
+	
+	<target name="make-toolkit">
+		<echo message="Tookit to index: ${basedir}" />
+		<exec executable="${spl-mt}">
+			<arg value="--directory" />
+			<arg value="${basedir}" />
+			<arg value="-m" />
+		</exec>
+	</target>
+	
+	<target name="boost_get">
+		<get
+			src="https://dl.bintray.com/boostorg/release/${boost-major}.${boost-minor}.${boost-patch}/source/${boost-archive}"
+			dest="${ext.downloads.dir}/${boost-archive}"
+		/>
+	</target>
+	
+	<target name="boost_extract" depends="boost_get">
+		<untar src="${ext.downloads.dir}/${boost-archive}" dest="${build.dir}" compression="gzip" />
+	</target>
+	
+	<target name="cn_get">
+		<get
+			src="https://github.com/cpp-netlib/cpp-netlib/archive/${cpp-netlib-archive}"
+			dest="${ext.downloads.dir}/${cpp-netlib-archive}"
+		/>
+	</target>
+	
+	<target name="cn_extract" depends="cn_get">
+		<unzip src="${ext.downloads.dir}/${cpp-netlib-archive}" dest="${build.dir}" />
+	</target>
+
+	<target name="cpp-clean">
+		<exec executable="${spl-mt}"  failonerror="true">
+			<arg value="-c" />
+			<arg value="-i" />
+			<arg value="." />
+		</exec>
+	</target>
+
+</project>
