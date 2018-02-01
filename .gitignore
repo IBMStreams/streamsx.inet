@@ -13,7 +13,7 @@ toolkit.xml
 /com.ibm.streamsx.inet/com.ibm.streamsx.inet.http/*/*.xml
 /com.ibm.streamsx.inet/com.ibm.streamsx.inet.http/*/*.gif
 !com.ibm.streamsx.inet/com.ibm.streamsx.inet.http/native.function/function.xml
-!com.ibm.streamsx.inet/com.ibm.streamsx.inet.http/HTTPRequestAsync/HTTPRequestAsync.xml
+!com.ibm.streamsx.inet.async/com.ibm.streamsx.inet.http/HTTPRequestAsync/HTTPRequestAsync.xml
 
 /com.ibm.streamsx.inet/com.ibm.streamsx.inet.rest/*/*.xml
 /com.ibm.streamsx.inet/com.ibm.streamsx.inet.rest/*/*.gif
