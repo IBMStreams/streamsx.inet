@@ -22,9 +22,19 @@
 	<property name="cpp-netlib-major" value="0" />
 	<property name="cpp-netlib-minor" value="13" />
 	<property name="cpp-netlib-base" value="${cpp-netlib-major}.${cpp-netlib-minor}-release" />
-	<property name="cpp-netlib-dir" value="${build.dir}/cpp-netlib-${cpp-netlib-base}" />
+	<property name="cpp-netlib-dir" location="${build.dir}/cpp-netlib-${cpp-netlib-base}" />
 	<property name="cpp-netlib-archive" value="${cpp-netlib-base}.zip" />
 	<property name="spl-mt" value="${streams.install}/bin/spl-make-toolkit" />
+
+	<target name="check-builds">
+	    <available property="boost.build.exists" file="${boost-dir}" type="dir" />
+	    <available property="cpp-netlib.build.exists" file="${cpp-netlib-dir}" type="dir" />
+	</target>
+
+	<target name="check-libs">
+	    <available property="boost.download.exists" file="${ext.downloads.dir}/${boost-archive}"/>
+	    <available property="cpp-netlib.download.exists" file="${ext.downloads.dir}/${cpp-netlib-archive}"/>
+	</target>
 
 	<target name="init">
 		<mkdir dir="${build.dir}" />
@@ -35,13 +45,12 @@
 	<target name="clean" depends="cpp-clean">
 		<delete dir="${build.dir}" />
 		<delete dir="${lib.dir}" />
-		<delete dir="${ext.downloads.dir}" />
 		<delete dir="output" />
 	</target>
 
 	<target name="all" depends="clean,init,boost,cpp-netlib,make-lib,make-toolkit" />
 
-	<target name="boost" depends="boost_get,boost_extract">
+	<target name="boost" depends="check-builds,boost_get,boost_extract" unless="boost.build.exists" >
 		<chmod dir="${boost-dir}" includes="**/*.sh" perm="+x" />
 		<exec dir="${boost-dir}" executable="./bootstrap.sh" />
 		<exec dir="${boost-dir}" executable="./b2">
@@ -49,14 +58,14 @@
 		</exec>
 	</target>
 	
-	<target name="cpp-netlib" depends="boost,cn_get,cn_extract">
+	<target name="cpp-netlib" depends="check-builds,boost,cn_get,cn_extract" unless="cpp-netlib.build.exists" >
 		<mkdir dir="${cpp-netlib-dir}/build" />
 		<exec dir="${cpp-netlib-dir}/build" executable="cmake">
 			<arg value="-DBOOST_ROOT=${boost-dir}" />
 			<arg value="-DCPP-NETLIB_BUILD_SHARED_LIBS=ON" />
 			<arg value="-DCPP-NETLIB_BUILD_EXAMPLES=OFF" />
 			<arg value="-DCPP-NETLIB_BUILD_TESTS=OFF" />
-			<arg value="-DCPP-NETLIB_STATIC_BOOST=ON" />
+			<arg value="-D_STATIC_BOOST=ON" />
 			<arg value="-DCMAKE_BUILD_TYPE=Release" />
 			<arg value="-DCMAKE_POSITION_INDEPENDENT_CODE=ON" />
 			<arg value="-DCMAKE_SHARED_LIBRARY_SONAME_CXX_FLAG='-U'" />
@@ -73,10 +82,11 @@
 	<target name="make-lib" depends="boost,cpp-netlib" >
 		<exec executable="make" >
 			<arg value="BOOST_HOME=${boost-dir}" />
+			<arg value="CPP-NETLIB_HOME=${cpp-netlib-dir}" />
 		</exec>
 	</target>
 	
-	<target name="make-toolkit">
+	<target name="make-toolkit" depends="make-lib" >
 		<echo message="Tookit to index: ${basedir}" />
 		<exec executable="${spl-mt}">
 			<arg value="--directory" />
@@ -85,25 +95,25 @@
 		</exec>
 	</target>
 	
-	<target name="boost_get">
+	<target name="boost_get" depends="check-libs" unless="boost.download.exists">
 		<get
 			src="https://dl.bintray.com/boostorg/release/${boost-major}.${boost-minor}.${boost-patch}/source/${boost-archive}"
 			dest="${ext.downloads.dir}/${boost-archive}"
 		/>
 	</target>
 	
-	<target name="boost_extract" depends="boost_get">
+	<target name="boost_extract" depends="check-builds,boost_get" unless="boost.build.exists" >
 		<untar src="${ext.downloads.dir}/${boost-archive}" dest="${build.dir}" compression="gzip" />
 	</target>
 	
-	<target name="cn_get">
+	<target name="cn_get" depends="check-libs" unless="cpp-netlib.download.exists">
 		<get
 			src="https://github.com/cpp-netlib/cpp-netlib/archive/${cpp-netlib-archive}"
 			dest="${ext.downloads.dir}/${cpp-netlib-archive}"
 		/>
 	</target>
 	
-	<target name="cn_extract" depends="cn_get">
+	<target name="cn_extract" depends="check-builds,cn_get" unless="cpp-netlib.build.exists" >
 		<unzip src="${ext.downloads.dir}/${cpp-netlib-archive}" dest="${build.dir}" />
 	</target>
 
