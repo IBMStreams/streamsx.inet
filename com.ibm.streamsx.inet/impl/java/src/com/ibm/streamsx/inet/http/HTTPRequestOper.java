@@ -37,7 +37,7 @@ import com.ibm.streams.operator.model.PrimitiveOperator;
 
 @InputPorts(@InputPortSet(cardinality = 1, description = "Each tuple results in an HTTP request."))
 @PrimitiveOperator(name = "HTTPRequest", description = HTTPRequestOperAPI.DESC)
-@Libraries("opt/HTTPClient4.2.3/lib/*")
+@Libraries("opt/httpcomponents-client-4.5.5/lib/*")
 @Icons(location32 = "icons/HTTPPost_32.gif", location16 = "icons/HTTPPost_16.gif")
 public class HTTPRequestOper extends HTTPRequestOperClient {
 

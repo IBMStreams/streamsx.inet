@@ -103,7 +103,7 @@ artifacts were left around and caused issues with the ant build.
 		</fileset>
 	</path>
 	<path id="cp.http.client">
-		<fileset dir="opt/HTTPClient4.2.3/lib">
+		<fileset dir="opt/httpcomponents-client-4.5.5/lib">
 			<include name="*.jar" />
 		</fileset>
 	</path>
