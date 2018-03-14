@@ -1,0 +1,44 @@
+namespace sample;
+
+use com.ibm.streamsx.inet.http::HTTPRequest;
+
+composite Main {
+	param
+		expression<list<rstring>>              $url    : (list<rstring>)             getSubmissionTimeValue(
+			"url", '["http://httpbin.org/get","http://httpbin.org/gzip","http://httpbin.org/redirect/3","http://httpbin.org/get","http://httpbin.org/get"]'
+		);
+		/*expression<list<rstring>>              $method : (list<rstring>)             getSubmissionTimeValue(
+			"method", '["httpGet","httpGet","httpGet","httpGet","httpGet"]'
+		);
+		expression<list<rstring>>              $data   : (list<rstring>)             getSubmissionTimeValue(
+			"data", '["","","","",""]'
+		);*/
+		expression<int32>                      $iterations: (int32)                  getSubmissionTimeValue("iterations", "10");
+		expression<float64>                    $period    : (float64)                getSubmissionTimeValue("period", "0.5");
+	graph
+		stream<uint64 id, rstring url> Trigger as O = Beacon() {
+			param 
+				iterations : $iterations;
+				period     : $period;
+			output O:
+				id = IterationCount(),
+				url = $url[(int32)IterationCount() % size($url)];
+		}
+		
+		stream<uint64 id, rstring url, rstring status, rstring contentEncoding, rstring contentType, rstring responseHeader, rstring data> Response as O = HTTPRequest(Trigger as I) {
+		//() as O = HTTPRequest(Trigger as I) {
+			param
+				url: url;
+				fixedMethod : GET;
+				//vmArg: "-Djavax.net.debug=ssl:handshake", "-Dcom.ibm.jsse2.overrideDefaultTLS=true";
+		}
+		
+		() as Printer = Custom(Response as I) {
+			logic
+				onTuple I: println(I);
+				onPunct I: println(currentPunct());
+		}
+	
+	config
+		restartable : false;
+}
