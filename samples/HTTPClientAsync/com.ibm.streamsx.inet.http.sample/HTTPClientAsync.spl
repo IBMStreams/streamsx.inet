@@ -1,0 +1,51 @@
+namespace com.ibm.streamsx.inet.http.sample;
+
+use com.ibm.streamsx.inet.http::*;
+
+composite HTTPClientAsync {
+param
+	expression<rstring> $url : getSubmissionTimeValue("url", "http://httpbin.org/get");
+graph
+	stream<rstring url> BStream = Beacon() {
+        param
+            period: 1200.0;
+        output
+            BStream:  url = $url;
+    }
+    
+    (stream<rstring body, map<rstring,rstring> headers, rstring message, uint16 status, rstring url> HttpStream; stream<rstring url, rstring message, uint16 status> ErrorStream) =
+    	HTTPRequestAsync(BStream) {
+    	param
+			body : { "greeting" : "Hello world" };
+			contentType : urlencoded; // default
+//			headers : {}; // add headers here as map<rstring,rstring> if needed
+			method : Method.GET;
+    		url : url;
+
+		output HttpStream:
+			body = Body(),
+			headers = Headers(),
+			message = Message(),
+			status = Status();
+    }
+    
+    () as PSink = Custom(HttpStream)  {
+        logic
+            onTuple HttpStream: {
+                printStringLn(url);
+                println(headers);
+                println(status);
+                printStringLn(message);
+                printStringLn(body);
+            }
+    }
+    
+    () as ErrorSink = Custom(ErrorStream)  {
+        logic
+            onTuple ErrorStream: {
+                printStringLn(url);
+                printStringLn(message);
+                println(status);
+            }
+    }
+}

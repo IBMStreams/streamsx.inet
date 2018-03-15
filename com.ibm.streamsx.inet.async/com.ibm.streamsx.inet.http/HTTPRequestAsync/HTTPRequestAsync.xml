@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+#######################################################################
+# Copyright (C)2012,2015 International Business Machines Corporation and  
+# others. All Rights Reserved.                                    
+#######################################################################  
+-->
+<operatorModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.ibm.com/xmlns/prod/streams/spl/operator" xmlns:cmn="http://www.ibm.com/xmlns/prod/streams/spl/common" xsi:schemaLocation="http://www.ibm.com/xmlns/prod/streams/spl/operator operatorModel.xsd">
+  <cppOperatorModel>
+    <context>
+      <description>
+The 'HTTPRequestAsync' is an asynchronous, non-blocking HTTP client operator that can send multiple requests concurrently.
+Each HTTP request is handled in asynchronous way, saving network latency waiting for the operator thread. 
+Each HTTP response is handled by a callback that submits the result tuple coupled with the input tuple if required (attributes automatic propagation).  
+A single instance of the operator can process multiple connections simultaneously (up to the value specified in the connectionCap parameter). 
+      </description>
+      <metrics>
+        <metric>
+          <name>nConnections</name>
+          <description>Number of client connections open by the `HTTPRequestAsync` operator.</description>
+          <kind>Gauge</kind>
+        </metric>
+        <metric>
+          <name>nRequests</name>
+          <description>Total number of http requests sent.</description>
+          <kind>Counter</kind>
+        </metric>
+        <metric>
+          <name>nResponses</name>
+          <description>Total number of http responses received.</description>
+          <kind>Counter</kind>
+        </metric>
+        <metric>
+          <name>nFaults</name>
+          <description>Number of failed http requests.</description>
+          <kind>Counter</kind>
+        </metric>
+      </metrics>
+      <customLiterals>
+        <enumeration>
+          <name>ContentType</name>
+          <value>_7z</value>
+          <value>aac</value>
+          <value>avi</value>
+          <value>bin</value>
+          <value>bz</value>
+          <value>bz2</value>
+          <value>css</value>
+          <value>csv</value>
+          <value>gif</value>
+          <value>html</value>
+          <value>icon</value>
+          <value>jar</value>
+          <value>jpeg</value>
+          <value>js</value>
+          <value>json</value>
+          <value>mpeg</value>
+          <value>oga</value>
+          <value>ogv</value>
+          <value>ogx</value>
+          <value>plain</value>
+          <value>png</value>
+          <value>rar</value>
+          <value>svg</value>
+          <value>tar</value>
+          <value>tiff</value>
+          <value>urlencoded</value>
+          <value>wav</value>
+          <value>xhtml</value>
+          <value>_xml</value>
+          <value>zip</value>
+        </enumeration>
+        <enumeration>
+          <name>Method</name>
+          <value>DEL</value>
+          <value>GET</value>
+          <value>HEAD</value>
+          <value>POST</value>
+          <value>PUT</value>
+        </enumeration>
+      </customLiterals>
+      <customOutputFunctions>
+        <customOutputFunction>
+          <name>HTTPRequestFS</name>
+          <function pseudoFunction="true">
+            <description></description>
+            <prototype>&lt;any T> T AsIs(T v)</prototype>
+          </function>
+          <function pseudoFunction="true">
+            <description>Get HTTP response body</description>
+            <prototype>&lt;primitive T> T Body()</prototype>
+          </function>
+          <function pseudoFunction="true">
+            <description>Get HTTP response headers</description>
+            <prototype>map&lt;rstring,rstring> Headers()</prototype>
+          </function>
+          <function pseudoFunction="true">
+            <description>Get HTTP response message</description>
+            <prototype>rstring Message()</prototype>
+          </function>
+          <function pseudoFunction="true">
+            <description>Get HTTP response status</description>
+            <prototype>uint16 Status()</prototype>
+          </function>
+        </customOutputFunction>
+      </customOutputFunctions>
+      <libraryDependencies>
+        <library>
+          <cmn:description></cmn:description>
+          <cmn:managedLibrary>
+            <cmn:lib>http_client</cmn:lib>
+            <cmn:lib>ssl</cmn:lib>
+            <cmn:libPath>../../impl/lib</cmn:libPath>
+            <cmn:includePath>../../impl/include</cmn:includePath>
+          </cmn:managedLibrary>
+        </library>
+      </libraryDependencies>
+      <providesSingleThreadedContext>Never</providesSingleThreadedContext>
+      <allowCustomLogic>true</allowCustomLogic>
+    </context>
+    <parameters>
+      <description></description>
+      <allowAny>false</allowAny>
+      <parameter>
+        <name>url</name>
+        <description>This mandatory parameter with type rstring specifies a web address for HTTP request.</description>
+        <optional>false</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>Expression</expressionMode>
+        <type>rstring</type>
+        <cardinality>1</cardinality>
+      </parameter>
+      <parameter>
+        <name>body</name>
+        <description>This optional parameter with one of following types: blob, rstring or map&lt;rstring,rstring> specifies body or urlencoded key/value pairs.</description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>Expression</expressionMode>
+        <type></type>
+        <cardinality>1</cardinality>
+      </parameter>
+      <parameter>
+        <name>headers</name>
+        <description>This optional parameter with type map&lt;rstring,rstring> specifies HTTP header key/values.</description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>Expression</expressionMode>
+        <type>map&lt;rstring,rstring></type>
+        <cardinality>1</cardinality>
+      </parameter>
+      <parameter>
+        <name>method</name>
+        <description>This mandatory parameter with type enum{DELETE, GET, HEAD, POST, PUT} specifies HTTP action to perform.</description>
+        <optional>false</optional>
+        <rewriteAllowed>false</rewriteAllowed>
+        <expressionMode>Expression</expressionMode>
+        <type>enum{DELETE, GET, HEAD, POST, PUT}</type>
+        <cardinality>1</cardinality>
+      </parameter>
+      <parameter>
+        <name>contentType</name>
+        <description>This optional parameter with predefined CustomLiteral type sets 'Content-Type' in HTTP header whenever it's not defined by 'headers' parameter.</description>
+        <optional>true</optional>
+        <rewriteAllowed>false</rewriteAllowed>
+        <expressionMode>CustomLiteral</expressionMode>
+        <type>ContentType</type>
+        <cardinality>1</cardinality>
+      </parameter>
+      <parameter>
+        <name>userAgent</name>
+        <description>This optional parameter with type rstring sets 'User-Agent' in HTTP header whenever it's not defined by 'headers' parameter.</description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>Expression</expressionMode>
+        <type>rstring</type>
+        <cardinality>1</cardinality>
+      </parameter>
+      <parameter>
+        <name>connectionCap</name>
+        <description>This optional parameter with type uint32 sets max number of HTTP client connections that can be opened simultaneously, default is 1000.</description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>AttributeFree</expressionMode>
+        <type>uint32</type>
+        <cardinality>1</cardinality>
+      </parameter>
+      <parameter>
+        <name>workerQueues</name>
+        <description>This optional parameter with type uint32 sets a number of HTTP client worker queues, default is 1.</description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>AttributeFree</expressionMode>
+        <type>uint32</type>
+        <cardinality>1</cardinality>
+      </parameter>
+      <parameter>
+        <name>timeout</name>
+        <description>This optional parameter with type uint32 sets a timeout in seconds to wait for HTTP response, default is 10.</description>
+        <optional>true</optional>
+        <rewriteAllowed>false</rewriteAllowed>
+        <expressionMode>AttributeFree</expressionMode>
+        <type>uint32</type>
+        <cardinality>1</cardinality>
+      </parameter>
+    </parameters>
+    <inputPorts>
+      <inputPortSet>
+        <description>The operator has one input port with an arbitrary schema. Input attributes will be automatically forwarded to the corresponding output ones.</description>
+        <windowingDescription></windowingDescription>
+        <tupleMutationAllowed>false</tupleMutationAllowed>
+        <windowingMode>NonWindowed</windowingMode>
+        <windowPunctuationInputMode>Oblivious</windowPunctuationInputMode>
+        <cardinality>1</cardinality>
+        <optional>false</optional>
+      </inputPortSet>
+    </inputPorts>
+    <outputPorts>
+      <outputPortSet>
+        <description>The first output port is mandatory. The schema of the output port can include any input attributes, HTTP response attributes or any custom assignment.</description>
+        <expressionMode>Expression</expressionMode>
+        <autoAssignment>true</autoAssignment>
+        <completeAssignment>true</completeAssignment>
+        <rewriteAllowed>true</rewriteAllowed>
+        <outputFunctions>
+          <default>AsIs</default>
+          <type>HTTPRequestFS</type>
+        </outputFunctions>
+        <windowPunctuationOutputMode>Preserving</windowPunctuationOutputMode>
+        <windowPunctuationInputPort>0</windowPunctuationInputPort>
+        <tupleMutationAllowed>false</tupleMutationAllowed>
+        <cardinality>1</cardinality>
+        <optional>false</optional>
+      </outputPortSet>
+      <outputPortSet>
+        <description>The second output port is optional. The schema of the output port allows attributes: rstring message and/or uint16 status </description>
+        <expressionMode>Nonexistent</expressionMode>
+        <autoAssignment>true</autoAssignment>
+        <completeAssignment>false</completeAssignment>
+        <rewriteAllowed>false</rewriteAllowed>
+        <windowPunctuationOutputMode>Free</windowPunctuationOutputMode>
+        <windowPunctuationInputPort>-1</windowPunctuationInputPort>
+        <tupleMutationAllowed>false</tupleMutationAllowed>
+        <cardinality>1</cardinality>
+        <optional>true</optional>
+      </outputPortSet>
+    </outputPorts>
+  </cppOperatorModel>
+</operatorModel>

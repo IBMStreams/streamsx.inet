@@ -55,13 +55,36 @@ OBJECTS  = $(patsubst $(SRC)/%.cpp,$(OBJ)/%.o,$(SOURCES))
 CXXFLAGS := -O3 $(SPL_COMPILE_OPTIONS) -Werror -Wall
 LINKFLAGS := -shared $(SPL_LINK_OPTIONS)
 
+# -----------------------------------------------------------------------------
+# Folders 2
+# -----------------------------------------------------------------------------
+INC2:= $(TRG)/include
+SRC2 := $(TRG)/src
+OBJ2 := $(TRG)/cpp/bin
+
+# -----------------------------------------------------------------------------
+# Library 2
+# -----------------------------------------------------------------------------
+
+LIBRARY2 := $(LIB)/libhttpclient.so
+
+# -----------------------------------------------------------------------------
+# Helpers 2
+# -----------------------------------------------------------------------------
+
+INCLUDES2 = $(wildcard $(INC2)/*.h)
+SOURCES2  = $(wildcard $(SRC2)/*.cpp)
+OBJECTS2  = $(patsubst $(SRC2)/%.cpp,$(OBJ2)/%.o,$(SOURCES2))
+CXXFLAGS2 :=-O3 -DNDEBUG -fPIC $(SPL_COMPILE_OPTIONS) -std=gnu++11 -Werror -Wall -Wno-deprecated -I/usr/local/include #boost local install
+LINKFLAGS2 := -shared -L$(LIB) -lcppnetlib-client-connections -lcppnetlib-uri -lssl
+
 all: clean build
 
-build: $(LIBRARY)
+build: $(LIBRARY) $(LIBRARY2)
 
 $(LIB) $(OBJ):
 	@mkdir -pv $@
-	
+
 $(OBJ)/%.o: $(SRC)/%.cpp $(INCLUDES)
 	@echo Compiling '$<' ...
 	$(CXX) $(CXXFLAGS) -c $< -o $@ -I $(INC)
@@ -69,6 +92,15 @@ $(OBJ)/%.o: $(SRC)/%.cpp $(INCLUDES)
 $(LIBRARY): $(LIB) $(OBJ) $(OBJECTS)
 	@echo Building C++ shared library '$@'
 	$(CXX) $(LINKFLAGS) -o $@  $(OBJECTS)
+
+$(OBJ2)/%.o: $(SRC2)/%.cpp $(INCLUDES2)
+	@echo Compiling '$<' ...
+	$(CXX) $(CXXFLAGS2) -c $< -o $@ -I $(INC2)
+
+$(LIBRARY2): $(OBJ2) $(OBJECTS2)
+	@echo Building C++ shared library '$@'
+	$(CXX) $(LINKFLAGS2) -o $@  $(OBJECTS2)
+
 
 clean:
 	@echo Cleaning object files ...

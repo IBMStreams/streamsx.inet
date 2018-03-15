@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<info:toolkitInfoModel xmlns:common="http://www.ibm.com/xmlns/prod/streams/spl/common"
+ xmlns:info="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo">
+ <info:identity>
+   <info:name>HTTPClientAsync</info:name>
+   <info:description>HTTPClientAsync</info:description>
+   <info:version>1.0.0</info:version>
+   <info:requiredProductVersion>4.2.1.3</info:requiredProductVersion>
+ </info:identity>
+  <info:dependencies>
+    <info:toolkit>
+      <common:name>com.ibm.streamsx.inet.async</common:name>
+      <common:version>1.0.3</common:version>
+    </info:toolkit>
+  </info:dependencies>
+</info:toolkitInfoModel>

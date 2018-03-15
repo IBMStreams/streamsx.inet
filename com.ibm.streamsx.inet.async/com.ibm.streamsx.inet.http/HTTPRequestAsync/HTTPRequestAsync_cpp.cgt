@@ -1,0 +1,62 @@
+<%SPL::CodeGen::implementationPrologue($model);%>
+
+<%
+my $url = $model->getParameterByName('url')->getValueAt(0)->getCppExpression();
+my $bodyParam = $model->getParameterByName('body');
+my $bodyType = $bodyParam ? $bodyParam->getValueAt(0)->getSPLType() : 'rstring';
+my $bodyExpr = $bodyParam ? $bodyParam->getValueAt(0)->getCppExpression() : 'rstring("")';
+my $methodExpr = $model->getParameterByName('method')->getValueAt(0)->getCppExpression();
+my $contentType = ($_ = $model->getParameterByName('contentType')) ? $_->getValueAt(0)->getSPLExpression() : 'urlencoded';
+my $userAgent = ($_ = $model->getParameterByName('userAgent')) ? $_->getValueAt(0)->getCppExpression() : '"IBM Streams HttpRequestAsync/1.0"';
+my $headersExpr = ($_ = $model->getParameterByName('headers')) ? $_->getValueAt(0)->getCppExpression() : '';
+my $connectionCap = ($_ = $model->getParameterByName('connectionCap')) ? $_->getValueAt(0)->getCppExpression() : '1000';
+my $threads = ($_ = $model->getParameterByName('workerQueues')) ? $_->getValueAt(0)->getCppExpression() : 1;
+%>
+
+@include "../Common/HTTPOperator_cpp.cgt"
+
+void MY_OPERATOR::process(Tuple const & tuple, uint32_t port) {
+	IPort0Type const & iport$0 = static_cast<IPort0Type const&>(tuple);
+
+	<%$headersExpr = $headersExpr ? "($headersExpr.begin(), $headersExpr.end())" : '';%>
+	unordered_map headers <%=$headersExpr%>;
+	if(headers.count("Content-Type") == 0)
+		headers["Content-Type"] = <%=$ContentType{$contentType}%>;
+
+	if(headers.count("User-Agent") == 0)
+		headers["User-Agent"] = <%=$userAgent%>;
+
+	<%
+	  if ($bodyType eq 'blob') {
+		$bodyExpr = qq(std::string(reinterpret_cast<const char*>($bodyExpr.getData()), $bodyExpr.getSize()));
+	  }
+	  elsif ($bodyType eq 'map<rstring,rstring>') {
+		$bodyExpr = $bodyExpr ? qq(($bodyExpr.begin(), $bodyExpr.end())) : '';
+		print qq( unordered_map body $bodyExpr; );
+	    $bodyExpr = 'body';
+	  }
+	  my $args = qq((httpClient::Method)$methodExpr.getIndex(), void_ptr(new IPort0Type(iport\$0)), $url, headers, $bodyExpr);
+	%>
+
+	while(numConnections_ >= <%=$connectionCap%>) {
+		SPLAPPLOG(L_WARN, "max connections reached", "HTTP");
+		getPE().blockUntilShutdownRequest(0.01);
+	}
+
+	if(threads_ == 1)
+		httpClients_[0]->httpReq(<%=$args%>);
+	else
+		httpClients_[randInt_(gen_)]->httpReq(<%=$args%>);
+
+	++numConnections_;
+	handleMetrics(N_CONNECTIONS, numConnections_);
+	handleMetrics(N_REQUESTS);
+}
+
+<%
+SPL::CodeGen::exitln("'body' param must be of type 'blob, 'rstring' or 'map<rstring,rstring>'", $model->getContext()->getSourceLocation())
+	unless ($bodyType ~~ ['blob','rstring','map<rstring,rstring>']);
+
+validateErrorPort($model);
+%>
+<%SPL::CodeGen::implementationEpilogue($model);%>
