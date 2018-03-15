@@ -3,8 +3,8 @@
 The IBMStreams/streamsx.inet toolkit project is an open source IBM InfoSphere Streams toolkit project supporting common internet protocols, such as HTTP, WebSockets, etc.
 
 Note that development is proceeding on two branches: 
-* The v2.0.0 branch is currently at version 2.0.1, and it contains what's shipped with the Streams product.   
-* The master branch is at version 2.6, and it contains several more operators, including the FTP operators, `HTTPTupleInjection` and `HTTPTupleView`.  It should be considered pre-release.   
+* The `master` branch is the main development stream and contains operators and functions which are available on all supported platforms. A subset of this operators is shipped with the Streams product.
+* The branch `HTTPRequestAsync` contains a new operator which is designed to work well with HTTP(S) (REST) services in asynchronous manner. It should be considered pre-release.
 
 This toolkit implements the NLS feature. Use the guidelines for the message bundle that are described in [The messages and the NLS for toolkits](https://github.com/IBMStreams/administration/wiki/Messages-and-National-Language-Support-for-toolkits)
 
@@ -25,3 +25,10 @@ To learn more about Streams:
 
 The FTP operators in namespace com.ibm.streamsx.inet.ftp need the system library libcurl (version 7.19.7 or higher) installed.
 Developers needs additionally the libcurl-devel package.
+
+Steps to use the `HTTPRequestAsync` operator:
+* Checkout branch HTTPRequestAsync
+* change into directory com.ibm.streamsx.inet.async
+* build the toolkit `ant clean all`
+* a sample is available in directrory samples/HTTPClientAsync
+* build the sample with `make`
