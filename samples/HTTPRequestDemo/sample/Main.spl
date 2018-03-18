@@ -5,7 +5,7 @@ use com.ibm.streamsx.inet.http::HTTPRequest;
 composite Main {
 	param
 		expression<list<rstring>>              $url    : (list<rstring>)             getSubmissionTimeValue(
-			"url", '["http://httpbin.org/get","http://httpbin.org/gzip","http://httpbin.org/redirect/3","http://httpbin.org/get","http://httpbin.org/get"]'
+			"url", '["http://httpbin.orgx/get","http://httpbin.org/gzip","http://httpbin.org/redirect/3","http://httpbin.org/get","http://httpbin.org/get"]'
 		);
 		/*expression<list<rstring>>              $method : (list<rstring>)             getSubmissionTimeValue(
 			"method", '["httpGet","httpGet","httpGet","httpGet","httpGet"]'
@@ -25,11 +25,17 @@ composite Main {
 				url = $url[(int32)IterationCount() % size($url)];
 		}
 		
-		stream<uint64 id, rstring url, rstring status, rstring contentEncoding, rstring contentType, rstring responseHeader, rstring data> Response as O = HTTPRequest(Trigger as I) {
+		stream<uint64 id, rstring url, rstring status, int32 stat, rstring contentEncoding, rstring contentType, rstring responseHeader, rstring data> Response as O = HTTPRequest(Trigger as I) {
 		//() as O = HTTPRequest(Trigger as I) {
 			param
 				url: url;
 				fixedMethod : GET;
+				bodyAttributeName : "data";
+				statusAttributeName : "status";
+				statusCodeAttributeName : "stat";
+				contentEncodingAttributeName : "contentEncoding";
+				contentTypeAttributeName : "contentType";
+				//method : url;
 				//vmArg: "-Djavax.net.debug=ssl:handshake", "-Dcom.ibm.jsse2.overrideDefaultTLS=true";
 		}
 		

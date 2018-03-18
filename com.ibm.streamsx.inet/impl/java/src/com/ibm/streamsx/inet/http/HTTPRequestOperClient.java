@@ -7,7 +7,8 @@
 package com.ibm.streamsx.inet.http;
 
 import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
 import com.ibm.streams.operator.OperatorContext;
 
@@ -17,13 +18,12 @@ import com.ibm.streams.operator.OperatorContext;
  */
 class HTTPRequestOperClient extends HTTPRequestOperAPI {
     
-    private HttpClient client;
+    private CloseableHttpClient client;
     
     public void initialize(OperatorContext context) throws Exception {
         super.initialize(context);
-        
-        client = new DefaultHttpClient();
-    }   
+        client = HttpClients.createDefault();
+    }
     
     HttpClient getClient() {
         return client;

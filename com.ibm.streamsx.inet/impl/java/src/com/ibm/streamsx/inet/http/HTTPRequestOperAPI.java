@@ -11,13 +11,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 import org.apache.http.entity.ContentType;
 
 import com.ibm.streams.operator.AbstractOperator;
 import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.TupleAttribute;
+import com.ibm.streams.operator.OperatorContext.ContextCheck;
+import com.ibm.streams.operator.Type.MetaType;
+import com.ibm.streams.operator.compile.OperatorContextChecker;
+import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.model.Parameter;
+import com.sun.xml.internal.ws.addressing.model.MissingAddressingHeaderException;
 
 /**
  * Handles the API (parameters) for the HTTPRequest operator.
@@ -40,14 +46,29 @@ class HTTPRequestOperAPI extends AbstractOperator {
             + "# Request Attributes\\n" + "Attributes from the input tuple are request parameters except for:\\n"
             + "* Any attribute specified by parameters `url` and `method`.\\n";
 
+    //register trace and log facility
+    protected static Logger logger = Logger.getLogger("com.ibm.streams.operator.log." + HTTPRequestOperAPI.class.getName());
+    protected static Logger tracer = Logger.getLogger(HTTPRequestOperAPI.class.getName());
+    
     /*
      * Operator parameters
      */
     private TupleAttribute<Tuple, String> url;
     private TupleAttribute<Tuple, String> method;
-    private String fixedUrl;
-    private HTTPMethod fixedMethod;
+    private String fixedUrl = null;
+    private HTTPMethod fixedMethod = null;
     private List<String> extraHeaders = Collections.emptyList();
+    private String dataAttributeName = null;
+    private String bodyAttributeName = null;
+    private String statusAttributeName = null;
+    private String statusCodeAttributeName = null;
+    private String headerAttributeName = null;
+    private String contentEncodingAttributeName = null;
+    private String contentTypeAttributeName = null;
+    
+    protected boolean shutdown = false;
+    protected boolean hasDataPort = false;
+    protected boolean hasErrorPort = false;
     
     // TODO implement content type.
     @SuppressWarnings("unused")
@@ -111,7 +132,45 @@ class HTTPRequestOperAPI extends AbstractOperator {
             throw new IllegalArgumentException(ct);
     }
 
+    @Parameter(optional=true, description="Name of the attribute to populate the response data with. This parameter is "
+                                        + "mandatory if the number of attributes of the output stream is greater than one.")
+    public void setDataAttributeName(String val) {
+        this.dataAttributeName = val;
+    }
+    @Parameter(optional=true, description="Name of the attribute to populate the response data with. This parameter is "
+            + "mandatory if the number of attributes of the output stream is greater than one.")
+    public void setBodyAttributeName(String val) {
+        this.bodyAttributeName = val;
+    }
+    @Parameter(optional=true, description="Name of the attribute to populate the response data with. This parameter is "
+            + "mandatory if the number of attributes of the output stream is greater than one.")
+    public void setStatusAttributeName(String val) {
+        this.statusAttributeName = val;
+    }
+    @Parameter(optional=true, description="Name of the attribute to populate the response data with. This parameter is "
+            + "mandatory if the number of attributes of the output stream is greater than one.")
+    public void setStatusCodeAttributeName(String val) {
+        this.statusCodeAttributeName = val;
+    }
+    @Parameter(optional=true, description="Name of the attribute to populate the response data with. This parameter is "
+            + "mandatory if the number of attributes of the output stream is greater than one.")
+    public void setHeaderAttributeName(String val) {
+        this.headerAttributeName = val;
+    }
+    @Parameter(optional=true, description="Name of the attribute to populate the response data with. This parameter is "
+            + "mandatory if the number of attributes of the output stream is greater than one.")
+    public void setContentEncodingAttributeName(String val) {
+        this.contentEncodingAttributeName = val;
+    }
+    @Parameter(optional=true, description="Name of the attribute to populate the response data with. This parameter is "
+            + "mandatory if the number of attributes of the output stream is greater than one.")
+    public void setContentTypeAttributeName(String val) {
+        this.contentTypeAttributeName = val;
+    }
+
+    //Methods
     public void initialize(com.ibm.streams.operator.OperatorContext context) throws Exception {
+        tracer.log(TraceLevel.TRACE, "initialize(context)");
         super.initialize(context);
 
         if (fixedMethod != null) {
@@ -126,6 +185,91 @@ class HTTPRequestOperAPI extends AbstractOperator {
             urlGetter = tuple -> url.getValue(tuple);
         }
 
+        if (context.getNumberOfStreamingOutputs() > 0) {
+            hasDataPort = true;
+            if(getOutput(0).getStreamSchema().getAttributeCount() == 1) {
+                if ( dataAttributeName == null && bodyAttributeName == null) {
+                    dataAttributeName = getOutput(0).getStreamSchema().getAttribute(0).getName();
+                }
+            }
+            Set<String> outPortAttributes = getOutput(0).getStreamSchema().getAttributeNames();
+            //final Set<String> outAttrNames = new HashSet<>("dataAttributeName", "bodyAttributeName", "statusAttributeName", "statusCodeAttributeName", "headerAttributeName");
+            String missingOutAttribute = null;
+
+            if (dataAttributeName != null) {
+                if (outPortAttributes.contains(dataAttributeName)) {
+                    MetaType paramType = getOutput(0).getStreamSchema().getAttribute(dataAttributeName).getType().getMetaType();
+                    if(paramType!=MetaType.USTRING && paramType!=MetaType.RSTRING)
+                        throw new Exception("Only types \""+MetaType.USTRING+"\" and \""+MetaType.RSTRING+"\" allowed for param \""+dataAttributeName+"\"");
+                } else {
+                    missingOutAttribute = dataAttributeName;
+                }
+            }
+            
+            if (bodyAttributeName != null) {
+                if (outPortAttributes.contains(bodyAttributeName)) {
+                    MetaType paramType = getOutput(0).getStreamSchema().getAttribute(bodyAttributeName).getType().getMetaType();
+                    if(paramType!=MetaType.USTRING && paramType!=MetaType.RSTRING)
+                        throw new Exception("Only types \""+MetaType.USTRING+"\" and \""+MetaType.RSTRING+"\" allowed for param \""+bodyAttributeName+"\"");
+                } else {
+                    missingOutAttribute = bodyAttributeName;
+                }
+            }
+            
+            if (statusAttributeName != null) {
+                if (outPortAttributes.contains(statusAttributeName)) {
+                    MetaType paramType = getOutput(0).getStreamSchema().getAttribute(statusAttributeName).getType().getMetaType();
+                    if(paramType!=MetaType.USTRING && paramType!=MetaType.RSTRING)
+                        throw new Exception("Only types \""+MetaType.USTRING+"\" and \""+MetaType.RSTRING+"\" allowed for param \""+statusAttributeName+"\"");
+                } else {
+                    missingOutAttribute = statusAttributeName;
+                }
+            }
+            
+            if (statusCodeAttributeName != null) {
+                if (outPortAttributes.contains(statusCodeAttributeName)) {
+                    MetaType paramType = getOutput(0).getStreamSchema().getAttribute(statusCodeAttributeName).getType().getMetaType();
+                    if(paramType!=MetaType.INT32)
+                        throw new Exception("Only types \""+MetaType.INT32+"\" allowed for param \""+statusCodeAttributeName+"\"");
+                } else {
+                    missingOutAttribute = statusCodeAttributeName;
+                }
+            }
+            
+            if (headerAttributeName != null) {
+                if (outPortAttributes.contains(headerAttributeName)) {
+                    MetaType paramType = getOutput(0).getStreamSchema().getAttribute(headerAttributeName).getType().getMetaType();
+                    if(paramType!=MetaType.USTRING && paramType!=MetaType.RSTRING)
+                        throw new Exception("Only types \""+MetaType.USTRING+"\" and \""+MetaType.RSTRING+"\" allowed for param \""+headerAttributeName+"\"");
+                } else {
+                    missingOutAttribute = headerAttributeName;
+                }
+            }
+            
+            if (contentEncodingAttributeName != null) {
+                if (outPortAttributes.contains(contentEncodingAttributeName)) {
+                    MetaType paramType = getOutput(0).getStreamSchema().getAttribute(contentEncodingAttributeName).getType().getMetaType();
+                    if(paramType!=MetaType.USTRING && paramType!=MetaType.RSTRING)
+                        throw new Exception("Only types \""+MetaType.USTRING+"\" and \""+MetaType.RSTRING+"\" allowed for param \""+contentEncodingAttributeName+"\"");
+                } else {
+                    missingOutAttribute = contentEncodingAttributeName;
+                }
+            }
+            
+            if (contentTypeAttributeName != null) {
+                if (outPortAttributes.contains(contentTypeAttributeName)) {
+                    MetaType paramType = getOutput(0).getStreamSchema().getAttribute(contentTypeAttributeName).getType().getMetaType();
+                    if(paramType!=MetaType.USTRING && paramType!=MetaType.RSTRING)
+                        throw new Exception("Only types \""+MetaType.USTRING+"\" and \""+MetaType.RSTRING+"\" allowed for param \""+contentTypeAttributeName+"\"");
+                } else {
+                    missingOutAttribute = contentTypeAttributeName;
+                }
+            }
+
+            if (missingOutAttribute != null) 
+                throw new Exception("No attribute with name "+missingOutAttribute+" found in schema of output port 0.");
+        }
+
         // Assume request attributes (sent for any method that accepts an
         // entity)
         // are all attributes, excluding those that are used to specify the
@@ -137,27 +281,34 @@ class HTTPRequestOperAPI extends AbstractOperator {
             requestAttributes.remove(method.getAttribute().getName());
     }
 
+    @Override
+    public void shutdown() {
+        shutdown = true;
+    }
+
     /*
      * Methods uses by implementation class
      */
 
-    HTTPMethod getMethod(Tuple tuple) {
-        return methodGetter.apply(tuple);
-    }
+    HTTPMethod getMethod(Tuple tuple) { return methodGetter.apply(tuple); }
 
-    String getUrl(Tuple tuple) {
-        return urlGetter.apply(tuple);
-    }
+    String getUrl(Tuple tuple) { return urlGetter.apply(tuple); }
 
-    Set<String> getRequestAttributes() {
-        return requestAttributes;
-    }
+    Set<String> getRequestAttributes() { return requestAttributes; }
 
     boolean isRequestAttribute(Object name) {
         return getRequestAttributes().contains(name);
     }
 
-    public List<String> getExtraHeaders() {
-        return extraHeaders;
-    }
+    public List<String> getExtraHeaders() { return extraHeaders; }
+    
+    public String getDataAttributeName() { return dataAttributeName; }
+    
+    public String getBodyAttributeName() { return bodyAttributeName; }
+    public String getStatusAttributeName() { return statusAttributeName; }
+    public String getStatusCodeAttributeName() { return statusCodeAttributeName; }
+    public String getHeaderAttributeName() { return headerAttributeName; }
+    public String getContentEncodingAttributeName() { return contentEncodingAttributeName; }
+    public String getContentTypeAttributeName() { return contentTypeAttributeName; }
+
 }
