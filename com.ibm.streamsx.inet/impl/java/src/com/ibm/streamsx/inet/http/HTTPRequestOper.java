@@ -45,6 +45,7 @@ import com.ibm.streams.operator.model.InputPortSet;
 import com.ibm.streams.operator.model.InputPorts;
 import com.ibm.streams.operator.model.Libraries;
 import com.ibm.streams.operator.model.PrimitiveOperator;
+import com.ibm.streams.operator.types.RString;
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPortSet.WindowPunctuationOutputMode;
 import com.ibm.streamsx.inet.messages.Messages;
@@ -99,7 +100,6 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             request = createPut(url, tuple);
             break;
         case GET:
-        	System.out.println("Create get");
             request = createGet(url, tuple);
             break;
         case CONNECT:
@@ -154,7 +154,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
         req.setEntity(new StringEntity(jo.serialize(), ContentType.APPLICATION_JSON));
     }
 
-    void sendOtuple(Tuple inTuple, String statusLine, int statusCode, String contentEncoding, String contentType, List<String> headers, String body) throws Exception {
+    void sendOtuple(Tuple inTuple, String statusLine, int statusCode, String contentEncoding, String contentType, List<RString> headers, String body) throws Exception {
         StreamingOutput<OutputTuple> op = getOutput(0);
         OutputTuple otup = op.newTuple();
         otup.assign(inTuple);
@@ -171,7 +171,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
     void sendRequest(Tuple inTuple, HttpRequestBase request) throws ClientProtocolException, IOException, Exception {
         String statusLine = "";
         int statusCode = -1;
-        List<String> headers = new ArrayList<>();
+        List<RString> headers = new ArrayList<>();
         String contentEncoding = "";
         String contentType = "";
         String body = "";
@@ -195,20 +195,32 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                 if (entity != null) {
                     if (tracer.isLoggable(TraceLevel.TRACE))
                         tracer.log(TraceLevel.TRACE, "entitiy isChunked="+entity.isChunked()+" isRepeatable="+entity.isRepeatable()+" isStreaming="+entity.isStreaming());
+                    //content type and encoding
                     Header contEnc = entity.getContentEncoding();
                     if (contEnc != null) contentEncoding = contEnc.toString();
                     Header contType = entity.getContentType();
                     if (contentType != null) contentType = contType.toString();
-                    InputStream instream = entity.getContent();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(instream));
-                    String inputLine = null;
-                    while (!shutdown && ((inputLine = reader.readLine()) != null)) {
-                        if (hasDataPort) {
-                            if (getDataAttributeName() != null) {
+                    //Response Headers
+                    HeaderIterator hi = response.headerIterator();
+                    while (hi.hasNext()) {
+                        Header myh = hi.nextHeader();
+                        String h = myh.toString();
+                        RString rh = new RString(h);
+                        headers.add(rh);
+                    }
+                    //Message Body
+                    if (hasDataPort) {
+                        if (getDataAttributeName() != null) {
+                            InputStream instream = entity.getContent();
+                            BufferedReader reader = new BufferedReader(new InputStreamReader(instream));
+                            String inputLine = null;
+                            while (!shutdown && ((inputLine = reader.readLine()) != null)) {
                                 sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, inputLine);
                                 tupleSent = true;
                             }
-                            if (getBodyAttributeName() != null) body = body + inputLine;
+                        }
+                        if (getBodyAttributeName() != null) {
+                            body = EntityUtils.toString(entity);
                         }
                     }
                     EntityUtils.consume(entity);

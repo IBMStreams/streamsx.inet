@@ -22,8 +22,9 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
     
     public void initialize(OperatorContext context) throws Exception {
         super.initialize(context);
+        
         client = HttpClients.createDefault();
-    }
+    }   
     
     HttpClient getClient() {
         return client;

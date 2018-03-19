@@ -5,36 +5,40 @@ use com.ibm.streamsx.inet.http::HTTPRequest;
 composite Main {
 	param
 		expression<list<rstring>>              $url    : (list<rstring>)             getSubmissionTimeValue(
-			"url", '["http://httpbin.orgx/get","http://httpbin.org/gzip","http://httpbin.org/redirect/3","http://httpbin.org/get","http://httpbin.org/get"]'
+			"url", '["http://httpbin.org/get","http://httpbin.org/gzip","http://httpbin.org/redirect/3","http://httpbin.org/post","http://httpbin.org/get"]'
 		);
-		/*expression<list<rstring>>              $method : (list<rstring>)             getSubmissionTimeValue(
-			"method", '["httpGet","httpGet","httpGet","httpGet","httpGet"]'
+		expression<list<rstring>>              $method : (list<rstring>)             getSubmissionTimeValue(
+			"method", '["GET","GET","GET","POST","GET"]'
 		);
-		expression<list<rstring>>              $data   : (list<rstring>)             getSubmissionTimeValue(
+		/*expression<list<rstring>>              $data   : (list<rstring>)             getSubmissionTimeValue(
 			"data", '["","","","",""]'
 		);*/
 		expression<int32>                      $iterations: (int32)                  getSubmissionTimeValue("iterations", "10");
 		expression<float64>                    $period    : (float64)                getSubmissionTimeValue("period", "0.5");
 	graph
-		stream<uint64 id, rstring url> Trigger as O = Beacon() {
+		stream<uint64 id, rstring url, rstring method> Trigger as O = Beacon() {
 			param 
 				iterations : $iterations;
 				period     : $period;
 			output O:
 				id = IterationCount(),
-				url = $url[(int32)IterationCount() % size($url)];
+				url = $url[(int32)IterationCount() % size($url)],
+				method = $method[(int32)IterationCount() % size($method)];
 		}
 		
 		stream<uint64 id, rstring url, rstring status, int32 stat, rstring contentEncoding, rstring contentType, rstring responseHeader, rstring data> Response as O = HTTPRequest(Trigger as I) {
 		//() as O = HTTPRequest(Trigger as I) {
 			param
 				url: url;
-				fixedMethod : GET;
+				//fixedMethod : GET;
+				method : method;
 				bodyAttributeName : "data";
 				statusAttributeName : "status";
 				statusCodeAttributeName : "stat";
 				contentEncodingAttributeName : "contentEncoding";
 				contentTypeAttributeName : "contentType";
+				extraHeaders : "Myheader: aaaa", "Myheader2: bbb";
+				//extraHeaders : "Myheader : aaaa";
 				//method : url;
 				//vmArg: "-Djavax.net.debug=ssl:handshake", "-Dcom.ibm.jsse2.overrideDefaultTLS=true";
 		}

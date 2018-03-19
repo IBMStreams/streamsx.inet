@@ -7,8 +7,10 @@
 package com.ibm.streamsx.inet.http;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -16,13 +18,16 @@ import java.util.logging.Logger;
 import org.apache.http.entity.ContentType;
 
 import com.ibm.streams.operator.AbstractOperator;
+import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.TupleAttribute;
 import com.ibm.streams.operator.OperatorContext.ContextCheck;
 import com.ibm.streams.operator.Type.MetaType;
 import com.ibm.streams.operator.compile.OperatorContextChecker;
 import com.ibm.streams.operator.logging.TraceLevel;
+import com.ibm.streams.operator.meta.CollectionType;
 import com.ibm.streams.operator.model.Parameter;
+import com.ibm.streams.operator.types.RString;
 import com.sun.xml.internal.ws.addressing.model.MissingAddressingHeaderException;
 
 /**
@@ -49,7 +54,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
     //register trace and log facility
     protected static Logger logger = Logger.getLogger("com.ibm.streams.operator.log." + HTTPRequestOperAPI.class.getName());
     protected static Logger tracer = Logger.getLogger(HTTPRequestOperAPI.class.getName());
-    
+    protected OperatorContext operatorContext = null;
     /*
      * Operator parameters
      */
@@ -115,8 +120,10 @@ class HTTPRequestOperAPI extends AbstractOperator {
     }
 
     @Parameter(optional = true, description = "Extra headers to send with request, format is `Header-Name: value`.")
-    public void setExtraHeaders(List<String> extraHeaders) {
-        this.extraHeaders = extraHeaders;
+    public void setExtraHeaders(String[] extraHeaders) {
+        //This is never called
+        //this.extraHeaders = operatorContext.getParameterValues("extraHeaders");
+        //this.extraHeaders = extraHeaders;
     }
 
     // TODO: use contentType
@@ -172,6 +179,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
     public void initialize(com.ibm.streams.operator.OperatorContext context) throws Exception {
         tracer.log(TraceLevel.TRACE, "initialize(context)");
         super.initialize(context);
+        operatorContext = context;
 
         if (fixedMethod != null) {
             methodGetter = t -> fixedMethod;
@@ -185,10 +193,32 @@ class HTTPRequestOperAPI extends AbstractOperator {
             urlGetter = tuple -> url.getValue(tuple);
         }
 
-        if (context.getNumberOfStreamingOutputs() > 0) {
+        Set<String> parameterNames = context.getParameterNames();
+
+        if (parameterNames.contains("extraHeaders")) {
+            extraHeaders = operatorContext.getParameterValues("extraHeaders");
+        }
+        
+        boolean hasOutputAttributeParameter = false;
+        if (parameterNames.contains("dataAttributeName")
+         || parameterNames.contains("bodyAttributeName")
+         || parameterNames.contains("statusAttributeName")
+         || parameterNames.contains("statusCodeAttributeName")
+         || parameterNames.contains("headerAttributeName")
+         || parameterNames.contains("contentEncodingAttributeName")
+         || parameterNames.contains("contentTypeAttributeName")
+         || parameterNames.contains("bodyAttributeName")
+         || parameterNames.contains("bodyAttributeName")
+         ) {
+            hasOutputAttributeParameter = true;
+        }
+        if (context.getNumberOfStreamingOutputs() == 0) {
+            if (hasOutputAttributeParameter)
+                throw new Exception("Operator has output attribute name parameter but has no output port");
+        } else {
             hasDataPort = true;
             if(getOutput(0).getStreamSchema().getAttributeCount() == 1) {
-                if ( dataAttributeName == null && bodyAttributeName == null) {
+                if ( ! hasOutputAttributeParameter ) {
                     dataAttributeName = getOutput(0).getStreamSchema().getAttribute(0).getName();
                 }
             }
@@ -239,8 +269,14 @@ class HTTPRequestOperAPI extends AbstractOperator {
             if (headerAttributeName != null) {
                 if (outPortAttributes.contains(headerAttributeName)) {
                     MetaType paramType = getOutput(0).getStreamSchema().getAttribute(headerAttributeName).getType().getMetaType();
-                    if(paramType!=MetaType.USTRING && paramType!=MetaType.RSTRING)
-                        throw new Exception("Only types \""+MetaType.USTRING+"\" and \""+MetaType.RSTRING+"\" allowed for param \""+headerAttributeName+"\"");
+                    if(paramType==MetaType.LIST) {
+                        //CollectionType collectionType = (CollectionType) paramType;
+                        //MetaType elemType = collectionType.getElementType().getMetaType();
+                        //if (elemType!=MetaType.RSTRING)
+                        //    throw new Exception("Only element types \""+MetaType.RSTRING+"\" allowed for param \""+headerAttributeName+"\"");
+                    } else {
+                        throw new Exception("Only types \""+MetaType.LIST+"\" allowed for param \""+headerAttributeName+"\"");
+                    }
                 } else {
                     missingOutAttribute = headerAttributeName;
                 }
