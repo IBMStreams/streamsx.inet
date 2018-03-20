@@ -17,22 +17,22 @@ use com.ibm.streamsx.inet.http::*;
 public composite Main {
 	param
 		expression<list<rstring>>              $url    : (list<rstring>)             getSubmissionTimeValue(
-			"url", '["http://httpbin.org/get","http://httpbin.org/gzip","http://httpbin.org/redirect/3","http://httpbin.org/get","http://httpbin.org/get"]'
+			"url", '["http://httpbin.org/get","http://httpbin.org/gzip","http://httpbin.org/redirect/3","http://httpbin.org/post","http://httpbin.org/put","http://httpbin.org/delete"]'
 		);
 		expression<list<rstring>>              $method : (list<rstring>)             getSubmissionTimeValue(
-			"method", '["httpGet","httpGet","httpGet","httpGet","httpGet"]'
+			"method", '["httpGet","httpGet","httpGet","httpPost","httpPut","httpDelete"]'
 		);
 		expression<list<rstring>>              $data   : (list<rstring>)             getSubmissionTimeValue(
-			"data", '["","","","",""]'
+			"data", '["","","","mydata=xxxx","1234567890",""]'
 		);
-		expression<int32>                      $iterations: (int32)                  getSubmissionTimeValue("iterations", "10");
+		expression<int32>                      $iterations: (int32)                  getSubmissionTimeValue("iterations", "6");
 		expression<float64>                    $period    : (float64)                getSubmissionTimeValue("period", "0.5");
 		expression<boolean>                    $burst     : (boolean)                getSubmissionTimeValue("burst", "false");
 		expression<int32>                      $noConn    : (int32)                  getSubmissionTimeValue("noConn", "2");
 
 	graph
 		//provide a trigger stream
-		stream<rstring url, rstring someText, rstring data, HTTPParallelRequest.HttpMethod method> Trigger as O = Beacon() {
+		stream<rstring url, rstring someText, rstring data, HTTPParallelRequest.HttpMethod method, list<rstring> requestHeaders> Trigger as O = Beacon() {
 			param
 				iterations : $iterations;
 				period     : $period;

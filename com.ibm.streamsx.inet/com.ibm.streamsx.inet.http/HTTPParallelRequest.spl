@@ -48,7 +48,7 @@ public composite HTTPParallelRequest (output Result, Error; input Request) {
 		function                  $urlEncode : urlEncode;
 		expression<rstring>       $data : "";
 		expression<list<rstring>> $headers : [];
-		expression<rstring>       $contentTypeHeader: "ContentType: application/x-www-form-urlencoded";
+		expression<rstring>       $contentTypeHeader: "Content-Type: application/x-www-form-urlencoded";
 		expression<int32>         $requestTimeout : 5;
 		expression<int32>         $connectionTimeout : 120;
 		expression<int32>         $width: 8;
