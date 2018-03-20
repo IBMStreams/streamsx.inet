@@ -23,10 +23,14 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpOptions;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.HttpTrace;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
@@ -48,9 +52,10 @@ import com.ibm.streams.operator.model.PrimitiveOperator;
 import com.ibm.streams.operator.types.RString;
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPortSet.WindowPunctuationOutputMode;
-import com.ibm.streamsx.inet.messages.Messages;
 import com.ibm.streams.operator.model.OutputPorts;
+import com.ibm.streams.operator.Attribute;
 import com.ibm.streams.operator.OutputTuple;
+import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.StreamingOutput;
 
 @PrimitiveOperator(name = HTTPRequestOper.OPER_NAME, description = HTTPRequestOperAPI.DESC)
@@ -102,11 +107,19 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
         case GET:
             request = createGet(url, tuple);
             break;
-        case CONNECT:
+        //case CONNECT:
         case HEAD:
+            request = createHead(url, tuple);
+            break;
         case OPTIONS:
+            request = createOptions(url, tuple);
+            break;
         case DELETE:
+            request = createDelete(url, tuple);
+            break;
         case TRACE:
+            request = createTrace(url, tuple);
+            break;
         default:
             throw new UnsupportedOperationException(method.name());
         }
@@ -122,13 +135,13 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
 
     private HttpRequestBase createPost(String url, Tuple tuple) throws IOException {
         HttpPost post = new HttpPost(url);
-        createJsonEntity(post, tuple);
+        createEntity(post, tuple);
         return post;
     }
 
     private HttpRequestBase createPut(String url, Tuple tuple) throws IOException {
         HttpPut put = new HttpPut(url);
-        createJsonEntity(put, tuple);
+        createEntity(put, tuple);
         return put;
     }
 
@@ -138,20 +151,58 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
         return get;
     }
 
+    private HttpRequestBase createHead(String url, Tuple tuple) {
+        HttpHead head = new HttpHead(url);
+        return head;
+    }
+    
+    private HttpRequestBase createDelete(String url, Tuple tuple) {
+        HttpDelete options = new HttpDelete(url);
+        return options;
+    }
+    
+    private HttpRequestBase createOptions(String url, Tuple tuple) {
+        HttpOptions options = new HttpOptions(url);
+        return options;
+    }
+    
+    private HttpRequestBase createTrace(String url, Tuple tuple) {
+        HttpTrace options = new HttpTrace(url);
+        return options;
+    }
+    
     /*
      * Entity methods
      */
-    private void createJsonEntity(HttpEntityEnclosingRequest req, Tuple tuple) throws IOException {
+    private void createEntity(HttpEntityEnclosingRequest req, Tuple tuple) throws IOException {
+        if (contentType.getMimeType() == ContentType.APPLICATION_JSON.getMimeType()) {
+            JSONEncoding<JSONObject, JSONArray> je = EncodingFactory.getJSONEncoding();
+            JSONObject jo = je.encodeTuple(tuple);
 
-        JSONEncoding<JSONObject, JSONArray> je = EncodingFactory.getJSONEncoding();
-        JSONObject jo = je.encodeTuple(tuple);
-
-        for (Iterator<?> it = jo.keySet().iterator(); it.hasNext();) {
-            if (!isRequestAttribute(it.next())) {
-                it.remove();
+            for (Iterator<?> it = jo.keySet().iterator(); it.hasNext();) {
+                if (!isRequestAttribute(it.next())) {
+                    it.remove();
+                }
             }
+            req.setEntity(new StringEntity(jo.serialize(), ContentType.APPLICATION_JSON));
+            
+        } else if (contentType.getMimeType() == ContentType.APPLICATION_FORM_URLENCODED.getMimeType()) {
+            StreamSchema ss = tuple.getStreamSchema();
+            Iterator<Attribute> ia = ss.iterator();
+            String payload = "";
+            while (ia.hasNext()) {
+                Attribute attr =ia.next();
+                String name = attr.getName();
+                if (requestAttributes.contains(name)) {
+                    if (!payload.isEmpty())
+                        payload = payload+"\n";
+                    payload = payload + name + ":" + attr.toString();
+                }
+            }
+            req.setEntity(new StringEntity(payload, ContentType.APPLICATION_FORM_URLENCODED));
+        } else {
+            throw new UnsupportedOperationException(contentType.getMimeType());
         }
-        req.setEntity(new StringEntity(jo.serialize(), ContentType.APPLICATION_JSON));
     }
 
     void sendOtuple(Tuple inTuple, String statusLine, int statusCode, String contentEncoding, String contentType, List<RString> headers, String body) throws Exception {
@@ -236,21 +287,6 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     
                 }
             }
-            /*StreamingOutput<OutputTuple> op = getOutput(0);
-            OutputTuple otup = op.newTuple();
-            otup.setString("status", status.toString());
-            otup.setString("contentEncoding", contentEncoding);
-            otup.setString("contentType", contentType);
-            otup.setString("data", resp);
-            String respHeader = "";
-            HeaderIterator hi = response.headerIterator();
-            while (hi.hasNext()) {
-                Header myh = hi.nextHeader();
-                respHeader = respHeader + "||" + myh;
-            }
-            //Header[] ha = response.getAllHeaders();
-            otup.setString("responseHeader", respHeader);
-            op.submit(otup);*/
         } catch (ClientProtocolException e) {
             tracer.log(TraceLevel.ERROR, "ClientProtocolException: "+e.getMessage());
             sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, body);

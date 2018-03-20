@@ -7,10 +7,9 @@
 package com.ibm.streamsx.inet.http;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -18,17 +17,14 @@ import java.util.logging.Logger;
 import org.apache.http.entity.ContentType;
 
 import com.ibm.streams.operator.AbstractOperator;
-import com.ibm.streams.operator.OperatorContext;
+import com.ibm.streams.operator.Attribute;
+import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.TupleAttribute;
-import com.ibm.streams.operator.OperatorContext.ContextCheck;
 import com.ibm.streams.operator.Type.MetaType;
-import com.ibm.streams.operator.compile.OperatorContextChecker;
 import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.meta.CollectionType;
 import com.ibm.streams.operator.model.Parameter;
-import com.ibm.streams.operator.types.RString;
-import com.sun.xml.internal.ws.addressing.model.MissingAddressingHeaderException;
 
 /**
  * Handles the API (parameters) for the HTTPRequest operator.
@@ -54,7 +50,6 @@ class HTTPRequestOperAPI extends AbstractOperator {
     //register trace and log facility
     protected static Logger logger = Logger.getLogger("com.ibm.streams.operator.log." + HTTPRequestOperAPI.class.getName());
     protected static Logger tracer = Logger.getLogger(HTTPRequestOperAPI.class.getName());
-    protected OperatorContext operatorContext = null;
     /*
      * Operator parameters
      */
@@ -75,9 +70,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
     protected boolean hasDataPort = false;
     protected boolean hasErrorPort = false;
     
-    // TODO implement content type.
-    @SuppressWarnings("unused")
-    private ContentType contentType = ContentType.APPLICATION_JSON;
+    protected ContentType contentType = ContentType.APPLICATION_JSON;
 
     /*
      * Values derived from the parameters.
@@ -92,7 +85,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
     /**
      * Attributes that are part of the request.
      */
-    private Set<String> requestAttributes = new HashSet<>();
+    protected Set<String> requestAttributes = new HashSet<>();
 
     @Parameter(optional = true, description = "Attribute that specifies the URL to be used in the"
             + "HTTP request for a tuple.  One and only one of `url` and `fixedUrl` must be specified.")
@@ -130,13 +123,16 @@ class HTTPRequestOperAPI extends AbstractOperator {
     @Parameter(optional = true, description = "MIME content type of entity for `POST` and `PUT` requests. "
             + "Supported values are `application/json` and `application/x-www-form-urlencoded`."
             + " Defaults to `application/json`.")
-    public void setContentType(String ct) {
-        if (ct.equals(ContentType.APPLICATION_JSON.getMimeType()))
-            contentType = ContentType.APPLICATION_JSON;
-        else if (ct.equals(ContentType.APPLICATION_FORM_URLENCODED.getMimeType()))
-            contentType = ContentType.APPLICATION_FORM_URLENCODED;
-        else
-            throw new IllegalArgumentException(ct);
+    public void setContentType(String contentType) {
+        if (contentType.equals(ContentType.APPLICATION_JSON.getMimeType())) {
+            this.contentType = ContentType.APPLICATION_JSON;
+        } else if (contentType.equals(ContentType.APPLICATION_FORM_URLENCODED.getMimeType())) {
+            this.contentType = ContentType.APPLICATION_FORM_URLENCODED;
+        } else {
+            String allowedIs = ContentType.APPLICATION_JSON.getMimeType()+
+                           "|"+ContentType.APPLICATION_FORM_URLENCODED.getMimeType();
+            throw new IllegalArgumentException("Argument of contentType:"+contentType+" is invalid! Allowed is:"+allowedIs);
+        }
     }
 
     @Parameter(optional=true, description="Name of the attribute to populate the response data with. This parameter is "
@@ -174,12 +170,19 @@ class HTTPRequestOperAPI extends AbstractOperator {
     public void setContentTypeAttributeName(String val) {
         this.contentTypeAttributeName = val;
     }
+    @Parameter(optional=true, description="Names of the attributes which are part of the request body. The content of "
+            + "these attributes are sent for any method that accepts an entity (PUT / POST). If this parameter is missing, "
+            + "all attributes, excluding those that are used to specify the URL or method, are used in the request body.")
+    public void setRequestAttributes(String[] requestAttributes) {
+        //This is never called
+    }
 
-    //Methods
+    /*****************************************
+    * Initialize
+    *****************************************/
     public void initialize(com.ibm.streams.operator.OperatorContext context) throws Exception {
         tracer.log(TraceLevel.TRACE, "initialize(context)");
         super.initialize(context);
-        operatorContext = context;
 
         if (fixedMethod != null) {
             methodGetter = t -> fixedMethod;
@@ -196,7 +199,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
         Set<String> parameterNames = context.getParameterNames();
 
         if (parameterNames.contains("extraHeaders")) {
-            extraHeaders = operatorContext.getParameterValues("extraHeaders");
+            extraHeaders = context.getParameterValues("extraHeaders");
         }
         
         boolean hasOutputAttributeParameter = false;
@@ -230,7 +233,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
                 if (outPortAttributes.contains(dataAttributeName)) {
                     MetaType paramType = getOutput(0).getStreamSchema().getAttribute(dataAttributeName).getType().getMetaType();
                     if(paramType!=MetaType.USTRING && paramType!=MetaType.RSTRING)
-                        throw new Exception("Only types \""+MetaType.USTRING+"\" and \""+MetaType.RSTRING+"\" allowed for param \""+dataAttributeName+"\"");
+                        throw new IllegalArgumentException("Only types \""+MetaType.USTRING+"\" and \""+MetaType.RSTRING+"\" allowed for param \""+dataAttributeName+"\"");
                 } else {
                     missingOutAttribute = dataAttributeName;
                 }
@@ -240,7 +243,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
                 if (outPortAttributes.contains(bodyAttributeName)) {
                     MetaType paramType = getOutput(0).getStreamSchema().getAttribute(bodyAttributeName).getType().getMetaType();
                     if(paramType!=MetaType.USTRING && paramType!=MetaType.RSTRING)
-                        throw new Exception("Only types \""+MetaType.USTRING+"\" and \""+MetaType.RSTRING+"\" allowed for param \""+bodyAttributeName+"\"");
+                        throw new IllegalArgumentException("Only types \""+MetaType.USTRING+"\" and \""+MetaType.RSTRING+"\" allowed for param \""+bodyAttributeName+"\"");
                 } else {
                     missingOutAttribute = bodyAttributeName;
                 }
@@ -250,7 +253,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
                 if (outPortAttributes.contains(statusAttributeName)) {
                     MetaType paramType = getOutput(0).getStreamSchema().getAttribute(statusAttributeName).getType().getMetaType();
                     if(paramType!=MetaType.USTRING && paramType!=MetaType.RSTRING)
-                        throw new Exception("Only types \""+MetaType.USTRING+"\" and \""+MetaType.RSTRING+"\" allowed for param \""+statusAttributeName+"\"");
+                        throw new IllegalArgumentException("Only types \""+MetaType.USTRING+"\" and \""+MetaType.RSTRING+"\" allowed for param \""+statusAttributeName+"\"");
                 } else {
                     missingOutAttribute = statusAttributeName;
                 }
@@ -260,7 +263,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
                 if (outPortAttributes.contains(statusCodeAttributeName)) {
                     MetaType paramType = getOutput(0).getStreamSchema().getAttribute(statusCodeAttributeName).getType().getMetaType();
                     if(paramType!=MetaType.INT32)
-                        throw new Exception("Only types \""+MetaType.INT32+"\" allowed for param \""+statusCodeAttributeName+"\"");
+                        throw new IllegalArgumentException("Only types \""+MetaType.INT32+"\" allowed for param \""+statusCodeAttributeName+"\"");
                 } else {
                     missingOutAttribute = statusCodeAttributeName;
                 }
@@ -270,12 +273,14 @@ class HTTPRequestOperAPI extends AbstractOperator {
                 if (outPortAttributes.contains(headerAttributeName)) {
                     MetaType paramType = getOutput(0).getStreamSchema().getAttribute(headerAttributeName).getType().getMetaType();
                     if(paramType==MetaType.LIST) {
-                        //CollectionType collectionType = (CollectionType) paramType;
-                        //MetaType elemType = collectionType.getElementType().getMetaType();
-                        //if (elemType!=MetaType.RSTRING)
-                        //    throw new Exception("Only element types \""+MetaType.RSTRING+"\" allowed for param \""+headerAttributeName+"\"");
+                        Attribute attr = getOutput(0).getStreamSchema().getAttribute(headerAttributeName);
+                        CollectionType collType = (CollectionType) attr.getType();
+                        com.ibm.streams.operator.Type elemType = collType.getElementType();
+                        MetaType lelemTypeM = elemType.getMetaType();
+                        if (lelemTypeM != MetaType.RSTRING)
+                            throw new IllegalArgumentException("Only element types \""+MetaType.RSTRING+"\" allowed for param \""+headerAttributeName+"\"");
                     } else {
-                        throw new Exception("Only types \""+MetaType.LIST+"\" allowed for param \""+headerAttributeName+"\"");
+                        throw new IllegalArgumentException("Only types \""+MetaType.LIST+"\" allowed for param \""+headerAttributeName+"\"");
                     }
                 } else {
                     missingOutAttribute = headerAttributeName;
@@ -286,7 +291,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
                 if (outPortAttributes.contains(contentEncodingAttributeName)) {
                     MetaType paramType = getOutput(0).getStreamSchema().getAttribute(contentEncodingAttributeName).getType().getMetaType();
                     if(paramType!=MetaType.USTRING && paramType!=MetaType.RSTRING)
-                        throw new Exception("Only types \""+MetaType.USTRING+"\" and \""+MetaType.RSTRING+"\" allowed for param \""+contentEncodingAttributeName+"\"");
+                        throw new IllegalArgumentException("Only types \""+MetaType.USTRING+"\" and \""+MetaType.RSTRING+"\" allowed for param \""+contentEncodingAttributeName+"\"");
                 } else {
                     missingOutAttribute = contentEncodingAttributeName;
                 }
@@ -296,25 +301,49 @@ class HTTPRequestOperAPI extends AbstractOperator {
                 if (outPortAttributes.contains(contentTypeAttributeName)) {
                     MetaType paramType = getOutput(0).getStreamSchema().getAttribute(contentTypeAttributeName).getType().getMetaType();
                     if(paramType!=MetaType.USTRING && paramType!=MetaType.RSTRING)
-                        throw new Exception("Only types \""+MetaType.USTRING+"\" and \""+MetaType.RSTRING+"\" allowed for param \""+contentTypeAttributeName+"\"");
+                        throw new IllegalArgumentException("Only types \""+MetaType.USTRING+"\" and \""+MetaType.RSTRING+"\" allowed for param \""+contentTypeAttributeName+"\"");
                 } else {
                     missingOutAttribute = contentTypeAttributeName;
                 }
             }
 
             if (missingOutAttribute != null) 
-                throw new Exception("No attribute with name "+missingOutAttribute+" found in schema of output port 0.");
+                throw new IllegalArgumentException("No attribute with name "+missingOutAttribute+" found in schema of output port 0.");
         }
 
-        // Assume request attributes (sent for any method that accepts an
-        // entity)
-        // are all attributes, excluding those that are used to specify the
-        // URL or method.
-        requestAttributes.addAll(getInput(0).getStreamSchema().getAttributeNames());
-        if (url != null)
-            requestAttributes.remove(url.getAttribute().getName());
-        if (method != null)
-            requestAttributes.remove(method.getAttribute().getName());
+        //Request attributes
+        StreamSchema ss = getInput(0).getStreamSchema();
+        Set<String> inputAttributeNames = ss.getAttributeNames();
+        if (parameterNames.contains("requestAttributes")) {
+            List<String> reqAttrNames = context.getParameterValues("requestAttributes");
+            if (inputAttributeNames.containsAll(reqAttrNames)) {
+                requestAttributes.addAll(reqAttrNames);
+            } else {
+                throw new IllegalArgumentException("Input stream does not have all requestAttributes: "+reqAttrNames.toString());
+            }
+        } else {
+            // Assume request attributes (sent for any method that accepts an entity)
+            // are all attributes, excluding those that are used to specify the URL or method.
+             requestAttributes.addAll(inputAttributeNames);
+             if (url != null)
+                 requestAttributes.remove(url.getAttribute().getName());
+             if (method != null)
+                 requestAttributes.remove(method.getAttribute().getName());
+        }
+        //Check whether all attributes are string type for urlencoded doc
+        if (contentType.getMimeType() == ContentType.APPLICATION_FORM_URLENCODED.getMimeType()) {
+            Iterator<Attribute> ia = ss.iterator();
+            while (ia.hasNext()) {
+                Attribute attr =ia.next();
+                String name = attr.getName();
+                if (requestAttributes.contains(name)) {
+                    MetaType paramType = attr.getType().getMetaType();
+                    if(paramType!=MetaType.USTRING && paramType!=MetaType.RSTRING) {
+                        throw new IllegalArgumentException("Attribute="+name+": If content type is:"+ContentType.APPLICATION_FORM_URLENCODED.getMimeType()+", request attributes must have type \""+MetaType.USTRING+"\" or \""+MetaType.RSTRING+"\"");
+                    }
+                }
+            }
+        }
     }
 
     @Override

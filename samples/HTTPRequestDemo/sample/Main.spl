@@ -5,47 +5,61 @@ use com.ibm.streamsx.inet.http::HTTPRequest;
 composite Main {
 	param
 		expression<list<rstring>>              $url    : (list<rstring>)             getSubmissionTimeValue(
-			"url", '["http://httpbin.org/get","http://httpbin.org/gzip","http://httpbin.org/redirect/3","http://httpbin.org/post","http://httpbin.org/get"]'
+			"url", '["http://httpbin.org/get","http://httpbin.org/gzip","http://httpbin.org/redirect/3","http://httpbin.org/post","http://httpbin.org/put", "http://httpbin.org/delete"]'
 		);
 		expression<list<rstring>>              $method : (list<rstring>)             getSubmissionTimeValue(
-			"method", '["GET","GET","GET","POST","GET"]'
+			"method", '["GET","GET","GET","POST","PUT","DELETE"]'
 		);
-		/*expression<list<rstring>>              $data   : (list<rstring>)             getSubmissionTimeValue(
-			"data", '["","","","",""]'
-		);*/
-		expression<int32>                      $iterations: (int32)                  getSubmissionTimeValue("iterations", "10");
-		expression<float64>                    $period    : (float64)                getSubmissionTimeValue("period", "0.5");
+		expression<list<rstring>>              $data   : (list<rstring>)             getSubmissionTimeValue(
+			"data", '["aaaa","bbbbb","ccccc","ddddd","eeeee","fffff"]'
+		);
+		expression<int32>                      $iterations: (int32)                  getSubmissionTimeValue("iterations", "6");
+		expression<float64>                    $period    : (float64)                getSubmissionTimeValue("period", "0.1");
 	graph
-		stream<uint64 id, rstring url, rstring method> Trigger as O = Beacon() {
+		stream<uint64 id, rstring url, rstring method, rstring data> Trigger as O = Beacon() {
 			param 
 				iterations : $iterations;
 				period     : $period;
 			output O:
 				id = IterationCount(),
 				url = $url[(int32)IterationCount() % size($url)],
-				method = $method[(int32)IterationCount() % size($method)];
+				method = $method[(int32)IterationCount() % size($method)],
+				data = $data[(int32)IterationCount() % size($data)];
 		}
 		
-		stream<uint64 id, rstring url, rstring status, int32 stat, rstring contentEncoding, rstring contentType, rstring responseHeader, rstring data> Response as O = HTTPRequest(Trigger as I) {
+		stream<uint64 id, rstring method, rstring url, rstring status, int32 stat, rstring contentEncoding, rstring contentType, list<rstring> responseHeader, rstring respData> Response as O = HTTPRequest(Trigger as I) {
 		//() as O = HTTPRequest(Trigger as I) {
 			param
 				url: url;
-				//fixedMethod : GET;
+				//fixedMethod : POST;
 				method : method;
-				bodyAttributeName : "data";
+				bodyAttributeName : "respData";
 				statusAttributeName : "status";
 				statusCodeAttributeName : "stat";
 				contentEncodingAttributeName : "contentEncoding";
 				contentTypeAttributeName : "contentType";
+				headerAttributeName : "responseHeader";
 				extraHeaders : "Myheader: aaaa", "Myheader2: bbb";
-				//extraHeaders : "Myheader : aaaa";
+				//contentType : "application/json";
+				contentType : "application/x-www-form-urlencoded";
+				//requestAttributes : "id", "url", "data";
+				requestAttributes : "url", "data";
 				//method : url;
 				//vmArg: "-Djavax.net.debug=ssl:handshake", "-Dcom.ibm.jsse2.overrideDefaultTLS=true";
 		}
 		
 		() as Printer = Custom(Response as I) {
 			logic
-				onTuple I: println(I);
+				onTuple I: {
+					printStringLn("******************************************");
+					printStringLn("id="+(rstring)id+"   method="+method+"     url="+url);
+					printStringLn("status="+status+"    code="+(rstring)stat);
+					printStringLn("contentEncoding="+contentEncoding+"       contentType="+contentType);
+					printStringLn("ResponseHeader");
+					printStringLn((rstring)responseHeader);
+					printStringLn("body");
+					printStringLn(respData);
+				}
 				onPunct I: println(currentPunct());
 		}
 	
