@@ -10,6 +10,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -21,8 +23,11 @@ import org.apache.http.HeaderIterator;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
@@ -31,8 +36,10 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpTrace;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 import com.ibm.json.java.JSONArray;
@@ -54,25 +61,32 @@ import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPortSet.WindowPunctuationOutputMode;
 import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.Attribute;
+import com.ibm.streams.operator.DataException;
 import com.ibm.streams.operator.OutputTuple;
 import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.StreamingOutput;
 
+/*******************************************************************************************
+ * 
+ * HTTP Request Operator
+ * 
+ ********************************************************************************************/
 @PrimitiveOperator(name = HTTPRequestOper.OPER_NAME, description = HTTPRequestOperAPI.DESC)
 @Libraries("opt/httpcomponents-client-4.5.5/lib/*")
 @Icons(location32 = "icons/HTTPPost_32.gif", location16 = "icons/HTTPPost_16.gif")
-@InputPorts(@InputPortSet(cardinality = 1, description = "Each tuple results in an HTTP request."))
+@InputPorts(@InputPortSet(cardinality = 1, description = "This stream contains the information sent in a http request. Each tuple with valid request data results in an HTTP request except if method `NONE`is specified."))
 @OutputPorts(
-	{
-		@OutputPortSet(
-			cardinality=1, optional=true, windowPunctuationOutputMode=WindowPunctuationOutputMode.Generating,
-			description="Data received from the server will be sent on this port."
-		)
-	}
+    {
+        @OutputPortSet(
+            cardinality=1, optional=true, windowPunctuationOutputMode=WindowPunctuationOutputMode.Generating,
+            description="Data received in the http response be sent on this port. Other attributes are assigned from input stream."
+        )
+    }
 )
 public class HTTPRequestOper extends HTTPRequestOperClient {
 
     public static final String OPER_NAME="HTTPRequest";
+    
     @ContextCheck(compile=true)
     public static void checkMethodParams(OperatorContextChecker occ) {
         Set<String> parameterNames = occ.getOperatorContext().getParameterNames();
@@ -83,142 +97,206 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             occ.setInvalidContext(OPER_NAME+" operator requires parameter url or fixedUrl", null);
         }
         occ.checkExcludedParameters("method", "fixedMethod");
-        occ.checkExcludedParameters("url", "fixedurl");
-        occ.checkExcludedParameters("dataAttributeName", "bodyAttributeName");
+        occ.checkExcludedParameters("url", "fixedUrl");
+        occ.checkExcludedParameters("contentType", "fixedContentType");
+        occ.checkExcludedParameters("outpuData", "outputBody");
+        occ.checkExcludedParameters("requestAttributes", "requestBody");
     }
 
+    /********************************************************************************
+     * process (StreamingInput<Tuple> stream, Tuple tuple)
+     ********************************************************************************/
     @Override
     public void process(StreamingInput<Tuple> stream, Tuple tuple) throws Exception {
 
-        // Create the request from the input tuple.
-        final String url = getUrl(tuple);
-        final HTTPMethod method = getMethod(tuple);
+        try {
+            // Create the request from the input tuple.
+            final String url = getUrl(tuple);
+            final HTTPMethod method = getMethod(tuple);
+            final ContentType contentType = getContentType(tuple);
+            if ((contentType == null) && ((method == com.ibm.streamsx.inet.http.HTTPMethod.POST) || (method == com.ibm.streamsx.inet.http.HTTPMethod.PUT))) {
+                throw new DataException("Invalid content Type in input tuple " + tuple.toString());
+            }
 
-        if (tracer.isLoggable(TraceLevel.DEBUG))
-            tracer.log(TraceLevel.DEBUG, "Request method:"+method.toString()+" url:"+url);
-        final HttpRequestBase request;
-        switch (method) {
-        case POST:
-            request = createPost(url, tuple);
-            break;
-        case PUT:
-            request = createPut(url, tuple);
-            break;
-        case GET:
-            request = createGet(url, tuple);
-            break;
-        //case CONNECT:
-        case HEAD:
-            request = createHead(url, tuple);
-            break;
-        case OPTIONS:
-            request = createOptions(url, tuple);
-            break;
-        case DELETE:
-            request = createDelete(url, tuple);
-            break;
-        case TRACE:
-            request = createTrace(url, tuple);
-            break;
-        default:
-            throw new UnsupportedOperationException(method.name());
+            if (tracer.isLoggable(TraceLevel.DEBUG))
+                tracer.log(TraceLevel.DEBUG, "Request method:"+method.toString()+" url:"+url);
+            switch (method) {
+            case POST: {
+                    HttpPost post = new HttpPost(url);
+                    createEntity(post, tuple, contentType);
+                    setHeader(post);
+                    sendRequest(tuple, post);
+                }
+                break;
+            case PUT: {
+                    HttpPut put = new HttpPut(url);
+                    createEntity(put, tuple, contentType);
+                    setHeader(put);
+                    sendRequest(tuple, put);
+                }
+                break;
+            case GET: {
+                    URI uri = createUriWithParams(url, tuple);
+                    HttpGet get = new HttpGet(uri);
+                    setHeader(get);
+                    sendRequest(tuple, get);
+                }
+                break;
+            //case CONNECT:
+            case HEAD: {
+                    URI uri = createUriWithParams(url, tuple);
+                    HttpHead head = new HttpHead(uri);
+                    setHeader(head);
+                    sendRequest(tuple, head);
+                }
+                break;
+            case OPTIONS: {
+                    HttpOptions options = new HttpOptions(url);
+                    setHeader(options);
+                    sendRequest(tuple, options);
+                }
+                break;
+            case DELETE: {
+                    HttpDelete delete = new HttpDelete(url);
+                    setHeader(delete);
+                    sendRequest(tuple, delete);
+                }
+                break;
+            case TRACE: {
+                    HttpTrace trace = new HttpTrace(url);
+                    setHeader(trace);
+                }
+                break;
+            case NONE: {
+                    sendOtuple(tuple, "", -1, "", "", new ArrayList<RString>(), "");
+                }
+                return;
+            default:
+                throw new UnsupportedOperationException(method.name()); //This exception must not happen - no catch
+            }
+
+        } catch (DataException e) {
+            tracer.log(TraceLevel.ERROR, e.getMessage()+" Input tuple:"+tuple.toString());
+        } catch (IllegalArgumentException e) {
+            tracer.log(TraceLevel.ERROR, e.getMessage()+" Input tuple:"+tuple.toString());
+        } catch (URISyntaxException e) {
+            tracer.log(TraceLevel.ERROR, e.getMessage()+" Input tuple:"+tuple.toString());
         }
+    }
 
-        // Add extra headers
-        Map<String, String> headerMap = HTTPUtils.getHeaderMap(getExtraHeaders());
+    /***********************************************************************************
+     * add query params to uri
+     ***********************************************************************************/
+    private URI createUriWithParams(String url, Tuple tuple) throws URISyntaxException {
+        URIBuilder uriBuilder = new URIBuilder(url);
+
+        //take all request attributes if no request body is given
+        StreamSchema ss = tuple.getStreamSchema();
+        Iterator<Attribute> ia = ss.iterator();
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        while (ia.hasNext()) {
+            Attribute attr =ia.next();
+            String name = attr.getName();
+            if (requestAttributes.contains(name)) {
+                int index = attr.getIndex();
+                //MetaType paramType = attr.getType().getMetaType();
+                String value = tuple.getString(index);
+                params.add(new BasicNameValuePair(name, value));
+                uriBuilder = uriBuilder.addParameter(name, value);
+            }
+        }
+        URI result = uriBuilder.build();
+        if (tracer.isLoggable(TraceLevel.DEBUG))
+            tracer.log(TraceLevel.DEBUG, "Request uri:"+result.toString());
+    return result;
+    }
+    
+    /************************************************
+     * set extra headers
+     ************************************************/
+    private void setHeader(HttpRequestBase request) {
+        Map<String, String> headerMap = HTTPUtils.getHeaderMapThrow(getExtraHeaders());
         for (Map.Entry<String, String> header : headerMap.entrySet()) {
             request.setHeader(header.getKey(), header.getValue());
         }
-
-        sendRequest(tuple, request);
-    }
-
-    private HttpRequestBase createPost(String url, Tuple tuple) throws IOException {
-        HttpPost post = new HttpPost(url);
-        createEntity(post, tuple);
-        return post;
-    }
-
-    private HttpRequestBase createPut(String url, Tuple tuple) throws IOException {
-        HttpPut put = new HttpPut(url);
-        createEntity(put, tuple);
-        return put;
-    }
-
-    private HttpRequestBase createGet(String url, Tuple tuple) {
-        HttpGet get = new HttpGet(url);
-        // TODO add query parameters
-        return get;
-    }
-
-    private HttpRequestBase createHead(String url, Tuple tuple) {
-        HttpHead head = new HttpHead(url);
-        return head;
     }
     
-    private HttpRequestBase createDelete(String url, Tuple tuple) {
-        HttpDelete options = new HttpDelete(url);
-        return options;
-    }
-    
-    private HttpRequestBase createOptions(String url, Tuple tuple) {
-        HttpOptions options = new HttpOptions(url);
-        return options;
-    }
-    
-    private HttpRequestBase createTrace(String url, Tuple tuple) {
-        HttpTrace options = new HttpTrace(url);
-        return options;
-    }
-    
-    /*
-     * Entity methods
-     */
-    private void createEntity(HttpEntityEnclosingRequest req, Tuple tuple) throws IOException {
-        if (contentType.getMimeType() == ContentType.APPLICATION_JSON.getMimeType()) {
-            JSONEncoding<JSONObject, JSONArray> je = EncodingFactory.getJSONEncoding();
-            JSONObject jo = je.encodeTuple(tuple);
-
-            for (Iterator<?> it = jo.keySet().iterator(); it.hasNext();) {
-                if (!isRequestAttribute(it.next())) {
-                    it.remove();
-                }
-            }
-            req.setEntity(new StringEntity(jo.serialize(), ContentType.APPLICATION_JSON));
-            
-        } else if (contentType.getMimeType() == ContentType.APPLICATION_FORM_URLENCODED.getMimeType()) {
-            StreamSchema ss = tuple.getStreamSchema();
-            Iterator<Attribute> ia = ss.iterator();
-            String payload = "";
-            while (ia.hasNext()) {
-                Attribute attr =ia.next();
-                String name = attr.getName();
-                if (requestAttributes.contains(name)) {
-                    if (!payload.isEmpty())
-                        payload = payload+"\n";
-                    payload = payload + name + ":" + attr.toString();
-                }
-            }
-            req.setEntity(new StringEntity(payload, ContentType.APPLICATION_FORM_URLENCODED));
+    /******************************************************************************************************************
+     * Create and add entity to request
+     *******************************************************************************************************************/
+    private void createEntity(HttpEntityEnclosingRequest req, Tuple tuple, ContentType contentType) throws IOException {
+        if (getRequestBody() != null) {
+            //take request body from input tuple transparently
+            String instr = getRequestBody().getValue(tuple);
+            req.setEntity(new StringEntity(instr, contentType));
         } else {
-            throw new UnsupportedOperationException(contentType.getMimeType());
+            //content type specific 
+            if (contentType.getMimeType() == ContentType.APPLICATION_JSON.getMimeType()) {
+                //take all request attributes if no request body is given
+                JSONEncoding<JSONObject, JSONArray> je = EncodingFactory.getJSONEncoding();
+                JSONObject jo = je.encodeTuple(tuple);
+                for (Iterator<?> it = jo.keySet().iterator(); it.hasNext();) {
+                    if (!isRequestAttribute(it.next())) {
+                        it.remove();
+                    }
+                }
+                req.setEntity(new StringEntity(jo.serialize(), ContentType.APPLICATION_JSON));
+            } else if (contentType.getMimeType() == ContentType.APPLICATION_FORM_URLENCODED.getMimeType()) {
+                //take all request attributes if no request body is given
+                StreamSchema ss = tuple.getStreamSchema();
+                Iterator<Attribute> ia = ss.iterator();
+                List<NameValuePair> params = new ArrayList<NameValuePair>();
+                while (ia.hasNext()) {
+                    Attribute attr =ia.next();
+                    String name = attr.getName();
+                    if (requestAttributes.contains(name)) {
+                        int index = attr.getIndex();
+                        //MetaType paramType = attr.getType().getMetaType();
+                        String value = tuple.getString(index);
+                        params.add(new BasicNameValuePair(name, value));
+                    }
+                }
+                req.setEntity(new UrlEncodedFormEntity(params));
+            } else {
+                //take all request attributes if no request body is given
+                StreamSchema ss = tuple.getStreamSchema();
+                Iterator<Attribute> ia = ss.iterator();
+                String payload = "";
+                while (ia.hasNext()) {
+                    Attribute attr =ia.next();
+                    String name = attr.getName();
+                    if (requestAttributes.contains(name)) {
+                        int index = attr.getIndex();
+                        //MetaType paramType = attr.getType().getMetaType();
+                        String value = tuple.getString(index);
+                        payload = payload+value;
+                    }
+                }
+                req.setEntity(new StringEntity(payload, contentType));
+            }
         }
     }
 
+    /******************************************************************************************************************
+     * send output tuple
+     ******************************************************************************************************************/
     void sendOtuple(Tuple inTuple, String statusLine, int statusCode, String contentEncoding, String contentType, List<RString> headers, String body) throws Exception {
         StreamingOutput<OutputTuple> op = getOutput(0);
         OutputTuple otup = op.newTuple();
         otup.assign(inTuple);
-        if ( getStatusAttributeName()          != null) otup.setString(getStatusAttributeName(), statusLine);
-        if ( getStatusCodeAttributeName()      != null) otup.setInt(getStatusCodeAttributeName(), statusCode);
-        if ( getContentEncodingAttributeName() != null) otup.setString(getContentEncodingAttributeName(), contentEncoding);
-        if ( getContentTypeAttributeName()     != null) otup.setString(getContentTypeAttributeName(), contentType);
-        if ( getHeaderAttributeName()          != null) otup.setList(getHeaderAttributeName(), headers);
-        if ( getDataAttributeName()            != null) otup.setString(getDataAttributeName(), body);
-        if ( getBodyAttributeName()            != null) otup.setString(getBodyAttributeName(), body);
+        if ( getOutputStatus()          != null) otup.setString(getOutputStatus(), statusLine);
+        if ( getOutputStatusCode()      != null) otup.setInt(getOutputStatusCode(), statusCode);
+        if ( getOutputContentEncoding() != null) otup.setString(getOutputContentEncoding(), contentEncoding);
+        if ( getOutputContentType()     != null) otup.setString(getOutputContentType(), contentType);
+        if ( getOutputHeader()          != null) otup.setList(getOutputHeader(), headers);
+        if ( getOutputDataLine()        != null) otup.setString(getOutputDataLine(), body);
+        if ( getOutputBody()            != null) otup.setString(getOutputBody(), body);
         op.submit(otup);
     }
     
+    /*****************************************************************************************************************
+     * send request
+     ****************************************************************************************************************/
     void sendRequest(Tuple inTuple, HttpRequestBase request) throws ClientProtocolException, IOException, Exception {
         String statusLine = "";
         int statusCode = -1;
@@ -227,11 +305,17 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
         String contentType = "";
         String body = "";
         try {
-            if (tracer.isLoggable(TraceLevel.DEBUG)) tracer.log(TraceLevel.DEBUG, "Request:"+request.toString());
+            if (tracer.isLoggable(TraceLevel.DEBUG)) {
+                tracer.log(TraceLevel.DEBUG, "Request:"+request.toString());
+                RequestConfig rc = request.getConfig();
+                if (rc == null)
+                    tracer.log(TraceLevel.DEBUG, "RequestConfir=null");
+                else
+                    tracer.log(TraceLevel.DEBUG, rc.toString());
+            }
 
             HttpResponse response = getClient().execute(request);
 
-            // TODO error handling
             StatusLine status = response.getStatusLine();
             statusLine = status.toString();
             statusCode = status.getStatusCode();
@@ -261,7 +345,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     }
                     //Message Body
                     if (hasDataPort) {
-                        if (getDataAttributeName() != null) {
+                        if (getOutputDataLine() != null) {
                             InputStream instream = entity.getContent();
                             BufferedReader reader = new BufferedReader(new InputStreamReader(instream));
                             String inputLine = null;
@@ -270,14 +354,14 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                                 tupleSent = true;
                             }
                         }
-                        if (getBodyAttributeName() != null) {
+                        if (getOutputBody() != null) {
                             body = EntityUtils.toString(entity);
                         }
                     }
                     EntityUtils.consume(entity);
                 }
                 if (hasDataPort) {
-                    if (getDataAttributeName() != null) {
+                    if (getOutputDataLine() != null) {
                         if ( ! tupleSent) {
                             sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, "");
                         }
