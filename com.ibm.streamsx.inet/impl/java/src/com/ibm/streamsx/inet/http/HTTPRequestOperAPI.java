@@ -6,6 +6,7 @@
 //
 package com.ibm.streamsx.inet.http;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -85,6 +86,11 @@ class HTTPRequestOperAPI extends AbstractOperator {
     private String outputHeader = null;
     private String outputContentEncoding = null;
     private String outputContentType = null;
+    
+    //connection configs
+    protected boolean sslAcceptAllCertificates = false;
+    protected String sslTrustStoreFile = null;
+    protected String sslTrustStorePassword = null;
     
     //internal operator state
     protected boolean shutdown = false;
@@ -217,6 +223,25 @@ class HTTPRequestOperAPI extends AbstractOperator {
         //+ "This parameter is mandatory if the number of attributes of the output stream is greater than one.")
     public void setOutputContentType(String outputContentType) {
         this.outputContentType = outputContentType;
+    }
+
+    /************************************
+     * connection config params 
+     ************************************/
+    @Parameter(optional=true, description="Accept all SSL certificates, even those that are self-signed. "
+        + "If this parameter is set, parameter `sslTrustStoreFile` is not allowed. "
+        + "Setting this option will allow potentially insecure connections. Default is false.")
+    public void setSslAcceptAllCertificates(boolean sslAcceptAllCertificates) {
+        this.sslAcceptAllCertificates = sslAcceptAllCertificates;
+    }
+    @Parameter(optional=true, description="Path to .jks trust store file used for TODO: ?server? and client authentication. "
+        + "If this parameter is set, parameter `sslTrustStorePassword` is required.")
+    public void setSslTrustStoreFile(String sslTrustStoreFile){
+        this.sslTrustStoreFile = sslTrustStoreFile;
+    }
+    @Parameter(optional=true, description="Password for the trust store and the keys it contains")
+    public void setSslTrustStorePassword(String sslTrustStorePassword){
+        this.sslTrustStorePassword = sslTrustStorePassword;
     }
 
     /*****************************************
@@ -376,6 +401,11 @@ class HTTPRequestOperAPI extends AbstractOperator {
             if (missingOutAttribute != null) 
                 throw new IllegalArgumentException("No attribute with name "+missingOutAttribute+" found in schema of output port 0.");
         }
+
+        //trust store 
+        URI baseConfigURI = context.getPE().getApplicationDirectory().toURI();
+        //auth = AuthHelper.getAuthenticator(authenticationType, PathConversionHelper.convertToAbsPath(baseConfigURI, authenticationFile), authenticationProperties);
+        sslTrustStoreFile = PathConversionHelper.convertToAbsPath(baseConfigURI, sslTrustStoreFile);
 
         //Check whether all attributes are string type for urlencoded doc
         /*if (contentType.getMimeType() == ContentType.APPLICATION_FORM_URLENCODED.getMimeType()) {

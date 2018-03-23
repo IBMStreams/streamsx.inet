@@ -101,6 +101,14 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
         occ.checkExcludedParameters("contentType", "fixedContentType");
         occ.checkExcludedParameters("outpuData", "outputBody");
         occ.checkExcludedParameters("requestAttributes", "requestBody");
+        
+        //The pair of these parameters is optional, we either need both to be present or neither of them
+        boolean hasFile = parameterNames.contains("sslTrustStoreFile");
+        boolean hasPassword = parameterNames.contains("sslTrustStorePassword");
+        if(hasFile ^ hasPassword) {
+            occ.setInvalidContext(HTTPPostOper.OPER_NAME + "Invalid trust store parameters, provide both a sslTrustStoreFile and a sslTrustStorePassword or provide neither", new String[]{});
+        }
+        occ.checkExcludedParameters("sslAcceptAllCertificates", "sslTrustStoreFile");
     }
 
     /********************************************************************************

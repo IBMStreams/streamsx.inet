@@ -5,7 +5,7 @@ use com.ibm.streamsx.inet.http::HTTPRequest;
 composite Main {
 	param
 		expression<list<rstring>>              $url    : (list<rstring>)             getSubmissionTimeValue(
-			"url", '["http://httpbin.org/get","http://httpbin.org/gzip","http://httpbin.org/redirect/3","http://httpbin.org/post","http://httpbin.org/put", "http://httpbin.org/delete", "http://httpbin.org/head"]'
+			"url", '["https://httpbin.org/get","https://httpbin.org/gzip","https://httpbin.org/redirect/3","https://httpbin.org/post","https://httpbin.org/put", "https://httpbin.org/delete", "https://httpbin.org/head"]'
 		);
 		expression<list<rstring>>              $method : (list<rstring>)             getSubmissionTimeValue(
 			"method", '["GET","GET","GET","POST","PUT","DELETE","HEAD"]'
@@ -47,10 +47,12 @@ composite Main {
 				extraHeaders : "Myheader: aaaa", "Myheader2: bbb";
 				//fixedContentType : "application/x-www-form-urlencoded";
 				contentType : contentType;
+				sslAcceptAllCertificates : true;
 				//requestAttributes : "id", "url", "data";
 				//requestAttributes : "url", "data";
 				//requestAttributes : "";
 				//method : url;
+				//vmArg: "-Djavax.net.debug=ssl:handshake", "-Dcom.ibm.jsse2.overrideDefaultTLS=true";
 				//vmArg: "-Djavax.net.debug=ssl:handshake", "-Dcom.ibm.jsse2.overrideDefaultTLS=true";
 		}
 		
