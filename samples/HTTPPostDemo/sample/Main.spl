@@ -1,0 +1,42 @@
+namespace sample;
+
+use com.ibm.streamsx.inet.http::HTTPPost;
+use com.ibm.streamsx.inet.http::HTTPResponse;
+
+composite Main {
+	param
+		expression<list<rstring>>              $url    : (list<rstring>)             getSubmissionTimeValue(
+			"url", '["http://httpbin.org/post","http://httpbin.org/put"]'
+		);
+		expression<list<rstring>>              $data   : (list<rstring>)             getSubmissionTimeValue(
+			"data", '["aaaa","bbbbb"]'
+		);
+		expression<int32>                      $iterations: (int32)                  getSubmissionTimeValue("iterations", "2");
+		expression<float64>                    $period    : (float64)                getSubmissionTimeValue("period", "0.1");
+	graph
+		//stream<uint64 id, rstring url, rstring method, rstring data> Trigger as O = Beacon() {
+		stream<rstring jsonString> Trigger as O = Beacon() {
+			param 
+				iterations : $iterations;
+				period     : $period;
+			output O:
+				jsonString = $url[(int32)IterationCount() % size($url)];
+		}
+		
+		stream<HTTPResponse> Response as O = HTTPPost(Trigger as I) {
+			param
+				url: "http://httpbin.org/post";
+				headerContentType : "application/json";
+				//headerContentType : "DEFAULT_TEXT";
+				//vmArg: "-Djavax.net.debug=ssl:handshake", "-Dcom.ibm.jsse2.overrideDefaultTLS=true";
+		}
+		
+		() as Printer = Custom(Response as I) {
+			logic
+				onTuple I: println(I);
+				onPunct I: println(currentPunct());
+		}
+	
+	config
+		restartable : false;
+}
