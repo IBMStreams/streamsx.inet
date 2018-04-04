@@ -322,7 +322,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     tracer.log(TraceLevel.DEBUG, rc.toString());
             }
 
-            HttpResponse response = getClient().execute(request);
+            HttpResponse response = httpClient.execute(request, httpContext);
 
             StatusLine status = response.getStatusLine();
             statusLine = status.toString();
@@ -342,7 +342,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     Header contEnc = entity.getContentEncoding();
                     if (contEnc != null) contentEncoding = contEnc.toString();
                     Header contType = entity.getContentType();
-                    if (contentType != null) contentType = contType.toString();
+                    if (contType != null) contentType = contType.toString();
                     //Response Headers
                     HeaderIterator hi = response.headerIterator();
                     while (hi.hasNext()) {

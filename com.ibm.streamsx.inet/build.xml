@@ -175,6 +175,7 @@ artifacts were left around and caused issues with the ant build.
 				<path refid="cp.compile" />
 			</classpath>
 			<compilerarg line="-s ${gensrc.dir}"/>
+			<!-- <compilerarg line="-Xlint:unchecked"/> -->
 		</javac>
 	</target>
 

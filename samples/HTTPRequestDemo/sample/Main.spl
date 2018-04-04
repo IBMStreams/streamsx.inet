@@ -5,10 +5,10 @@ use com.ibm.streamsx.inet.http::HTTPRequest;
 composite Main {
 	param
 		expression<list<rstring>>              $url    : (list<rstring>)             getSubmissionTimeValue(
-			"url", '["https://httpbin.org/get","https://httpbin.org/gzip","https://httpbin.org/redirect/3","https://httpbin.org/post","https://httpbin.org/put", "https://httpbin.org/delete", "https://httpbin.org/head"]'
+			"url", '["http://httpbin.org/get","http://httpbin.org/gzip","http://httpbin.org/redirect/3","http://httpbin.org/post","http://httpbin.org/put", "https://httpbin.org/delete", "http://httpbin.org/basic-auth/user/passwd"]'
 		);
 		expression<list<rstring>>              $method : (list<rstring>)             getSubmissionTimeValue(
-			"method", '["GET","GET","GET","POST","PUT","DELETE","HEAD"]'
+			"method", '["GET","GET","GET","POST","PUT","DELETE","GET"]'
 		);
 		expression<list<rstring>>              $data   : (list<rstring>)             getSubmissionTimeValue(
 			"data", '["aaaa","bbbbb","ccccc","ddddd","eeeee","fffff",""]'
@@ -18,6 +18,7 @@ composite Main {
 		);
 		expression<int32>                      $iterations: (int32)                  getSubmissionTimeValue("iterations", "7");
 		expression<float64>                    $period    : (float64)                getSubmissionTimeValue("period", "0.1");
+		expression<rstring>                    $auth      : (rstring)                getSubmissionTimeValue("auth", "ANY_HOST=user:passwd");
 	graph
 		stream<uint64 id, rstring url, rstring method, rstring data, rstring contentType> Trigger as O = Beacon() {
 			param 
@@ -47,13 +48,21 @@ composite Main {
 				extraHeaders : "Myheader: aaaa", "Myheader2: bbb";
 				//fixedContentType : "application/x-www-form-urlencoded";
 				contentType : contentType;
-				sslAcceptAllCertificates : true;
+				//sslAcceptAllCertificates : true;
 				//requestAttributes : "id", "url", "data";
 				//requestAttributes : "url", "data";
 				//requestAttributes : "";
 				//method : url;
+				//vmArg: "-Dcom.ibm.jsse2.overrideDefaultTLS=true";
 				//vmArg: "-Djavax.net.debug=ssl:handshake", "-Dcom.ibm.jsse2.overrideDefaultTLS=true";
-				//vmArg: "-Djavax.net.debug=ssl:handshake", "-Dcom.ibm.jsse2.overrideDefaultTLS=true";
+				//vmArg: "-Djavax.net.debug=ssl:handshake";
+				//sslTrustStoreFile : "/opt/ibm/InfoSphere_Streams/4.2.2.0/java/jre/lib/security/cacerts.extended";
+				//sslTrustStoreFile : "/home/joergboe/git4/streamsx.inet/samples/HTTPRequestDemo/etc/cacert";
+				sslTrustStoreFile : "etc/cacert";
+				//sslTrustStorePassword : "changeit";
+				sslTrustStorePassword : "mypass";
+				authenticationFile : "etc/http_request_auth.properties";
+				authenticationProperties : $auth;
 		}
 		
 		() as Printer = Custom(Response as I) {

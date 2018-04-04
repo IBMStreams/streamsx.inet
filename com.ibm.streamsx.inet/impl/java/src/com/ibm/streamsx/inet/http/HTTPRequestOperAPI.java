@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -88,6 +89,9 @@ class HTTPRequestOperAPI extends AbstractOperator {
     private String outputContentType = null;
     
     //connection configs
+    protected String authenticationFile = null;
+    //protected List<String> authenticationProperties = new ArrayList<String>();
+    protected List<String> authenticationProperties = null;
     protected boolean sslAcceptAllCertificates = false;
     protected String sslTrustStoreFile = null;
     protected String sslTrustStorePassword = null;
@@ -228,6 +232,23 @@ class HTTPRequestOperAPI extends AbstractOperator {
     /************************************
      * connection config params 
      ************************************/
+    @Parameter(optional=true, description="Path to the properties file containing authentication information. "
+        + "Authentication file is recommended to be stored in the application_dir/etc directory. "
+        + "Path of this file can be absolute or relative, if relative path is specified then it is relative to the application directory. "
+        + "A valid line is composed from the authentication Scope (hostname or `ANY_HOST`, equal sign, user, colon, password. "
+        + "E.g.: ANY_HOST=user:passwd "
+        + "See http_request_auth.properties in the toolkits etc directory for a sample of basic authentication properties.")
+    public void setAuthenticationFile(String val) {
+        this.authenticationFile = val;
+    }
+    @Parameter(optional=true, description="Properties to override those in the authentication file.")
+    public void setAuthenticationProperties(String[] authenticationProperties) {
+        /*if (authenticationProperties == null) {
+            authenticationProperties = new ArrayList<String>(val);
+        } else {
+            authenticationProperties.addAll(val);
+        }*/
+    }
     @Parameter(optional=true, description="Accept all SSL certificates, even those that are self-signed. "
         + "If this parameter is set, parameter `sslTrustStoreFile` is not allowed. "
         + "Setting this option will allow potentially insecure connections. Default is false.")
@@ -247,6 +268,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
     /*****************************************
     * Initialize
     *****************************************/
+    @Override
     public void initialize(com.ibm.streams.operator.OperatorContext context) throws Exception {
         tracer.log(TraceLevel.TRACE, "initialize(context)");
         super.initialize(context);
@@ -281,6 +303,10 @@ class HTTPRequestOperAPI extends AbstractOperator {
         if (parameterNames.contains("extraHeaders")) {
             extraHeaders = context.getParameterValues("extraHeaders");
         }
+        if (parameterNames.contains("authenticationProperties")) {
+            authenticationProperties = context.getParameterValues("authenticationProperties");
+        }
+
         //Check whether all required request attributes are in input stream
         StreamSchema ss = getInput(0).getStreamSchema();
         Set<String> inputAttributeNames = ss.getAttributeNames();
@@ -406,6 +432,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
         URI baseConfigURI = context.getPE().getApplicationDirectory().toURI();
         //auth = AuthHelper.getAuthenticator(authenticationType, PathConversionHelper.convertToAbsPath(baseConfigURI, authenticationFile), authenticationProperties);
         sslTrustStoreFile = PathConversionHelper.convertToAbsPath(baseConfigURI, sslTrustStoreFile);
+        authenticationFile = PathConversionHelper.convertToAbsPath(baseConfigURI, authenticationFile);
 
         //Check whether all attributes are string type for urlencoded doc
         /*if (contentType.getMimeType() == ContentType.APPLICATION_FORM_URLENCODED.getMimeType()) {

@@ -7,17 +7,26 @@
 package com.ibm.streamsx.inet.http;
 
 import java.io.File;
+import java.io.FileReader;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Properties;
+import java.util.Set;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
@@ -33,11 +42,68 @@ import com.ibm.streams.operator.logging.TraceLevel;
  */
 class HTTPRequestOperClient extends HTTPRequestOperAPI {
     
-    private CloseableHttpClient client;
+    protected CloseableHttpClient httpClient = null;
+    protected CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+    protected HttpClientContext httpContext = HttpClientContext.create();
+
     
+    /******************************************************************
+     * initialize
+     ******************************************************************/
+    @Override
     public void initialize(OperatorContext context) throws Exception {
         super.initialize(context);
         
+        //Authentication parameters
+        boolean hasAuthenticationFile = (authenticationFile != null && ! authenticationFile.isEmpty());
+        boolean hasAuthenticationProperties = (authenticationProperties != null && ! authenticationProperties.isEmpty());
+        if (hasAuthenticationFile || hasAuthenticationProperties) {
+            Properties props = new Properties();
+            //read property file
+            if (hasAuthenticationFile) {
+                tracer.log(TraceLevel.DEBUG, "AuthenticationFile=" + authenticationFile);
+                props.load(new FileReader(authenticationFile));
+            }
+            //overrride with values from authenticationProperties parameter
+            if (hasAuthenticationProperties) {
+                for(String line : authenticationProperties) {
+                    int loc = line.indexOf("=");
+                    if(loc == -1) 
+                        throw new IllegalArgumentException("Invalid authentication property: " + line);
+                    String name = line.substring(0, loc);
+                    String val  = line.substring(loc+1, line.length());
+                    props.setProperty(name, val);
+                }
+            }
+            //set credentials
+            Set<String> propNames = props.stringPropertyNames();
+            ArrayList<AuthScope> allScopes = new ArrayList<>();
+            for (String authScope : propNames) {
+                AuthScope as = AuthScope.ANY;
+                if ( (! authScope.equals("ANY")) && (! authScope.equals("ANY_HOST"))) {
+                    as = new AuthScope(authScope, AuthScope.ANY_PORT);
+                }
+                allScopes.add(as);
+                String value = props.getProperty(authScope);
+                tracer.log(TraceLevel.TRACE, "AuthProp " + authScope + "=" + value);
+                int loc = value.indexOf(":");
+                if (loc == -1)
+                    throw new IllegalArgumentException("Invalid value field in authentication property " + authScope + " : " + value);
+                String user = value.substring(0, loc);
+                String pass = value.substring(loc+1, value.length());
+                credentialsProvider.setCredentials(as, new UsernamePasswordCredentials(user, pass));
+            }
+            StringBuilder sb = new StringBuilder("Start with credentials\n");
+            for (AuthScope ac : allScopes) {
+                sb.append(credentialsProvider.getCredentials(ac));
+                sb.append("\n");
+            }
+            tracer.log(TraceLevel.DEBUG, sb.toString());
+            //add credentials to http context
+            httpContext.setCredentialsProvider(credentialsProvider);
+        }
+
+        //ssl 
         SSLContext sslDefaultContext = SSLContext.getDefault();
         String[] sslDefaultProtocols = sslDefaultContext.getDefaultSSLParameters().getProtocols();
 
@@ -54,6 +120,7 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
 
         //trust all certificates
         if (sslAcceptAllCertificates) {
+            tracer.log(TraceLevel.DEBUG, "sslAcceptAllCertificates=" + sslAcceptAllCertificates);
             SSLContextBuilder sslContextBuilder = SSLContextBuilder.create();
             SSLContext sslContext = sslContextBuilder.build();
             
@@ -77,12 +144,12 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
             );
             
             clientBuilder.setSSLSocketFactory(sslcsf);
+            //clientBuilder.useSystemProperties();
         }
 
         // Trust own CA and all self-signed certs
         if (sslTrustStoreFile != null) {
-            //TODO: check this
-
+            tracer.log(TraceLevel.DEBUG, "sslTrustStoreFile=" + sslTrustStoreFile);
             SSLContext sslcontext = SSLContexts.custom()
                 .loadTrustMaterial(new File(sslTrustStoreFile), sslTrustStorePassword.toCharArray(), new TrustSelfSignedStrategy())
                 .build();
@@ -96,7 +163,7 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
             
             clientBuilder.setSSLSocketFactory(sslcsf);
         }
-        client = clientBuilder.build();
+        httpClient = clientBuilder.build();
         //client.getConnectionManager().getSchemeRegistry().
         //Dfauilt request config
         //RequestConfig defaultRequestConfig = RequestConfig.custom()
@@ -107,9 +174,5 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
         //clientBuilder.setDefaultRequestConfig(defaultRequestConfig);
         //setDefaultConnectionConfig
         //setDefaultRequestConfig
-    }
-    
-    HttpClient getClient() {
-        return client;
     }
 }
