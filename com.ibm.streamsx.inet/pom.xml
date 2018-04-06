@@ -28,16 +28,34 @@
 				<artifactId>commons-codec</artifactId>
 				<version>1.4</version>
 			</dependency>
-			<dependency>
-        <groupId>oauth.signpost</groupId>
-        <artifactId>signpost-core</artifactId>
-        <version>1.2</version>
-			</dependency>
-		<dependency>
-		  <groupId>oauth.signpost</groupId>
-		  <artifactId>signpost-commonshttp4</artifactId>
-		  <version>1.2.1.1</version>
-		</dependency>
+        <dependency>
+            <groupId>oauth.signpost</groupId>
+            <artifactId>signpost-core</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>oauth.signpost</groupId>
+            <artifactId>signpost-commonshttp4</artifactId>
+            <version>1.2.1.1</version>
+        </dependency>
+<!--  to be used for oltu lib
+        <dependency>
+            <groupId>org.apache.oltu.oauth2</groupId>
+            <artifactId>org.apache.oltu.oauth2.client</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+            <version>1.7.7</version>
+            <scope>test</scope>
+        </dependency>
+-->
     </dependencies>
     <build>
     </build>
