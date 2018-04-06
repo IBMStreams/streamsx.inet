@@ -1,6 +1,6 @@
 //
 // *******************************************************************************
-// * Copyright (C)2016, International Business Machines Corporation and *
+// * Copyright (C)2018, International Business Machines Corporation and *
 // * others. All Rights Reserved. *
 // *******************************************************************************
 //
@@ -57,8 +57,15 @@ import com.ibm.streams.operator.model.InputPorts;
 import com.ibm.streams.operator.model.Libraries;
 import com.ibm.streams.operator.model.PrimitiveOperator;
 import com.ibm.streams.operator.types.RString;
+import com.ibm.streamsx.inet.messages.Messages;
+
+import oauth.signpost.exception.OAuthCommunicationException;
+import oauth.signpost.exception.OAuthExpectationFailedException;
+import oauth.signpost.exception.OAuthMessageSignerException;
+
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPortSet.WindowPunctuationOutputMode;
+import com.ibm.streams.operator.state.ConsistentRegionContext;
 import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.Attribute;
 import com.ibm.streams.operator.DataException;
@@ -86,7 +93,17 @@ import com.ibm.streams.operator.StreamingOutput;
 public class HTTPRequestOper extends HTTPRequestOperClient {
 
     public static final String OPER_NAME="HTTPRequest";
-    
+
+    //consistent region checks
+    @ContextCheck(compile = true)
+    public static void checkInConsistentRegion(OperatorContextChecker checker) {
+        ConsistentRegionContext consistentRegionContext = checker.getOperatorContext().getOptionalContext(ConsistentRegionContext.class);
+        if(consistentRegionContext != null) {
+            checker.setInvalidContext(Messages.getString("CONSISTENT_CHECK_2"), new String[] {OPER_NAME});
+        }
+    }
+
+    //parameter checks
     @ContextCheck(compile=true)
     public static void checkMethodParams(OperatorContextChecker occ) {
         Set<String> parameterNames = occ.getOperatorContext().getParameterNames();
@@ -133,6 +150,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     HttpPost post = new HttpPost(url);
                     createEntity(post, tuple, contentType);
                     setHeader(post);
+                    signRequest(post);
                     sendRequest(tuple, post);
                 }
                 break;
@@ -140,6 +158,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     HttpPut put = new HttpPut(url);
                     createEntity(put, tuple, contentType);
                     setHeader(put);
+                    signRequest(put);
                     sendRequest(tuple, put);
                 }
                 break;
@@ -147,6 +166,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     URI uri = createUriWithParams(url, tuple);
                     HttpGet get = new HttpGet(uri);
                     setHeader(get);
+                    signRequest(get);
                     sendRequest(tuple, get);
                 }
                 break;
@@ -155,23 +175,27 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     URI uri = createUriWithParams(url, tuple);
                     HttpHead head = new HttpHead(uri);
                     setHeader(head);
+                    signRequest(head);
                     sendRequest(tuple, head);
                 }
                 break;
             case OPTIONS: {
                     HttpOptions options = new HttpOptions(url);
                     setHeader(options);
+                    signRequest(options);
                     sendRequest(tuple, options);
                 }
                 break;
             case DELETE: {
                     HttpDelete delete = new HttpDelete(url);
                     setHeader(delete);
+                    signRequest(delete);
                     sendRequest(tuple, delete);
                 }
                 break;
             case TRACE: {
                     HttpTrace trace = new HttpTrace(url);
+                    signRequest(trace);
                     setHeader(trace);
                 }
                 break;
@@ -226,6 +250,25 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
         Map<String, String> headerMap = HTTPUtils.getHeaderMapThrow(getExtraHeaders());
         for (Map.Entry<String, String> header : headerMap.entrySet()) {
             request.setHeader(header.getKey(), header.getValue());
+        }
+    }
+    
+    /************************************************
+     * sign the request if oath is used
+     * @throws OAuthCommunicationException 
+     * @throws OAuthExpectationFailedException 
+     * @throws OAuthMessageSignerException 
+     ************************************************/
+    private void signRequest(HttpRequestBase request) throws OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException {
+        switch (authenticationType) {
+        case STANDARD:
+            break;
+        case OAUTH1:
+            oAuthConsumer.sign(request);
+            break;
+        case OAUTH2:
+            request.setHeader(oAuth2AuthHeaderKey, oAuth2AuthHeaderValue);
+            break;
         }
     }
     

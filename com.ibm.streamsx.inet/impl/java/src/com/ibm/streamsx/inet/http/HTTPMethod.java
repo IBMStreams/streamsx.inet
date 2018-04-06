@@ -1,6 +1,6 @@
 //
 // *******************************************************************************
-// * Copyright (C)2016, International Business Machines Corporation.
+// * Copyright (C)2018, International Business Machines Corporation.
 // *******************************************************************************
 //
 package com.ibm.streamsx.inet.http;

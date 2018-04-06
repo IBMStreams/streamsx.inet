@@ -45,24 +45,25 @@ composite Main {
 				outputContentEncoding : "contentEncoding";
 				outputContentType : "contentType";
 				outputHeader : "responseHeader";
-				extraHeaders : "Myheader: aaaa", "Myheader2: bbb";
+				//extraHeaders : "Myheader: aaaa", "Myheader2: bbb";
 				//fixedContentType : "application/x-www-form-urlencoded";
 				contentType : contentType;
-				//sslAcceptAllCertificates : true;
+				sslAcceptAllCertificates : true;
 				//requestAttributes : "id", "url", "data";
 				//requestAttributes : "url", "data";
-				//requestAttributes : "";
+				requestAttributes : "";
 				//method : url;
 				//vmArg: "-Dcom.ibm.jsse2.overrideDefaultTLS=true";
 				//vmArg: "-Djavax.net.debug=ssl:handshake", "-Dcom.ibm.jsse2.overrideDefaultTLS=true";
 				//vmArg: "-Djavax.net.debug=ssl:handshake";
 				//sslTrustStoreFile : "/opt/ibm/InfoSphere_Streams/4.2.2.0/java/jre/lib/security/cacerts.extended";
 				//sslTrustStoreFile : "/home/joergboe/git4/streamsx.inet/samples/HTTPRequestDemo/etc/cacert";
-				sslTrustStoreFile : "etc/cacert";
+				//sslTrustStoreFile : "etc/cacert";
 				//sslTrustStorePassword : "changeit";
-				sslTrustStorePassword : "mypass";
-				authenticationFile : "etc/http_request_auth.properties";
+				//sslTrustStorePassword : "mypass";
+				authenticationFile : "../../toolkits/com.ibm.streamsx.inet/etc/http_request_oauth2.properties";
 				authenticationProperties : $auth;
+				authenticationType : "OAUTH2";
 		}
 		
 		() as Printer = Custom(Response as I) {

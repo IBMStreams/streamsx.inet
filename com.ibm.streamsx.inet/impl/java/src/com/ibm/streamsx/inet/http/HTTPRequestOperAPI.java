@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -59,9 +58,22 @@ class HTTPRequestOperAPI extends AbstractOperator {
             + "# TRACE\\n"
             + "No message body is generated.\\n"
             + "# NONE\\n"
-            + "No http request is generated but an output tuple is genrated if the output port is present."
-            + "# Request Attributes\\n" + "Attributes from the input tuple are request parameters except for:\\n"
-            + "* Any attribute specified by parameters `url`, `method` and `contentType`.\\n";
+            + "No http request is generated but an output tuple is genrated if the output port is present.\\n"
+            + "# Request Attributes\\n"
+            + "Attributes from the input tuple are request parameters except for:\\n"
+            + "* Any attribute specified by parameters `url`, `method` and `contentType`.\\n"
+            + "* If parameter `requestAttributes` is set, all attributes of this parameter are considered a request attribute.\\n"
+            + "* If parameter `requestAttributes` has one empty element, no attributes are considered a request attribute.\\n"
+            + "# Http Authentication\\n"
+            + "The operator supports the following authentication methods: Basic, Digest, OAuth1a and OAuth2.0; see parameter `authenticationType`.\\n"
+            + "# Behavior in a consistent region\\n"
+            + "This operator cannot be used inside a consistent region.";
+
+    public enum AuthenticationType {
+        STANDARD,
+        OAUTH1,
+        OAUTH2
+    }
 
     //register trace and log facility
     protected static Logger logger = Logger.getLogger("com.ibm.streams.operator.log." + HTTPRequestOperAPI.class.getName());
@@ -89,6 +101,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
     private String outputContentType = null;
     
     //connection configs
+    protected AuthenticationType authenticationType = AuthenticationType.STANDARD;
     protected String authenticationFile = null;
     //protected List<String> authenticationProperties = new ArrayList<String>();
     protected List<String> authenticationProperties = null;
@@ -101,7 +114,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
     protected boolean hasDataPort = false;
     boolean hasOutputAttributeParameter = false;
 
-    // Function to return theurl, method, content type from an input tuple or fixed
+    // Function to return the url, method, content type from an input tuple or fixed
     private Function<Tuple, HTTPMethod> methodGetter;
     private Function<Tuple, String> urlGetter;
     private Function<Tuple, ContentType> contentTypeGetter;
@@ -165,7 +178,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
     @Parameter(optional=true, description="Names of the attributes which are part of the request body. The content of "
             + "these attributes are sent for any method that accepts an entity (PUT / POST). If this parameter is missing, "
             + "all attributes, excluding those that are used to specify the URL, method or content type, are used in the request body. "
-            + "One empty element defines an empty list.")
+            + "One empty element defines an empty list which means no attributes are considered request attributes")
     public void setRequestAttributes(String[] requestAttributes) {
         //This is never called
     }
@@ -232,12 +245,29 @@ class HTTPRequestOperAPI extends AbstractOperator {
     /************************************
      * connection config params 
      ************************************/
+    /* streams error if there are more than one enum in a java op thus I use here a string */ 
+    @Parameter(optional=true, description="The type of used authentication method. "
+        + "Valid options are \\\"STANDARD\\\", \\\"OAUTH1,\\\" and \\\"OAUTH2\\\". Default is \\\"STANDARD\\\". "
+        + "If \\\"STANDARD\\\" is selected, the authorization may be none, basic or digest authorization. "
+        + "If the server requires basic or digest autorization one of the parameters `authenticationFile` or `authenticationProperties` is required. "
+        + "If the \\\"OAUTH1\\\" option is selected, the requests will be singed using OAuth 1.0a "
+        + "If the \\\"OAUTH2\\\" option is selected, the requests will be singed using OAuth 2.0.")
+    public void setAuthenticationType(String authenticationType) {
+        this.authenticationType = AuthenticationType.valueOf(authenticationType);
+    }
     @Parameter(optional=true, description="Path to the properties file containing authentication information. "
         + "Authentication file is recommended to be stored in the application_dir/etc directory. "
         + "Path of this file can be absolute or relative, if relative path is specified then it is relative to the application directory. "
+        + "The content of this file depends on the `authenticationType`.\\n"
+        + "* If `authenticationType` is `STANDARD`: "
         + "A valid line is composed from the authentication Scope (hostname or `ANY_HOST`, equal sign, user, colon, password. "
-        + "E.g.: ANY_HOST=user:passwd "
-        + "See http_request_auth.properties in the toolkits etc directory for a sample of basic authentication properties.")
+        + "E.g.: ANY_HOST=user:passwd\\n"
+        + "* If `authenticationType` is `OAUTH1`: "
+        + "The athentication file must contain key/value pairs for the keys: `consumerKey`, `consumerSecret`, `accessToken` and `accessTokenSecret`.\\n"
+        + "* If `authenticationType` is `OAUTH2`: "
+        + "The athentication file must contain one key/value pair for key `accessToken=myAccessToken`.\\n"
+        + "The athentication file may contain one key/value pair for key `authMethod`.\\n"
+        + "See `http_request_auth.properties`, `http_request_oauth1.properties` and `http_request_oauth2.properties` in the toolkits etc directory for a sample of authentication properties.")
     public void setAuthenticationFile(String val) {
         this.authenticationFile = val;
     }
@@ -267,6 +297,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
 
     /*****************************************
     * Initialize
+    * @throws Exception 
     *****************************************/
     @Override
     public void initialize(com.ibm.streams.operator.OperatorContext context) throws Exception {
