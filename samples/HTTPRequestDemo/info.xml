@@ -10,7 +10,7 @@
  <info:dependencies>
    <info:toolkit>
      <common:name>com.ibm.streamsx.inet</common:name>
-     <common:version>2.8.0</common:version>
+     <common:version>2.9.0</common:version>
    </info:toolkit>
  </info:dependencies>
 </info:toolkitInfoModel>
