@@ -3,9 +3,9 @@
  xmlns:info="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo">
  <info:identity>
    <info:name>HTTPPostDemo</info:name>
-   <info:description></info:description>
+   <info:description>Demonstrate the use of the httpPost operator</info:description>
    <info:version>1.0.0</info:version>
-   <info:requiredProductVersion>4.2.2.0</info:requiredProductVersion>
+   <info:requiredProductVersion>4.2.1.0</info:requiredProductVersion>
  </info:identity>
  <info:dependencies>
    <info:toolkit>

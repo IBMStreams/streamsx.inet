@@ -1,0 +1,87 @@
+use com.ibm.streamsx.inet.http::HTTPRequest;
+
+/**
+ * This sample demonstrates the use of the HTTPRequest operator.
+ * This sample executes a number of http requests and prints the result to the standard output.
+ * feed the content of files from a ftp-server into a IBM Streams application. It can be used for
+ * a quick test of an ftp server connection.
+ * If you want to store the user credentials securely, you should consider to use a
+ * Streams Application Configuration Object. see 
+ * [https://www.ibm.com/support/knowledgecenter/en/SSCRJU_4.2.0/com.ibm.streams.dev.doc/doc/creating-secure-app-configs-dev.html]
+ * and fetch the values from the application property with spl function getApplicationConfigurationProperty.
+ * 
+ * @param   url        The url list for the http requests
+ * @param   method     The method list for the http request
+ * @param   data       The message data used in methods POST and PUT
+ * @param   contt      The message header Content-Type for methods POST ant PUT
+ * @param   iterations The number of requests send
+ * @param   period     The period of the requests
+ */
+public composite Main {
+	param
+		expression<list<rstring>> $url        : (list<rstring>) getSubmissionTimeValue(
+			"url", '["http://httpbin.org/get","https://httpbin.org/gzip","http://httpbin.org/redirect/3","http://httpbin.org/post","http://httpbin.org/put", "https://httpbin.org/delete", "http://httpbin.org/basic-auth/user1/passwd1"]'
+		);
+		expression<list<rstring>> $method     : (list<rstring>) getSubmissionTimeValue(
+			"method", '["GET","GET","GET","POST","PUT","DELETE","GET"]'
+		);
+		expression<list<rstring>> $data       : (list<rstring>) getSubmissionTimeValue(
+			"data", '["aaaa","bbbbb","ccccc","ddddd","eeeee","fffff",""]'
+		);
+		expression<list<rstring>> $contt      : (list<rstring>) getSubmissionTimeValue(
+			"contt", '["aaaa","bbbbb","ccccc","application/x-www-form-urlencoded","application/json","fffff",""]'
+		);
+		expression<int32>         $iterations : (int32)         getSubmissionTimeValue("iterations", "7");
+		expression<float64>       $period     : (float64)       getSubmissionTimeValue("period", "0.1");
+	graph
+		stream<uint64 id, rstring url, rstring method, rstring data, rstring contentType> Trigger as O = Beacon() {
+			param 
+				iterations : $iterations;
+				period	 : $period;
+			output O:
+				id = IterationCount(),
+				url = $url[(int32)IterationCount() % size($url)],
+				method = $method[(int32)IterationCount() % size($method)],
+				data = $data[(int32)IterationCount() % size($data)],
+				contentType = $contt[(int32)IterationCount() % size($contt)];
+		}
+		
+		stream<uint64 id, rstring method, rstring url, rstring status, int32 stat, rstring contentEncoding, rstring contentType, list<rstring> responseHeader, rstring respData> Response as O = HTTPRequest(Trigger as I) {
+			param
+				url: url;
+				method : method;
+				outputBody : "respData";
+				outputStatus : "status";
+				outputStatusCode : "stat";
+				outputContentEncoding : "contentEncoding";
+				outputContentType : "contentType";
+				outputHeader : "responseHeader";
+				extraHeaders : "Myheader: aaaa", "Myheader2: bbb";
+				contentType : contentType;
+				//requestAttributes : "url", "data";
+				sslTrustStoreFile : "etc/cacert";
+				sslTrustStorePassword : "mypass";
+				authenticationType : "STANDARD";
+				authenticationFile : "etc/http_request_auth.properties";
+				//authenticationFile : "../../../output/toolkits/com.ibm.streamsx.inet/etc/http_request_oauth2.properties";
+		}
+		
+		() as Printer = Custom(Response as I) {
+			logic
+				onTuple I: {
+					printStringLn("******************************************");
+					printStringLn("id="+(rstring)id+"   method="+method+"	 url="+url);
+					printStringLn("status="+status+"	code="+(rstring)stat);
+					printStringLn("contentEncoding="+contentEncoding+"	   contentType="+contentType);
+					printStringLn("ResponseHeader");
+					printStringLn((rstring)responseHeader);
+					printStringLn("body");
+					printStringLn(respData);
+					printStringLn(getApplicationConfigurationProperty("myConfig", "myProp", "default"));
+				}
+				onPunct I: println(currentPunct());
+		}
+	
+	config
+		restartable : false;
+}

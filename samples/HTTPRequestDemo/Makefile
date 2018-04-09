@@ -11,7 +11,7 @@ STREAMS_INET_TOOLKIT ?=../../com.ibm.streamsx.inet:${STREAMS_INSTALL}/toolkits/c
 SPLC_FLAGS ?= -a -t $(STREAMS_INET_TOOLKIT)
 SPL_CMD_ARGS ?=
 SPLC = $(STREAMS_INSTALL)/bin/sc
-SPL_MAIN_COMPOSITE = sample::Main
+SPL_MAIN_COMPOSITE = Main
 OUTPUT=output
 
 all: clean distributed

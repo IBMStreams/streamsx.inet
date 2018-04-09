@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
@@ -57,7 +56,6 @@ import com.ibm.streams.operator.model.InputPorts;
 import com.ibm.streams.operator.model.Libraries;
 import com.ibm.streams.operator.model.PrimitiveOperator;
 import com.ibm.streams.operator.types.RString;
-import com.ibm.streamsx.inet.messages.Messages;
 
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -65,7 +63,6 @@ import oauth.signpost.exception.OAuthMessageSignerException;
 
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPortSet.WindowPunctuationOutputMode;
-import com.ibm.streams.operator.state.ConsistentRegionContext;
 import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.Attribute;
 import com.ibm.streams.operator.DataException;
@@ -92,40 +89,16 @@ import com.ibm.streams.operator.StreamingOutput;
 )
 public class HTTPRequestOper extends HTTPRequestOperClient {
 
-    public static final String OPER_NAME="HTTPRequest";
-
-    //consistent region checks
+    /********************************************
+     * compile time checks
+     ********************************************/
     @ContextCheck(compile = true)
     public static void checkInConsistentRegion(OperatorContextChecker checker) {
-        ConsistentRegionContext consistentRegionContext = checker.getOperatorContext().getOptionalContext(ConsistentRegionContext.class);
-        if(consistentRegionContext != null) {
-            checker.setInvalidContext(Messages.getString("CONSISTENT_CHECK_2"), new String[] {OPER_NAME});
-        }
+        HTTPRequestOperAPI.checkInConsistentRegion(checker);
     }
-
-    //parameter checks
     @ContextCheck(compile=true)
     public static void checkMethodParams(OperatorContextChecker occ) {
-        Set<String> parameterNames = occ.getOperatorContext().getParameterNames();
-        if (! parameterNames.contains("method") && ! parameterNames.contains("fixedMethod")) {
-            occ.setInvalidContext(OPER_NAME+" operator requires parameter method or fixedMethod", null);
-        }
-        if (! parameterNames.contains("url") && ! parameterNames.contains("fixedUrl")) {
-            occ.setInvalidContext(OPER_NAME+" operator requires parameter url or fixedUrl", null);
-        }
-        occ.checkExcludedParameters("method", "fixedMethod");
-        occ.checkExcludedParameters("url", "fixedUrl");
-        occ.checkExcludedParameters("contentType", "fixedContentType");
-        occ.checkExcludedParameters("outpuData", "outputBody");
-        occ.checkExcludedParameters("requestAttributes", "requestBody");
-        
-        //The pair of these parameters is optional, we either need both to be present or neither of them
-        boolean hasFile = parameterNames.contains("sslTrustStoreFile");
-        boolean hasPassword = parameterNames.contains("sslTrustStorePassword");
-        if(hasFile ^ hasPassword) {
-            occ.setInvalidContext(HTTPPostOper.OPER_NAME + "Invalid trust store parameters, provide both a sslTrustStoreFile and a sslTrustStorePassword or provide neither", new String[]{});
-        }
-        occ.checkExcludedParameters("sslAcceptAllCertificates", "sslTrustStoreFile");
+        HTTPRequestOperAPI.checkMethodParams(occ);
     }
 
     /********************************************************************************
@@ -195,8 +168,9 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                 break;
             case TRACE: {
                     HttpTrace trace = new HttpTrace(url);
-                    signRequest(trace);
                     setHeader(trace);
+                    signRequest(trace);
+                    sendRequest(tuple, trace);
                 }
                 break;
             case NONE: {
@@ -247,7 +221,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
      * set extra headers
      ************************************************/
     private void setHeader(HttpRequestBase request) {
-        Map<String, String> headerMap = HTTPUtils.getHeaderMapThrow(getExtraHeaders());
+        Map<String, String> headerMap = HTTPUtils.getHeaderMapThrow(extraHeaders);
         for (Map.Entry<String, String> header : headerMap.entrySet()) {
             request.setHeader(header.getKey(), header.getValue());
         }
@@ -335,13 +309,13 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
         StreamingOutput<OutputTuple> op = getOutput(0);
         OutputTuple otup = op.newTuple();
         otup.assign(inTuple);
-        if ( getOutputStatus()          != null) otup.setString(getOutputStatus(), statusLine);
-        if ( getOutputStatusCode()      != null) otup.setInt(getOutputStatusCode(), statusCode);
-        if ( getOutputContentEncoding() != null) otup.setString(getOutputContentEncoding(), contentEncoding);
-        if ( getOutputContentType()     != null) otup.setString(getOutputContentType(), contentType);
-        if ( getOutputHeader()          != null) otup.setList(getOutputHeader(), headers);
-        if ( getOutputDataLine()        != null) otup.setString(getOutputDataLine(), body);
-        if ( getOutputBody()            != null) otup.setString(getOutputBody(), body);
+        if ( outputStatus          != null) otup.setString(outputStatus,          statusLine);
+        if ( outputStatusCode      != null) otup.setInt   (outputStatusCode,      statusCode);
+        if ( outputContentEncoding != null) otup.setString(outputContentEncoding, contentEncoding);
+        if ( outputContentType     != null) otup.setString(outputContentType,     contentType);
+        if ( outputHeader          != null) otup.setList  (outputHeader,          headers);
+        if ( outputDataLine        != null) otup.setString(outputDataLine,        body);
+        if ( outputBody            != null) otup.setString(outputBody,            body);
         op.submit(otup);
     }
     
@@ -356,15 +330,60 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
         String contentType = "";
         String body = "";
         try {
-            if (tracer.isLoggable(TraceLevel.DEBUG)) {
-                tracer.log(TraceLevel.DEBUG, "Request:"+request.toString());
+            if (tracer.isLoggable(TraceLevel.DEBUG) || tracer.isLoggable(TraceLevel.TRACE)) {
+                StringBuilder sb = new StringBuilder("request to send:\n");
+                sb.append(request.getRequestLine());
+                Header[] hd = request.getAllHeaders();
+                int len = hd.length;
+                for (int i=0; i<len; i++) {
+                    String name = hd[i].getName();
+                    String val = hd[i].getValue();
+                    sb.append("\n").append(name).append(": ");
+                    if (name.equals("Authorization")) {
+                        sb.append("********");
+                    } else {
+                        sb.append(val);
+                    }
+                }
+                if (tracer.isLoggable(TraceLevel.TRACE)) {
+                    final HTTPMethod method = getMethod(inTuple);
+                    switch (method) {
+                    case POST: {
+                            HttpEntityEnclosingRequest her = (HttpEntityEnclosingRequest) request;
+                            HttpEntity he = her.getEntity();
+                            if (he != null) {
+                                String requestBody = EntityUtils.toString(he);
+                                sb.append("\n").append(requestBody);
+                            }
+                    }
+                        break;
+                    case PUT: {
+                            HttpEntityEnclosingRequest her = (HttpEntityEnclosingRequest) request;
+                            HttpEntity he = her.getEntity();
+                            if (he != null) {
+                                String requestBody = EntityUtils.toString(he);
+                                sb.append("\n").append(requestBody);
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                    }
+                }
                 RequestConfig rc = request.getConfig();
-                if (rc == null)
-                    tracer.log(TraceLevel.DEBUG, "RequestConfir=null");
-                else
-                    tracer.log(TraceLevel.DEBUG, rc.toString());
-            }
+                if (rc == null) {
+                    sb.append("\nRequestConfig=null");
+                } else {
+                    sb.append("\n").append(rc.toString());
+                }
 
+                if (tracer.isLoggable(TraceLevel.TRACE)) {
+                    tracer.log(TraceLevel.TRACE, sb.toString());
+                } else {
+                    tracer.log(TraceLevel.DEBUG, sb.toString());
+                }
+            }
+            
             HttpResponse response = httpClient.execute(request, httpContext);
 
             StatusLine status = response.getStatusLine();
@@ -396,7 +415,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     }
                     //Message Body
                     if (hasDataPort) {
-                        if (getOutputDataLine() != null) {
+                        if (outputDataLine != null) {
                             InputStream instream = entity.getContent();
                             BufferedReader reader = new BufferedReader(new InputStreamReader(instream));
                             String inputLine = null;
@@ -405,14 +424,14 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                                 tupleSent = true;
                             }
                         }
-                        if (getOutputBody() != null) {
+                        if (outputBody != null) {
                             body = EntityUtils.toString(entity);
                         }
                     }
                     EntityUtils.consume(entity);
                 }
                 if (hasDataPort) {
-                    if (getOutputDataLine() != null) {
+                    if (outputDataLine != null) {
                         if ( ! tupleSent) {
                             sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, "");
                         }

@@ -23,9 +23,12 @@ import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.TupleAttribute;
 import com.ibm.streams.operator.Type.MetaType;
+import com.ibm.streams.operator.compile.OperatorContextChecker;
 import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.meta.CollectionType;
 import com.ibm.streams.operator.model.Parameter;
+import com.ibm.streams.operator.state.ConsistentRegionContext;
+import com.ibm.streamsx.inet.messages.Messages;
 
 /**
  * Handles the API (parameters) for the HTTPRequest operator.
@@ -69,6 +72,8 @@ class HTTPRequestOperAPI extends AbstractOperator {
             + "# Behavior in a consistent region\\n"
             + "This operator cannot be used inside a consistent region.";
 
+    public static final String OPER_NAME="HTTPRequest";
+
     public enum AuthenticationType {
         STANDARD,
         OAUTH1,
@@ -87,23 +92,22 @@ class HTTPRequestOperAPI extends AbstractOperator {
     private String fixedContentType = null;
     private TupleAttribute<Tuple, String> contentType;
     protected ContentType contentTypeToUse = null;
-    private List<String> extraHeaders = Collections.emptyList();
+    protected List<String> extraHeaders = Collections.emptyList();
     private TupleAttribute<Tuple, String> requestBody = null;  //request body
     protected Set<String> requestAttributes = new HashSet<>(); //Attributes that are part of the request.
     
     //output parameters
-    private String outputDataLine = null;
-    private String outputBody = null;
-    private String outputStatus = null;
-    private String outputStatusCode = null;
-    private String outputHeader = null;
-    private String outputContentEncoding = null;
-    private String outputContentType = null;
+    protected String outputDataLine = null;
+    protected String outputBody = null;
+    protected String outputStatus = null;
+    protected String outputStatusCode = null;
+    protected String outputHeader = null;
+    protected String outputContentEncoding = null;
+    protected String outputContentType = null;
     
     //connection configs
     protected AuthenticationType authenticationType = AuthenticationType.STANDARD;
     protected String authenticationFile = null;
-    //protected List<String> authenticationProperties = new ArrayList<String>();
     protected List<String> authenticationProperties = null;
     protected boolean sslAcceptAllCertificates = false;
     protected String sslTrustStoreFile = null;
@@ -172,15 +176,13 @@ class HTTPRequestOperAPI extends AbstractOperator {
     @Parameter(optional = true, description = "Extra headers to send with request, format is `Header-Name: value`.")
     public void setExtraHeaders(String[] extraHeaders) {
         //This is never called get values in initialize method
-        //this.extraHeaders = operatorContext.getParameterValues("extraHeaders");
-        //this.extraHeaders = extraHeaders;
     }
     @Parameter(optional=true, description="Names of the attributes which are part of the request body. The content of "
             + "these attributes are sent for any method that accepts an entity (PUT / POST). If this parameter is missing, "
             + "all attributes, excluding those that are used to specify the URL, method or content type, are used in the request body. "
             + "One empty element defines an empty list which means no attributes are considered request attributes")
     public void setRequestAttributes(String[] requestAttributes) {
-        //This is never called
+        //This is never called !? Is set in initialize
     }
     @Parameter(optional=true, description="Request body attribute. If this parameter is set, the body of PUT and POST requests "
             + " is taken from this attribute. This parameter is not allowed if parameter `requestAttributes` is set.")
@@ -273,11 +275,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
     }
     @Parameter(optional=true, description="Properties to override those in the authentication file.")
     public void setAuthenticationProperties(String[] authenticationProperties) {
-        /*if (authenticationProperties == null) {
-            authenticationProperties = new ArrayList<String>(val);
-        } else {
-            authenticationProperties.addAll(val);
-        }*/
+        //This is never called !? Is set in initialize
     }
     @Parameter(optional=true, description="Accept all SSL certificates, even those that are self-signed. "
         + "If this parameter is set, parameter `sslTrustStoreFile` is not allowed. "
@@ -293,6 +291,38 @@ class HTTPRequestOperAPI extends AbstractOperator {
     @Parameter(optional=true, description="Password for the trust store and the keys it contains")
     public void setSslTrustStorePassword(String sslTrustStorePassword){
         this.sslTrustStorePassword = sslTrustStorePassword;
+    }
+
+    /********************************************
+     * compile time checks
+     ********************************************/
+    public static void checkInConsistentRegion(OperatorContextChecker checker) {
+        ConsistentRegionContext consistentRegionContext = checker.getOperatorContext().getOptionalContext(ConsistentRegionContext.class);
+        if(consistentRegionContext != null) {
+            checker.setInvalidContext(Messages.getString("CONSISTENT_CHECK_2"), new String[] {OPER_NAME});
+        }
+    }
+    public static void checkMethodParams(OperatorContextChecker occ) {
+        Set<String> parameterNames = occ.getOperatorContext().getParameterNames();
+        if (! parameterNames.contains("method") && ! parameterNames.contains("fixedMethod")) {
+            occ.setInvalidContext(OPER_NAME+" operator requires parameter method or fixedMethod", null);
+        }
+        if (! parameterNames.contains("url") && ! parameterNames.contains("fixedUrl")) {
+            occ.setInvalidContext(OPER_NAME+" operator requires parameter url or fixedUrl", null);
+        }
+        occ.checkExcludedParameters("method", "fixedMethod");
+        occ.checkExcludedParameters("url", "fixedUrl");
+        occ.checkExcludedParameters("contentType", "fixedContentType");
+        occ.checkExcludedParameters("outpuData", "outputBody");
+        occ.checkExcludedParameters("requestAttributes", "requestBody");
+        
+        //The pair of these parameters is optional, we either need both to be present or neither of them
+        boolean hasFile = parameterNames.contains("sslTrustStoreFile");
+        boolean hasPassword = parameterNames.contains("sslTrustStorePassword");
+        if(hasFile ^ hasPassword) {
+            occ.setInvalidContext(HTTPPostOper.OPER_NAME + "Invalid trust store parameters, provide both a sslTrustStoreFile and a sslTrustStorePassword or provide neither", new String[]{});
+        }
+        occ.checkExcludedParameters("sslAcceptAllCertificates", "sslTrustStoreFile");
     }
 
     /*****************************************
@@ -461,7 +491,6 @@ class HTTPRequestOperAPI extends AbstractOperator {
 
         //trust store 
         URI baseConfigURI = context.getPE().getApplicationDirectory().toURI();
-        //auth = AuthHelper.getAuthenticator(authenticationType, PathConversionHelper.convertToAbsPath(baseConfigURI, authenticationFile), authenticationProperties);
         sslTrustStoreFile = PathConversionHelper.convertToAbsPath(baseConfigURI, sslTrustStoreFile);
         authenticationFile = PathConversionHelper.convertToAbsPath(baseConfigURI, authenticationFile);
 
@@ -490,23 +519,14 @@ class HTTPRequestOperAPI extends AbstractOperator {
      * Methods uses by implementation class
      */
     HTTPMethod getMethod(Tuple tuple) { return methodGetter.apply(tuple); }
+
     String getUrl(Tuple tuple) { return urlGetter.apply(tuple); }
+
     ContentType getContentType(Tuple tuple) { return contentTypeGetter.apply(tuple); }
 
-    Set<String> getRequestAttributes() { return requestAttributes; }
-
     boolean isRequestAttribute(Object name) {
-        return getRequestAttributes().contains(name);
+        return requestAttributes.contains(name);
     }
 
-    public List<String> getExtraHeaders()    { return extraHeaders; }
     public TupleAttribute<Tuple, String> getRequestBody() { return requestBody; }
-    
-    public String getOutputDataLine()        { return outputDataLine; }
-    public String getOutputBody()            { return outputBody; }
-    public String getOutputStatus()          { return outputStatus; }
-    public String getOutputStatusCode()      { return outputStatusCode; }
-    public String getOutputHeader()          { return outputHeader; }
-    public String getOutputContentEncoding() { return outputContentEncoding; }
-    public String getOutputContentType()     { return outputContentType; }
 }

@@ -3,7 +3,7 @@ namespace sample;
 use com.ibm.streamsx.inet.http::HTTPPost;
 use com.ibm.streamsx.inet.http::HTTPResponse;
 
-composite Main {
+public composite Main {
 	param
 		expression<list<rstring>>              $url    : (list<rstring>)             getSubmissionTimeValue(
 			"url", '["http://httpbin.org/post","http://httpbin.org/put"]'

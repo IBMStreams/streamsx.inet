@@ -196,18 +196,8 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
             clientBuilder.setSSLSocketFactory(sslcsf);
         }
         httpClient = clientBuilder.build();
-        //client.getConnectionManager().getSchemeRegistry().
-        //Dfauilt request config
-        //RequestConfig defaultRequestConfig = RequestConfig.custom()
-        //    .setConnectionRequestTimeout(15)
-        //    .build();
-        //client = HttpClients.createDefault();
-        //clientBuilder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
-        //clientBuilder.setDefaultRequestConfig(defaultRequestConfig);
-        //setDefaultConnectionConfig
-        //setDefaultRequestConfig
     }
-    
+
     /*
      * Initialize oauth context
      */
@@ -240,6 +230,5 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
             throw new RuntimeException("Required property \"" + name + "\" not specified");
         return ret;
     }
-
 
 }
