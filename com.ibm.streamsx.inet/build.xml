@@ -34,7 +34,28 @@ All required libs are now available in the source repository
 	<property name="jarfile"           value="com.ibm.streamsx.inet.jar" />
 
 	<defaultexcludes add="**/.gitkeep"/>
-	
+
+	<path id="cp.streams">
+		<pathelement location="${streams.install}/lib/com.ibm.streams.operator.samples.jar" />
+	</path>
+
+	<!-- Since not all of the libs may be available for product build, not all of the libs may be available at build time -->
+	<path id="cp.manifest">
+		<fileset dir="opt">
+			<include name="eclipse-4.2.2/plugins/*.jar"/>
+			<include name="wssupport/Java-WebSocket-1.3.0.jar"/>
+			<include name="signpost-1.2/lib/*.jar"/>
+			<include name="httpcomponents-client-4.5.5/lib/*.jar"/>
+		</fileset>
+	</path>
+
+	<path id="cp.compile">
+		<path refid="cp.streams" />
+		<path refid="cp.manifest" />
+	</path>
+
+	<target name="all" depends="indextoolkit" description="build all source components and build toolkit index"/>
+
 	<target name="init">
 		<mkdir dir="${gensrc.dir}"/>
 		<mkdir dir="${build.dir}" />
@@ -74,50 +95,7 @@ All required libs are now available in the source repository
 		</delete>
 		<delete dir="${test.run.dir}" />
 		<delete dir="${test.build.dir}" />
-
 	</target>
-
-	<path id="cp.streams">
-		<pathelement location="${streams.install}/lib/com.ibm.streams.operator.samples.jar" />
-	</path>
-
-	<!-- comment out some resources which are not used in this build -->
-	<path id="cp.eclipse.jetty">
-		<fileset dir="opt/eclipse-4.2.2/plugins">
-			<include name="javax.servlet*.jar" />
-			<include name="org.eclipse.jetty*.jar" />
-		</fileset>
-	</path>
-	<path id="cp.wssocket">
-		<fileset dir="opt/wssupport">
-			<include name="Java-WebSocket-1.3.0.jar" />
-		</fileset>
-	</path>
-	<path id="cp.http.client">
-		<fileset dir="opt/httpcomponents-client-4.5.5/lib">
-			<include name="*.jar" />
-		</fileset>
-	</path>
-
-	<path id="cp.signpost">
-		<fileset dir="opt/signpost-1.2/lib">
-			<include name="*.jar"/>
-		</fileset>
-	</path>
-
-	<path id="cp.manifest">
-		<path refid="cp.eclipse.jetty" />
-		<path refid="cp.wssocket" />
-		<path refid="cp.http.client" />
-		<path refid="cp.signpost" />
-	</path>
-
-	<path id="cp.compile">
-		<path refid="cp.streams" />
-		<path refid="cp.manifest" />
-	</path>
-
-	<target name="all" depends="indextoolkit" description="build all source components and build toolkit index"/>
 
 	<target name="cpp" description="Build the c++ source components">
 		<exec executable="make" failonerror="true" dir="impl">
