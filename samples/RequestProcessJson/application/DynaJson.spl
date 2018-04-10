@@ -12,7 +12,7 @@ namespace application ;
 
 use com.ibm.streamsx.inet.rest::HTTPRequestProcess ;
 use com.ibm.streamsx.inet.rest::WebContext ;
-use com.ibm.streamsx.inet.http::HTTPRequest ;
+use com.ibm.streamsx.inet.rest::HTTPRequest ;
 use com.ibm.streamsx.json::JSONToTuple ;
 use com.ibm.streamsx.json::TupleToJSON ;
 

@@ -88,6 +88,22 @@ public class HTTPUtils {
 		return headerMap;
 	}
 	
+	public static Map<String, String> getHeaderMapThrow(List<String> headers) {
+		if(headers == null) return Collections.emptyMap();
+		Map<String, String> headerMap = new HashMap<String, String>(headers.size());
+		for(String header : headers) {
+			String[] headerParts = header.split(":\\s*", 2);
+			if(headerParts.length < 2) {
+				trace.log(TraceLevel.ERROR, "No ':' found in extraHeaders element '" + header + "'");
+				throw new IllegalArgumentException("No ':' found in extraHeaders element '" + header + "'");
+			}
+			String headerName = headerParts[0];
+			String headerValue = headerParts[1];
+			headerMap.put(headerName, headerValue);
+		}
+		return headerMap;
+	}
+	
 	public static HttpClient getHttpClientWithNoSSLValidation() throws Exception {
 		SSLContext sslContext = SSLContext.getInstance("SSL");
 		sslContext.init(null, new TrustManager[] {
