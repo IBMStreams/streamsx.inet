@@ -41,11 +41,6 @@ Alternatively, you can fully qualify the operators that are provided by toolkit 
 
 This toolkit uses Apache Ant 1.8 (or later) to build.
 
-Internally Apache Maven 3.2 (or later) and Make are used.
-
-Download and setup directions for Apache Maven can be found here:
-http://maven.apache.org/download.cgi#Installation
-
 The FTP operators in namespace com.ibm.streamsx.inet.ftp need the system library libcurl (version 7.19.7 or higher) installed. Developers needs additionally the libcurl-devel package.
 
 The top-level build.xml contains the main targets:
