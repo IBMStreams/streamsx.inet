@@ -17,36 +17,31 @@
 
   <target name="all"
     description="Build the toolkit code, build the samples index and generate the spl documentation"
-    depends="toolkit,samples, spldoc_work, toolkitIndexOnly"
+    depends="setcommitversion, toolkit, samples, spldoc_work"
   />
 
   <target name="setcommitversion">
-
     <!-- Extract the git commit hash -->
     <exec executable="git" outputproperty="commithash">
         <arg value="rev-parse"/>
         <arg value="--short"/>
         <arg value="HEAD"/>
     </exec>
-
-     <!-- Update the info.xml -->
-     <replace file="${toolkit}/info.xml" token="__dev__" value="commit_${commithash}" summary="yes"/>
-
+    <!-- Update the info.xml -->
+    <replace file="${toolkit}/info.xml" token="__dev__" value="commit_${commithash}" summary="yes"/>
     <!-- Extract info from the toolkit's info.xml -->
     <xmlproperty file="${toolkit}/info.xml" prefix="tkinfo" keepRoot="no"/>
-
     <echo message="Toolkit Version: ${tkinfo.identity.version}"/>
     <echo message="Git Hash: ${commithash}"/>
-     
   </target>
 
-   <target name="revertversion">
+  <target name="revertversion" description="Revert the version change (commithash) in info.xml">
     <exec executable="git">
         <arg value="checkout"/>
         <arg value="--"/>
         <arg value="${toolkit}/info.xml"/>
     </exec>
-    </target>
+  </target>
 
   <target name="clean" depends="cleansamples,releaseinfo-clean"
       description="clean up toolkit code and samples">
@@ -70,8 +65,7 @@
     description="Create SPLDOC with git commit hash included in the version"
   />
 
-  <target name="spldoc_work" depends="samples,setcommitversion"
-    description="Create SPLDOC">
+  <target name="spldoc_work" depends="samples"> <!-- can not be called independently thus has no description -->
     <antcall target="spldoctoolkit">
        <param name="tkdir" value="${toolkit}"/>
        <param name="tktitle" value="IBMStreams ${tkinfo.identity.name} Toolkit"/>
