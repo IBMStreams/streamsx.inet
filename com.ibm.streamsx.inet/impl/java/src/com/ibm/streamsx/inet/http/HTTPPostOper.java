@@ -228,8 +228,7 @@ public class HTTPPostOper extends AbstractOperator
 	    if (headers.size() == 0) return;
 	    header = headers.get(0);
 	    if (header.equals(MIME_FORM) || header.equals(MIME_JSON)) return;
-	    checker.setInvalidContext( HTTPPostOper.OPER_NAME + " Invalid HeaderContextType: " + header + " when used with include.",
-					new String[] {});
+	    checker.setInvalidContext(Messages.getString("PARAM_HEADER_CHECK1"), new String[] {OPER_NAME, header});
     }
         
     @ContextCheck(compile=true)
@@ -243,7 +242,7 @@ public class HTTPPostOper extends AbstractOperator
     	//The pair of these parameters is optional, we either need both to be present or neither of them
     	if(hasFile ^ hasPassword)
     	{
-    		checker.setInvalidContext(HTTPPostOper.OPER_NAME + "Invalid keystore parameters, provide both a keyStoreFile and a keyStorePassword or provide neither", new String[]{});
+    		checker.setInvalidContext(Messages.getString("PARAM_TRUST_STORE_CHECK2"), new String[] {OPER_NAME});
     	}
     }
         

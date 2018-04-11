@@ -81,7 +81,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
     }
 
     //register trace and log facility
-    protected static Logger logger = Logger.getLogger("com.ibm.streams.operator.log." + HTTPRequestOperAPI.class.getName());
+    //protected static Logger logger = Logger.getLogger("com.ibm.streams.operator.log." + HTTPRequestOperAPI.class.getName()); logger is not required
     protected static Logger tracer = Logger.getLogger(HTTPRequestOperAPI.class.getName());
     
     //request parameters
@@ -305,10 +305,10 @@ class HTTPRequestOperAPI extends AbstractOperator {
     public static void checkMethodParams(OperatorContextChecker occ) {
         Set<String> parameterNames = occ.getOperatorContext().getParameterNames();
         if (! parameterNames.contains("method") && ! parameterNames.contains("fixedMethod")) {
-            occ.setInvalidContext(OPER_NAME+" operator requires parameter method or fixedMethod", null);
+            occ.setInvalidContext(Messages.getString("PARAM_METHOD_CHECK"), new String[] {OPER_NAME});
         }
         if (! parameterNames.contains("url") && ! parameterNames.contains("fixedUrl")) {
-            occ.setInvalidContext(OPER_NAME+" operator requires parameter url or fixedUrl", null);
+            occ.setInvalidContext(Messages.getString("PARAM_URL_CHECK"), new String[] {OPER_NAME});
         }
         occ.checkExcludedParameters("method", "fixedMethod");
         occ.checkExcludedParameters("url", "fixedUrl");
@@ -320,7 +320,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
         boolean hasFile = parameterNames.contains("sslTrustStoreFile");
         boolean hasPassword = parameterNames.contains("sslTrustStorePassword");
         if(hasFile ^ hasPassword) {
-            occ.setInvalidContext(HTTPPostOper.OPER_NAME + "Invalid trust store parameters, provide both a sslTrustStoreFile and a sslTrustStorePassword or provide neither", new String[]{});
+            occ.setInvalidContext(Messages.getString("PARAM_TRUST_STORE_CHECK"), new String[] {OPER_NAME});
         }
         occ.checkExcludedParameters("sslAcceptAllCertificates", "sslTrustStoreFile");
     }
