@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.8.3</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.http.html">com.ibm.streamsx.inet.http</a> &gt; HTTPTypes.spl</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.9.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.http.html">com.ibm.streamsx.inet.http</a> &gt; HTTPTypes.spl</p>
 
 </div>
 
@@ -37,9 +37,6 @@
 
       <dd class="dd">
 <ul class="sl simple">
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.inet.http$HTTPTypes.html#spldoc_compilationunit__type__HTTPRequest">HTTPRequest</a></strong>: Output and Input schema, web request output from HTTPRequestProcess operator and corresponding  response on the input port are returned to the web.
-</li>
-
 <li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.inet.http$HTTPTypes.html#spldoc_compilationunit__type__HTTPResponse">HTTPResponse</a></strong>: Output Stream Schema for HTTP operators 
 </li>
 
@@ -80,44 +77,6 @@
 <div class="section">
    <p class="p">
 <tt class="ph tt">HTTPResponse = rstring data, rstring errorMessage, int32 responseCode, int32 dataSize;</tt>
-   </p>
-
-</div>
-
-<div class="section" id="spldoc_compilationunit__type__HTTPRequest"><h2 class="title sectiontitle splpart">HTTPRequest</h2>
-  
-</div>
-<div class="section">
-
-<div class="p">Output and Input schema, web request output from HTTPRequestProcess operator and corresponding  response on the input port are returned to the web. The key forms the correlation.  
-<ul class="ul">
-<li class="li"> key - correlation id generated on request, must appear on the response.</li>
-
-<li class="li"> request - request from the web</li>
-
-<li class="li"> response - response to the web.</li>
-
-<li class="li"> contentType - of the request</li>
-
-<li class="li"> header - populated on request, returned on response. </li>
-
-<li class="li"> method - method of request, possible values : (PUT, GET, POST, DELETE)</li>
-
-<li class="li"> pathInfo - requests path beyond the context's base</li>
-
-<li class="li"> status - indicates of the request completion. </li>
-
-<li class="li"> statusMessage - on request, only populated if status is &gt; 300.   </li>
-
-</ul>
-
-</div>
-
-</div>
-
-<div class="section">
-   <p class="p">
-<tt class="ph tt">HTTPRequest = int64 key, rstring request, rstring contentType, map&lt;rstring, rstring&gt; header, rstring response, rstring method, rstring pathInfo, int32 status, rstring statusMessage;</tt>
    </p>
 
 </div>

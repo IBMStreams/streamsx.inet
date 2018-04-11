@@ -1,4 +1,4 @@
-#Tue Jan 23 15:27:19 CET 2018
+#Wed Apr 11 13:12:54 CEST 2018
 copytosourcelist=
 hreftargetslist=dita/tk$FTP RemoteDirScanAndGet sample/ns$com.ibm.streamsx.inet.ftp.sample.xml,dita/tk$FTP RemoteDirScanAndGet sample/tk$FTP RemoteDirScanAndGet sample.xml,dita/toolkits/ix$Namespace.xml,dita/toolkits/ix$Operator.xml,dita/tk$FTP RemoteDirScanAndGet sample/spl$com.ibm.streamsx.inet.ftp.sample$RemoteDirScanAndGet.xml,dita/tk$FTP RemoteDirScanAndGet sample/ix$Namespace.xml,dita/toolkits/toolkits.xml,dita/tk$FTP RemoteDirScanAndGet sample/ix$Operator.xml
 fullditatopicfile=fullditatopic.list
@@ -37,7 +37,7 @@ codereffile=coderef.list
 keylist=
 codereflist=
 user.input.file.listfile=usr.input.file.list
-user.input.dir=/home/joergboe/git4/streamsx.inet/samples/RemoteDirScanAndGet/doc/spldoc
+user.input.dir=/home/joergboe/git/streamsx.inet/samples/RemoteDirScanAndGet/doc/spldoc
 uplevels=../
 tempdirToinputmapdir.relative.value=dita/
 conrefpushfile=conrefpush.list

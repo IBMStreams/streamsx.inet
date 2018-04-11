@@ -1,4 +1,4 @@
-#Tue Jan 23 15:26:23 CET 2018
+#Wed Apr 11 13:11:55 CEST 2018
 copytosourcelist=
 hreftargetslist=dita/tk$HttpStreamRead/spl$com.ibm.streamsx.inet.http.sample$HTTPStreamSample.xml,dita/tk$HttpStreamRead/ix$Namespace.xml,dita/tk$HttpStreamRead/ns$com.ibm.streamsx.inet.http.sample.xml,dita/toolkits/ix$Namespace.xml,dita/toolkits/ix$Operator.xml,dita/tk$HttpStreamRead/tk$HttpStreamRead.xml,dita/tk$HttpStreamRead/ix$Operator.xml,dita/toolkits/toolkits.xml
 fullditatopicfile=fullditatopic.list
@@ -37,7 +37,7 @@ codereffile=coderef.list
 keylist=
 codereflist=
 user.input.file.listfile=usr.input.file.list
-user.input.dir=/home/joergboe/git4/streamsx.inet/samples/HTTPStreamRead/doc/spldoc
+user.input.dir=/home/joergboe/git/streamsx.inet/samples/HTTPStreamRead/doc/spldoc
 uplevels=../
 tempdirToinputmapdir.relative.value=dita/
 conrefpushfile=conrefpush.list
