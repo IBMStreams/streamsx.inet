@@ -354,7 +354,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
         if (fixedContentType != null) {
             contentTypeToUse = ContentType.getByMimeType(fixedContentType);
             if (contentTypeToUse == null) {
-                throw new IllegalArgumentException("Argument of contentType:"+fixedContentType+" is invalid!");
+                throw new IllegalArgumentException(Messages.getString("PARAM_CONTENT_TYPE_CHECK", fixedContentType));
             }
             contentTypeGetter = t -> contentTypeToUse;
         } else {
@@ -380,7 +380,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
             if (inputAttributeNames.containsAll(reqAttrNames)) {
                 requestAttributes.addAll(reqAttrNames);
             } else {
-                throw new IllegalArgumentException("Input stream does not have all requestAttributes: "+reqAttrNames.toString());
+                throw new IllegalArgumentException(Messages.getString("PARAM_REQUEST_ATTRIBUTE_CHECK", reqAttrNames.toString()));
             }
         } else {
             //no parameter 'requestAttributes' -> collect remaining attributes
@@ -408,7 +408,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
         }
         if (context.getNumberOfStreamingOutputs() == 0) {
             if (hasOutputAttributeParameter)
-                throw new Exception("Operator has output attribute name parameter but has no output port");
+                throw new Exception(Messages.getString("PARAM_NO_OUTPUT_PORT_CHECK"));
         } else {
             hasDataPort = true;
             
@@ -418,7 +418,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
                 if (outPortAttributes.contains(outputDataLine)) {
                     MetaType paramType = getOutput(0).getStreamSchema().getAttribute(outputDataLine).getType().getMetaType();
                     if(paramType!=MetaType.USTRING && paramType!=MetaType.RSTRING)
-                        throw new IllegalArgumentException("Only types \""+MetaType.USTRING+"\" and \""+MetaType.RSTRING+"\" allowed for param \""+outputDataLine+"\"");
+                        throw new IllegalArgumentException(Messages.getString("PARAM_ATTRIBUTE_TYPE_CHECK_2", MetaType.USTRING, MetaType.RSTRING, outputDataLine));
                 } else {
                     missingOutAttribute = outputDataLine;
                 }
@@ -427,7 +427,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
                 if (outPortAttributes.contains(outputBody)) {
                     MetaType paramType = getOutput(0).getStreamSchema().getAttribute(outputBody).getType().getMetaType();
                     if(paramType!=MetaType.USTRING && paramType!=MetaType.RSTRING)
-                        throw new IllegalArgumentException("Only types \""+MetaType.USTRING+"\" and \""+MetaType.RSTRING+"\" allowed for param \""+outputBody+"\"");
+                        throw new IllegalArgumentException(Messages.getString("PARAM_ATTRIBUTE_TYPE_CHECK_2", MetaType.USTRING, MetaType.RSTRING, outputBody));
                 } else {
                     missingOutAttribute = outputBody;
                 }
@@ -436,7 +436,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
                 if (outPortAttributes.contains(outputStatus)) {
                     MetaType paramType = getOutput(0).getStreamSchema().getAttribute(outputStatus).getType().getMetaType();
                     if(paramType!=MetaType.USTRING && paramType!=MetaType.RSTRING)
-                        throw new IllegalArgumentException("Only types \""+MetaType.USTRING+"\" and \""+MetaType.RSTRING+"\" allowed for param \""+outputStatus+"\"");
+                        throw new IllegalArgumentException(Messages.getString("PARAM_ATTRIBUTE_TYPE_CHECK_2", MetaType.USTRING, MetaType.RSTRING, outputStatus));
                 } else {
                     missingOutAttribute = outputStatus;
                 }
@@ -445,7 +445,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
                 if (outPortAttributes.contains(outputStatusCode)) {
                     MetaType paramType = getOutput(0).getStreamSchema().getAttribute(outputStatusCode).getType().getMetaType();
                     if(paramType!=MetaType.INT32)
-                        throw new IllegalArgumentException("Only types \""+MetaType.INT32+"\" allowed for param \""+outputStatusCode+"\"");
+                        throw new IllegalArgumentException(Messages.getString("PARAM_ATTRIBUTE_TYPE_CHECK_1", MetaType.INT32, outputStatusCode));
                 } else {
                     missingOutAttribute = outputStatusCode;
                 }
@@ -459,9 +459,9 @@ class HTTPRequestOperAPI extends AbstractOperator {
                         com.ibm.streams.operator.Type elemType = collType.getElementType();
                         MetaType lelemTypeM = elemType.getMetaType();
                         if (lelemTypeM != MetaType.RSTRING)
-                            throw new IllegalArgumentException("Only element types \""+MetaType.RSTRING+"\" allowed for param \""+outputHeader+"\"");
+                            throw new IllegalArgumentException(Messages.getString("PARAM_ATTRIBUTE_ELEMENT_TYPE_CHECK_1", MetaType.RSTRING, outputHeader));
                     } else {
-                        throw new IllegalArgumentException("Only types \""+MetaType.LIST+"\" allowed for param \""+outputHeader+"\"");
+                        throw new IllegalArgumentException(Messages.getString("PARAM_ATTRIBUTE_TYPE_CHECK_1", MetaType.LIST, outputHeader));
                     }
                 } else {
                     missingOutAttribute = outputHeader;
@@ -471,7 +471,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
                 if (outPortAttributes.contains(outputContentEncoding)) {
                     MetaType paramType = getOutput(0).getStreamSchema().getAttribute(outputContentEncoding).getType().getMetaType();
                     if(paramType!=MetaType.USTRING && paramType!=MetaType.RSTRING)
-                        throw new IllegalArgumentException("Only types \""+MetaType.USTRING+"\" and \""+MetaType.RSTRING+"\" allowed for param \""+outputContentEncoding+"\"");
+                        throw new IllegalArgumentException(Messages.getString("PARAM_ATTRIBUTE_TYPE_CHECK_2", MetaType.USTRING, MetaType.RSTRING, outputContentEncoding));
                 } else {
                     missingOutAttribute = outputContentEncoding;
                 }
@@ -480,13 +480,13 @@ class HTTPRequestOperAPI extends AbstractOperator {
                 if (outPortAttributes.contains(outputContentType)) {
                     MetaType paramType = getOutput(0).getStreamSchema().getAttribute(outputContentType).getType().getMetaType();
                     if(paramType!=MetaType.USTRING && paramType!=MetaType.RSTRING)
-                        throw new IllegalArgumentException("Only types \""+MetaType.USTRING+"\" and \""+MetaType.RSTRING+"\" allowed for param \""+outputContentType+"\"");
+                        throw new IllegalArgumentException(Messages.getString("PARAM_ATTRIBUTE_TYPE_CHECK_2", MetaType.USTRING, MetaType.RSTRING, outputContentType));
                 } else {
                     missingOutAttribute = outputContentType;
                 }
             }
             if (missingOutAttribute != null) 
-                throw new IllegalArgumentException("No attribute with name "+missingOutAttribute+" found in schema of output port 0.");
+                throw new IllegalArgumentException(Messages.getString("PARAM_MISSING_ATTRIBUTE", missingOutAttribute));
         }
 
         //trust store 

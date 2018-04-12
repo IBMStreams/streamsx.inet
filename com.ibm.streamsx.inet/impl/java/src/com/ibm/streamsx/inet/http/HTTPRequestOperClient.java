@@ -40,6 +40,7 @@ import org.apache.http.ssl.SSLContexts;
 
 import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.logging.TraceLevel;
+import com.ibm.streamsx.inet.messages.Messages;
 
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
@@ -93,7 +94,7 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
                 for(String line : authenticationProperties) {
                     int loc = line.indexOf("=");
                     if(loc == -1) 
-                        throw new IllegalArgumentException("Invalid authentication property: " + line);
+                        throw new IllegalArgumentException(Messages.getString("PROP_ILLEGAL_AUTH_PROP", line));
                     String name = line.substring(0, loc);
                     String val  = line.substring(loc+1, line.length());
                     props.setProperty(name, val);
@@ -113,7 +114,7 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
                     tracer.log(TraceLevel.TRACE, "AuthProp " + authScope + "=" + value);
                     int loc = value.indexOf(":");
                     if (loc == -1)
-                        throw new IllegalArgumentException("Invalid value field in authentication property " + authScope + " : " + value);
+                        throw new IllegalArgumentException(Messages.getString("PROP_INVALID_VALUE", authScope, value));
                     String user = value.substring(0, loc);
                     String pass = value.substring(loc+1, value.length());
                     credentialsProvider.setCredentials(as, new UsernamePasswordCredentials(user, pass));
@@ -224,10 +225,10 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
      */
     protected String getRequiredProperty(String name) {
         if(props == null)
-            throw new RuntimeException("Required property \"" + name + "\" but no authentication properties specified");
+            throw new RuntimeException(Messages.getString("PROP_REQUIRED_1", name));
         String ret = props.getProperty(name);
         if(ret == null)
-            throw new RuntimeException("Required property \"" + name + "\" not specified");
+            throw new RuntimeException(Messages.getString("PROP_REQUIRED_2", name));
         return ret;
     }
 
