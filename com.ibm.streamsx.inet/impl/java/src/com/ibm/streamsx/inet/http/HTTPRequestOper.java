@@ -56,6 +56,7 @@ import com.ibm.streams.operator.model.InputPorts;
 import com.ibm.streams.operator.model.Libraries;
 import com.ibm.streams.operator.model.PrimitiveOperator;
 import com.ibm.streams.operator.types.RString;
+import com.ibm.streamsx.inet.messages.Messages;
 
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
@@ -113,7 +114,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             final HTTPMethod method = getMethod(tuple);
             final ContentType contentType = getContentType(tuple);
             if ((contentType == null) && ((method == com.ibm.streamsx.inet.http.HTTPMethod.POST) || (method == com.ibm.streamsx.inet.http.HTTPMethod.PUT))) {
-                throw new DataException("Invalid content Type in input tuple " + tuple.toString());
+                throw new DataException(Messages.getString("DATA_INVALID_CONTENT_TYPE", tuple.toString()));
             }
 
             if (tracer.isLoggable(TraceLevel.DEBUG))
