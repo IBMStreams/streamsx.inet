@@ -6,22 +6,22 @@ Incubation for projects is covered here: https://github.com/IBMStreams/administr
 
 ## Status
 
-- [x] :white_check_mark: Stable release(s)
+- [ ] :white_check_mark: Stable release(s)
   * Status: Multiple releases created.
-- [x] :white_check_mark: Project is properly documented
+- [ ] :white_check_mark: Project is properly documented
   * Status: SPLDOC complete.
-- [x] :white_check_mark: Project has samples and instructions to help users get started easily
+- [ ] :white_check_mark: Project has samples and instructions to help users get started easily
   * Status: Multiple samples exist.
 - [ ] :large_orange_diamond: Sufficient testing
   * Status: Some testing exists, not all operators are tested.
-- [ ] :red_circle: Instructions on how to get started with development and contributing to project
-  * Status: None exist
-- [x] :white_check_mark: Website that contains information and documentation of the project
+- [ ] :white_check_mark: Instructions on how to get started with development and contributing to project
+  * Status: Description exists
+- [ ] :white_check_mark: Website that contains information and documentation of the project
   * Status: http://ibmstreams.github.io/streamsx.inet/
 - [ ] :red_circle: Clear release plan
   * Status: **TBD**
-- [ ] :red_circle: At least one active committer
-  * Status: **TBD**
+- [ ] :white_check_mark: At least one active committer
+  * Status: There are more than one active commiters
 
 ### Key
 * :white_check_mark: - Complete
