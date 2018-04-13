@@ -42,9 +42,9 @@
       <!--   Thai (th), Turkish (tr)                                       -->
       <!--                                                                 -->
       <!-- NOTE: The assigned message ID range: CDIST0200 – CDIST0249      -->
-      <!--       ERROR range CDIST0200 - CDIST0229                         -->
+      <!--       ERROR range CDIST0200 - CDIST0229, CDIST0245 - CDIST0249  -->
       <!--       WARN range  CDIST0230 - CDIST0239                         -->
-      <!--       INFO range  CDIST0240 - CDIST0249                         -->
+      <!--       INFO range  CDIST0240 - CDIST0244                         -->
       <!--                                                                 -->
       <!-- TRNOTE Please start translating the following entries.          -->
       <!-- =============================================================== -->
