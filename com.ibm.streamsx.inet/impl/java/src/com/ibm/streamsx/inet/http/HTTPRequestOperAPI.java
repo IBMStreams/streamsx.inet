@@ -82,7 +82,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
 
     //register trace and log facility
     //protected static Logger logger = Logger.getLogger("com.ibm.streams.operator.log." + HTTPRequestOperAPI.class.getName()); logger is not required
-    protected static Logger tracer = Logger.getLogger(HTTPRequestOperAPI.class.getName());
+    protected static final Logger tracer = Logger.getLogger(HTTPRequestOperAPI.class.getName());
     
     //request parameters
     private String fixedUrl = null;
@@ -91,32 +91,32 @@ class HTTPRequestOperAPI extends AbstractOperator {
     private TupleAttribute<Tuple, String> method;
     private String fixedContentType = null;
     private TupleAttribute<Tuple, String> contentType;
-    protected ContentType contentTypeToUse = null;
-    protected List<String> extraHeaders = Collections.emptyList();
+    private ContentType contentTypeToUse = null;
+    private List<String> extraHeaders = Collections.emptyList();
     private TupleAttribute<Tuple, String> requestBody = null;  //request body
-    protected Set<String> requestAttributes = new HashSet<>(); //Attributes that are part of the request.
+    private Set<String> requestAttributes = new HashSet<>(); //Attributes that are part of the request.
     
     //output parameters
-    protected String outputDataLine = null;
-    protected String outputBody = null;
-    protected String outputStatus = null;
-    protected String outputStatusCode = null;
-    protected String outputHeader = null;
-    protected String outputContentEncoding = null;
-    protected String outputContentType = null;
+    private String outputDataLine = null;
+    private String outputBody = null;
+    private String outputStatus = null;
+    private String outputStatusCode = null;
+    private String outputHeader = null;
+    private String outputContentEncoding = null;
+    private String outputContentType = null;
     
     //connection configs
-    protected AuthenticationType authenticationType = AuthenticationType.STANDARD;
-    protected String authenticationFile = null;
-    protected List<String> authenticationProperties = null;
-    protected boolean sslAcceptAllCertificates = false;
-    protected String sslTrustStoreFile = null;
-    protected String sslTrustStorePassword = null;
+    private AuthenticationType authenticationType = AuthenticationType.STANDARD;
+    private String authenticationFile = null;
+    private List<String> authenticationProperties = null;
+    private boolean sslAcceptAllCertificates = false;
+    private String sslTrustStoreFile = null;
+    private String sslTrustStorePassword = null;
     
     //internal operator state
-    protected boolean shutdown = false;
-    protected boolean hasDataPort = false;
-    boolean hasOutputAttributeParameter = false;
+    private boolean shutdownRequested = false;
+    private boolean hasDataPort = false;
+    //private boolean hasOutputAttributeParameter = false;
 
     // Function to return the url, method, content type from an input tuple or fixed
     private Function<Tuple, HTTPMethod> methodGetter;
@@ -396,6 +396,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
         }
         
         //output params ...
+        boolean hasOutputAttributeParameter = false;
         if (parameterNames.contains("outputData")
          || parameterNames.contains("outputBody")
          || parameterNames.contains("outputStatus")
@@ -512,21 +513,40 @@ class HTTPRequestOperAPI extends AbstractOperator {
 
     @Override
     public void shutdown() {
-        shutdown = true;
+        shutdownRequested = true;
     }
 
     /*
      * Methods uses by implementation class
      */
-    HTTPMethod getMethod(Tuple tuple) { return methodGetter.apply(tuple); }
-
-    String getUrl(Tuple tuple) { return urlGetter.apply(tuple); }
-
-    ContentType getContentType(Tuple tuple) { return contentTypeGetter.apply(tuple); }
-
-    boolean isRequestAttribute(Object name) {
+    protected boolean isRequestAttribute(Object name) {
         return requestAttributes.contains(name);
     }
+    protected HTTPMethod getMethod(Tuple tuple) { return methodGetter.apply(tuple); }
+    protected String getUrl(Tuple tuple) { return urlGetter.apply(tuple); }
+    protected ContentType getContentType(Tuple tuple) { return contentTypeGetter.apply(tuple); }
 
-    public TupleAttribute<Tuple, String> getRequestBody() { return requestBody; }
+    //getter
+    protected List<String>                  getExtraHeaders() { return extraHeaders; }
+    protected TupleAttribute<Tuple, String> getRequestBody() { return requestBody; }
+    protected Set<String>                   getRequestAttributes() { return  requestAttributes; }
+    //output parameters
+    protected String getOutputDataLine() { return outputDataLine; }
+    protected String getOutputBody() { return outputBody; }
+    protected String getOutputStatus() { return outputStatus; }
+    protected String getOutputStatusCode() {return outputStatusCode; }
+    protected String getOutputHeader() { return outputHeader; }
+    protected String getOutputContentEncoding() { return outputContentEncoding; }
+    protected String getOutputContentType() { return outputContentType; }
+    //connection configs
+    protected AuthenticationType getAuthenticationType() { return authenticationType; }
+    protected String             getAuthenticationFile() { return authenticationFile; }
+    protected List<String>       getAuthenticationProperties() { return authenticationProperties; }
+    protected boolean            getSslAcceptAllCertificates() { return sslAcceptAllCertificates; }
+    protected String             getSslTrustStoreFile() { return sslTrustStoreFile; }
+    protected String             getSslTrustStorePassword() { return sslTrustStorePassword; }
+    //internal operator state
+    protected boolean getShutdownRequested() { return shutdownRequested; }
+    protected boolean hasDataPort() { return hasDataPort; }
+    //protected boolean getHasOutputAttributeParameter() { return hasOutputAttributeParameter; }
 }

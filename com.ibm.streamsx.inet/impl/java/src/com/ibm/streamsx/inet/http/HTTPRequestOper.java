@@ -204,7 +204,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
         while (ia.hasNext()) {
             Attribute attr =ia.next();
             String name = attr.getName();
-            if (requestAttributes.contains(name)) {
+            if (getRequestAttributes().contains(name)) {
                 int index = attr.getIndex();
                 //MetaType paramType = attr.getType().getMetaType();
                 String value = tuple.getString(index);
@@ -222,7 +222,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
      * set extra headers
      ************************************************/
     private void setHeader(HttpRequestBase request) {
-        Map<String, String> headerMap = HTTPUtils.getHeaderMapThrow(extraHeaders);
+        Map<String, String> headerMap = HTTPUtils.getHeaderMapThrow(getExtraHeaders());
         for (Map.Entry<String, String> header : headerMap.entrySet()) {
             request.setHeader(header.getKey(), header.getValue());
         }
@@ -235,7 +235,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
      * @throws OAuthMessageSignerException 
      ************************************************/
     private void signRequest(HttpRequestBase request) throws OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException {
-        switch (authenticationType) {
+        switch (getAuthenticationType()) {
         case STANDARD:
             break;
         case OAUTH1:
@@ -275,7 +275,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                 while (ia.hasNext()) {
                     Attribute attr =ia.next();
                     String name = attr.getName();
-                    if (requestAttributes.contains(name)) {
+                    if (getRequestAttributes().contains(name)) {
                         int index = attr.getIndex();
                         //MetaType paramType = attr.getType().getMetaType();
                         String value = tuple.getString(index);
@@ -291,7 +291,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                 while (ia.hasNext()) {
                     Attribute attr =ia.next();
                     String name = attr.getName();
-                    if (requestAttributes.contains(name)) {
+                    if (getRequestAttributes().contains(name)) {
                         int index = attr.getIndex();
                         //MetaType paramType = attr.getType().getMetaType();
                         String value = tuple.getString(index);
@@ -310,13 +310,13 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
         StreamingOutput<OutputTuple> op = getOutput(0);
         OutputTuple otup = op.newTuple();
         otup.assign(inTuple);
-        if ( outputStatus          != null) otup.setString(outputStatus,          statusLine);
-        if ( outputStatusCode      != null) otup.setInt   (outputStatusCode,      statusCode);
-        if ( outputContentEncoding != null) otup.setString(outputContentEncoding, contentEncoding);
-        if ( outputContentType     != null) otup.setString(outputContentType,     contentType);
-        if ( outputHeader          != null) otup.setList  (outputHeader,          headers);
-        if ( outputDataLine        != null) otup.setString(outputDataLine,        body);
-        if ( outputBody            != null) otup.setString(outputBody,            body);
+        if ( getOutputStatus()          != null) otup.setString(getOutputStatus(),          statusLine);
+        if ( getOutputStatusCode()      != null) otup.setInt   (getOutputStatusCode(),      statusCode);
+        if ( getOutputContentEncoding() != null) otup.setString(getOutputContentEncoding(), contentEncoding);
+        if ( getOutputContentType()     != null) otup.setString(getOutputContentType(),     contentType);
+        if ( getOutputHeader()          != null) otup.setList  (getOutputHeader(),          headers);
+        if ( getOutputDataLine()        != null) otup.setString(getOutputDataLine(),        body);
+        if ( getOutputBody()            != null) otup.setString(getOutputBody(),            body);
         op.submit(otup);
     }
     
@@ -415,24 +415,24 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                         headers.add(rh);
                     }
                     //Message Body
-                    if (hasDataPort) {
-                        if (outputDataLine != null) {
+                    if (hasDataPort()) {
+                        if (getOutputDataLine() != null) {
                             InputStream instream = entity.getContent();
                             BufferedReader reader = new BufferedReader(new InputStreamReader(instream));
                             String inputLine = null;
-                            while (!shutdown && ((inputLine = reader.readLine()) != null)) {
+                            while (!getShutdownRequested() && ((inputLine = reader.readLine()) != null)) {
                                 sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, inputLine);
                                 tupleSent = true;
                             }
                         }
-                        if (outputBody != null) {
+                        if (getOutputBody() != null) {
                             body = EntityUtils.toString(entity);
                         }
                     }
                     EntityUtils.consume(entity);
                 }
-                if (hasDataPort) {
-                    if (outputDataLine != null) {
+                if (hasDataPort()) {
+                    if (getOutputDataLine() != null) {
                         if ( ! tupleSent) {
                             sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, "");
                         }
@@ -449,7 +449,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             tracer.log(TraceLevel.ERROR, "IOException: "+e.getMessage());
             sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, body);
         } finally {
-            if (shutdown) {
+            if (getShutdownRequested()) {
                 request.abort();
             } else {
                 request.reset();
