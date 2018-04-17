@@ -80,18 +80,18 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
      */
     private void initializeAuthProperties(OperatorContext context) throws FileNotFoundException, IOException {
         //Authentication parameters
-        boolean hasAuthenticationFile = (authenticationFile != null && ! authenticationFile.isEmpty());
-        boolean hasAuthenticationProperties = (authenticationProperties != null && ! authenticationProperties.isEmpty());
+        boolean hasAuthenticationFile = (getAuthenticationFile() != null && ! getAuthenticationFile().isEmpty());
+        boolean hasAuthenticationProperties = (getAuthenticationProperties() != null && ! getAuthenticationProperties().isEmpty());
         if (hasAuthenticationFile || hasAuthenticationProperties) {
             props = new Properties();
             //read property file
             if (hasAuthenticationFile) {
-                tracer.log(TraceLevel.DEBUG, "AuthenticationFile=" + authenticationFile);
-                props.load(new FileReader(authenticationFile));
+                tracer.log(TraceLevel.DEBUG, "AuthenticationFile=" + getAuthenticationFile());
+                props.load(new FileReader(getAuthenticationFile()));
             }
             //override with values from authenticationProperties parameter
             if (hasAuthenticationProperties) {
-                for(String line : authenticationProperties) {
+                for(String line : getAuthenticationProperties()) {
                     int loc = line.indexOf("=");
                     if(loc == -1) 
                         throw new IllegalArgumentException(Messages.getString("PROP_ILLEGAL_AUTH_PROP", line));
@@ -101,7 +101,7 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
                 }
             }
             //set credentials if auth type is STANDARD
-            if (authenticationType.equals(AuthenticationType.STANDARD)) {
+            if (getAuthenticationType().equals(AuthenticationType.STANDARD)) {
                 Set<String> propNames = props.stringPropertyNames();
                 ArrayList<AuthScope> allScopes = new ArrayList<>();
                 for (String authScope : propNames) {
@@ -152,8 +152,8 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
         HttpClientBuilder clientBuilder = HttpClients.custom();
 
         //trust all certificates
-        if (sslAcceptAllCertificates) {
-            tracer.log(TraceLevel.DEBUG, "sslAcceptAllCertificates=" + sslAcceptAllCertificates);
+        if (getSslAcceptAllCertificates()) {
+            tracer.log(TraceLevel.DEBUG, "sslAcceptAllCertificates=" + getSslAcceptAllCertificates());
             SSLContextBuilder sslContextBuilder = SSLContextBuilder.create();
             SSLContext sslContext = sslContextBuilder.build();
             
@@ -181,10 +181,10 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
         }
 
         // Trust own CA and all self-signed certs
-        if (sslTrustStoreFile != null) {
-            tracer.log(TraceLevel.DEBUG, "sslTrustStoreFile=" + sslTrustStoreFile);
+        if (getSslTrustStoreFile() != null) {
+            tracer.log(TraceLevel.DEBUG, "sslTrustStoreFile=" + getSslTrustStoreFile());
             SSLContext sslcontext = SSLContexts.custom()
-                .loadTrustMaterial(new File(sslTrustStoreFile), sslTrustStorePassword.toCharArray(), new TrustSelfSignedStrategy())
+                .loadTrustMaterial(new File(getSslTrustStoreFile()), getSslTrustStorePassword().toCharArray(), new TrustSelfSignedStrategy())
                 .build();
             
             SSLConnectionSocketFactory sslcsf = new SSLConnectionSocketFactory(
@@ -203,7 +203,7 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
      * Initialize oauth context
      */
     private void initializeOauth1() {
-        switch (authenticationType) {
+        switch (getAuthenticationType()) {
         case OAUTH1:
             oAuthConsumer = new CommonsHttpOAuthConsumer(getRequiredProperty("consumerKey"), getRequiredProperty("consumerSecret"));
             oAuthConsumer.setTokenWithSecret(getRequiredProperty("accessToken"), getRequiredProperty("accessTokenSecret"));
