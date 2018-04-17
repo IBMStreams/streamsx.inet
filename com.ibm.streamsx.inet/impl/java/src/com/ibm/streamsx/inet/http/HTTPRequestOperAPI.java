@@ -117,6 +117,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
     private boolean disableRedirectHandling = false;
     private boolean disableContentCompression = false;
     private boolean disableAutomaticRetries = false;
+    private int connectionTimeout = 0;
 
     //internal operator state
     private boolean shutdownRequested = false;
@@ -316,6 +317,10 @@ class HTTPRequestOperAPI extends AbstractOperator {
     @Parameter(optional=true, description="Disables automatic request recovery and re-execution. Default is false")
     public void setDisableAutomaticRetries(boolean disableAutomaticRetries) {
         this.disableAutomaticRetries = disableAutomaticRetries;
+    }
+    @Parameter(optional=true, description="Set the connection timeout in milliseconds. If value is 0, the default connection timeout is used. Default is 0.")
+    public void setConnectionTimeout(int connectionTimeout) {
+        this.connectionTimeout = connectionTimeout;
     }
     /********************************************
      * compile time checks
@@ -574,6 +579,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
     protected boolean            getDisableRedirectHandling() { return disableRedirectHandling; }
     protected boolean            getDisableContentCompression() { return disableContentCompression; }
     protected boolean            getDisableAutomaticRetries() { return disableAutomaticRetries; }
+    protected int                getConnectionTimeout() { return connectionTimeout; }
     //internal operator state
     protected boolean getShutdownRequested() { return shutdownRequested; }
     protected boolean hasDataPort() { return hasDataPort; }

@@ -148,6 +148,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     createEntity(post, tuple, contentType);
                     setHeader(post);
                     signRequest(post);
+                    setConnectionParams(post);
                     sendRequest(tuple, post);
                 }
                 break;
@@ -156,6 +157,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     createEntity(put, tuple, contentType);
                     setHeader(put);
                     signRequest(put);
+                    setConnectionParams(put);
                     sendRequest(tuple, put);
                 }
                 break;
@@ -164,6 +166,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     HttpGet get = new HttpGet(uri);
                     setHeader(get);
                     signRequest(get);
+                    setConnectionParams(get);
                     sendRequest(tuple, get);
                 }
                 break;
@@ -173,6 +176,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     HttpHead head = new HttpHead(uri);
                     setHeader(head);
                     signRequest(head);
+                    setConnectionParams(head);
                     sendRequest(tuple, head);
                 }
                 break;
@@ -180,6 +184,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     HttpOptions options = new HttpOptions(url);
                     setHeader(options);
                     signRequest(options);
+                    setConnectionParams(options);
                     sendRequest(tuple, options);
                 }
                 break;
@@ -187,6 +192,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     HttpDelete delete = new HttpDelete(url);
                     setHeader(delete);
                     signRequest(delete);
+                    setConnectionParams(delete);
                     sendRequest(tuple, delete);
                 }
                 break;
@@ -194,6 +200,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     HttpTrace trace = new HttpTrace(url);
                     setHeader(trace);
                     signRequest(trace);
+                    setConnectionParams(trace);
                     sendRequest(tuple, trace);
                 }
                 break;
@@ -270,6 +277,17 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
         }
     }
     
+    /**************************************************
+     * set conn params
+     **************************************************/
+    private void setConnectionParams(HttpRequestBase request) {
+        if (getConnectionTimeout() > 0) {
+            if (tracer.isLoggable(TraceLevel.DEBUG))
+                tracer.log(TraceLevel.DEBUG, "client configuration: setConnectTimeout=" + new Integer(getConnectionTimeout()).toString());
+            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(getConnectionTimeout()).build();
+            request.setConfig(requestConfig);
+        }
+    }
     /******************************************************************************************************************
      * Create and add entity to request
      *******************************************************************************************************************/
