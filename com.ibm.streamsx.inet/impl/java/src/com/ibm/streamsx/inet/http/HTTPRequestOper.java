@@ -50,6 +50,9 @@ import com.ibm.streams.operator.compile.OperatorContextChecker;
 import com.ibm.streams.operator.encoding.EncodingFactory;
 import com.ibm.streams.operator.encoding.JSONEncoding;
 import com.ibm.streams.operator.logging.TraceLevel;
+import com.ibm.streams.operator.metrics.Metric;
+import com.ibm.streams.operator.metrics.Metric.Kind;
+import com.ibm.streams.operator.model.CustomMetric;
 import com.ibm.streams.operator.model.Icons;
 import com.ibm.streams.operator.model.InputPortSet;
 import com.ibm.streams.operator.model.InputPorts;
@@ -90,6 +93,10 @@ import com.ibm.streams.operator.StreamingOutput;
 )
 public class HTTPRequestOper extends HTTPRequestOperClient {
 
+    private Metric nRequestTransmit;
+    private Metric nResponseSuccess;
+    private Metric nResponseNoSuccess;
+
     /********************************************
      * compile time checks
      ********************************************/
@@ -102,6 +109,22 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
         HTTPRequestOperAPI.checkMethodParams(occ);
     }
 
+    /********************************************
+     * Metrics
+     ********************************************/
+    @CustomMetric(kind = Kind.COUNTER, description ="The number of requests transmitted.")
+    public void setnRequestTransmit(Metric nRequestTransmit) {
+        this.nRequestTransmit = nRequestTransmit;
+    }
+    @CustomMetric(kind = Kind.COUNTER, description ="The number of received responses with result code: success (2xx).")
+    public void setnResponseSuccess(Metric nResponseSuccess) {
+        this.nResponseSuccess = nResponseSuccess;
+    }
+    @CustomMetric(kind = Kind.COUNTER, description ="The number of received responses with result codes other than success.")
+    public void setnResponseNoSuccess(Metric nResponseNoSuccess) {
+        this.nResponseNoSuccess = nResponseNoSuccess;
+    }
+    
     /********************************************************************************
      * process (StreamingInput<Tuple> stream, Tuple tuple)
      ********************************************************************************/
@@ -385,16 +408,19 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                 }
             }
             
+            nRequestTransmit.increment();
             HttpResponse response = httpClient.execute(request, httpContext);
 
             StatusLine status = response.getStatusLine();
             statusLine = status.toString();
             statusCode = status.getStatusCode();
             
-            if ((statusCode < 200) && (statusCode > 299)) {
+            if ((statusCode < 200) || (statusCode > 299)) {
+                nResponseNoSuccess.increment();
                 if (tracer.isLoggable(TraceLevel.WARN)) tracer.log(TraceLevel.WARN, "status="+status.toString());
                 sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, body);
             } else {
+                nResponseSuccess.increment();
                 if (tracer.isLoggable(TraceLevel.DEBUG)) tracer.log(TraceLevel.DEBUG, "status="+status.toString());
                 HttpEntity entity = response.getEntity();
                 boolean tupleSent = false;
