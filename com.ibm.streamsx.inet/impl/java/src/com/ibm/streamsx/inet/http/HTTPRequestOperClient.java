@@ -204,6 +204,11 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
             tracer.log(TraceLevel.DEBUG, "client configuration: Add proxy: " + getProxy() + " proxyport: " + port.toString());
             clientBuilder.setProxy(new HttpHost(getProxy(), getProxyPort()));
         }
+        //refirect
+        if (getDisableRedirectHandling()) {
+            tracer.log(TraceLevel.DEBUG, "client configuration: Disable automatic redirect handling.");
+            clientBuilder.disableRedirectHandling();
+        }
         httpClient = clientBuilder.build();
     }
 
