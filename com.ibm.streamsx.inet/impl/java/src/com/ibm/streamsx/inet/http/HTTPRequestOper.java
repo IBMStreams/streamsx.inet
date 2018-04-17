@@ -112,7 +112,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
     /********************************************
      * Metrics
      ********************************************/
-    @CustomMetric(kind = Kind.COUNTER, description ="The number of requests transmitted.")
+    @CustomMetric(kind = Kind.COUNTER, description ="The number of request transmit attempts.")
     public void setnRequestTransmit(Metric nRequestTransmit) {
         this.nRequestTransmit = nRequestTransmit;
     }
