@@ -209,6 +209,17 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
             tracer.log(TraceLevel.DEBUG, "client configuration: Disable automatic redirect handling.");
             clientBuilder.disableRedirectHandling();
         }
+        //compression
+        if (getDisableContentCompression()) {
+            tracer.log(TraceLevel.DEBUG, "client configuration: Disable automatic content decompression.");
+            clientBuilder.disableContentCompression();
+        }
+        //retry handling
+        if (getDisableAutomaticRetries()) {
+            tracer.log(TraceLevel.DEBUG, "client configuration: Disable automatic request recovery and re-execution.");
+            clientBuilder.disableAutomaticRetries();
+        }
+        
         httpClient = clientBuilder.build();
     }
 
