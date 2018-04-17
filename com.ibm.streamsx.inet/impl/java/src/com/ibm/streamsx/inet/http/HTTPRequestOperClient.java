@@ -52,13 +52,13 @@ import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
  */
 class HTTPRequestOperClient extends HTTPRequestOperAPI {
     
-    protected Properties props = null;
-    protected CloseableHttpClient httpClient = null;
-    protected CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-    protected HttpClientContext httpContext = HttpClientContext.create();
-    protected OAuthConsumer oAuthConsumer = null;
-    protected String oAuth2AuthHeaderKey = null;
-    protected String oAuth2AuthHeaderValue = null;
+    private Properties props = null;
+    private CloseableHttpClient httpClient = null;
+    private CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+    private HttpClientContext httpContext = HttpClientContext.create();
+    private OAuthConsumer oAuthConsumer = null;
+    private String oAuth2AuthHeaderKey = null;
+    private String oAuth2AuthHeaderValue = null;
 
     
     /******************************************************************
@@ -256,4 +256,10 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
         return ret;
     }
 
+    //getter
+    protected CloseableHttpClient getHttpClient() { return httpClient; }
+    protected OAuthConsumer getOAuthConsumer() { return oAuthConsumer; }
+    protected String getOAuth2AuthHeaderKey() { return oAuth2AuthHeaderKey; }
+    protected String getOAuth2AuthHeaderValue() { return oAuth2AuthHeaderValue; }
+    protected HttpClientContext getHttpContext() { return httpContext; }
 }

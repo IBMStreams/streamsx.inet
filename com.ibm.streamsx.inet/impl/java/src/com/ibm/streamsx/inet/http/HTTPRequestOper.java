@@ -269,10 +269,10 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
         case STANDARD:
             break;
         case OAUTH1:
-            oAuthConsumer.sign(request);
+            getOAuthConsumer().sign(request);
             break;
         case OAUTH2:
-            request.setHeader(oAuth2AuthHeaderKey, oAuth2AuthHeaderValue);
+            request.setHeader(getOAuth2AuthHeaderKey(), getOAuth2AuthHeaderValue());
             break;
         }
     }
@@ -427,7 +427,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             }
             
             nRequestTransmit.increment();
-            HttpResponse response = httpClient.execute(request, httpContext);
+            HttpResponse response = getHttpClient().execute(request, getHttpContext());
 
             StatusLine status = response.getStatusLine();
             statusLine = status.toString();
