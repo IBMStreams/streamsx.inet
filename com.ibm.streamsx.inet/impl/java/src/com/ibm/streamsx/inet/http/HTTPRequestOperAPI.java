@@ -112,6 +112,8 @@ class HTTPRequestOperAPI extends AbstractOperator {
     private boolean sslAcceptAllCertificates = false;
     private String sslTrustStoreFile = null;
     private String sslTrustStorePassword = null;
+    private String proxy = null;
+    private int proxyPort = 8080;
     
     //internal operator state
     private boolean shutdownRequested = false;
@@ -292,7 +294,14 @@ class HTTPRequestOperAPI extends AbstractOperator {
     public void setSslTrustStorePassword(String sslTrustStorePassword){
         this.sslTrustStorePassword = sslTrustStorePassword;
     }
-
+    @Parameter(optional=true, description="Hostname of the http-proxy to be used. If this parameter is omitted no proxy is used.")
+    public void setProxy(String proxy) {
+        this.proxy = proxy;
+    }
+    @Parameter(optional=true, description="The proxyport to be used. Default value is 8080. This parameter is ignored if no `proxy` parameter is specified.")
+    public void setProxyPort(int proxyPort) {
+        this.proxyPort = proxyPort;
+    }
     /********************************************
      * compile time checks
      ********************************************/
@@ -545,6 +554,8 @@ class HTTPRequestOperAPI extends AbstractOperator {
     protected boolean            getSslAcceptAllCertificates() { return sslAcceptAllCertificates; }
     protected String             getSslTrustStoreFile() { return sslTrustStoreFile; }
     protected String             getSslTrustStorePassword() { return sslTrustStorePassword; }
+    protected String             getProxy() { return proxy; }
+    protected int                getProxyPort() { return proxyPort; }
     //internal operator state
     protected boolean getShutdownRequested() { return shutdownRequested; }
     protected boolean hasDataPort() { return hasDataPort; }

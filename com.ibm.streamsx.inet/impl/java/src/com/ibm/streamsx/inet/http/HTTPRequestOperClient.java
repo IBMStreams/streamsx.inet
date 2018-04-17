@@ -24,6 +24,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -133,7 +134,7 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
     }
     
     /*
-     * Build http client dependent on ssl context
+     * Build http client dependent on ssl context, proxy ..
      */
     private void buildHttpClient() throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, CertificateException, IOException {
         //ssl 
@@ -195,6 +196,13 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
             );
             
             clientBuilder.setSSLSocketFactory(sslcsf);
+        }
+
+        //proxy
+        if ((getProxy() != null) && ( ! getProxy().isEmpty())) {
+            Integer port = new Integer(getProxyPort());
+            tracer.log(TraceLevel.DEBUG, "client configuration: Add proxy: " + getProxy() + " proxyport: " + port.toString());
+            clientBuilder.setProxy(new HttpHost(getProxy(), getProxyPort()));
         }
         httpClient = clientBuilder.build();
     }
