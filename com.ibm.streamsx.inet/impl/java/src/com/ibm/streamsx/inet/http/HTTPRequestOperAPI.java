@@ -112,7 +112,13 @@ class HTTPRequestOperAPI extends AbstractOperator {
     private boolean sslAcceptAllCertificates = false;
     private String sslTrustStoreFile = null;
     private String sslTrustStorePassword = null;
-    
+    private String proxy = null;
+    private int proxyPort = 8080;
+    private boolean disableRedirectHandling = false;
+    private boolean disableContentCompression = false;
+    private boolean disableAutomaticRetries = false;
+    private int connectionTimeout = 0;
+
     //internal operator state
     private boolean shutdownRequested = false;
     private boolean hasDataPort = false;
@@ -292,7 +298,30 @@ class HTTPRequestOperAPI extends AbstractOperator {
     public void setSslTrustStorePassword(String sslTrustStorePassword){
         this.sslTrustStorePassword = sslTrustStorePassword;
     }
-
+    @Parameter(optional=true, description="Hostname of the http-proxy to be used. If this parameter is omitted no proxy is used.")
+    public void setProxy(String proxy) {
+        this.proxy = proxy;
+    }
+    @Parameter(optional=true, description="The proxyport to be used. Default value is 8080. This parameter is ignored if no `proxy` parameter is specified.")
+    public void setProxyPort(int proxyPort) {
+        this.proxyPort = proxyPort;
+    }
+    @Parameter(optional=true, description="Disables automatic redirect handling. Default is false.")
+    public void setDisableRedirectHandling(boolean disableRedirectHandling) {
+        this.disableRedirectHandling = disableRedirectHandling;
+    }
+    @Parameter(optional=true, description="Disables automatic content decompression. Default is false")
+    public void setDisableContentCompression(boolean disableContentCompression) {
+        this.disableContentCompression = disableContentCompression;
+    }
+    @Parameter(optional=true, description="Disables automatic request recovery and re-execution. Default is false")
+    public void setDisableAutomaticRetries(boolean disableAutomaticRetries) {
+        this.disableAutomaticRetries = disableAutomaticRetries;
+    }
+    @Parameter(optional=true, description="Set the connection timeout in milliseconds. If value is 0, the default connection timeout is used. Default is 0.")
+    public void setConnectionTimeout(int connectionTimeout) {
+        this.connectionTimeout = connectionTimeout;
+    }
     /********************************************
      * compile time checks
      ********************************************/
@@ -545,6 +574,12 @@ class HTTPRequestOperAPI extends AbstractOperator {
     protected boolean            getSslAcceptAllCertificates() { return sslAcceptAllCertificates; }
     protected String             getSslTrustStoreFile() { return sslTrustStoreFile; }
     protected String             getSslTrustStorePassword() { return sslTrustStorePassword; }
+    protected String             getProxy() { return proxy; }
+    protected int                getProxyPort() { return proxyPort; }
+    protected boolean            getDisableRedirectHandling() { return disableRedirectHandling; }
+    protected boolean            getDisableContentCompression() { return disableContentCompression; }
+    protected boolean            getDisableAutomaticRetries() { return disableAutomaticRetries; }
+    protected int                getConnectionTimeout() { return connectionTimeout; }
     //internal operator state
     protected boolean getShutdownRequested() { return shutdownRequested; }
     protected boolean hasDataPort() { return hasDataPort; }
