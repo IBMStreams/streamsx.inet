@@ -77,7 +77,7 @@ public composite Main {
 					printStringLn((rstring)responseHeader);
 					printStringLn("body");
 					printStringLn(respData);
-					printStringLn(getApplicationConfigurationProperty("myConfig", "myProp", "default"));
+					//printStringLn(getApplicationConfigurationProperty("myConfig", "myProp", "default"));
 				}
 				onPunct I: println(currentPunct());
 		}

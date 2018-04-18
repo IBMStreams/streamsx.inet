@@ -50,6 +50,9 @@ import com.ibm.streams.operator.compile.OperatorContextChecker;
 import com.ibm.streams.operator.encoding.EncodingFactory;
 import com.ibm.streams.operator.encoding.JSONEncoding;
 import com.ibm.streams.operator.logging.TraceLevel;
+import com.ibm.streams.operator.metrics.Metric;
+import com.ibm.streams.operator.metrics.Metric.Kind;
+import com.ibm.streams.operator.model.CustomMetric;
 import com.ibm.streams.operator.model.Icons;
 import com.ibm.streams.operator.model.InputPortSet;
 import com.ibm.streams.operator.model.InputPorts;
@@ -90,6 +93,10 @@ import com.ibm.streams.operator.StreamingOutput;
 )
 public class HTTPRequestOper extends HTTPRequestOperClient {
 
+    private Metric nRequestTransmit;
+    private Metric nResponseSuccess;
+    private Metric nResponseNoSuccess;
+
     /********************************************
      * compile time checks
      ********************************************/
@@ -102,6 +109,22 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
         HTTPRequestOperAPI.checkMethodParams(occ);
     }
 
+    /********************************************
+     * Metrics
+     ********************************************/
+    @CustomMetric(kind = Kind.COUNTER, description ="The number of request transmit attempts.")
+    public void setnRequestTransmit(Metric nRequestTransmit) {
+        this.nRequestTransmit = nRequestTransmit;
+    }
+    @CustomMetric(kind = Kind.COUNTER, description ="The number of received responses with result code: success (2xx).")
+    public void setnResponseSuccess(Metric nResponseSuccess) {
+        this.nResponseSuccess = nResponseSuccess;
+    }
+    @CustomMetric(kind = Kind.COUNTER, description ="The number of received responses with result codes other than success.")
+    public void setnResponseNoSuccess(Metric nResponseNoSuccess) {
+        this.nResponseNoSuccess = nResponseNoSuccess;
+    }
+    
     /********************************************************************************
      * process (StreamingInput<Tuple> stream, Tuple tuple)
      ********************************************************************************/
@@ -125,6 +148,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     createEntity(post, tuple, contentType);
                     setHeader(post);
                     signRequest(post);
+                    setConnectionParams(post);
                     sendRequest(tuple, post);
                 }
                 break;
@@ -133,6 +157,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     createEntity(put, tuple, contentType);
                     setHeader(put);
                     signRequest(put);
+                    setConnectionParams(put);
                     sendRequest(tuple, put);
                 }
                 break;
@@ -141,6 +166,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     HttpGet get = new HttpGet(uri);
                     setHeader(get);
                     signRequest(get);
+                    setConnectionParams(get);
                     sendRequest(tuple, get);
                 }
                 break;
@@ -150,6 +176,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     HttpHead head = new HttpHead(uri);
                     setHeader(head);
                     signRequest(head);
+                    setConnectionParams(head);
                     sendRequest(tuple, head);
                 }
                 break;
@@ -157,6 +184,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     HttpOptions options = new HttpOptions(url);
                     setHeader(options);
                     signRequest(options);
+                    setConnectionParams(options);
                     sendRequest(tuple, options);
                 }
                 break;
@@ -164,6 +192,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     HttpDelete delete = new HttpDelete(url);
                     setHeader(delete);
                     signRequest(delete);
+                    setConnectionParams(delete);
                     sendRequest(tuple, delete);
                 }
                 break;
@@ -171,6 +200,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     HttpTrace trace = new HttpTrace(url);
                     setHeader(trace);
                     signRequest(trace);
+                    setConnectionParams(trace);
                     sendRequest(tuple, trace);
                 }
                 break;
@@ -239,14 +269,25 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
         case STANDARD:
             break;
         case OAUTH1:
-            oAuthConsumer.sign(request);
+            getOAuthConsumer().sign(request);
             break;
         case OAUTH2:
-            request.setHeader(oAuth2AuthHeaderKey, oAuth2AuthHeaderValue);
+            request.setHeader(getOAuth2AuthHeaderKey(), getOAuth2AuthHeaderValue());
             break;
         }
     }
     
+    /**************************************************
+     * set conn params
+     **************************************************/
+    private void setConnectionParams(HttpRequestBase request) {
+        if (getConnectionTimeout() > 0) {
+            if (tracer.isLoggable(TraceLevel.DEBUG))
+                tracer.log(TraceLevel.DEBUG, "client configuration: setConnectTimeout=" + new Integer(getConnectionTimeout()).toString());
+            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(getConnectionTimeout()).build();
+            request.setConfig(requestConfig);
+        }
+    }
     /******************************************************************************************************************
      * Create and add entity to request
      *******************************************************************************************************************/
@@ -385,16 +426,19 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                 }
             }
             
-            HttpResponse response = httpClient.execute(request, httpContext);
+            nRequestTransmit.increment();
+            HttpResponse response = getHttpClient().execute(request, getHttpContext());
 
             StatusLine status = response.getStatusLine();
             statusLine = status.toString();
             statusCode = status.getStatusCode();
             
-            if ((statusCode < 200) && (statusCode > 299)) {
+            if ((statusCode < 200) || (statusCode > 299)) {
+                nResponseNoSuccess.increment();
                 if (tracer.isLoggable(TraceLevel.WARN)) tracer.log(TraceLevel.WARN, "status="+status.toString());
                 sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, body);
             } else {
+                nResponseSuccess.increment();
                 if (tracer.isLoggable(TraceLevel.DEBUG)) tracer.log(TraceLevel.DEBUG, "status="+status.toString());
                 HttpEntity entity = response.getEntity();
                 boolean tupleSent = false;

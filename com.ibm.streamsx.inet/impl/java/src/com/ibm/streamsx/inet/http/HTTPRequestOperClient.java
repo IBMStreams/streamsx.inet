@@ -24,6 +24,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -51,13 +52,13 @@ import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
  */
 class HTTPRequestOperClient extends HTTPRequestOperAPI {
     
-    protected Properties props = null;
-    protected CloseableHttpClient httpClient = null;
-    protected CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-    protected HttpClientContext httpContext = HttpClientContext.create();
-    protected OAuthConsumer oAuthConsumer = null;
-    protected String oAuth2AuthHeaderKey = null;
-    protected String oAuth2AuthHeaderValue = null;
+    private Properties props = null;
+    private CloseableHttpClient httpClient = null;
+    private CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+    private HttpClientContext httpContext = HttpClientContext.create();
+    private OAuthConsumer oAuthConsumer = null;
+    private String oAuth2AuthHeaderKey = null;
+    private String oAuth2AuthHeaderValue = null;
 
     
     /******************************************************************
@@ -133,7 +134,7 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
     }
     
     /*
-     * Build http client dependent on ssl context
+     * Build http client dependent on ssl context, proxy ..
      */
     private void buildHttpClient() throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, CertificateException, IOException {
         //ssl 
@@ -196,6 +197,29 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
             
             clientBuilder.setSSLSocketFactory(sslcsf);
         }
+
+        //proxy
+        if ((getProxy() != null) && ( ! getProxy().isEmpty())) {
+            Integer port = new Integer(getProxyPort());
+            tracer.log(TraceLevel.DEBUG, "client configuration: Add proxy: " + getProxy() + " proxyport: " + port.toString());
+            clientBuilder.setProxy(new HttpHost(getProxy(), getProxyPort()));
+        }
+        //refirect
+        if (getDisableRedirectHandling()) {
+            tracer.log(TraceLevel.DEBUG, "client configuration: Disable automatic redirect handling.");
+            clientBuilder.disableRedirectHandling();
+        }
+        //compression
+        if (getDisableContentCompression()) {
+            tracer.log(TraceLevel.DEBUG, "client configuration: Disable automatic content decompression.");
+            clientBuilder.disableContentCompression();
+        }
+        //retry handling
+        if (getDisableAutomaticRetries()) {
+            tracer.log(TraceLevel.DEBUG, "client configuration: Disable automatic request recovery and re-execution.");
+            clientBuilder.disableAutomaticRetries();
+        }
+        
         httpClient = clientBuilder.build();
     }
 
@@ -232,4 +256,10 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
         return ret;
     }
 
+    //getter
+    protected CloseableHttpClient getHttpClient() { return httpClient; }
+    protected OAuthConsumer getOAuthConsumer() { return oAuthConsumer; }
+    protected String getOAuth2AuthHeaderKey() { return oAuth2AuthHeaderKey; }
+    protected String getOAuth2AuthHeaderValue() { return oAuth2AuthHeaderValue; }
+    protected HttpClientContext getHttpContext() { return httpContext; }
 }
