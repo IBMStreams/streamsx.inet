@@ -129,6 +129,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
     private boolean            disableContentCompression = false;
     private boolean            disableAutomaticRetries = false;
     private int                connectionTimeout = 0;
+    private String             userAgent = null;
 
     //internal operator state
     private boolean shutdownRequested = false;
@@ -341,6 +342,10 @@ class HTTPRequestOperAPI extends AbstractOperator {
     @Parameter(optional=true, description="Set the connection timeout in milliseconds. If value is 0, the default connection timeout is used. Default is 0.")
     public void setConnectionTimeout(int connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
+    }
+    @Parameter(optional=true, description="Assigns the header User-Agent value. Default is \\\"Apache-HttpClient/4.5.5 (Java/1.8.0)\\\"")
+    public void setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
     }
     /********************************************
      * compile time checks
@@ -609,6 +614,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
     protected boolean            getDisableContentCompression() { return disableContentCompression; }
     protected boolean            getDisableAutomaticRetries() { return disableAutomaticRetries; }
     protected int                getConnectionTimeout() { return connectionTimeout; }
+    protected String             getUserAgent() { return userAgent; }
     //internal operator state
     protected boolean getShutdownRequested() { return shutdownRequested; }
     protected boolean hasDataPort() { return hasDataPort; }

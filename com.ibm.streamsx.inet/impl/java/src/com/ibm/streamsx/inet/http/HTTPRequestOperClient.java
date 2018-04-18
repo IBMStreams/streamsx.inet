@@ -219,6 +219,11 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
             tracer.log(TraceLevel.DEBUG, "client configuration: Disable automatic request recovery and re-execution.");
             clientBuilder.disableAutomaticRetries();
         }
+        //user agent
+        if (getUserAgent() != null) {
+            tracer.log(TraceLevel.DEBUG, "client configuration: User Agent: " + getUserAgent());
+            clientBuilder.setUserAgent(getUserAgent());
+        }
         
         httpClient = clientBuilder.build();
     }
