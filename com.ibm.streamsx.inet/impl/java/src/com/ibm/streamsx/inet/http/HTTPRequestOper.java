@@ -440,51 +440,51 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             } else {
                 nResponseSuccess.increment();
                 if (tracer.isLoggable(TraceLevel.DEBUG)) tracer.log(TraceLevel.DEBUG, "status="+status.toString());
-                HttpEntity entity = response.getEntity();
-                boolean tupleSent = false;
-                if (entity != null) {
-                    if (tracer.isLoggable(TraceLevel.TRACE))
-                        tracer.log(TraceLevel.TRACE, "entitiy isChunked="+entity.isChunked()+" isRepeatable="+entity.isRepeatable()+" isStreaming="+entity.isStreaming());
-                    //content type and encoding
-                    Header contEnc = entity.getContentEncoding();
-                    if (contEnc != null) contentEncoding = contEnc.toString();
-                    Header contType = entity.getContentType();
-                    if (contType != null) contentType = contType.toString();
-                    //Response Headers
-                    HeaderIterator hi = response.headerIterator();
-                    while (hi.hasNext()) {
-                        Header myh = hi.nextHeader();
-                        String h = myh.toString();
-                        RString rh = new RString(h);
-                        headers.add(rh);
-                    }
-                    //Message Body
-                    if (hasDataPort()) {
-                        if (getOutputDataLine() != null) {
-                            InputStream instream = entity.getContent();
-                            BufferedReader reader = new BufferedReader(new InputStreamReader(instream));
-                            String inputLine = null;
-                            while (!getShutdownRequested() && ((inputLine = reader.readLine()) != null)) {
-                                sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, inputLine);
-                                tupleSent = true;
-                            }
-                        }
-                        if (getOutputBody() != null) {
-                            body = EntityUtils.toString(entity);
-                        }
-                    }
-                    EntityUtils.consume(entity);
+            }
+            HttpEntity entity = response.getEntity();
+            boolean tupleSent = false;
+            if (entity != null) {
+                if (tracer.isLoggable(TraceLevel.TRACE))
+                    tracer.log(TraceLevel.TRACE, "entitiy isChunked="+entity.isChunked()+" isRepeatable="+entity.isRepeatable()+" isStreaming="+entity.isStreaming());
+                //content type and encoding
+                Header contEnc = entity.getContentEncoding();
+                if (contEnc != null) contentEncoding = contEnc.toString();
+                Header contType = entity.getContentType();
+                if (contType != null) contentType = contType.toString();
+                //Response Headers
+                HeaderIterator hi = response.headerIterator();
+                while (hi.hasNext()) {
+                    Header myh = hi.nextHeader();
+                    String h = myh.toString();
+                    RString rh = new RString(h);
+                    headers.add(rh);
                 }
+                //Message Body
                 if (hasDataPort()) {
                     if (getOutputDataLine() != null) {
-                        if ( ! tupleSent) {
-                            sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, "");
+                        InputStream instream = entity.getContent();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(instream));
+                        String inputLine = null;
+                        while (!getShutdownRequested() && ((inputLine = reader.readLine()) != null)) {
+                            sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, inputLine);
+                            tupleSent = true;
                         }
-                    } else {
-                        sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, body);
                     }
-                    
+                    if (getOutputBody() != null) {
+                        body = EntityUtils.toString(entity);
+                    }
                 }
+                EntityUtils.consume(entity);
+            }
+            if (hasDataPort()) {
+                if (getOutputDataLine() != null) {
+                    if ( ! tupleSent) {
+                        sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, "");
+                    }
+                } else {
+                    sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, body);
+                }
+                
             }
         } catch (ClientProtocolException e) {
             tracer.log(TraceLevel.ERROR, "ClientProtocolException: "+e.getMessage());
