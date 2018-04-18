@@ -41,21 +41,28 @@ class HTTPRequestOperAPI extends AbstractOperator {
             + "specified by the `url` and `method` parameters, or can be fixed using the `fixedUrl` "
             + "and `fixedMethod` parameters. These parameters can be mixed, for example the URL "
             + "can be fixed with `fixedUrl` while the method is set from each tuple using `method`. "
-            + "A content type is required for `POST` and `PUT` method. The content type is specified by `contenType`or "
+            + "A content type is required for `POST`, `PUT` and `PATCH` method. The content type is specified by `contenType`or "
             + "`fixedContentType` parameter.\\n\\n"
             + "The contents of the request is dependent on the method type.\\n"
             + "# GET\\n"
-            + "An HTTP GET request is made, any request attributes are converted to URL query parameters.\\n"
+            + "An HTTP GET request is made. If parameter `requestAttributesAsUrlArguments` is true, all request attributes "
+            + "are converted to URL query parameters. If parameter `requestUrlArguments` is specified and this attribute is not "
+            + "empty, this attribute is copied as URL argument string and overwrites all other arguments.\\n"
             + "# POST\\n"
-            + "An HTTP PUT request is made, any request attributes are set as the body of the request message if parameter `requestBody` is not present. "
-            + "If parameter `requestBody` is present, the body of the request is generated from this attribute.\\n"
+            + "An HTTP POST request is made, any request attributes are set as the body of the request message if parameter "
+            + "`requestBody` is not present or the value of the attribute is empty. The encoding of the request body takes "
+            + "the content type into account. If content type is `application/json`, a json body is generated from request attributes. "
+            + "If content type is `APPLICATION_FORM_URLENCODED`, a url encoded body is generated from request attributes. "
+            + "For all other content types the content of all request attributes is concatenated into the message body."
+            + "If `requestBody` attribute is not empty, the body of the request is copied from this attribute instead.\\n"
             + "# PUT\\n"
-            + "An HTTP PUT request is made, any request attributes are set as the body of the request message if parameter `requestBody` is not present."
-            + "If parameter `requestBody` is present, the body of the request is generated from this attribute.\\n"
+            + "An HTTP PUT request is made, the body of the request message is copied from `requestBody` attribute.\\n"
+            + "# PATCH\\n"
+            + "An HTTP PATCH request is made, the body of the request message is copied from `requestBody` attribute.\\n"
             + "# OPTIONS\\n"
             + "No message body is generated.\\n"
             + "# HEAD\\n"
-            + "An HTTP HEAD request is made, any request attributes are converted to URL query parameters.\\n"
+            + "An HTTP HEAD request is made.\\n"
             + "# DELETE\\n"
             + "No message body is generated.\\n"
             + "# TRACE\\n"
@@ -64,7 +71,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
             + "No http request is generated but an output tuple is genrated if the output port is present.\\n"
             + "# Request Attributes\\n"
             + "Attributes from the input tuple are request parameters except for:\\n"
-            + "* Any attribute specified by parameters `url`, `method` and `contentType`.\\n"
+            + "* Any attribute specified by parameters `url`, `method`, `contentType`, `requestBody` or `equestUrlArguments`.\\n"
             + "* If parameter `requestAttributes` is set, all attributes of this parameter are considered a request attribute.\\n"
             + "* If parameter `requestAttributes` has one empty element, no attributes are considered a request attribute.\\n"
             + "# Http Authentication\\n"
@@ -85,16 +92,20 @@ class HTTPRequestOperAPI extends AbstractOperator {
     protected static final Logger tracer = Logger.getLogger(HTTPRequestOperAPI.class.getName());
     
     //request parameters
-    private String fixedUrl = null;
+    private String                        fixedUrl = null;
     private TupleAttribute<Tuple, String> url;
-    private HTTPMethod fixedMethod = null;
+    private HTTPMethod                    fixedMethod = null;
     private TupleAttribute<Tuple, String> method;
-    private String fixedContentType = null;
+    private String                        fixedContentType = null;
     private TupleAttribute<Tuple, String> contentType;
-    private ContentType contentTypeToUse = null;
-    private List<String> extraHeaders = Collections.emptyList();
+    private ContentType                   contentTypeToUse = null;
+    private List<String>                  extraHeaders = Collections.emptyList();
+    
+    //request configuration
     private TupleAttribute<Tuple, String> requestBody = null;  //request body
-    private Set<String> requestAttributes = new HashSet<>(); //Attributes that are part of the request.
+    private Set<String>                   requestAttributes = new HashSet<>(); //Attributes that are part of the request.
+    private boolean                       requestAttributesAsUrlArguments = false;
+    private TupleAttribute<Tuple, String> requestUrlArguments = null;
     
     //output parameters
     private String outputDataLine = null;
@@ -107,17 +118,17 @@ class HTTPRequestOperAPI extends AbstractOperator {
     
     //connection configs
     private AuthenticationType authenticationType = AuthenticationType.STANDARD;
-    private String authenticationFile = null;
-    private List<String> authenticationProperties = null;
-    private boolean sslAcceptAllCertificates = false;
-    private String sslTrustStoreFile = null;
-    private String sslTrustStorePassword = null;
-    private String proxy = null;
-    private int proxyPort = 8080;
-    private boolean disableRedirectHandling = false;
-    private boolean disableContentCompression = false;
-    private boolean disableAutomaticRetries = false;
-    private int connectionTimeout = 0;
+    private String             authenticationFile = null;
+    private List<String>       authenticationProperties = null;
+    private boolean            sslAcceptAllCertificates = false;
+    private String             sslTrustStoreFile = null;
+    private String             sslTrustStorePassword = null;
+    private String             proxy = null;
+    private int                proxyPort = 8080;
+    private boolean            disableRedirectHandling = false;
+    private boolean            disableContentCompression = false;
+    private boolean            disableAutomaticRetries = false;
+    private int                connectionTimeout = 0;
 
     //internal operator state
     private boolean shutdownRequested = false;
@@ -125,8 +136,8 @@ class HTTPRequestOperAPI extends AbstractOperator {
     //private boolean hasOutputAttributeParameter = false;
 
     // Function to return the url, method, content type from an input tuple or fixed
-    private Function<Tuple, HTTPMethod> methodGetter;
-    private Function<Tuple, String> urlGetter;
+    private Function<Tuple, HTTPMethod>  methodGetter;
+    private Function<Tuple, String>      urlGetter;
     private Function<Tuple, ContentType> contentTypeGetter;
     
 
@@ -159,19 +170,6 @@ class HTTPRequestOperAPI extends AbstractOperator {
             + " Defaults to `application/json`.")
     public void setFixedContentType(String fixedContentType) {
         this.fixedContentType = fixedContentType;
-        /*this.fixedContentType = ContentType.getByMimeType(fixedContentType);
-        if (fixedContentType == null) {
-            throw new IllegalArgumentException("Argument of contentType:"+contentType+" is invalid!");
-        }*/
-        /*if (contentType.equals(ContentType.APPLICATION_JSON.getMimeType())) {
-            this.contentType = ContentType.APPLICATION_JSON;
-        } else if (contentType.equals(ContentType.APPLICATION_FORM_URLENCODED.getMimeType())) {
-            this.contentType = ContentType.APPLICATION_FORM_URLENCODED;
-        } else {
-            String allowedIs = ContentType.APPLICATION_JSON.getMimeType()+
-                           "|"+ContentType.APPLICATION_FORM_URLENCODED.getMimeType();
-            throw new IllegalArgumentException("Argument of contentType:"+contentType+" is invalid! Allowed is:"+allowedIs);
-        }*/
     }
     @Parameter(optional = true, description = "MIME content type of entity for `POST` and `PUT` requests. "
             + "Only one of `contentType` and `fixedContentType` must be specified."
@@ -183,15 +181,37 @@ class HTTPRequestOperAPI extends AbstractOperator {
     public void setExtraHeaders(String[] extraHeaders) {
         //This is never called get values in initialize method
     }
+    
+    /***************************************
+     * request configuration
+     ***************************************/
     @Parameter(optional=true, description="Names of the attributes which are part of the request body. The content of "
-            + "these attributes are sent for any method that accepts an entity (PUT / POST). If this parameter is missing, "
-            + "all attributes, excluding those that are used to specify the URL, method or content type, are used in the request body. "
-            + "One empty element defines an empty list which means no attributes are considered request attributes")
+            + "these attributes are sent as request body in method POST. If parameter `requestAttributesAsUrlArguments` is true, "
+            + "the request attributes are additionally appended as arguments to the url in method GET. "
+            + "If this parameter is missing, "
+            + "all attributes, excluding those that are used to specify the URL, method, content type, Request url arguments"
+            + "or request attributes, are used in the request body. "
+            + "One empty element defines an empty list which means no attributes are considered request attributes. ")
     public void setRequestAttributes(String[] requestAttributes) {
         //This is never called !? Is set in initialize
     }
-    @Parameter(optional=true, description="Request body attribute. If this parameter is set, the body of PUT and POST requests "
-            + " is taken from this attribute. This parameter is not allowed if parameter `requestAttributes` is set.")
+    @Parameter(optional=true, description="If this parameter is true, the request attributes are appended as arguments to the url in method GET. "
+            + "If this parameter is false, the request attributes are not appended to the url. Default is false. "
+            + "If this parameter is true, all request attributes must have spl type `rstring` or `ustring`."
+            + "This arguments are overwritten from a non empty value in parameter `requestUrlArguments`.")
+    public void setRequestAttributesAsUrlArguments(boolean requestAttributesAsUrlArguments) {
+        this.requestAttributesAsUrlArguments = requestAttributesAsUrlArguments;
+    }
+    @Parameter(optional=true, description="Request url arguments attribute. If this parameter is set and the value of "
+            + "this attribute  is not empty, the content of this string is appended as arguments to the request url. "
+            + "This overwrites the arguments which are generated from the request attributes. "
+            + "The value is expected to be unescaped and may contain non ASCII characters")
+    public void setRequestUrlArguments(TupleAttribute<Tuple, String> requestUrlArguments) {
+        this.requestUrlArguments = requestUrlArguments;
+    }
+    @Parameter(optional=true, description="Request body attribute for for any method that accepts an entity (PUT / POST / PATCH). "
+            + "In method PUT and PATCH the body of request is taken from this attribute. "
+            + "In method POST, any non empty value overwrites the request attributes.")
     public void setRequestBody(TupleAttribute<Tuple, String> requestBody) {
         System.out.println("set attribute param");
         this.requestBody = requestBody;
@@ -343,7 +363,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
         occ.checkExcludedParameters("url", "fixedUrl");
         occ.checkExcludedParameters("contentType", "fixedContentType");
         occ.checkExcludedParameters("outpuData", "outputBody");
-        occ.checkExcludedParameters("requestAttributes", "requestBody");
+        //occ.checkExcludedParameters("requestAttributes", "requestBody");
         
         //The pair of these parameters is optional, we either need both to be present or neither of them
         boolean hasFile = parameterNames.contains("sslTrustStoreFile");
@@ -414,7 +434,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
         } else {
             //no parameter 'requestAttributes' -> collect remaining attributes
             // Assume request attributes (sent for any method that accepts an entity)
-            // are all attributes, excluding those that are used to specify the URL, method or content type.
+            // are all attributes, excluding those that are used to specify the URL, method, content type, request body or request url args.
             requestAttributes.addAll(inputAttributeNames);
             if (url != null)
                 requestAttributes.remove(url.getAttribute().getName());
@@ -422,7 +442,25 @@ class HTTPRequestOperAPI extends AbstractOperator {
                 requestAttributes.remove(method.getAttribute().getName());
             if (contentType != null)
                 requestAttributes.remove(contentType.getAttribute().getName());
+            if (requestUrlArguments != null)
+                requestAttributes.remove(requestUrlArguments.getAttribute().getName());
+            if (requestBody != null)
+                requestAttributes.remove(requestBody.getAttribute().getName());
         }
+        //Check whether all attributes are string type if fixed content type is ne json
+        /*if (((fixedContentType != null) && (contentTypeToUse != ContentType.APPLICATION_JSON)) || requestAttributesAsUrlArguments) {
+            Iterator<Attribute> ia = ss.iterator();
+            while (ia.hasNext()) {
+                Attribute attr =ia.next();
+                String name = attr.getName();
+                if (requestAttributes.contains(name)) {
+                    MetaType paramType = attr.getType().getMetaType();
+                    if(paramType!=MetaType.USTRING && paramType!=MetaType.RSTRING) {
+                        throw new IllegalArgumentException("Attribute="+name+": If content type is:"+ContentType.APPLICATION_FORM_URLENCODED.getMimeType()+", request attributes must have type \""+MetaType.USTRING+"\" or \""+MetaType.RSTRING+"\"");
+                    }
+                }
+            }
+        }*/
         
         //output params ...
         boolean hasOutputAttributeParameter = false;
@@ -523,21 +561,6 @@ class HTTPRequestOperAPI extends AbstractOperator {
         URI baseConfigURI = context.getPE().getApplicationDirectory().toURI();
         sslTrustStoreFile = PathConversionHelper.convertToAbsPath(baseConfigURI, sslTrustStoreFile);
         authenticationFile = PathConversionHelper.convertToAbsPath(baseConfigURI, authenticationFile);
-
-        //Check whether all attributes are string type for urlencoded doc
-        /*if (contentType.getMimeType() == ContentType.APPLICATION_FORM_URLENCODED.getMimeType()) {
-            Iterator<Attribute> ia = ss.iterator();
-            while (ia.hasNext()) {
-                Attribute attr =ia.next();
-                String name = attr.getName();
-                if (requestAttributes.contains(name)) {
-                    MetaType paramType = attr.getType().getMetaType();
-                    if(paramType!=MetaType.USTRING && paramType!=MetaType.RSTRING) {
-                        throw new IllegalArgumentException("Attribute="+name+": If content type is:"+ContentType.APPLICATION_FORM_URLENCODED.getMimeType()+", request attributes must have type \""+MetaType.USTRING+"\" or \""+MetaType.RSTRING+"\"");
-                    }
-                }
-            }
-        }*/
     }
 
     @Override
@@ -557,8 +580,14 @@ class HTTPRequestOperAPI extends AbstractOperator {
 
     //getter
     protected List<String>                  getExtraHeaders() { return extraHeaders; }
+    
+    //request config
     protected TupleAttribute<Tuple, String> getRequestBody() { return requestBody; }
     protected Set<String>                   getRequestAttributes() { return  requestAttributes; }
+    protected boolean                       getRequestAttributesAsUrlArguments() { return requestAttributesAsUrlArguments; }
+    protected TupleAttribute<Tuple, String> getRequestUrlArguments() { return requestUrlArguments; }
+
+    
     //output parameters
     protected String getOutputDataLine() { return outputDataLine; }
     protected String getOutputBody() { return outputBody; }

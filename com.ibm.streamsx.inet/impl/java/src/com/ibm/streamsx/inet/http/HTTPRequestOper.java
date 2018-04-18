@@ -31,6 +31,7 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpOptions;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -144,8 +145,9 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                 tracer.log(TraceLevel.DEBUG, "Request method:"+method.toString()+" url:"+url);
             switch (method) {
             case POST: {
-                    HttpPost post = new HttpPost(url);
-                    createEntity(post, tuple, contentType);
+                    URI uri = createUriWithParams(url, tuple, false);
+                    HttpPost post = new HttpPost(uri);
+                    createEntity(post, tuple, contentType, true);
                     setHeader(post);
                     signRequest(post);
                     setConnectionParams(post);
@@ -153,16 +155,27 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                 }
                 break;
             case PUT: {
-                    HttpPut put = new HttpPut(url);
-                    createEntity(put, tuple, contentType);
+                    URI uri = createUriWithParams(url, tuple, false);
+                    HttpPut put = new HttpPut(uri);
+                    createEntity(put, tuple, contentType, false);
                     setHeader(put);
                     signRequest(put);
                     setConnectionParams(put);
                     sendRequest(tuple, put);
                 }
                 break;
+            case PATCH: {
+                    URI uri = createUriWithParams(url, tuple, false);
+                    HttpPatch patch = new HttpPatch(uri);
+                    createEntity(patch, tuple, contentType, false);
+                    setHeader(patch);
+                    signRequest(patch);
+                    setConnectionParams(patch);
+                    sendRequest(tuple, patch);
+                }
+                break;
             case GET: {
-                    URI uri = createUriWithParams(url, tuple);
+                    URI uri = createUriWithParams(url, tuple, true);
                     HttpGet get = new HttpGet(uri);
                     setHeader(get);
                     signRequest(get);
@@ -172,7 +185,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                 break;
             //case CONNECT:
             case HEAD: {
-                    URI uri = createUriWithParams(url, tuple);
+                    URI uri = createUriWithParams(url, tuple, false);
                     HttpHead head = new HttpHead(uri);
                     setHeader(head);
                     signRequest(head);
@@ -181,7 +194,8 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                 }
                 break;
             case OPTIONS: {
-                    HttpOptions options = new HttpOptions(url);
+                    URI uri = createUriWithParams(url, tuple, false);
+                    HttpOptions options = new HttpOptions(uri);
                     setHeader(options);
                     signRequest(options);
                     setConnectionParams(options);
@@ -189,7 +203,8 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                 }
                 break;
             case DELETE: {
-                    HttpDelete delete = new HttpDelete(url);
+                    URI uri = createUriWithParams(url, tuple, false);
+                    HttpDelete delete = new HttpDelete(uri);
                     setHeader(delete);
                     signRequest(delete);
                     setConnectionParams(delete);
@@ -197,7 +212,8 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                 }
                 break;
             case TRACE: {
-                    HttpTrace trace = new HttpTrace(url);
+                    URI uri = createUriWithParams(url, tuple, false);
+                    HttpTrace trace = new HttpTrace(uri);
                     setHeader(trace);
                     signRequest(trace);
                     setConnectionParams(trace);
@@ -224,28 +240,35 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
     /***********************************************************************************
      * add query params to uri
      ***********************************************************************************/
-    private URI createUriWithParams(String url, Tuple tuple) throws URISyntaxException {
+    private URI createUriWithParams(String url, Tuple tuple, boolean isMethodGet) throws URISyntaxException {
         URIBuilder uriBuilder = new URIBuilder(url);
 
-        //take all request attributes if no request body is given
-        StreamSchema ss = tuple.getStreamSchema();
-        Iterator<Attribute> ia = ss.iterator();
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
-        while (ia.hasNext()) {
-            Attribute attr =ia.next();
-            String name = attr.getName();
-            if (getRequestAttributes().contains(name)) {
-                int index = attr.getIndex();
-                //MetaType paramType = attr.getType().getMetaType();
-                String value = tuple.getString(index);
-                params.add(new BasicNameValuePair(name, value));
-                uriBuilder = uriBuilder.addParameter(name, value);
+        if ((getRequestUrlArguments() != null) && ( ! getRequestUrlArguments().getValue(tuple).isEmpty())) {
+            //take arguments from getRequestUrlArguments attribute
+            String args = getRequestUrlArguments().getValue(tuple);
+            uriBuilder = uriBuilder.setCustomQuery(args);
+        } else {
+            //take all request attributes if no request body is given
+            if (isMethodGet && getRequestAttributesAsUrlArguments()) {
+                StreamSchema ss = tuple.getStreamSchema();
+                Iterator<Attribute> ia = ss.iterator();
+                List<NameValuePair> params = new ArrayList<NameValuePair>();
+                while (ia.hasNext()) {
+                    Attribute attr =ia.next();
+                    String name = attr.getName();
+                    if (getRequestAttributes().contains(name)) {
+                        int index = attr.getIndex();
+                        String value = tuple.getString(index);
+                        params.add(new BasicNameValuePair(name, value));
+                        uriBuilder = uriBuilder.addParameter(name, value);
+                    }
+                }
             }
         }
         URI result = uriBuilder.build();
         if (tracer.isLoggable(TraceLevel.DEBUG))
             tracer.log(TraceLevel.DEBUG, "Request uri:"+result.toString());
-    return result;
+        return result;
     }
     
     /************************************************
@@ -291,56 +314,59 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
     /******************************************************************************************************************
      * Create and add entity to request
      *******************************************************************************************************************/
-    private void createEntity(HttpEntityEnclosingRequest req, Tuple tuple, ContentType contentType) throws IOException {
-        if (getRequestBody() != null) {
-            //take request body from input tuple transparently
-            String instr = getRequestBody().getValue(tuple);
-            req.setEntity(new StringEntity(instr, contentType));
-        } else {
-            //content type specific 
-            if (contentType.getMimeType() == ContentType.APPLICATION_JSON.getMimeType()) {
-                //take all request attributes if no request body is given
-                JSONEncoding<JSONObject, JSONArray> je = EncodingFactory.getJSONEncoding();
-                JSONObject jo = je.encodeTuple(tuple);
-                for (Iterator<?> it = jo.keySet().iterator(); it.hasNext();) {
-                    if (!isRequestAttribute(it.next())) {
-                        it.remove();
-                    }
-                }
-                req.setEntity(new StringEntity(jo.serialize(), ContentType.APPLICATION_JSON));
-            } else if (contentType.getMimeType() == ContentType.APPLICATION_FORM_URLENCODED.getMimeType()) {
-                //take all request attributes if no request body is given
-                StreamSchema ss = tuple.getStreamSchema();
-                Iterator<Attribute> ia = ss.iterator();
-                List<NameValuePair> params = new ArrayList<NameValuePair>();
-                while (ia.hasNext()) {
-                    Attribute attr =ia.next();
-                    String name = attr.getName();
-                    if (getRequestAttributes().contains(name)) {
-                        int index = attr.getIndex();
-                        //MetaType paramType = attr.getType().getMetaType();
-                        String value = tuple.getString(index);
-                        params.add(new BasicNameValuePair(name, value));
-                    }
-                }
-                req.setEntity(new UrlEncodedFormEntity(params));
+    private void createEntity(HttpEntityEnclosingRequest req, Tuple tuple, ContentType contentType, boolean isPostMethod) throws IOException {
+        if (isPostMethod) {
+            if ((getRequestBody() != null) && ( ! getRequestBody().getValue(tuple).isEmpty())) {
+                //take request body from input tuple transparently
+                String instr = getRequestBody().getValue(tuple);
+                req.setEntity(new StringEntity(instr, contentType));
             } else {
-                //take all request attributes if no request body is given
-                StreamSchema ss = tuple.getStreamSchema();
-                Iterator<Attribute> ia = ss.iterator();
-                String payload = "";
-                while (ia.hasNext()) {
-                    Attribute attr =ia.next();
-                    String name = attr.getName();
-                    if (getRequestAttributes().contains(name)) {
-                        int index = attr.getIndex();
-                        //MetaType paramType = attr.getType().getMetaType();
-                        String value = tuple.getString(index);
-                        payload = payload+value;
+                //take request attributes content type specific 
+                if (contentType.getMimeType() == ContentType.APPLICATION_JSON.getMimeType()) {
+                    JSONEncoding<JSONObject, JSONArray> je = EncodingFactory.getJSONEncoding();
+                    JSONObject jo = je.encodeTuple(tuple);
+                    for (Iterator<?> it = jo.keySet().iterator(); it.hasNext();) {
+                        if (!isRequestAttribute(it.next())) {
+                            it.remove();
+                        }
                     }
+                    req.setEntity(new StringEntity(jo.serialize(), ContentType.APPLICATION_JSON));
+                } else if (contentType.getMimeType() == ContentType.APPLICATION_FORM_URLENCODED.getMimeType()) {
+                    StreamSchema ss = tuple.getStreamSchema();
+                    Iterator<Attribute> ia = ss.iterator();
+                    List<NameValuePair> params = new ArrayList<NameValuePair>();
+                    while (ia.hasNext()) {
+                        Attribute attr =ia.next();
+                        String name = attr.getName();
+                        if (getRequestAttributes().contains(name)) {
+                            int index = attr.getIndex();
+                            String value = tuple.getString(index);
+                            params.add(new BasicNameValuePair(name, value));
+                        }
+                    }
+                    req.setEntity(new UrlEncodedFormEntity(params));
+                } else {
+                    StreamSchema ss = tuple.getStreamSchema();
+                    Iterator<Attribute> ia = ss.iterator();
+                    String payload = "";
+                    while (ia.hasNext()) {
+                        Attribute attr =ia.next();
+                        String name = attr.getName();
+                        if (getRequestAttributes().contains(name)) {
+                            int index = attr.getIndex();
+                            String value = tuple.getString(index);
+                            payload = payload+value;
+                        }
+                    }
+                    req.setEntity(new StringEntity(payload, contentType));
                 }
-                req.setEntity(new StringEntity(payload, contentType));
             }
+        } else {
+            //other methods take body from input tuple transparently
+            String payload = "";
+            if (getRequestBody() != null)
+                payload = getRequestBody().getValue(tuple);
+            req.setEntity(new StringEntity(payload, contentType));
         }
     }
 
@@ -389,27 +415,13 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                 }
                 if (tracer.isLoggable(TraceLevel.TRACE)) {
                     final HTTPMethod method = getMethod(inTuple);
-                    switch (method) {
-                    case POST: {
-                            HttpEntityEnclosingRequest her = (HttpEntityEnclosingRequest) request;
-                            HttpEntity he = her.getEntity();
-                            if (he != null) {
-                                String requestBody = EntityUtils.toString(he);
-                                sb.append("\n").append(requestBody);
-                            }
-                    }
-                        break;
-                    case PUT: {
-                            HttpEntityEnclosingRequest her = (HttpEntityEnclosingRequest) request;
-                            HttpEntity he = her.getEntity();
-                            if (he != null) {
-                                String requestBody = EntityUtils.toString(he);
-                                sb.append("\n").append(requestBody);
-                            }
+                    if ((method == HTTPMethod.PATCH) || (method == HTTPMethod.POST) || (method == HTTPMethod.PUT)) {
+                        HttpEntityEnclosingRequest her = (HttpEntityEnclosingRequest) request;
+                        HttpEntity he = her.getEntity();
+                        if (he != null) {
+                            String requestBody = EntityUtils.toString(he);
+                            sb.append("\n").append(requestBody);
                         }
-                        break;
-                    default:
-                        break;
                     }
                 }
                 RequestConfig rc = request.getConfig();
