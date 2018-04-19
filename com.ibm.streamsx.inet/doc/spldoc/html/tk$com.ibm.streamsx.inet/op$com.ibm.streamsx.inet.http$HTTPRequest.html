@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.9.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.http.html">com.ibm.streamsx.inet.http</a> &gt; HTTPRequest</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.9.1</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.http.html">com.ibm.streamsx.inet.http</a> &gt; HTTPRequest</p>
 
 </div>
 
@@ -32,18 +32,29 @@
 
 <div class="section">
 
-<p class="p">Issue an HTTP request of the specified method for each input tuple. For method <tt class="ph tt">NONE</tt>, the request is supressed.The URL and  method of the HTTP request either come from the input tuple using attributes specified by the <tt class="ph tt">url</tt> and <tt class="ph tt">method</tt> parameters, or can be fixed using the <tt class="ph tt">fixedUrl</tt> and <tt class="ph tt">fixedMethod</tt> parameters. These parameters can be mixed, for example the URL can be fixed with <tt class="ph tt">fixedUrl</tt> while the method is set from each tuple using <tt class="ph tt">method</tt>. A content type is required for <tt class="ph tt">POST</tt> and <tt class="ph tt">PUT</tt> method. The content type is specified by <tt class="ph tt">contenType</tt>or <tt class="ph tt">fixedContentType</tt> parameter.
-</p>
+<div class="p">Issue an HTTP request of the specified method for each input tuple. For method <tt class="ph tt">NONE</tt>, the request is suppressed. The URL and  method of the HTTP request either come from the input tuple using attributes specified by the <tt class="ph tt">url</tt> and <tt class="ph tt">method</tt> parameters or can be fixed using the <tt class="ph tt">fixedUrl</tt> and <tt class="ph tt">fixedMethod</tt> parameters. These parameters can be mixed, for example the URL can be fixed with <tt class="ph tt">fixedUrl</tt> while the method is set from each tuple using <tt class="ph tt">method</tt>. Entity enclosing requests (POST/PUT/PATCH) require a content type. The content type is specified with <tt class="ph tt">contenType</tt> or <tt class="ph tt">fixedContentType</tt> parameter. The default is <tt class="ph tt">application/json</tt>. The message body of an entity enclosing request can be defined in two ways:
+<ul class="ul">
+<li class="li"> Method POST: If the parameter <tt class="ph tt">requestBodyAttribute</tt> is defined and the value of the attribute is not empty, the value of the attribute is copied into the request body. Otherwise the names and values of the Request Attributes are used to generate the request form.</li>
 
-<p class="p">The contents of the request is dependent on the method type.
-</p>
+<li class="li"> Other Methods: If the parameter <tt class="ph tt">requestBodyAttribute</tt> is defined, the value of the attribute is copied into the request body.</li>
+
+</ul>
+The operator can append Url Arguments to the request line. This happens if:
+<ul class="ul">
+<li class="li"> If parameter <tt class="ph tt">requestUrlArgumentsAttribute</tt> is specified and this attribute is not empty, the value of this attribute is copied as URL argument string and overwrites all other arguments. (all methods)</li>
+
+<li class="li"> In method GET: If parameter <tt class="ph tt">requestAttributesAsUrlArguments</tt> is true, all Request Attribute names and values are converted to URL query parameters.</li>
+
+</ul>
+The contents of the request is dependent on the method type.
+</div>
 
 </div>
 
 <div class="section"><h2 class="title sectiontitle">GET
 </h2>
 
-<p class="p">An HTTP GET request is made, any request attributes are converted to URL query parameters.
+<p class="p">An HTTP GET request is made. If parameter <tt class="ph tt">requestAttributesAsUrlArguments</tt> is true, all request attributes are converted to URL query parameters. If parameter <tt class="ph tt">requestUrlArgumentsAttribute</tt> is specified and this attribute is not empty, this attribute is copied as URL argument string and overwrites all other arguments.
 </p>
 
 </div>
@@ -51,7 +62,7 @@
 <div class="section"><h2 class="title sectiontitle">POST
 </h2>
 
-<p class="p">An HTTP PUT request is made, any request attributes are set as the body of the request message if parameter <tt class="ph tt">requestBody</tt> is not present. If parameter <tt class="ph tt">requestBody</tt> is present, the body of the request is generated from this attribute.
+<p class="p">An HTTP POST request is made, any request attributes are set as the body of the request message if parameter <tt class="ph tt">requestBodyAttribute</tt> is not present or the value of the attribute is empty. The encoding of the request body takes the content type into account. If content type is <tt class="ph tt">application/json</tt>, a json body is generated from request attributes. If content type is <tt class="ph tt">application/x-www-form-urlencoded</tt>, a url encoded body is generated from request attributes. For all other content types, the content of all request attributes is concatenated into the message body. If <tt class="ph tt">requestBodyAttribute</tt> attribute is not empty, the body of the request is copied from this attribute instead.
 </p>
 
 </div>
@@ -59,7 +70,15 @@
 <div class="section"><h2 class="title sectiontitle">PUT
 </h2>
 
-<p class="p">An HTTP PUT request is made, any request attributes are set as the body of the request message if parameter <tt class="ph tt">requestBody</tt> is not present.If parameter <tt class="ph tt">requestBody</tt> is present, the body of the request is generated from this attribute.
+<p class="p">An HTTP PUT request is made, the body of the request message is copied from <tt class="ph tt">requestBodyAttribute</tt> attribute.
+</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">PATCH
+</h2>
+
+<p class="p">An HTTP PATCH request is made, the body of the request message is copied from <tt class="ph tt">requestBodyAttribute</tt> attribute.
 </p>
 
 </div>
@@ -75,7 +94,7 @@
 <div class="section"><h2 class="title sectiontitle">HEAD
 </h2>
 
-<p class="p">An HTTP HEAD request is made, any request attributes are converted to URL query parameters.
+<p class="p">An HTTP HEAD request is made.
 </p>
 
 </div>
@@ -99,7 +118,7 @@
 <div class="section"><h2 class="title sectiontitle">NONE
 </h2>
 
-<p class="p">No http request is generated but an output tuple is genrated if the output port is present.
+<p class="p">No http request is generated but an output tuple is submitted if the output port is present and attributes are passed from input port to output port.
 </p>
 
 </div>
@@ -109,7 +128,7 @@
 
 <div class="p">Attributes from the input tuple are request parameters except for:
 <ul class="ul">
-<li class="li"> Any attribute specified by parameters <tt class="ph tt">url</tt>, <tt class="ph tt">method</tt> and <tt class="ph tt">contentType</tt>.</li>
+<li class="li"> Any attribute specified by parameters <tt class="ph tt">url</tt>, <tt class="ph tt">method</tt>, <tt class="ph tt">contentType</tt>, <tt class="ph tt">requestBodyAttribute</tt> or <tt class="ph tt">equestUrlArguments</tt>.</li>
 
 <li class="li"> If parameter <tt class="ph tt">requestAttributes</tt> is set, all attributes of this parameter are considered a request attribute.</li>
 
@@ -155,9 +174,9 @@
  
   <dt class="dt dlterm">Parameters</dt>
 
-  <dd class="dd">This operator supports 22 parameters.
+  <dd class="dd">This operator supports 31 parameters.
 <p class="p"> Optional: 
-<a class="xref" href="#spldoc_operator__parameter__authenticationFile">authenticationFile</a>, <a class="xref" href="#spldoc_operator__parameter__authenticationProperties">authenticationProperties</a>, <a class="xref" href="#spldoc_operator__parameter__authenticationType">authenticationType</a>, <a class="xref" href="#spldoc_operator__parameter__contentType">contentType</a>, <a class="xref" href="#spldoc_operator__parameter__extraHeaders">extraHeaders</a>, <a class="xref" href="#spldoc_operator__parameter__fixedContentType">fixedContentType</a>, <a class="xref" href="#spldoc_operator__parameter__fixedMethod">fixedMethod</a>, <a class="xref" href="#spldoc_operator__parameter__fixedUrl">fixedUrl</a>, <a class="xref" href="#spldoc_operator__parameter__method">method</a>, <a class="xref" href="#spldoc_operator__parameter__outputBody">outputBody</a>, <a class="xref" href="#spldoc_operator__parameter__outputContentEncoding">outputContentEncoding</a>, <a class="xref" href="#spldoc_operator__parameter__outputContentType">outputContentType</a>, <a class="xref" href="#spldoc_operator__parameter__outputDataLine">outputDataLine</a>, <a class="xref" href="#spldoc_operator__parameter__outputHeader">outputHeader</a>, <a class="xref" href="#spldoc_operator__parameter__outputStatus">outputStatus</a>, <a class="xref" href="#spldoc_operator__parameter__outputStatusCode">outputStatusCode</a>, <a class="xref" href="#spldoc_operator__parameter__requestAttributes">requestAttributes</a>, <a class="xref" href="#spldoc_operator__parameter__requestBody">requestBody</a>, <a class="xref" href="#spldoc_operator__parameter__sslAcceptAllCertificates">sslAcceptAllCertificates</a>, <a class="xref" href="#spldoc_operator__parameter__sslTrustStoreFile">sslTrustStoreFile</a>, <a class="xref" href="#spldoc_operator__parameter__sslTrustStorePassword">sslTrustStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__url">url</a>
+<a class="xref" href="#spldoc_operator__parameter__authenticationFile">authenticationFile</a>, <a class="xref" href="#spldoc_operator__parameter__authenticationProperties">authenticationProperties</a>, <a class="xref" href="#spldoc_operator__parameter__authenticationType">authenticationType</a>, <a class="xref" href="#spldoc_operator__parameter__connectionTimeout">connectionTimeout</a>, <a class="xref" href="#spldoc_operator__parameter__contentType">contentType</a>, <a class="xref" href="#spldoc_operator__parameter__disableAutomaticRetries">disableAutomaticRetries</a>, <a class="xref" href="#spldoc_operator__parameter__disableContentCompression">disableContentCompression</a>, <a class="xref" href="#spldoc_operator__parameter__disableRedirectHandling">disableRedirectHandling</a>, <a class="xref" href="#spldoc_operator__parameter__extraHeaders">extraHeaders</a>, <a class="xref" href="#spldoc_operator__parameter__fixedContentType">fixedContentType</a>, <a class="xref" href="#spldoc_operator__parameter__fixedMethod">fixedMethod</a>, <a class="xref" href="#spldoc_operator__parameter__fixedUrl">fixedUrl</a>, <a class="xref" href="#spldoc_operator__parameter__method">method</a>, <a class="xref" href="#spldoc_operator__parameter__outputBody">outputBody</a>, <a class="xref" href="#spldoc_operator__parameter__outputContentEncoding">outputContentEncoding</a>, <a class="xref" href="#spldoc_operator__parameter__outputContentType">outputContentType</a>, <a class="xref" href="#spldoc_operator__parameter__outputDataLine">outputDataLine</a>, <a class="xref" href="#spldoc_operator__parameter__outputHeader">outputHeader</a>, <a class="xref" href="#spldoc_operator__parameter__outputStatus">outputStatus</a>, <a class="xref" href="#spldoc_operator__parameter__outputStatusCode">outputStatusCode</a>, <a class="xref" href="#spldoc_operator__parameter__proxy">proxy</a>, <a class="xref" href="#spldoc_operator__parameter__proxyPort">proxyPort</a>, <a class="xref" href="#spldoc_operator__parameter__requestAttributes">requestAttributes</a>, <a class="xref" href="#spldoc_operator__parameter__requestAttributesAsUrlArguments">requestAttributesAsUrlArguments</a>, <a class="xref" href="#spldoc_operator__parameter__requestBodyAttribute">requestBodyAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__requestUrlArgumentsAttribute">requestUrlArgumentsAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__sslAcceptAllCertificates">sslAcceptAllCertificates</a>, <a class="xref" href="#spldoc_operator__parameter__sslTrustStoreFile">sslTrustStoreFile</a>, <a class="xref" href="#spldoc_operator__parameter__sslTrustStorePassword">sslTrustStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__url">url</a>, <a class="xref" href="#spldoc_operator__parameter__userAgent">userAgent</a>
 
 </p>
 </dd>
@@ -166,7 +185,7 @@
  
   <dt class="dt dlterm">Metrics</dt>
 
-  <dd class="dd">This operator does not report any metrics.</dd>
+  <dd class="dd">This operator reports 3 metrics.</dd>
 
  
 </dl>
@@ -193,7 +212,7 @@
 
    <dd class="dd">
 
-<p class="p">This stream contains the information sent in a http request. Each tuple with valid request data results in an HTTP request except if method <tt class="ph tt">NONE</tt>is specified.
+<p class="p">This stream contains the information sent in a http request. Each tuple with valid request data results in an HTTP request except if method <tt class="ph tt">NONE</tt> is specified.
 </p>
    </dd>
 
@@ -262,7 +281,7 @@
    </ul>
 
    <ul class="sl simple">
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__output_port_set__windowpunctuationoutputmode">WindowPunctuationOutputMode</a>: Generating
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__output_port_set__windowpunctuationoutputmode">WindowPunctuationOutputMode</a>: Preserving
      </li>
 
    </ul>
@@ -283,9 +302,9 @@
 
 <div class="section">
 <p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters">Parameters</a></strong></p>
-This operator supports 22 parameters.
+This operator supports 31 parameters.
 <p class="p"> Optional: 
-<a class="xref" href="#spldoc_operator__parameter__authenticationFile">authenticationFile</a>, <a class="xref" href="#spldoc_operator__parameter__authenticationProperties">authenticationProperties</a>, <a class="xref" href="#spldoc_operator__parameter__authenticationType">authenticationType</a>, <a class="xref" href="#spldoc_operator__parameter__contentType">contentType</a>, <a class="xref" href="#spldoc_operator__parameter__extraHeaders">extraHeaders</a>, <a class="xref" href="#spldoc_operator__parameter__fixedContentType">fixedContentType</a>, <a class="xref" href="#spldoc_operator__parameter__fixedMethod">fixedMethod</a>, <a class="xref" href="#spldoc_operator__parameter__fixedUrl">fixedUrl</a>, <a class="xref" href="#spldoc_operator__parameter__method">method</a>, <a class="xref" href="#spldoc_operator__parameter__outputBody">outputBody</a>, <a class="xref" href="#spldoc_operator__parameter__outputContentEncoding">outputContentEncoding</a>, <a class="xref" href="#spldoc_operator__parameter__outputContentType">outputContentType</a>, <a class="xref" href="#spldoc_operator__parameter__outputDataLine">outputDataLine</a>, <a class="xref" href="#spldoc_operator__parameter__outputHeader">outputHeader</a>, <a class="xref" href="#spldoc_operator__parameter__outputStatus">outputStatus</a>, <a class="xref" href="#spldoc_operator__parameter__outputStatusCode">outputStatusCode</a>, <a class="xref" href="#spldoc_operator__parameter__requestAttributes">requestAttributes</a>, <a class="xref" href="#spldoc_operator__parameter__requestBody">requestBody</a>, <a class="xref" href="#spldoc_operator__parameter__sslAcceptAllCertificates">sslAcceptAllCertificates</a>, <a class="xref" href="#spldoc_operator__parameter__sslTrustStoreFile">sslTrustStoreFile</a>, <a class="xref" href="#spldoc_operator__parameter__sslTrustStorePassword">sslTrustStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__url">url</a>
+<a class="xref" href="#spldoc_operator__parameter__authenticationFile">authenticationFile</a>, <a class="xref" href="#spldoc_operator__parameter__authenticationProperties">authenticationProperties</a>, <a class="xref" href="#spldoc_operator__parameter__authenticationType">authenticationType</a>, <a class="xref" href="#spldoc_operator__parameter__connectionTimeout">connectionTimeout</a>, <a class="xref" href="#spldoc_operator__parameter__contentType">contentType</a>, <a class="xref" href="#spldoc_operator__parameter__disableAutomaticRetries">disableAutomaticRetries</a>, <a class="xref" href="#spldoc_operator__parameter__disableContentCompression">disableContentCompression</a>, <a class="xref" href="#spldoc_operator__parameter__disableRedirectHandling">disableRedirectHandling</a>, <a class="xref" href="#spldoc_operator__parameter__extraHeaders">extraHeaders</a>, <a class="xref" href="#spldoc_operator__parameter__fixedContentType">fixedContentType</a>, <a class="xref" href="#spldoc_operator__parameter__fixedMethod">fixedMethod</a>, <a class="xref" href="#spldoc_operator__parameter__fixedUrl">fixedUrl</a>, <a class="xref" href="#spldoc_operator__parameter__method">method</a>, <a class="xref" href="#spldoc_operator__parameter__outputBody">outputBody</a>, <a class="xref" href="#spldoc_operator__parameter__outputContentEncoding">outputContentEncoding</a>, <a class="xref" href="#spldoc_operator__parameter__outputContentType">outputContentType</a>, <a class="xref" href="#spldoc_operator__parameter__outputDataLine">outputDataLine</a>, <a class="xref" href="#spldoc_operator__parameter__outputHeader">outputHeader</a>, <a class="xref" href="#spldoc_operator__parameter__outputStatus">outputStatus</a>, <a class="xref" href="#spldoc_operator__parameter__outputStatusCode">outputStatusCode</a>, <a class="xref" href="#spldoc_operator__parameter__proxy">proxy</a>, <a class="xref" href="#spldoc_operator__parameter__proxyPort">proxyPort</a>, <a class="xref" href="#spldoc_operator__parameter__requestAttributes">requestAttributes</a>, <a class="xref" href="#spldoc_operator__parameter__requestAttributesAsUrlArguments">requestAttributesAsUrlArguments</a>, <a class="xref" href="#spldoc_operator__parameter__requestBodyAttribute">requestBodyAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__requestUrlArgumentsAttribute">requestUrlArgumentsAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__sslAcceptAllCertificates">sslAcceptAllCertificates</a>, <a class="xref" href="#spldoc_operator__parameter__sslTrustStoreFile">sslTrustStoreFile</a>, <a class="xref" href="#spldoc_operator__parameter__sslTrustStorePassword">sslTrustStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__url">url</a>, <a class="xref" href="#spldoc_operator__parameter__userAgent">userAgent</a>
 
 </p>
 <dl class="dl">
@@ -297,12 +316,12 @@ This operator supports 22 parameters.
 <ul class="ul">
 <li class="li"> If <tt class="ph tt">authenticationType</tt> is <tt class="ph tt">STANDARD</tt>: A valid line is composed from the authentication Scope (hostname or <tt class="ph tt">ANY_HOST</tt>, equal sign, user, colon, password. E.g.: ANY_HOST=user:passwd</li>
 
-<li class="li"> If <tt class="ph tt">authenticationType</tt> is <tt class="ph tt">OAUTH1</tt>: The athentication file must contain key/value pairs for the keys: <tt class="ph tt">consumerKey</tt>, <tt class="ph tt">consumerSecret</tt>, <tt class="ph tt">accessToken</tt> and <tt class="ph tt">accessTokenSecret</tt>.</li>
+<li class="li"> If <tt class="ph tt">authenticationType</tt> is <tt class="ph tt">OAUTH1</tt>: The authentication file must contain key/value pairs for the keys: <tt class="ph tt">consumerKey</tt>, <tt class="ph tt">consumerSecret</tt>, <tt class="ph tt">accessToken</tt> and <tt class="ph tt">accessTokenSecret</tt>.</li>
 
-<li class="li"> If <tt class="ph tt">authenticationType</tt> is <tt class="ph tt">OAUTH2</tt>: The athentication file must contain one key/value pair for key <tt class="ph tt">accessToken=myAccessToken</tt>.</li>
+<li class="li"> If <tt class="ph tt">authenticationType</tt> is <tt class="ph tt">OAUTH2</tt>: The authentication file must contain one key/value pair for key <tt class="ph tt">accessToken=myAccessToken</tt>.</li>
 
 </ul>
-The athentication file may contain one key/value pair for key <tt class="ph tt">authMethod</tt>. See <tt class="ph tt">http_request_auth.properties</tt>, <tt class="ph tt">http_request_oauth1.properties</tt> and <tt class="ph tt">http_request_oauth2.properties</tt> in the toolkits etc directory for a sample of authentication properties.
+The authentication file may contain one key/value pair for key <tt class="ph tt">authMethod</tt>. See <tt class="ph tt">http_request_auth.properties</tt>, <tt class="ph tt">http_request_oauth1.properties</tt> and <tt class="ph tt">http_request_oauth2.properties</tt> in the toolkits etc directory for a sample of authentication properties.
 </div>
 <dl class="dl">
 
@@ -361,7 +380,7 @@ The athentication file may contain one key/value pair for key <tt class="ph tt">
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__authenticationType"><!-- --></a><tt class="ph tt">authenticationType</tt></dt>
 
 <dd class="dd">
-<p class="p">The type of used authentication method. Valid options are "STANDARD", "OAUTH1," and "OAUTH2". Default is "STANDARD". If "STANDARD" is selected, the authorization may be none, basic or digest authorization. If the server requires basic or digest autorization one of the parameters <tt class="ph tt">authenticationFile</tt> or <tt class="ph tt">authenticationProperties</tt> is required. If the "OAUTH1" option is selected, the requests will be singed using OAuth 1.0a If the "OAUTH2" option is selected, the requests will be singed using OAuth 2.0.
+<p class="p">The type of used authentication method. Valid options are "STANDARD", "OAUTH1," and "OAUTH2". Default is "STANDARD". If "STANDARD" is selected, the authorization may be none, basic or digest authorization. If the server requires basic or digest authorization one of the parameters <tt class="ph tt">authenticationFile</tt> or <tt class="ph tt">authenticationProperties</tt> is required. If the "OAUTH1" option is selected, the requests will be singed using OAuth 1.0a If the "OAUTH2" option is selected, the requests will be singed using OAuth 2.0.
 </p>
 <dl class="dl">
 
@@ -370,6 +389,37 @@ The athentication file may contain one key/value pair for key <tt class="ph tt">
  <dd class="dd">
   <ul class="sl simple">
   <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__connectionTimeout"><!-- --></a><tt class="ph tt">connectionTimeout</tt></dt>
+
+<dd class="dd">
+<p class="p">Set the connection timeout in milliseconds. If value is 0, the default connection timeout is used. Default is 0.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: int32
   </li>
 
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
@@ -410,6 +460,99 @@ The athentication file may contain one key/value pair for key <tt class="ph tt">
      </li>
 
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Attribute
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__disableAutomaticRetries"><!-- --></a><tt class="ph tt">disableAutomaticRetries</tt></dt>
+
+<dd class="dd">
+<p class="p">Disables automatic request recovery and re-execution. Default is false
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__disableContentCompression"><!-- --></a><tt class="ph tt">disableContentCompression</tt></dt>
+
+<dd class="dd">
+<p class="p">Disables automatic content decompression. Default is false
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__disableRedirectHandling"><!-- --></a><tt class="ph tt">disableRedirectHandling</tt></dt>
+
+<dd class="dd">
+<p class="p">Disables automatic redirect handling. Default is false.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
      </li>
 
   </ul>
@@ -494,7 +637,7 @@ The athentication file may contain one key/value pair for key <tt class="ph tt">
  <dd class="dd">
   <ul class="sl simple">
   <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: com.ibm.streamsx.inet.http.HTTPMethod
- (<tt class="ph tt">OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, NONE</tt>)  </li>
+ (<tt class="ph tt">OPTIONS, GET, HEAD, POST, PUT, PATCH, DELETE, TRACE, NONE</tt>)  </li>
 
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
      </li>
@@ -519,7 +662,7 @@ The athentication file may contain one key/value pair for key <tt class="ph tt">
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__fixedUrl"><!-- --></a><tt class="ph tt">fixedUrl</tt></dt>
 
 <dd class="dd">
-<p class="p">Fixed URL to send HTTP requests to. Any tuple received on the input port results in a results to the URL provided. One and only one of <tt class="ph tt">url</tt> and <tt class="ph tt">fixedUrl</tt> must be specified.
+<p class="p">Fixed URL to send HTTP requests to. Any tuple received on the input port results in a request to the URL provided (excep for method NONE). One and only one of <tt class="ph tt">url</tt> and <tt class="ph tt">fixedUrl</tt> must be specified.
 </p>
 <dl class="dl">
 
@@ -550,7 +693,7 @@ The athentication file may contain one key/value pair for key <tt class="ph tt">
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__method"><!-- --></a><tt class="ph tt">method</tt></dt>
 
 <dd class="dd">
-<p class="p">Attribute that specifies the method to be used in theHTTP request for a tuple. One and only one of <tt class="ph tt">method</tt> and <tt class="ph tt">fixedMethod</tt> must be specified.
+<p class="p">Attribute that specifies the method to be used in the HTTP request for a tuple. One and only one of <tt class="ph tt">method</tt> and <tt class="ph tt">fixedMethod</tt> must be specified.
 </p>
 <dl class="dl">
 
@@ -584,7 +727,7 @@ The athentication file may contain one key/value pair for key <tt class="ph tt">
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__outputBody"><!-- --></a><tt class="ph tt">outputBody</tt></dt>
 
 <dd class="dd">
-<p class="p">Name of the attribute to populate the response body with. If this parameter is set, the operators returns one tuple for each request. Only one of <tt class="ph tt">outputDataLine</tt> and <tt class="ph tt">outputBody</tt> must be specified.This parameter is not allowed if the operator has no output port. 
+<p class="p">Name of the attribute to populate the response body with. If this parameter is set, the operators returns one tuple for each request. Only one of <tt class="ph tt">outputDataLine</tt> and <tt class="ph tt">outputBody</tt> must be specified. This parameter is not allowed if the operator has no output port.
 </p>
 <dl class="dl">
 
@@ -677,7 +820,7 @@ The athentication file may contain one key/value pair for key <tt class="ph tt">
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__outputDataLine"><!-- --></a><tt class="ph tt">outputDataLine</tt></dt>
 
 <dd class="dd">
-<p class="p">Name of the attribute to populate one line of the response data with. If this parameter is set, the operators returns one tuple for each line in the resonse body but at least one tuple if the body is empty. Only one of <tt class="ph tt">outputDataLine</tt> and <tt class="ph tt">outputBody</tt> must be specified.This parameter is not allowed if the operator has no output port. 
+<p class="p">Name of the attribute to populate one line of the response data with. If this parameter is set, the operators returns one tuple for each line in the response body but at least one tuple if the body is empty. Only one of <tt class="ph tt">outputDataLine</tt> and <tt class="ph tt">outputBody</tt> must be specified. This parameter is not allowed if the operator has no output port.
 </p>
 <dl class="dl">
 
@@ -798,10 +941,72 @@ The athentication file may contain one key/value pair for key <tt class="ph tt">
 
 
 
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__proxy"><!-- --></a><tt class="ph tt">proxy</tt></dt>
+
+<dd class="dd">
+<p class="p">Hostname of the http-proxy to be used. If this parameter is omitted no proxy is used.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__proxyPort"><!-- --></a><tt class="ph tt">proxyPort</tt></dt>
+
+<dd class="dd">
+<p class="p">The proxyport to be used. Default value is 8080. This parameter is ignored if no <tt class="ph tt">proxy</tt> parameter is specified.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: int32
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__requestAttributes"><!-- --></a><tt class="ph tt">requestAttributes</tt></dt>
 
 <dd class="dd">
-<p class="p">Names of the attributes which are part of the request body. The content of these attributes are sent for any method that accepts an entity (PUT / POST). If this parameter is missing, all attributes, excluding those that are used to specify the URL, method or content type, are used in the request body. One empty element defines an empty list which means no attributes are considered request attributes
+<p class="p">Names of the attributes which are part of the request body. The content of these attributes is sent as request body in method POST. If parameter <tt class="ph tt">requestAttributesAsUrlArguments</tt> is true, the request attributes are additionally appended as arguments to the url in method GET. If this parameter is missing, all attributes, excluding those that are used to specify the URL, method, content type, Request url arguments or request attributes, are used in the request body. One empty element defines an empty list which means no attributes are considered request attributes. 
 </p>
 <dl class="dl">
 
@@ -826,10 +1031,75 @@ The athentication file may contain one key/value pair for key <tt class="ph tt">
 
 
 
-<dt class="dt dlterm"><a name="spldoc_operator__parameter__requestBody"><!-- --></a><tt class="ph tt">requestBody</tt></dt>
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__requestAttributesAsUrlArguments"><!-- --></a><tt class="ph tt">requestAttributesAsUrlArguments</tt></dt>
 
 <dd class="dd">
-<p class="p">Request body attribute. If this parameter is set, the body of PUT and POST requests  is taken from this attribute. This parameter is not allowed if parameter <tt class="ph tt">requestAttributes</tt> is set.
+<p class="p">If this parameter is true, the request attributes are appended as arguments to the url in method GET. If this parameter is false, the request attributes are not appended to the url. Default is false. These arguments are overwritten from a non empty value in parameter <tt class="ph tt">requestUrlArgumentsAttribute</tt>.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__requestBodyAttribute"><!-- --></a><tt class="ph tt">requestBodyAttribute</tt></dt>
+
+<dd class="dd">
+<p class="p">Request body attribute for any method that accepts an entity (PUT / POST / PATCH). In method PUT and PATCH the body of request is taken from this attribute. In method POST, any non-empty value overwrites the request attributes.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Attribute
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__requestUrlArgumentsAttribute"><!-- --></a><tt class="ph tt">requestUrlArgumentsAttribute</tt></dt>
+
+<dd class="dd">
+<p class="p">Request url arguments attribute. If this parameter is set and the value of this attribute  is not empty, the content of this string is appended as arguments to the request url. This overwrites the arguments which are generated from the request attributes. The value is expected to be unescaped and may contain non ASCII characters
 </p>
 <dl class="dl">
 
@@ -956,7 +1226,7 @@ The athentication file may contain one key/value pair for key <tt class="ph tt">
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__url"><!-- --></a><tt class="ph tt">url</tt></dt>
 
 <dd class="dd">
-<p class="p">Attribute that specifies the URL to be used in theHTTP request for a tuple. One and only one of <tt class="ph tt">url</tt> and <tt class="ph tt">fixedUrl</tt> must be specified.
+<p class="p">Attribute that specifies the URL to be used in the HTTP request for a tuple. One and only one of <tt class="ph tt">url</tt> and <tt class="ph tt">fixedUrl</tt> must be specified.
 </p>
 <dl class="dl">
 
@@ -986,6 +1256,83 @@ The athentication file may contain one key/value pair for key <tt class="ph tt">
 </dd>
 
 
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__userAgent"><!-- --></a><tt class="ph tt">userAgent</tt></dt>
+
+<dd class="dd">
+<p class="p">Assigns the header User-Agent value. Default is "Apache-HttpClient/4.5.5 (Java/1.8.0)"
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+</dl>
+
+</div>
+
+<div class="section">
+<p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__metrics">Metrics</a></strong></p>
+<dl class="dl">
+  
+    <dt class="dt dlterm"><tt class="ph tt">nRequestTransmit</tt> - <a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__metrics_kind_counter">Counter</a></dt>
+
+    <dd class="dd">
+
+<p class="p">The number of request transmit attempts.
+</p>
+
+     <p class="p"/>
+
+     </dd>
+
+  
+  
+    <dt class="dt dlterm"><tt class="ph tt">nResponseNoSuccess</tt> - <a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__metrics_kind_counter">Counter</a></dt>
+
+    <dd class="dd">
+
+<p class="p">The number of received responses with result codes other than success.
+</p>
+
+     <p class="p"/>
+
+     </dd>
+
+  
+  
+    <dt class="dt dlterm"><tt class="ph tt">nResponseSuccess</tt> - <a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__metrics_kind_counter">Counter</a></dt>
+
+    <dd class="dd">
+
+<p class="p">The number of received responses with result code: success (2xx).
+</p>
+
+     <p class="p"/>
+
+     </dd>
+
+  
 </dl>
 
 </div>
