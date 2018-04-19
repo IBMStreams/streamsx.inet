@@ -87,7 +87,7 @@ import com.ibm.streams.operator.StreamingOutput;
 @OutputPorts(
     {
         @OutputPortSet(
-            cardinality=1, optional=true, windowPunctuationOutputMode=WindowPunctuationOutputMode.Generating,
+            cardinality=1, optional=true, windowPunctuationOutputMode=WindowPunctuationOutputMode.Preserving,
             description="Data received in the http response be sent on this port. Other attributes are assigned from input stream."
         )
     }
