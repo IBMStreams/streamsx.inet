@@ -299,7 +299,8 @@ public class HTTPStreamReader extends AbstractOperator {
 			" Supported Authentications: Basic Authentication, OAuth 1.0a." +
 			" Supported Compressions: Gzip, Deflate." +
 	                HTTPPostOper.CONSISTENT_CUT_INTRODUCER+
-			"This operator cannot be used inside a consistent region."
+			"This operator cannot be used inside a consistent region." +
+			"\\n\\n**This operator will be deprecated.** Use a combination of HTTPRequest and Beacon operator instead."
 			;
 }
 

@@ -35,7 +35,8 @@ public class HTTPGetJSONContent extends AbstractHTTPGetContent<String> {
 
     static final String DESC = "Periodically connects to an HTTP endpoint to GET JSON content as a single tuple. "
             + "The JSON content is assigned  to the `jsonString` attribute in the output tuple which must be "
-            + "of type `rstring`.";
+            + "of type `rstring`."
+            + "\\n\\n**This operator will be deprecated.** Use a combination of HTTPRequest and Beacon operator instead.";
 
     @Parameter(optional = true, description = CA_DESC)
     public void setContentAttribute(
