@@ -58,6 +58,7 @@ public composite Main {
 				outputHeader : "responseHeader";
 				extraHeaders : "Myheader: aaaa", "Myheader2: bbb";
 				contentType : contentType;
+				requestAttributesAsUrlArguments: true;
 				//requestAttributes : "url", "data";
 				sslTrustStoreFile : "etc/cacert";
 				sslTrustStorePassword : "mypass";

@@ -36,29 +36,40 @@ import com.ibm.streamsx.inet.messages.Messages;
  */
 class HTTPRequestOperAPI extends AbstractOperator {
 
-    static final String DESC = "Issue an HTTP request of the specified method for each input tuple. For method `NONE`, the request is supressed."
-            + "The URL and  method of the HTTP request either come from the input tuple using attributes "
-            + "specified by the `url` and `method` parameters, or can be fixed using the `fixedUrl` "
+    static final String DESC = "Issue an HTTP request of the specified method for each input tuple. For method `NONE`, "
+            + "the request is suppressed. The URL and  method of the HTTP request either come from the input tuple using "
+            + "attributes specified by the `url` and `method` parameters or can be fixed using the `fixedUrl` "
             + "and `fixedMethod` parameters. These parameters can be mixed, for example the URL "
-            + "can be fixed with `fixedUrl` while the method is set from each tuple using `method`. "
-            + "A content type is required for `POST`, `PUT` and `PATCH` method. The content type is specified by `contenType`or "
-            + "`fixedContentType` parameter.\\n\\n"
+            + "can be fixed with `fixedUrl` while the method is set from each tuple using `method`.\\n"
+            + "Entity enclosing requests (POST/PUT/PATCH) require a content type. The content type is specified with "
+            + "`contenType` or `fixedContentType` parameter. The default is `application/json`. The message body of an "
+            + "entity enclosing request can be defined in two ways:\\n"
+            + "* Method POST: If the parameter `requestBodyAttribute` is defined and the value of the attribute is not "
+            + "empty, the value of the attribute is copied into the request body. Otherwise the names and values of the "
+            + "Request Attributes are used to generate the request form.\\n"
+            + "* Other Methods: If the parameter `requestBodyAttribute` is defined, the value of the attribute is copied "
+            + "into the request body.\\n"
+            + "The operator can append Url Arguments to the request line. This happens if:\\n"
+            + "* If parameter `requestUrlArgumentsAttribute` is specified and this attribute is not empty, the value of "
+            + "this attribute is copied as URL argument string and overwrites all other arguments. (all methods)\\n"
+            + "* In method GET: If parameter `requestAttributesAsUrlArguments` is true, all Request Attribute names and "
+            + "values are converted to URL query parameters.\\n"
             + "The contents of the request is dependent on the method type.\\n"
             + "# GET\\n"
             + "An HTTP GET request is made. If parameter `requestAttributesAsUrlArguments` is true, all request attributes "
-            + "are converted to URL query parameters. If parameter `requestUrlArguments` is specified and this attribute is not "
+            + "are converted to URL query parameters. If parameter `requestUrlArgumentsAttribute` is specified and this attribute is not "
             + "empty, this attribute is copied as URL argument string and overwrites all other arguments.\\n"
             + "# POST\\n"
             + "An HTTP POST request is made, any request attributes are set as the body of the request message if parameter "
-            + "`requestBody` is not present or the value of the attribute is empty. The encoding of the request body takes "
+            + "`requestBodyAttribute` is not present or the value of the attribute is empty. The encoding of the request body takes "
             + "the content type into account. If content type is `application/json`, a json body is generated from request attributes. "
-            + "If content type is `APPLICATION_FORM_URLENCODED`, a url encoded body is generated from request attributes. "
-            + "For all other content types the content of all request attributes is concatenated into the message body."
-            + "If `requestBody` attribute is not empty, the body of the request is copied from this attribute instead.\\n"
+            + "If content type is `application/x-www-form-urlencoded`, a url encoded body is generated from request attributes. "
+            + "For all other content types, the content of all request attributes is concatenated into the message body. "
+            + "If `requestBodyAttribute` attribute is not empty, the body of the request is copied from this attribute instead.\\n"
             + "# PUT\\n"
-            + "An HTTP PUT request is made, the body of the request message is copied from `requestBody` attribute.\\n"
+            + "An HTTP PUT request is made, the body of the request message is copied from `requestBodyAttribute` attribute.\\n"
             + "# PATCH\\n"
-            + "An HTTP PATCH request is made, the body of the request message is copied from `requestBody` attribute.\\n"
+            + "An HTTP PATCH request is made, the body of the request message is copied from `requestBodyAttribute` attribute.\\n"
             + "# OPTIONS\\n"
             + "No message body is generated.\\n"
             + "# HEAD\\n"
@@ -68,10 +79,11 @@ class HTTPRequestOperAPI extends AbstractOperator {
             + "# TRACE\\n"
             + "No message body is generated.\\n"
             + "# NONE\\n"
-            + "No http request is generated but an output tuple is genrated if the output port is present.\\n"
+            + "No http request is generated but an output tuple is submitted if the output port is present and attributes "
+            + "are passed from input port to output port.\\n"
             + "# Request Attributes\\n"
             + "Attributes from the input tuple are request parameters except for:\\n"
-            + "* Any attribute specified by parameters `url`, `method`, `contentType`, `requestBody` or `equestUrlArguments`.\\n"
+            + "* Any attribute specified by parameters `url`, `method`, `contentType`, `requestBodyAttribute` or `equestUrlArguments`.\\n"
             + "* If parameter `requestAttributes` is set, all attributes of this parameter are considered a request attribute.\\n"
             + "* If parameter `requestAttributes` has one empty element, no attributes are considered a request attribute.\\n"
             + "# Http Authentication\\n"
@@ -102,10 +114,10 @@ class HTTPRequestOperAPI extends AbstractOperator {
     private List<String>                  extraHeaders = Collections.emptyList();
     
     //request configuration
-    private TupleAttribute<Tuple, String> requestBody = null;  //request body
+    private TupleAttribute<Tuple, String> requestBodyAttribute = null;  //request body
     private Set<String>                   requestAttributes = new HashSet<>(); //Attributes that are part of the request.
     private boolean                       requestAttributesAsUrlArguments = false;
-    private TupleAttribute<Tuple, String> requestUrlArguments = null;
+    private TupleAttribute<Tuple, String> requestUrlArgumentsAttribute = null;
     
     //output parameters
     private String outputDataLine = null;
@@ -145,18 +157,18 @@ class HTTPRequestOperAPI extends AbstractOperator {
     /********************************
      * request parameters
      ********************************/
-    @Parameter(optional = true, description = "Attribute that specifies the URL to be used in the"
+    @Parameter(optional = true, description = "Attribute that specifies the URL to be used in the "
             + "HTTP request for a tuple. One and only one of `url` and `fixedUrl` must be specified.")
     public void setUrl(TupleAttribute<Tuple, String> url) {
         this.url = url;
     }
     @Parameter(optional = true, description = "Fixed URL to send HTTP requests to. Any tuple received"
-            + " on the input port results in a results to the URL provided."
+            + " on the input port results in a request to the URL provided (excep for method NONE)."
             + " One and only one of `url` and `fixedUrl` must be specified.")
     public void setFixedUrl(String fixedUrl) {
         this.fixedUrl = fixedUrl;
     }
-    @Parameter(optional = true, description = "Attribute that specifies the method to be used in the"
+    @Parameter(optional = true, description = "Attribute that specifies the method to be used in the "
             + "HTTP request for a tuple. One and only one of `method` and `fixedMethod` must be specified.")
     public void setMethod(TupleAttribute<Tuple, String> method) {
         this.method = method;
@@ -187,10 +199,10 @@ class HTTPRequestOperAPI extends AbstractOperator {
      * request configuration
      ***************************************/
     @Parameter(optional=true, description="Names of the attributes which are part of the request body. The content of "
-            + "these attributes are sent as request body in method POST. If parameter `requestAttributesAsUrlArguments` is true, "
+            + "these attributes is sent as request body in method POST. If parameter `requestAttributesAsUrlArguments` is true, "
             + "the request attributes are additionally appended as arguments to the url in method GET. "
             + "If this parameter is missing, "
-            + "all attributes, excluding those that are used to specify the URL, method, content type, Request url arguments"
+            + "all attributes, excluding those that are used to specify the URL, method, content type, Request url arguments "
             + "or request attributes, are used in the request body. "
             + "One empty element defines an empty list which means no attributes are considered request attributes. ")
     public void setRequestAttributes(String[] requestAttributes) {
@@ -198,8 +210,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
     }
     @Parameter(optional=true, description="If this parameter is true, the request attributes are appended as arguments to the url in method GET. "
             + "If this parameter is false, the request attributes are not appended to the url. Default is false. "
-            + "If this parameter is true, all request attributes must have spl type `rstring` or `ustring`."
-            + "This arguments are overwritten from a non empty value in parameter `requestUrlArguments`.")
+            + "These arguments are overwritten from a non empty value in parameter `requestUrlArgumentsAttribute`.")
     public void setRequestAttributesAsUrlArguments(boolean requestAttributesAsUrlArguments) {
         this.requestAttributesAsUrlArguments = requestAttributesAsUrlArguments;
     }
@@ -207,24 +218,24 @@ class HTTPRequestOperAPI extends AbstractOperator {
             + "this attribute  is not empty, the content of this string is appended as arguments to the request url. "
             + "This overwrites the arguments which are generated from the request attributes. "
             + "The value is expected to be unescaped and may contain non ASCII characters")
-    public void setRequestUrlArguments(TupleAttribute<Tuple, String> requestUrlArguments) {
-        this.requestUrlArguments = requestUrlArguments;
+    public void setRequestUrlArgumentsAttribute(TupleAttribute<Tuple, String> requestUrlArgumentsAttribute) {
+        this.requestUrlArgumentsAttribute = requestUrlArgumentsAttribute;
     }
-    @Parameter(optional=true, description="Request body attribute for for any method that accepts an entity (PUT / POST / PATCH). "
+    @Parameter(optional=true, description="Request body attribute for any method that accepts an entity (PUT / POST / PATCH). "
             + "In method PUT and PATCH the body of request is taken from this attribute. "
-            + "In method POST, any non empty value overwrites the request attributes.")
-    public void setRequestBody(TupleAttribute<Tuple, String> requestBody) {
+            + "In method POST, any non-empty value overwrites the request attributes.")
+    public void setRequestBodyAttribute(TupleAttribute<Tuple, String> requestBodyAttribute) {
         System.out.println("set attribute param");
-        this.requestBody = requestBody;
+        this.requestBodyAttribute = requestBodyAttribute;
     }
     
     /********************************
      * output parameters
      ********************************/
     @Parameter(optional=true, description="Name of the attribute to populate one line of the response data with. "
-        + "If this parameter is set, the operators returns one tuple for each line in the resonse body but at least one tuple if the body is empty. "
-        + "Only one of `outputDataLine` and `outputBody` must be specified."
-        + "This parameter is not allowed if the operator has no output port. ")
+        + "If this parameter is set, the operators returns one tuple for each line in the response body but at least one tuple if the body is empty. "
+        + "Only one of `outputDataLine` and `outputBody` must be specified. "
+        + "This parameter is not allowed if the operator has no output port.")
         //+ "If the number of attributes of the output stream is greater than one, at least one of "
         //+ "`dataAttributeName`, `bodyAttributeName`, `statusAttributeName`, `statusCodeAttributeName`, `headerAttributeName, contentEncodingAttributeName or contentTypeAttributeName must be set.")
     public void setOutputDataLine(String outputDataLine) {
@@ -232,8 +243,8 @@ class HTTPRequestOperAPI extends AbstractOperator {
     }
     @Parameter(optional=true, description="Name of the attribute to populate the response body with. "
         + "If this parameter is set, the operators returns one tuple for each request. "
-        + "Only one of `outputDataLine` and `outputBody` must be specified."
-        + "This parameter is not allowed if the operator has no output port. ")
+        + "Only one of `outputDataLine` and `outputBody` must be specified. "
+        + "This parameter is not allowed if the operator has no output port.")
         //+ "This parameter is mandatory if the number of attributes of the output stream is greater than one.")
     public void setOutputBody(String outputBody) {
         this.outputBody = outputBody;
@@ -278,7 +289,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
     @Parameter(optional=true, description="The type of used authentication method. "
         + "Valid options are \\\"STANDARD\\\", \\\"OAUTH1,\\\" and \\\"OAUTH2\\\". Default is \\\"STANDARD\\\". "
         + "If \\\"STANDARD\\\" is selected, the authorization may be none, basic or digest authorization. "
-        + "If the server requires basic or digest autorization one of the parameters `authenticationFile` or `authenticationProperties` is required. "
+        + "If the server requires basic or digest authorization one of the parameters `authenticationFile` or `authenticationProperties` is required. "
         + "If the \\\"OAUTH1\\\" option is selected, the requests will be singed using OAuth 1.0a "
         + "If the \\\"OAUTH2\\\" option is selected, the requests will be singed using OAuth 2.0.")
     public void setAuthenticationType(String authenticationType) {
@@ -292,11 +303,12 @@ class HTTPRequestOperAPI extends AbstractOperator {
         + "A valid line is composed from the authentication Scope (hostname or `ANY_HOST`, equal sign, user, colon, password. "
         + "E.g.: ANY_HOST=user:passwd\\n"
         + "* If `authenticationType` is `OAUTH1`: "
-        + "The athentication file must contain key/value pairs for the keys: `consumerKey`, `consumerSecret`, `accessToken` and `accessTokenSecret`.\\n"
+        + "The authentication file must contain key/value pairs for the keys: `consumerKey`, `consumerSecret`, `accessToken` and `accessTokenSecret`.\\n"
         + "* If `authenticationType` is `OAUTH2`: "
-        + "The athentication file must contain one key/value pair for key `accessToken=myAccessToken`.\\n"
-        + "The athentication file may contain one key/value pair for key `authMethod`.\\n"
-        + "See `http_request_auth.properties`, `http_request_oauth1.properties` and `http_request_oauth2.properties` in the toolkits etc directory for a sample of authentication properties.")
+        + "The authentication file must contain one key/value pair for key `accessToken=myAccessToken`.\\n"
+        + "The authentication file may contain one key/value pair for key `authMethod`.\\n"
+        + "See `http_request_auth.properties`, `http_request_oauth1.properties` and `http_request_oauth2.properties` "
+        + "in the toolkits etc directory for a sample of authentication properties.")
     public void setAuthenticationFile(String val) {
         this.authenticationFile = val;
     }
@@ -368,7 +380,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
         occ.checkExcludedParameters("url", "fixedUrl");
         occ.checkExcludedParameters("contentType", "fixedContentType");
         occ.checkExcludedParameters("outpuData", "outputBody");
-        //occ.checkExcludedParameters("requestAttributes", "requestBody");
+        //occ.checkExcludedParameters("requestAttributes", "requestBodyAttribute");
         
         //The pair of these parameters is optional, we either need both to be present or neither of them
         boolean hasFile = parameterNames.contains("sslTrustStoreFile");
@@ -447,10 +459,10 @@ class HTTPRequestOperAPI extends AbstractOperator {
                 requestAttributes.remove(method.getAttribute().getName());
             if (contentType != null)
                 requestAttributes.remove(contentType.getAttribute().getName());
-            if (requestUrlArguments != null)
-                requestAttributes.remove(requestUrlArguments.getAttribute().getName());
-            if (requestBody != null)
-                requestAttributes.remove(requestBody.getAttribute().getName());
+            if (requestUrlArgumentsAttribute != null)
+                requestAttributes.remove(requestUrlArgumentsAttribute.getAttribute().getName());
+            if (requestBodyAttribute != null)
+                requestAttributes.remove(requestBodyAttribute.getAttribute().getName());
         }
         //Check whether all attributes are string type if fixed content type is ne json
         /*if (((fixedContentType != null) && (contentTypeToUse != ContentType.APPLICATION_JSON)) || requestAttributesAsUrlArguments) {
@@ -587,12 +599,11 @@ class HTTPRequestOperAPI extends AbstractOperator {
     protected List<String>                  getExtraHeaders() { return extraHeaders; }
     
     //request config
-    protected TupleAttribute<Tuple, String> getRequestBody() { return requestBody; }
+    protected TupleAttribute<Tuple, String> getRequestBodyAttribute() { return requestBodyAttribute; }
     protected Set<String>                   getRequestAttributes() { return  requestAttributes; }
     protected boolean                       getRequestAttributesAsUrlArguments() { return requestAttributesAsUrlArguments; }
-    protected TupleAttribute<Tuple, String> getRequestUrlArguments() { return requestUrlArguments; }
+    protected TupleAttribute<Tuple, String> getRequestUrlArgumentsAttribute() { return requestUrlArgumentsAttribute; }
 
-    
     //output parameters
     protected String getOutputDataLine() { return outputDataLine; }
     protected String getOutputBody() { return outputBody; }
@@ -601,6 +612,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
     protected String getOutputHeader() { return outputHeader; }
     protected String getOutputContentEncoding() { return outputContentEncoding; }
     protected String getOutputContentType() { return outputContentType; }
+
     //connection configs
     protected AuthenticationType getAuthenticationType() { return authenticationType; }
     protected String             getAuthenticationFile() { return authenticationFile; }
@@ -615,6 +627,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
     protected boolean            getDisableAutomaticRetries() { return disableAutomaticRetries; }
     protected int                getConnectionTimeout() { return connectionTimeout; }
     protected String             getUserAgent() { return userAgent; }
+
     //internal operator state
     protected boolean getShutdownRequested() { return shutdownRequested; }
     protected boolean hasDataPort() { return hasDataPort; }

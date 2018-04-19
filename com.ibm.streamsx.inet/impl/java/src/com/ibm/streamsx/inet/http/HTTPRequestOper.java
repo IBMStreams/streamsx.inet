@@ -83,7 +83,7 @@ import com.ibm.streams.operator.StreamingOutput;
 @PrimitiveOperator(name = HTTPRequestOper.OPER_NAME, description = HTTPRequestOperAPI.DESC)
 @Libraries("opt/httpcomponents-client-4.5.5/lib/*")
 @Icons(location32 = "icons/HTTPPost_32.gif", location16 = "icons/HTTPPost_16.gif")
-@InputPorts(@InputPortSet(cardinality = 1, description = "This stream contains the information sent in a http request. Each tuple with valid request data results in an HTTP request except if method `NONE`is specified."))
+@InputPorts(@InputPortSet(cardinality = 1, description = "This stream contains the information sent in a http request. Each tuple with valid request data results in an HTTP request except if method `NONE` is specified."))
 @OutputPorts(
     {
         @OutputPortSet(
@@ -243,9 +243,9 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
     private URI createUriWithParams(String url, Tuple tuple, boolean isMethodGet) throws URISyntaxException {
         URIBuilder uriBuilder = new URIBuilder(url);
 
-        if ((getRequestUrlArguments() != null) && ( ! getRequestUrlArguments().getValue(tuple).isEmpty())) {
+        if ((getRequestUrlArgumentsAttribute() != null) && ( ! getRequestUrlArgumentsAttribute().getValue(tuple).isEmpty())) {
             //take arguments from getRequestUrlArguments attribute
-            String args = getRequestUrlArguments().getValue(tuple);
+            String args = getRequestUrlArgumentsAttribute().getValue(tuple);
             uriBuilder = uriBuilder.setCustomQuery(args);
         } else {
             //take all request attributes if no request body is given
@@ -316,9 +316,9 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
      *******************************************************************************************************************/
     private void createEntity(HttpEntityEnclosingRequest req, Tuple tuple, ContentType contentType, boolean isPostMethod) throws IOException {
         if (isPostMethod) {
-            if ((getRequestBody() != null) && ( ! getRequestBody().getValue(tuple).isEmpty())) {
+            if ((getRequestBodyAttribute() != null) && ( ! getRequestBodyAttribute().getValue(tuple).isEmpty())) {
                 //take request body from input tuple transparently
-                String instr = getRequestBody().getValue(tuple);
+                String instr = getRequestBodyAttribute().getValue(tuple);
                 req.setEntity(new StringEntity(instr, contentType));
             } else {
                 //take request attributes content type specific 
@@ -364,8 +364,8 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
         } else {
             //other methods take body from input tuple transparently
             String payload = "";
-            if (getRequestBody() != null)
-                payload = getRequestBody().getValue(tuple);
+            if (getRequestBodyAttribute() != null)
+                payload = getRequestBodyAttribute().getValue(tuple);
             req.setEntity(new StringEntity(payload, contentType));
         }
     }
