@@ -3,7 +3,7 @@
 function testStep {
 	local save="$PWD"
 	cd "$TTRO_streamsxInetSamplesPath/$TTRO_variantCase"
-	echoExecuteAndIntercept 'success' 'make'
+	echoExecuteAndIntercept2 'success' 'make'
 	cd "$save"
 	return 0
 }
