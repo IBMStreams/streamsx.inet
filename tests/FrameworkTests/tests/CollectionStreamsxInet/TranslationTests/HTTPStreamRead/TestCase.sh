@@ -6,8 +6,9 @@ PREPS=(
 )
                          
 STEPS=(
-	'compile'
-	'echoExecuteInterceptAndSuccess output/bin/standalone -t 3 2>&1 | tee "$TT_evaluationFile"'
+	'splCompile'
+	'executeLogAndSuccess output/bin/standalone -t 3'
+	'echo "The result is $TTTT_result"'
 	'linewisePatternMatchInterceptAndSuccess "$TT_evaluationFile" "" "$codes"'
 )
 

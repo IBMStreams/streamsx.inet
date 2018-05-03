@@ -3,6 +3,6 @@
 
 function testPreparation {
 	local tmp="${TTRO_variantSuite}.UTF-8"
-	echo "Set langiage $tmp"
+	echo "Set language $tmp"
 	export LC_ALL="$tmp"
 }

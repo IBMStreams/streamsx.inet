@@ -14,9 +14,9 @@ errorCodes=( '' '*CDIST0200E*' )
 
 function myCompile {
 	if [[ TTRO_variantCase -eq 0 ]]; then
-		compileInterceptAndSuccess
+		splCompileInterceptAndSuccess
 	else
-		compileInterceptAndError
+		splCompileInterceptAndError
 	fi
 }
 
