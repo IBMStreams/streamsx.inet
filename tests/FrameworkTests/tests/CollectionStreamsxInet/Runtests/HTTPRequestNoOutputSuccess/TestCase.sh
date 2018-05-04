@@ -34,9 +34,9 @@ STEPS=(
 )
 
 function myEval2 {
-	if [[ ( $TTRO_variantCase -eq 8 ) || ( $TTRO_variantCase -eq 9 ) ]]; then
+	if [[ ( $TTRO_variantCase -eq 10 ) || ( $TTRO_variantCase -eq 11 ) ]]; then
 		return 0
 	else
-		linewisePatternMatchInterceptAndSuccess "$TT_evaluationFile" "" "*status=HTTP*200 OK"
+		linewisePatternMatchInterceptAndSuccess "$TT_evaluationFile" "" "*HTTPRequestOper*status=HTTP*200 OK"
 	fi
 }
