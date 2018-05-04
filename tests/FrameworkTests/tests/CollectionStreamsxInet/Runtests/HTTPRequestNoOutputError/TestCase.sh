@@ -28,15 +28,16 @@ PREPS=(
 STEPS=(
 	'splCompile'
 	'urlIndex=$(($TTRO_variantCase / 2))'
-	'executeLogAndSuccess output/bin/standalone -t 5 url="${urlList[$urlIndex]}"'
+	'executeLogAndSuccess output/bin/standalone -t 2 url="${urlList[$urlIndex]}"'
 	'linewisePatternMatchInterceptAndError "$TT_evaluationFile" "" "ERROR"'
 	'myEval2'
 )
 
 function myEval2 {
-	if [[ ( $TTRO_variantCase -eq 8 ) || ( $TTRO_variantCase -eq 9 ) ]]; then
-		return 0
-	else
-		linewisePatternMatchInterceptAndSuccess "$TT_evaluationFile" "" "*status=HTTP*200 OK"
-	fi
+	case "$TTRO_variantCase" in
+	10|11)
+		return 0;;
+	*)
+		linewisePatternMatchInterceptAndSuccess "$TT_evaluationFile" "" "*WARN*HTTPRequestOper*status=HTTP*404 NOT FOUND";;
+	esac
 }

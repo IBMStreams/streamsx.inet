@@ -225,7 +225,6 @@ class HTTPRequestOperAPI extends AbstractOperator {
             + "In method PUT and PATCH the body of request is taken from this attribute. "
             + "In method POST, any non-empty value overwrites the request attributes.")
     public void setRequestBodyAttribute(TupleAttribute<Tuple, String> requestBodyAttribute) {
-        System.out.println("set attribute param");
         this.requestBodyAttribute = requestBodyAttribute;
     }
     
