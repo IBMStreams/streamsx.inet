@@ -221,7 +221,9 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                 }
                 break;
             case NONE: {
-                    sendOtuple(tuple, "", -1, "", "", new ArrayList<RString>(), "");
+                    if (hasDataPort()) {
+                        sendOtuple(tuple, "", -1, "", "", new ArrayList<RString>(), "");
+                    }
                 }
                 return;
             default:
@@ -448,7 +450,9 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             if ((statusCode < 200) || (statusCode > 299)) {
                 nResponseNoSuccess.increment();
                 if (tracer.isLoggable(TraceLevel.WARN)) tracer.log(TraceLevel.WARN, "status="+status.toString());
-                sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, body);
+                if (hasDataPort()) {
+                    sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, body);
+                }
             } else {
                 nResponseSuccess.increment();
                 if (tracer.isLoggable(TraceLevel.DEBUG)) tracer.log(TraceLevel.DEBUG, "status="+status.toString());
@@ -496,14 +500,17 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                 } else {
                     sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, body);
                 }
-                
             }
         } catch (ClientProtocolException e) {
             tracer.log(TraceLevel.ERROR, "ClientProtocolException: "+e.getMessage());
-            sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, body);
+            if (hasDataPort()) {
+                sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, body);
+            }
         } catch (IOException e) {
             tracer.log(TraceLevel.ERROR, "IOException: "+e.getMessage());
-            sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, body);
+            if (hasDataPort()) {
+                sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, body);
+            }
         } finally {
             if (getShutdownRequested()) {
                 request.abort();
