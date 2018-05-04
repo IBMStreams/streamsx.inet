@@ -70,6 +70,7 @@ All required libs are now available in the source repository
 				<include name="com.ibm.streamsx.inet.http/HTTPGetStream/*"/>
 				<include name="com.ibm.streamsx.inet.http/HTTPGetXMLContent/*"/>
 				<include name="com.ibm.streamsx.inet.http/HTTPPost/*"/>
+				<include name="com.ibm.streamsx.inet.http/HTTPRequest/*"/>
 				<include name="com.ibm.streamsx.inet.rest/HTTPBLOBInjection/*"/>
 				<include name="com.ibm.streamsx.inet.rest/HTTPJSONInjection/*"/>
 				<include name="com.ibm.streamsx.inet.rest/HTTPTupleInjection/*"/>
