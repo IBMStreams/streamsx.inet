@@ -36,6 +36,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 
@@ -205,9 +206,12 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
             clientBuilder.setProxy(new HttpHost(getProxy(), getProxyPort()));
         }
         //refirect
-        if (getDisableRedirectHandling()) {
+        if (getDisableRedirectHandling() || (getRedirectStrategy() == RedirectStrategy.NONE)) {
             tracer.log(TraceLevel.DEBUG, "client configuration: Disable automatic redirect handling.");
             clientBuilder.disableRedirectHandling();
+        } else if ((getRedirectStrategy() == RedirectStrategy.LAX)) {
+            tracer.log(TraceLevel.DEBUG, "client configuration: Set lax redirect strategy.");
+            clientBuilder.setRedirectStrategy(LaxRedirectStrategy.INSTANCE);
         }
         //compression
         if (getDisableContentCompression()) {
