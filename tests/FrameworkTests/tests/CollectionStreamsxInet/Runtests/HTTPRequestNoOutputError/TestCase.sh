@@ -29,7 +29,7 @@ STEPS=(
 	'splCompile'
 	'urlIndex=$(($TTRO_variantCase / 2))'
 	'executeLogAndSuccess output/bin/standalone -t 2 url="${urlList[$urlIndex]}"'
-	'linewisePatternMatchInterceptAndError "$TT_evaluationFile" "" "ERROR"'
+	'linewisePatternMatchInterceptAndError "$TT_evaluationFile" "" "*ERROR*"'
 	'myEval2'
 )
 

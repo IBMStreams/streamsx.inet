@@ -17,7 +17,7 @@ function myExplain {
 	esac
 }
 
-declare -a urlList=( 'http://httpbin.org/get' 'http://httpbin.org/redirect/3' 'http://httpbin.org/post' 'http://httpbin.org/put' 'http://httpbin.org/delete' '' )
+declare -a urlList=( 'httpx://httpbin.org/get' 'httphttpbin.org/redirect/3' 'httpx://httpbin.org/post' 'httpx://httpbin.org/put' 'httxp://httpbin.org/delete' '' )
 
 PREPS=(
 	'myExplain'
@@ -28,15 +28,15 @@ PREPS=(
 STEPS=(
 	'splCompile'
 	'urlIndex=$(($TTRO_variantCase / 2))'
-	'executeLogAndSuccess output/bin/standalone -t 5 url="${urlList[$urlIndex]}"'
-	'linewisePatternMatchInterceptAndError "$TT_evaluationFile" "" "*ERROR*"'
+	'executeLogAndSuccess output/bin/standalone -t 2 url="${urlList[$urlIndex]}"'
 	'myEval2'
 )
 
 function myEval2 {
-	if [[ ( $TTRO_variantCase -eq 10 ) || ( $TTRO_variantCase -eq 11 ) ]]; then
-		return 0
-	else
-		linewisePatternMatchInterceptAndSuccess "$TT_evaluationFile" "" "*HTTPRequestOper*status=HTTP*200 OK"
-	fi
+	case "$TTRO_variantCase" in
+	10|11)
+		linewisePatternMatchInterceptAndError "$TT_evaluationFile" "" "*ERROR*";;
+	*)
+		linewisePatternMatchInterceptAndSuccess "$TT_evaluationFile" "" "*ERROR*HTTPRequestOper*ClientProtocolException*";;
+	esac
 }
