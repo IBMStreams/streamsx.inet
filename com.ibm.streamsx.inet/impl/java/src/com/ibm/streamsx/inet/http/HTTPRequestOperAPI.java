@@ -398,7 +398,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
         occ.checkExcludedParameters("method", "fixedMethod");
         occ.checkExcludedParameters("url", "fixedUrl");
         occ.checkExcludedParameters("contentType", "fixedContentType");
-        occ.checkExcludedParameters("outpuData", "outputBody");
+        occ.checkExcludedParameters("outputDataLine", "outputBody");
         occ.checkExcludedParameters("redirectStrategy", "disableRedirectHandling");
         //occ.checkExcludedParameters("requestAttributes", "requestBodyAttribute");
         
