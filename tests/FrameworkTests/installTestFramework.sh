@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./testframeInstaller_v2.6.1.sh "$PWD/scripts"
+./testframeInstaller_v2.6.2__dev__.sh "$PWD/scripts"
