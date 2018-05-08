@@ -231,11 +231,11 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             }
 
         } catch (DataException e) {
-            tracer.log(TraceLevel.ERROR, e.getMessage()+" Input tuple:"+tuple.toString());
+            tracer.log(TraceLevel.ERROR, e.getClass().getName()+":"+e.getMessage()+" Input tuple:"+tuple.toString());
         } catch (IllegalArgumentException e) {
-            tracer.log(TraceLevel.ERROR, e.getMessage()+" Input tuple:"+tuple.toString());
+            tracer.log(TraceLevel.ERROR, e.getClass().getName()+":"+e.getMessage()+" Input tuple:"+tuple.toString());
         } catch (URISyntaxException e) {
-            tracer.log(TraceLevel.ERROR, e.getMessage()+" Input tuple:"+tuple.toString());
+            tracer.log(TraceLevel.ERROR, e.getClass().getName()+":"+e.getMessage()+" Input tuple:"+tuple.toString());
         }
     }
 
@@ -450,9 +450,6 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             if ((statusCode < 200) || (statusCode > 299)) {
                 nResponseNoSuccess.increment();
                 if (tracer.isLoggable(TraceLevel.WARN)) tracer.log(TraceLevel.WARN, "status="+status.toString());
-                if (hasDataPort()) {
-                    sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, body);
-                }
             } else {
                 nResponseSuccess.increment();
                 if (tracer.isLoggable(TraceLevel.DEBUG)) tracer.log(TraceLevel.DEBUG, "status="+status.toString());
@@ -477,7 +474,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                 }
                 //Message Body
                 if (hasDataPort()) {
-                    if (getOutputDataLine() != null) {
+                    if (getOutputDataLine() != null) { //one tuple per line
                         InputStream instream = entity.getContent();
                         BufferedReader reader = new BufferedReader(new InputStreamReader(instream));
                         String inputLine = null;
@@ -493,7 +490,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                 EntityUtils.consume(entity);
             }
             if (hasDataPort()) {
-                if (getOutputDataLine() != null) {
+                if (getOutputDataLine() != null) { //one tuple per line
                     if ( ! tupleSent) {
                         sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, "");
                     }
