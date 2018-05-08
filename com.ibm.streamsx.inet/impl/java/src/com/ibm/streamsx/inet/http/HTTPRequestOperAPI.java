@@ -501,7 +501,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
         
         //output params ...
         boolean hasOutputAttributeParameter = false;
-        if (parameterNames.contains("outputData")
+        if (parameterNames.contains("outputDataLine")
          || parameterNames.contains("outputBody")
          || parameterNames.contains("outputStatus")
          || parameterNames.contains("outputStatusCode")
