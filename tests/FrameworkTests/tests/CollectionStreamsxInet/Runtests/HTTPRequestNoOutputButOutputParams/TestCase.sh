@@ -1,4 +1,4 @@
-#--variantCount=7
+#--variantCount=8
 
 function myExplain {
 	case "$TTRO_variantCase" in
@@ -9,6 +9,7 @@ function myExplain {
 	4) echo "variant $TTRO_variantCase - no output port but use outputHeader parameter";;
 	5) echo "variant $TTRO_variantCase - no output port but use outputStatus parameter";;
 	6) echo "variant $TTRO_variantCase - no output port but use outputStatusCode parameter";;
+	7) echo "variant $TTRO_variantCase - no output port but use errorDiagnostics parameter";;
 	esac
 }
 

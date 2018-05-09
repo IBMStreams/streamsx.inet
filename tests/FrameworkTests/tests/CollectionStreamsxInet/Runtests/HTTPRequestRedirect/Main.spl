@@ -1,0 +1,64 @@
+use com.ibm.streamsx.inet.http::HTTPRequest;
+use com.ibm.streamsx.testframe::FileSink1;
+
+public composite Main {
+	param
+		//_0_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/redirect-to?url=http://httpbin.org/get&status_code=307');
+		//_1_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/redirect-to?url=http://httpbin.org/get&status_code=307');
+		//_2_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/redirect-to?url=http://httpbin.org/post&status_code=307');
+		//_3_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/redirect-to?url=http://httpbin.org/put&status_code=307');
+		//_4_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/redirect-to?url=http://httpbin.org/get&status_code=307');
+		//_5_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/redirect-to?url=http://httpbin.org/get&status_code=307');
+		//_6_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/redirect-to?url=http://httpbin.org/post&status_code=307');
+		//_7_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/redirect-to?url=http://httpbin.org/put&status_code=307');
+		//_8_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/redirect-to?url=http://httpbin.org/get&status_code=307');
+		//_9_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/redirect-to?url=http://httpbin.org/get&status_code=307');
+		//_10_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/redirect-to?url=http://httpbin.org/post&status_code=307');
+		//_11_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/redirect-to?url=http://httpbin.org/put&status_code=307');
+
+	graph
+		stream<uint64 id, rstring method, rstring data> Trigger as O = Beacon() {
+			param 
+				iterations : 1;
+			output O:
+				id = IterationCount(),
+				//_0_method = "GET",
+				//_1_method = "HEAD",
+				//_2_method = "POST",
+				//_3_method = "PUT",
+				//_4_method = "GET",
+				//_5_method = "HEAD",
+				//_6_method = "POST",
+				//_7_method = "PUT",
+				//_8_method = "GET",
+				//_9_method = "HEAD",
+				//_10_method = "POST",
+				//_11_method = "PUT",
+				data = "My data";
+		}
+		
+		stream<uint64 id, rstring method, rstring url, rstring status, int32 stat, rstring respData, rstring err> Response as O = HTTPRequest(Trigger as I) {
+			param
+				fixedUrl: $url;
+				method: method;
+				requestBodyAttribute : data;
+				outputBody : "respData";
+				outputStatus : "status";
+				outputStatusCode : "stat";
+				errorDiagnostics : "err";
+				//_4_redirectStrategy: "LAX";
+				//_5_redirectStrategy: "LAX";
+				//_6_redirectStrategy: "LAX";
+				//_7_redirectStrategy: "LAX";
+				//_8_redirectStrategy: "NONE";
+				//_9_redirectStrategy: "NONE";
+				//_10_redirectStrategy: "NONE";
+				//_11_redirectStrategy: "NONE";
+		}
+		
+		() as Sink = FileSink1(Response) { }
+		
+	
+	config
+		restartable : false;
+}

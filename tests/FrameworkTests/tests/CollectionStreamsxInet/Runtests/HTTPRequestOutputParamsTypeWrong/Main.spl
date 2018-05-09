@@ -23,6 +23,7 @@ public composite Main {
 		//_5_stream<uint64 id, rstring method, rstring url, list<uint64> myAttribute, uint32 stat>
 		//_6_stream<uint64 id, rstring method, rstring url, list<rstring> myAttribute, uint32 stat>
 		//_7_stream<uint64 id, rstring method, rstring url, list<rstring> myAttribute, uint32 stat>
+		//_8_stream<uint64 id, rstring method, rstring url, float64 myAttribute, int32 stat>
 		Response = HTTPRequest(Trigger) {
 			param
 				fixedUrl: $url;
@@ -36,6 +37,8 @@ public composite Main {
 				//_5_outputHeader: "myAttribute";
 				//_6_outputStatus: "myAttribute";
 				//_7_outputStatusCode: "stat";
+				//_8_errorDiagnostics: "myAttribute";
+				//_8_outputStatusCode: "stat";
 		}
 
 		() as Sink = FileSink1(Response) { }
