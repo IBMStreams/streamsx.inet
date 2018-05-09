@@ -29,6 +29,7 @@ STEPS=(
 	'checkJobNo'
 	'waitForFin'
 	'myEval'
+	'myEval2'
 )
 
 FINS='cancelJob'
@@ -54,7 +55,9 @@ function myEval {
 	*)
 		PrintErrorAndExit "Wrong variant $TTRO_variantCase" $errRt
 	esac
-	
+}
+
+function myEval2 {
 	case "$TTRO_variantCase" in
 	0|2|4|6|8|10|12|14)
 		# cases with outputBody must not contain more than one output tuple
@@ -62,10 +65,12 @@ function myEval {
 		if [[ $TTTT_lineCount -ne 1 ]]; then
 			setFailure "Invalid line count $TTTT_lineCount"
 		fi;;
-	1|3|9|11|13|15)
+	1|9|13)
 		# cases with outputDataLine must not contain empty respData except in case of HEAD method
 		linewisePatternMatchInterceptAndError "$TT_dataDir/Tuples" "" '*respData=""*';;
 	5|7)
 		echo "empty test in case of HEAD method";;
+	3|11|15)
+		echo "This cases may also contain empty data lines";;
 	esac
 }
