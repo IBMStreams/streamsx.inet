@@ -1,0 +1,33 @@
+use com.ibm.streamsx.inet.http::HTTPRequest;
+
+public composite Main {
+	param
+		expression<rstring> $url: getSubmissionTimeValue("url", "http://httpbin.org/get");
+		expression<rstring> $data:  getSubmissionTimeValue("data", "my data");
+	graph
+		stream<uint64 id, rstring method, rstring data> Trigger as O = Beacon() {
+			param 
+				iterations : 1;
+			output O:
+				id = IterationCount(),
+				method = "GET",
+				data = $data;
+		}
+		
+		() as Response = HTTPRequest(Trigger as I) {
+			param
+				fixedUrl: $url;
+				method : method;
+				requestBodyAttribute : data;
+				//_0_outputDataLine: "attribute";
+				//_1_outputBody: "attribute";
+				//_2_outputContentEncoding: "attribute";
+				//_3_outputContentType: "attribute";
+				//_4_outputHeader: "attribute";
+				//_5_outputStatus: "attribute";
+				//_6_outputStatusCode: "attribute";
+		}
+
+	config
+		restartable : false;
+}

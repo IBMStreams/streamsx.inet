@@ -27,6 +27,8 @@ STEPS=(
 	'myEval'
 )
 
+FINS='cancelJob'
+
 function myEval {
 	case "$TTRO_variantCase" in
 	0|1)

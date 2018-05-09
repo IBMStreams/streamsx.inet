@@ -98,6 +98,12 @@ class HTTPRequestOperAPI extends AbstractOperator {
         OAUTH1,
         OAUTH2
     }
+    
+    public enum RedirectStrategy {
+        DEFAULT,
+        LAX,
+        NONE
+    }
 
     //register trace and log facility
     //protected static Logger logger = Logger.getLogger("com.ibm.streams.operator.log." + HTTPRequestOperAPI.class.getName()); logger is not required
@@ -137,6 +143,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
     private String             sslTrustStorePassword = null;
     private String             proxy = null;
     private int                proxyPort = 8080;
+    private RedirectStrategy   redirectStrategy = RedirectStrategy.DEFAULT;
     private boolean            disableRedirectHandling = false;
     private boolean            disableContentCompression = false;
     private boolean            disableAutomaticRetries = false;
@@ -338,7 +345,20 @@ class HTTPRequestOperAPI extends AbstractOperator {
     public void setProxyPort(int proxyPort) {
         this.proxyPort = proxyPort;
     }
-    @Parameter(optional=true, description="Disables automatic redirect handling. Default is false.")
+    @Parameter(optional=true, description="Set the redirection strategy. Possible values are:\\n"
+        + "* DEFAULT: This enables the automatic redirect handling. This strategy honors the restrictions on automatic "
+        + "redirection of entity enclosing methods such as POST and PUT imposed by the HTTP specification. "
+        + "302 Moved Temporarily, 301 Moved Permanently and 307 Temporary Redirect status codes will result in an automatic "
+        + "redirect of HEAD and GET methods only. POST and PUT methods will not be automatically redirected as requiring "
+        + "user confirmation.\\n"
+        + "* LAX: This relaxes the default settings and enables the automatic redirection of all HEAD, GET, POST, and DELETE requests.\\n"
+        + "* NONE: This disables the automatic redirection handling.\\n"
+        + "This parameter must not be used together with parameter `disableRedirectHandling`. Default is `DEFAULT`")
+    public void setRedirectStrategy(String redirectStrategy) {
+        this.redirectStrategy = RedirectStrategy.valueOf(redirectStrategy);
+    }
+    @Parameter(optional=true, description="Disables automatic redirect handling. Default is false. This parameter must not be used"
+        + " together with parameter `redirectStrategy`")
     public void setDisableRedirectHandling(boolean disableRedirectHandling) {
         this.disableRedirectHandling = disableRedirectHandling;
     }
@@ -378,7 +398,8 @@ class HTTPRequestOperAPI extends AbstractOperator {
         occ.checkExcludedParameters("method", "fixedMethod");
         occ.checkExcludedParameters("url", "fixedUrl");
         occ.checkExcludedParameters("contentType", "fixedContentType");
-        occ.checkExcludedParameters("outpuData", "outputBody");
+        occ.checkExcludedParameters("outputDataLine", "outputBody");
+        occ.checkExcludedParameters("redirectStrategy", "disableRedirectHandling");
         //occ.checkExcludedParameters("requestAttributes", "requestBodyAttribute");
         
         //The pair of these parameters is optional, we either need both to be present or neither of them
@@ -480,7 +501,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
         
         //output params ...
         boolean hasOutputAttributeParameter = false;
-        if (parameterNames.contains("outputData")
+        if (parameterNames.contains("outputDataLine")
          || parameterNames.contains("outputBody")
          || parameterNames.contains("outputStatus")
          || parameterNames.contains("outputStatusCode")
@@ -621,6 +642,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
     protected String             getSslTrustStorePassword() { return sslTrustStorePassword; }
     protected String             getProxy() { return proxy; }
     protected int                getProxyPort() { return proxyPort; }
+    protected RedirectStrategy   getRedirectStrategy() { return redirectStrategy; }
     protected boolean            getDisableRedirectHandling() { return disableRedirectHandling; }
     protected boolean            getDisableContentCompression() { return disableContentCompression; }
     protected boolean            getDisableAutomaticRetries() { return disableAutomaticRetries; }
