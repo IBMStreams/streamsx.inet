@@ -133,6 +133,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
     private String outputHeader = null;
     private String outputContentEncoding = null;
     private String outputContentType = null;
+    private String errorDiagnostics = null;
     
     //connection configs
     private AuthenticationType authenticationType = AuthenticationType.STANDARD;
@@ -262,7 +263,8 @@ class HTTPRequestOperAPI extends AbstractOperator {
         this.outputStatus = outputStatus;
     }
     @Parameter(optional=true, description="Name of the attribute to populate the response status code as integer with. "
-        + "The type of this attribute must be int32. "
+        + "The type of this attribute must be int32. This is the numerical value from the http response or -1 if no "
+        + "resonse was received."
         + "This parameter is not allowed if the operator has no output port. ")
         //+ "This parameter is mandatory if the number of attributes of the output stream is greater than one.")
     public void setOutputStatusCode(String outputStatusCode) {
@@ -286,6 +288,13 @@ class HTTPRequestOperAPI extends AbstractOperator {
         //+ "This parameter is mandatory if the number of attributes of the output stream is greater than one.")
     public void setOutputContentType(String outputContentType) {
         this.outputContentType = outputContentType;
+    }
+    @Parameter(optional=true, description="Name of the attribute to populate the error diagnostics with. This string "
+        + "contains the diagnostics information when the program execution of the http operation throws an exception."
+        + "This string is empty when a http response was received. The status line of the http response is issued in "
+        + "the `dataStatus` attribute.")
+    public void setErrorDiagnostics(String errorDiagnostics) {
+        this.errorDiagnostics = errorDiagnostics;
     }
 
     /************************************
@@ -508,6 +517,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
          || parameterNames.contains("outputHeader")
          || parameterNames.contains("outputContentEncoding")
          || parameterNames.contains("outputContentType")
+         || parameterNames.contains("errorDiagnostics")
          ) {
             hasOutputAttributeParameter = true;
         }
@@ -590,6 +600,15 @@ class HTTPRequestOperAPI extends AbstractOperator {
                     missingOutAttribute = outputContentType;
                 }
             }
+            if (errorDiagnostics != null) {
+                if (outPortAttributes.contains(errorDiagnostics)) {
+                    MetaType paramType = getOutput(0).getStreamSchema().getAttribute(errorDiagnostics).getType().getMetaType();
+                    if(paramType!=MetaType.USTRING && paramType!=MetaType.RSTRING)
+                        throw new IllegalArgumentException(Messages.getString("PARAM_ATTRIBUTE_TYPE_CHECK_2", MetaType.USTRING, MetaType.RSTRING, errorDiagnostics));
+                } else {
+                    missingOutAttribute = errorDiagnostics;
+                }
+            }
             if (missingOutAttribute != null) 
                 throw new IllegalArgumentException(Messages.getString("PARAM_MISSING_ATTRIBUTE", missingOutAttribute));
         }
@@ -632,6 +651,7 @@ class HTTPRequestOperAPI extends AbstractOperator {
     protected String getOutputHeader() { return outputHeader; }
     protected String getOutputContentEncoding() { return outputContentEncoding; }
     protected String getOutputContentType() { return outputContentType; }
+    protected String getErrorDiagnostics() { return errorDiagnostics; }
 
     //connection configs
     protected AuthenticationType getAuthenticationType() { return authenticationType; }

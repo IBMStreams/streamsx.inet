@@ -16,7 +16,7 @@ public composite Main {
 				//_5_method = "POST",
 				//_7_method = "PUT",
 				//_9_method = "DELETE",
-				//_11_method = "NONE",
+				//_11_method = "get",
 				data = $data;
 		}
 		

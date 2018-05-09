@@ -26,6 +26,7 @@ public composite Main {
 				//_4_outputHeader: "attribute";
 				//_5_outputStatus: "attribute";
 				//_6_outputStatusCode: "attribute";
+				//_7_errorDiagnostics: "attribute";
 		}
 
 	config

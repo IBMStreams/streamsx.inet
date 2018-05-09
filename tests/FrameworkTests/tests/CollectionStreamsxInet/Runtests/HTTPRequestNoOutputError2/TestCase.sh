@@ -1,6 +1,7 @@
 #--variantCount=12
 
 function myExplain {
+	echo "Cases that do not return a response"
 	case "$TTRO_variantCase" in
 	0) echo "variant $TTRO_variantCase - GET fixed method";;
 	1) echo "variant $TTRO_variantCase - GET dynamic method";;
@@ -13,11 +14,11 @@ function myExplain {
 	8) echo "variant $TTRO_variantCase - DELETE fixed method";;
 	9) echo "variant $TTRO_variantCase - DELETE dynamic method";;
 	10) echo "variant $TTRO_variantCase - NONE fixed method";;
-	11) echo "variant $TTRO_variantCase - NONE dynamic method";;
+	11) echo "variant $TTRO_variantCase - GET dynamic method wrong method";;
 	esac
 }
 
-declare -a urlList=( 'httpx://httpbin.org/get' 'httphttpbin.org/redirect/3' 'httpx://httpbin.org/post' 'httpx://httpbin.org/put' 'httxp://httpbin.org/delete' '' )
+declare -a urlList=( 'httpx://httpbin.org/get' 'http://httpbin.orgx/redirect/3' 'httpx://httpbin.org/post' 'httpx://httpbin.org/put' 'httxp://httpbin.org/delete' 'http://httpbin.org/get' )
 
 PREPS=(
 	'myExplain'
@@ -34,8 +35,12 @@ STEPS=(
 
 function myEval2 {
 	case "$TTRO_variantCase" in
-	10|11)
+	2|3)
+		linewisePatternMatchInterceptAndSuccess "$TT_evaluationFile" "" "*ERROR*HTTPRequestOper*UnknownHostException*";;
+	10)
 		linewisePatternMatchInterceptAndError "$TT_evaluationFile" "" "*ERROR*";;
+	11)
+		linewisePatternMatchInterceptAndSuccess "$TT_evaluationFile" "" "*ERROR*HTTPRequestOper*IllegalArgumentException*";;
 	*)
 		linewisePatternMatchInterceptAndSuccess "$TT_evaluationFile" "" "*ERROR*HTTPRequestOper*ClientProtocolException*";;
 	esac

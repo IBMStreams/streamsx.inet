@@ -4,20 +4,20 @@ function myExplain {
 	case "$TTRO_variantCase" in
 	0)  echo "variant $TTRO_variantCase - GET  method url http://httpbin.org/getx outputBody";;
 	1)  echo "variant $TTRO_variantCase - GET  method url http://httpbin.org/getx outputDataLine";;
-	2)  echo "variant $TTRO_variantCase - GET  method url httpx://httpbin.org/status/418 outputBody";;
-	3)  echo "variant $TTRO_variantCase - GET  method url httpx://httpbin.org/status/418 outputDataLine";;
+	2)  echo "variant $TTRO_variantCase - GET  method url http://httpbin.org/status/418 outputBody";;
+	3)  echo "variant $TTRO_variantCase - GET  method url http://httpbin.org/status/418 outputDataLine";;
 	4)  echo "variant $TTRO_variantCase - HEAD method url http://httpbin.org/getx outputBody";;
 	5)  echo "variant $TTRO_variantCase - HEAD method url http://httpbin.org/getx outputDataLine";;
-	6)  echo "variant $TTRO_variantCase - HEAD method url httpx://httpbin.org/status/418 outputBody";;
-	7)  echo "variant $TTRO_variantCase - HEAD method url httpx://httpbin.org/status/418 outputDataLine";;
+	6)  echo "variant $TTRO_variantCase - HEAD method url http://httpbin.org/status/418 outputBody";;
+	7)  echo "variant $TTRO_variantCase - HEAD method url http://httpbin.org/status/418 outputDataLine";;
 	8)  echo "variant $TTRO_variantCase - POST method url http://httpbin.org/getx outputBody";;
 	9)  echo "variant $TTRO_variantCase - POST method url http://httpbin.org/getx outputDataLine";;
-	10) echo "variant $TTRO_variantCase - POST method url httpx://httpbin.org/status/418 outputBody";;
-	11) echo "variant $TTRO_variantCase - POST method url httpx://httpbin.org/status/418 outputDataLine";;
-	12)  echo "variant $TTRO_variantCase - PUT  method url http://httpbin.org/getx outputBody";;
-	13)  echo "variant $TTRO_variantCase - PUT  method url http://httpbin.org/getx outputDataLine";;
-	14) echo "variant $TTRO_variantCase - PUT  method url httpx://httpbin.org/status/418 outputBody";;
-	15) echo "variant $TTRO_variantCase - PUT  method url httpx://httpbin.org/status/418 outputDataLine";;
+	10) echo "variant $TTRO_variantCase - POST method url http://httpbin.org/status/418 outputBody";;
+	11) echo "variant $TTRO_variantCase - POST method url http://httpbin.org/status/418 outputDataLine";;
+	12) echo "variant $TTRO_variantCase - PUT  method url http://httpbin.org/getx outputBody";;
+	13) echo "variant $TTRO_variantCase - PUT  method url http://httpbin.org/getx outputDataLine";;
+	14) echo "variant $TTRO_variantCase - PUT  method url http://httpbin.org/status/418 outputBody";;
+	15) echo "variant $TTRO_variantCase - PUT  method url http://httpbin.org/status/418 outputDataLine";;
 	esac
 }
 
