@@ -77,29 +77,31 @@ unRSTlP/////////////////////////////////////////////////////////
       ><set attributeName="visibility" from="hidden" end="sdt0.mouseout" to="visible" begin="sdt0.mouseover"
     /></g
     ><g visibility="hidden" style="stroke:none;font-style:italic;font-size:12px;font-family:&apos;Helvetica&apos;,&apos;SansSerif&apos;;"
-    ><rect x="47.65" y="-60.0" width="463.09998" style="fill:rgb(230,230,255);stroke:rgb(0,0,80);" rx="2.0" ry="2.0" height="167.0"
-      /><text x="48.65" y="-47.0"
+    ><rect x="47.65" y="-75.0" width="440.83997" style="fill:rgb(230,230,255);stroke:rgb(0,0,80);" rx="2.0" ry="2.0" height="182.0"
+      /><text x="48.65" y="-62.0"
       >Optional: authenticationFile, authenticationProperties, </text
-      ><text x="48.65" y="-32.0"
+      ><text x="48.65" y="-47.0"
       >authenticationType, connectionTimeout, contentType, </text
-      ><text x="48.65" y="-17.0"
+      ><text x="48.65" y="-32.0"
       >disableAutomaticRetries, disableContentCompression, </text
+      ><text x="48.65" y="-17.0"
+      >disableRedirectHandling, errorDiagnostics, extraHeaders, </text
       ><text x="48.65" y="-2.0"
-      >disableRedirectHandling, extraHeaders, fixedContentType, </text
+      >fixedContentType, fixedMethod, fixedUrl, method, </text
       ><text x="48.65" y="13.0"
-      >fixedMethod, fixedUrl, method, outputBody, outputContentEncoding, </text
+      >outputBody, outputContentEncoding, outputContentType, </text
       ><text x="48.65" y="28.0"
-      >outputContentType, outputDataLine, outputHeader, </text
+      >outputDataLine, outputHeader, outputStatus, outputStatusCode, </text
       ><text x="48.65" y="43.0"
-      >outputStatus, outputStatusCode, proxy, proxyPort, </text
+      >proxy, proxyPort, redirectStrategy, requestAttributes, </text
       ><text x="48.65" y="58.0"
-      >requestAttributes, requestAttributesAsUrlArguments, </text
+      >requestAttributesAsUrlArguments, requestBodyAttribute, </text
       ><text x="48.65" y="73.0"
-      >requestBodyAttribute, requestUrlArgumentsAttribute, </text
+      >requestUrlArgumentsAttribute, sslAcceptAllCertificates, </text
       ><text x="48.65" y="88.0"
-      >sslAcceptAllCertificates, sslTrustStoreFile, </text
+      >sslTrustStoreFile, sslTrustStorePassword, url, </text
       ><text x="48.65" y="103.0"
-      >sslTrustStorePassword, url, userAgent</text
+      >userAgent</text
       ><set attributeName="visibility" from="hidden" end="sdt1.mouseout" to="visible" begin="sdt1.mouseover"
     /></g
     ><g visibility="hidden" style="stroke:none;font-style:italic;font-size:12px;font-family:&apos;Helvetica&apos;,&apos;SansSerif&apos;;"
