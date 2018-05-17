@@ -26,9 +26,7 @@ public composite HTTPStreamSample
     () as Writer = Custom(Result)
     {
       logic
-        onTuple Result:
-        {
-          println("result: " + (rstring)Result + "\n");
-        } 
+        onTuple Result: println("result: " + (rstring)Result + "\n");
+        onPunct Result: println(currentPunct());
     }
 }

@@ -1,0 +1,50 @@
+use com.ibm.streamsx.inet.http::HTTPRequest;
+use com.ibm.streamsx.testframe::FileSink1;
+
+public composite Main {
+	param
+		//_0_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/basic-auth/user1/passwd1');
+		//_1_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/basic-auth/user1/passwd1');
+		//_2_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/basic-auth/user2/passwd2');
+		//_3_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/basic-auth/user2/passwd2');
+		//_4_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/get');
+		//_5_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/get');
+		//_6_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/get');
+		//_7_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/get');
+	graph
+		stream<uint64 id, rstring method> Trigger as O = Beacon() {
+			param 
+				iterations : 1;
+			output O:
+				id = IterationCount(),
+				method = "GET";
+		}
+		
+		stream<uint64 id, int32 stat, rstring method, rstring status, rstring respData> Response as O = HTTPRequest(Trigger as I) {
+			param
+				fixedUrl: $url;
+				method : method;
+				outputBody : "respData";
+				outputStatus : "status";
+				outputStatusCode : "stat";
+				//_1_authenticationFile : "etc/http_request_auth.properties";
+				//_2_authenticationFile : "etc/http_request_auth.properties";
+				//_4_authenticationFile : "etc/http_request_oauth1.properties";
+				//_6_authenticationFile : "etc/http_request_oauth2.properties";
+				//_2_authenticationProperties : "ANY_HOST=user2:passwd2";
+				//_3_authenticationProperties : "ANY_HOST=user2:passwd2";
+				//_5_authenticationProperties : "consumerKey=xxxx","consumerSecret=yyyy","accessToken=zzzz","accessTokenSecret=qqqq";
+				//_7_authenticationProperties : "accessToken=Propzzzz";
+				//_3_authenticationType : "STANDARD";
+				//_4_authenticationType : "OAUTH1";
+				//_5_authenticationType : "OAUTH1";
+				//_6_authenticationType : "OAUTH2";
+				//_7_authenticationType : "OAUTH2";
+		}
+		
+		() as Sink = FileSink1(Response) { }
+		
+	
+	config
+		restartable : false;
+}

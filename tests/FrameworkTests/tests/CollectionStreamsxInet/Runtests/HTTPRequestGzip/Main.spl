@@ -1,0 +1,42 @@
+use com.ibm.streamsx.inet.http::HTTPRequest;
+use com.ibm.streamsx.testframe::FileSink1;
+
+public composite Main {
+	param
+		//_0_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/get');
+		//_1_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/gzip');
+		//_2_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/deflate');
+		//_3_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/get');
+		//_4_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/gzip');
+		//_5_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/deflate');
+		//_0_expression<boolean> $disableComp: (boolean)getSubmissionTimeValue("disableComp", "false");
+		//_1_expression<boolean> $disableComp: (boolean)getSubmissionTimeValue("disableComp", "false");
+		//_2_expression<boolean> $disableComp: (boolean)getSubmissionTimeValue("disableComp", "false");
+		//_3_expression<boolean> $disableComp: (boolean)getSubmissionTimeValue("disableComp", "true");
+		//_4_expression<boolean> $disableComp: (boolean)getSubmissionTimeValue("disableComp", "true");
+		//_5_expression<boolean> $disableComp: (boolean)getSubmissionTimeValue("disableComp", "true");
+	graph
+		stream<uint64 id, rstring method> Trigger as O = Beacon() {
+			param 
+				iterations : 1;
+			output O:
+				id = IterationCount(),
+				method = "GET";
+		}
+		
+		stream<uint64 id, rstring method, rstring url, rstring status, int32 stat, rstring respData> Response as O = HTTPRequest(Trigger as I) {
+			param
+				fixedUrl: $url;
+				method : method;
+				outputBody : "respData";
+				outputStatus : "status";
+				outputStatusCode : "stat";
+				disableContentCompression : $disableComp;
+		}
+		
+		() as Sink = FileSink1(Response) { }
+		
+	
+	config
+		restartable : false;
+}

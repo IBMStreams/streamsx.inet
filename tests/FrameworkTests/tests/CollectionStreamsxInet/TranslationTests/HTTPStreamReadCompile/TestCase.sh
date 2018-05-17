@@ -8,7 +8,7 @@ PREPS=(
         TT_mainComposite='com.ibm.streamsx.inet.http.sample::HTTPStreamSample'
 )
         
-STEPS=( 'myCompile myEvaluate' )
+STEPS='myCompile myEvaluate'
 
 errorCodes=( '' '*CDIST0200E*' )
 
