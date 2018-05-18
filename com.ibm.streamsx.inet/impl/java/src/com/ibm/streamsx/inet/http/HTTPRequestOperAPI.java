@@ -19,6 +19,7 @@ import org.apache.http.entity.ContentType;
 
 import com.ibm.streams.operator.AbstractOperator;
 import com.ibm.streams.operator.Attribute;
+import com.ibm.streams.operator.OperatorContext.ContextCheck;
 import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.TupleAttribute;
@@ -34,7 +35,7 @@ import com.ibm.streamsx.inet.messages.Messages;
  * Handles the API (parameters) for the HTTPRequest operator.
  * 
  */
-class HTTPRequestOperAPI extends AbstractOperator {
+public class HTTPRequestOperAPI extends AbstractOperator {
 
     static final String DESC = "Issue an HTTP request of the specified method for each input tuple. For method `NONE`, "
             + "the request is suppressed. The URL and  method of the HTTP request either come from the input tuple using "
@@ -390,12 +391,14 @@ class HTTPRequestOperAPI extends AbstractOperator {
     /********************************************
      * compile time checks
      ********************************************/
+    @ContextCheck(compile = true)
     public static void checkInConsistentRegion(OperatorContextChecker checker) {
         ConsistentRegionContext consistentRegionContext = checker.getOperatorContext().getOptionalContext(ConsistentRegionContext.class);
         if(consistentRegionContext != null) {
             checker.setInvalidContext(Messages.getString("CONSISTENT_CHECK_2"), new String[] {OPER_NAME});
         }
     }
+    @ContextCheck(compile = true)
     public static void checkMethodParams(OperatorContextChecker occ) {
         Set<String> parameterNames = occ.getOperatorContext().getParameterNames();
         if (! parameterNames.contains("method") && ! parameterNames.contains("fixedMethod")) {

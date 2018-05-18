@@ -46,8 +46,6 @@ import com.ibm.json.java.JSONArray;
 import com.ibm.json.java.JSONObject;
 import com.ibm.streams.operator.StreamingInput;
 import com.ibm.streams.operator.Tuple;
-import com.ibm.streams.operator.OperatorContext.ContextCheck;
-import com.ibm.streams.operator.compile.OperatorContextChecker;
 import com.ibm.streams.operator.encoding.EncodingFactory;
 import com.ibm.streams.operator.encoding.JSONEncoding;
 import com.ibm.streams.operator.logging.TraceLevel;
@@ -98,18 +96,6 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
     private Metric nRequestTransmit;
     private Metric nResponseSuccess;
     private Metric nResponseNoSuccess;
-
-    /********************************************
-     * compile time checks
-     ********************************************/
-    @ContextCheck(compile = true)
-    public static void checkInConsistentRegion(OperatorContextChecker checker) {
-        HTTPRequestOperAPI.checkInConsistentRegion(checker);
-    }
-    @ContextCheck(compile=true)
-    public static void checkMethodParams(OperatorContextChecker occ) {
-        HTTPRequestOperAPI.checkMethodParams(occ);
-    }
 
     /********************************************
      * Metrics
