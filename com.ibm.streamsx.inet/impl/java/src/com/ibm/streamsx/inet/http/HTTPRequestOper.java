@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -57,7 +58,9 @@ import com.ibm.streams.operator.model.InputPortSet;
 import com.ibm.streams.operator.model.InputPorts;
 import com.ibm.streams.operator.model.Libraries;
 import com.ibm.streams.operator.model.PrimitiveOperator;
+import com.ibm.streams.operator.types.Blob;
 import com.ibm.streams.operator.types.RString;
+import com.ibm.streams.operator.types.ValueFactory;
 import com.ibm.streamsx.inet.messages.Messages;
 
 import oauth.signpost.exception.OAuthCommunicationException;
@@ -210,7 +213,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                 break;
             case NONE: {
                     if (hasDataPort()) {
-                        sendOtuple(tuple, "", -1, "", "", new ArrayList<RString>(), "", "");
+                        sendOtuple(tuple, "", -1, "", "", new ArrayList<RString>(), "", null, "", "");
                     }
                 }
                 return;
@@ -222,20 +225,20 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             String errmess = e.getClass().getName() + ": " + e.getMessage() + " Input tuple:" + tuple.toString();
             tracer.log(TraceLevel.ERROR, errmess);
             if (hasDataPort()) {
-                sendOtuple(tuple, "", -1, "", "", new ArrayList<RString>(), "", errmess);
+                sendOtuple(tuple, "", -1, "", "", new ArrayList<RString>(), "", null, errmess, "");
             }
         } catch (OAuthException e) {
         //} catch (OAuthMessageSignerException | OAuthExpectationFailedException | OAuthCommunicationException e) {
             String errmess = e.getClass().getName() + ": " + e.getMessage() + " Input tuple:" + tuple.toString();
             tracer.log(TraceLevel.ERROR, errmess);
             if (hasDataPort()) {
-                sendOtuple(tuple, "", -1, "", "", new ArrayList<RString>(), "", errmess);
+                sendOtuple(tuple, "", -1, "", "", new ArrayList<RString>(), "", null, errmess, "");
             }
         } catch (IOException | URISyntaxException | IllegalArgumentException e) {
             String errmess = e.getClass().getName() + ": " + e.getMessage() + " Input tuple:" + tuple.toString();
             tracer.log(TraceLevel.ERROR, errmess);
             if (hasDataPort()) {
-                sendOtuple(tuple, "", -1, "", "", new ArrayList<RString>(), "", errmess);
+                sendOtuple(tuple, "", -1, "", "", new ArrayList<RString>(), "", null, errmess, "");
             }
         }
     }
@@ -377,18 +380,23 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
      * send output tuple
      * @throws Exception 
      ******************************************************************************************************************/
-    void sendOtuple(Tuple inTuple, String statusLine, int statusCode, String contentEncoding, String contentType, List<RString> headers, String body, String errorDiagnostics) throws Exception {
+    void sendOtuple(Tuple inTuple, String statusLine, int statusCode, String contentEncoding, String contentType, List<RString> headers, String body, byte[] bodyRaw, String errorDiagnostics, String charSet) throws Exception {
         StreamingOutput<OutputTuple> op = getOutput(0);
         OutputTuple otup = op.newTuple();
         otup.assign(inTuple);
-        if ( getOutputStatus()          != null) otup.setString(getOutputStatus(),          statusLine);
-        if ( getOutputStatusCode()      != null) otup.setInt   (getOutputStatusCode(),      statusCode);
-        if ( getOutputContentEncoding() != null) otup.setString(getOutputContentEncoding(), contentEncoding);
-        if ( getOutputContentType()     != null) otup.setString(getOutputContentType(),     contentType);
-        if ( getOutputHeader()          != null) otup.setList  (getOutputHeader(),          headers);
-        if ( getOutputDataLine()        != null) otup.setString(getOutputDataLine(),        body);
-        if ( getOutputBody()            != null) otup.setString(getOutputBody(),            body);
-        if ( getErrorDiagnostics()      != null) otup.setString(getErrorDiagnostics(),      errorDiagnostics);
+        if (getOutputStatus()          != null) otup.setString(getOutputStatus(),          statusLine);
+        if (getOutputStatusCode()      != null) otup.setInt   (getOutputStatusCode(),      statusCode);
+        if (getOutputContentEncoding() != null) otup.setString(getOutputContentEncoding(), contentEncoding);
+        if (getOutputContentType()     != null) otup.setString(getOutputContentType(),     contentType);
+        if (getOutputCharSet()         != null) otup.setString(getOutputCharSet(),         charSet);
+        if (getOutputHeader()          != null) otup.setList  (getOutputHeader(),          headers);
+        if (getOutputDataLine()        != null) otup.setString(getOutputDataLine(),        body);
+        if (getOutputBody()            != null) otup.setString(getOutputBody(),            body);
+        if (getErrorDiagnostics()      != null) otup.setString(getErrorDiagnostics(),      errorDiagnostics);
+        if (getOutputBodyRaw() != null) {
+            Blob blob = ValueFactory.newBlob(bodyRaw);
+            otup.setBlob(getOutputBodyRaw(), blob);
+        }
         op.submit(otup);
     }
     
@@ -402,7 +410,9 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
         List<RString> headers = new ArrayList<>();
         String contentEncoding = "";
         String contentType = "";
+        String charSet = "";
         String body = "";
+        byte[] bodyRaw = {};
         try {
             if (tracer.isLoggable(TraceLevel.DEBUG) || tracer.isLoggable(TraceLevel.TRACE)) {
                 StringBuilder sb = new StringBuilder("request to send:\n");
@@ -466,8 +476,14 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                 //content type and encoding
                 Header contEnc = entity.getContentEncoding();
                 if (contEnc != null) contentEncoding = contEnc.toString();
-                Header contType = entity.getContentType();
-                if (contType != null) contentType = contType.toString();
+                //Header contType = entity.getContentType();
+                //if (contType != null) contentType = contType.toString();
+                ContentType contType = ContentType.getLenient(entity);
+                if (contType != null) {
+                    contentType = contType.getMimeType();
+                    Charset cs = contType.getCharset();
+                    if (cs != null ) charSet = cs.name();
+                }
                 //Response Headers
                 HeaderIterator hi = response.headerIterator();
                 while (hi.hasNext()) {
@@ -483,12 +499,24 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                         BufferedReader reader = new BufferedReader(new InputStreamReader(instream));
                         String inputLine = null;
                         while (!getShutdownRequested() && ((inputLine = reader.readLine()) != null)) {
-                            sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, inputLine, "");
+                            sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, inputLine, null, "", charSet);
                             tupleSent = true;
                         }
                     }
-                    if (getOutputBody() != null) {
-                        body = EntityUtils.toString(entity);
+                    if ((getOutputBody() != null) || (getOutputBodyRaw() != null)) {
+                        if (getOutputBodyRaw() == null) { //get body only -> put content always into body
+                            body = EntityUtils.toString(entity);
+                        } else if (getOutputBody() == null) { //get raw body only -> put content always into body raw
+                            bodyRaw = EntityUtils.toByteArray(entity);
+                        } else { //both outputs
+                            if ( (contType != null)
+                                  && (contType.getMimeType().equals(ContentType.APPLICATION_OCTET_STREAM.getMimeType())
+                                   || contType.getMimeType().equals(ContentType.DEFAULT_BINARY.getMimeType()))) {
+                                bodyRaw = EntityUtils.toByteArray(entity);
+                            } else {
+                                body = EntityUtils.toString(entity);
+                            }
+                        }
                     }
                 }
                 EntityUtils.consume(entity);
@@ -496,23 +524,23 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             if (hasDataPort()) {
                 if (getOutputDataLine() != null) { //one tuple per line
                     if ( ! tupleSent) {
-                        sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, "", "");
+                        sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, "", null, "", charSet);
                     }
                 } else {
-                    sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, body, "");
+                    sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, body, bodyRaw, "", charSet);
                 }
             }
         } catch (ClientProtocolException e) {
             String errmess = e.getClass().getName() + ": " + e.getMessage();
             tracer.log(TraceLevel.ERROR, errmess);
             if (hasDataPort()) {
-                sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, body, errmess);
+                sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, body, bodyRaw, errmess, charSet);
             }
         } catch (IOException e) {
             String errmess = e.getClass().getName() + ": " + e.getMessage();
             tracer.log(TraceLevel.ERROR, errmess);
             if (hasDataPort()) {
-                sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, body, errmess);
+                sendOtuple(inTuple, statusLine, statusCode, contentEncoding, contentType, headers, body, bodyRaw, errmess, charSet);
             }
         } finally {
             if (getShutdownRequested()) {

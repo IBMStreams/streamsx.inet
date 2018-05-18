@@ -129,11 +129,13 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     //output parameters
     private String outputDataLine = null;
     private String outputBody = null;
+    private String outputBodyRaw = null;
     private String outputStatus = null;
     private String outputStatusCode = null;
     private String outputHeader = null;
     private String outputContentEncoding = null;
     private String outputContentType = null;
+    private String outputCharSet = null;
     private String errorDiagnostics = null;
     
     //connection configs
@@ -252,10 +254,20 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     @Parameter(optional=true, description="Name of the attribute to populate the response body with. "
         + "If this parameter is set, the operators returns one tuple for each request. "
         + "Only one of `outputDataLine` and `outputBody` must be specified. "
-        + "This parameter is not allowed if the operator has no output port.")
+        + "This parameter is not allowed if the operator has no output port."
+        + "If this parameter is set and parameter `outputBodyRaw` is set, all responses with entitiy mime type not "
+        + "equal to `application/octet-stream` or `default/binary` generate output here.")
         //+ "This parameter is mandatory if the number of attributes of the output stream is greater than one.")
     public void setOutputBody(String outputBody) {
         this.outputBody = outputBody;
+    }
+    @Parameter(optional=true, description="Name of the attribute to populate the raw response body with. "
+        + "The type of this attribute must be `blob`. Only one of `outputDataLine` and `outputBodyRaw` must be specified. "
+        + "This parameter is not allowed if the operator has no output port. You may use `outputBodyRaw` and `outputBody`."
+        + "If this parameter is set and parameter `outputBody` is set, all responses with entitiy mime type "
+        + "equal to `application/octet-stream` or `default/binary` will generate output here.")
+    public void setOutputBodyRaw(String outputBodyRaw) {
+        this.outputBodyRaw = outputBodyRaw;
     }
     @Parameter(optional=true, description="Name of the attribute to populate the response status line with. "
         + "This parameter is not allowed if the operator has no output port. ")
@@ -278,18 +290,24 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     public void setOutputHeader(String outputHeader) {
         this.outputHeader = outputHeader;
     }
-    @Parameter(optional=true, description="Name of the attribute to populate the response data with. "
+    @Parameter(optional=true, description="Name of the attribute to populate the response content encoding header with. "
         + "This parameter is not allowed if the operator has no output port. ")
         //+ "This parameter is mandatory if the number of attributes of the output stream is greater than one.")
     public void setOutputContentEncoding(String outputContentEncoding) {
         this.outputContentEncoding = outputContentEncoding;
     }
-    @Parameter(optional=true, description="Name of the attribute to populate the response data with. "
+    @Parameter(optional=true, description="Name of the attribute to populate the response entity mime type with. "
         + "This parameter is not allowed if the operator has no output port. ")
         //+ "This parameter is mandatory if the number of attributes of the output stream is greater than one.")
     public void setOutputContentType(String outputContentType) {
         this.outputContentType = outputContentType;
     }
+    @Parameter(optional=true, description="Name of the attribute to populate the response entity charset with. "
+            + "This parameter is not allowed if the operator has no output port. ")
+            //+ "This parameter is mandatory if the number of attributes of the output stream is greater than one.")
+        public void setOutputCharSet(String outputCharSet) {
+            this.outputCharSet = outputCharSet;
+        }
     @Parameter(optional=true, description="Name of the attribute to populate the error diagnostics with. This string "
         + "contains the diagnostics information when the program execution of the http operation throws an exception."
         + "This string is empty when a http response was received. The status line of the http response is issued in "
@@ -411,6 +429,7 @@ public class HTTPRequestOperAPI extends AbstractOperator {
         occ.checkExcludedParameters("url", "fixedUrl");
         occ.checkExcludedParameters("contentType", "fixedContentType");
         occ.checkExcludedParameters("outputDataLine", "outputBody");
+        occ.checkExcludedParameters("outputDataLine", "outputBodyRaw");
         occ.checkExcludedParameters("redirectStrategy", "disableRedirectHandling");
         //occ.checkExcludedParameters("requestAttributes", "requestBodyAttribute");
         
@@ -515,11 +534,13 @@ public class HTTPRequestOperAPI extends AbstractOperator {
         boolean hasOutputAttributeParameter = false;
         if (parameterNames.contains("outputDataLine")
          || parameterNames.contains("outputBody")
+         || parameterNames.contains("outputBodyRaw")
          || parameterNames.contains("outputStatus")
          || parameterNames.contains("outputStatusCode")
          || parameterNames.contains("outputHeader")
          || parameterNames.contains("outputContentEncoding")
          || parameterNames.contains("outputContentType")
+         || parameterNames.contains("outputCharSet")
          || parameterNames.contains("errorDiagnostics")
          ) {
             hasOutputAttributeParameter = true;
@@ -548,6 +569,15 @@ public class HTTPRequestOperAPI extends AbstractOperator {
                         throw new IllegalArgumentException(Messages.getString("PARAM_ATTRIBUTE_TYPE_CHECK_2", MetaType.USTRING, MetaType.RSTRING, outputBody));
                 } else {
                     missingOutAttribute = outputBody;
+                }
+            }
+            if (outputBodyRaw != null) {
+                if (outPortAttributes.contains(outputBodyRaw)) {
+                    MetaType paramType = getOutput(0).getStreamSchema().getAttribute(outputBodyRaw).getType().getMetaType();
+                    if(paramType!=MetaType.BLOB)
+                        throw new IllegalArgumentException(Messages.getString("PARAM_ATTRIBUTE_TYPE_CHECK_1", MetaType.BLOB, outputBodyRaw));
+                } else {
+                    missingOutAttribute = outputBodyRaw;
                 }
             }
             if (outputStatus != null) {
@@ -603,6 +633,15 @@ public class HTTPRequestOperAPI extends AbstractOperator {
                     missingOutAttribute = outputContentType;
                 }
             }
+            if (outputCharSet != null) {
+                if (outPortAttributes.contains(outputCharSet)) {
+                    MetaType paramType = getOutput(0).getStreamSchema().getAttribute(outputCharSet).getType().getMetaType();
+                    if(paramType!=MetaType.USTRING && paramType!=MetaType.RSTRING)
+                        throw new IllegalArgumentException(Messages.getString("PARAM_ATTRIBUTE_TYPE_CHECK_2", MetaType.USTRING, MetaType.RSTRING, outputCharSet));
+                } else {
+                    missingOutAttribute = outputCharSet;
+                }
+            }
             if (errorDiagnostics != null) {
                 if (outPortAttributes.contains(errorDiagnostics)) {
                     MetaType paramType = getOutput(0).getStreamSchema().getAttribute(errorDiagnostics).getType().getMetaType();
@@ -649,11 +688,13 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     //output parameters
     protected String getOutputDataLine() { return outputDataLine; }
     protected String getOutputBody() { return outputBody; }
+    protected String getOutputBodyRaw() { return outputBodyRaw; }
     protected String getOutputStatus() { return outputStatus; }
     protected String getOutputStatusCode() {return outputStatusCode; }
     protected String getOutputHeader() { return outputHeader; }
     protected String getOutputContentEncoding() { return outputContentEncoding; }
     protected String getOutputContentType() { return outputContentType; }
+    protected String getOutputCharSet() { return outputCharSet; }
     protected String getErrorDiagnostics() { return errorDiagnostics; }
 
     //connection configs
