@@ -42,11 +42,26 @@ public class WindowContentsAtTrigger<T> implements StreamWindowListener<T> {
 	private long lastModified = System.currentTimeMillis();
 
 	@SuppressWarnings("unchecked")
-    public WindowContentsAtTrigger(OperatorContext context, StreamingInput<T> input) {
+	public WindowContentsAtTrigger(OperatorContext context, StreamingInput<T> input) {
 		this.context = context;
 		this.input = input;
 		isSliding = StreamWindow.Type.SLIDING.equals(input.getStreamWindow().getType());
-		List<String> partitionKeys = context.getParameterValues("partitionKey");
+		List<String> partitionKeys = null;
+		//Tokenize paritionKey if cardinality is 1 and put all values to partitionKeys
+		List<String> primaryPartitionKeys = context.getParameterValues("partitionKey");
+		if (primaryPartitionKeys.size() == 1) {
+			String[] stringArr = primaryPartitionKeys.get(0).split(",");
+			if (stringArr.length > 1) {
+				partitionKeys = new ArrayList<String>();
+				for (int i = 0; i < stringArr.length; i++) {
+					partitionKeys.add(stringArr[i]);
+				}
+			} else {
+				partitionKeys = primaryPartitionKeys;
+			}
+		} else {
+			partitionKeys = primaryPartitionKeys;
+		}
 		if (!partitionKeys.isEmpty()) {
 		    if (!input.getStreamWindow().isPartitioned())
 		        throw new IllegalStateException("Input port " + input.getName() + "is not partitioned");
