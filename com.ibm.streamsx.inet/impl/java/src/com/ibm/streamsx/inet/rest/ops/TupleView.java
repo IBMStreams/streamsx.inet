@@ -25,7 +25,8 @@ import com.ibm.streams.operator.model.PrimitiveOperator;
 public class TupleView extends ServletOperator {
     static final String opName = "HTTPTupleView";
 	// Parameter setters just to define the parameters in the SPL operator model.
-	@Parameter(optional=true, cardinality=-1, description="Names of attributes to partition the window by")
+	@Parameter(optional=true, cardinality=-1, description="Names of attributes to partition the window by. If the cardinality of this parameter is > 1,"
+			+ "then every value represents one attribute name. If the cadinality equals to 1, the value may contain one attribute name or a comma separated list of attribute names.")
 	public void setPartitionKey(String[] attributeNames) {}
 	
     @Parameter(optional = true, description = "List of headers to insert into the http reply. Formatted as header:value")
