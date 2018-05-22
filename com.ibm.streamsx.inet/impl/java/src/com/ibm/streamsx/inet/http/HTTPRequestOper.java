@@ -264,9 +264,12 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     String name = attr.getName();
                     if (getRequestAttributes().contains(name)) {
                         int index = attr.getIndex();
-                        String value = tuple.getString(index);
-                        params.add(new BasicNameValuePair(name, value));
-                        uriBuilder = uriBuilder.addParameter(name, value);
+                        Object obj = tuple.getObject(index); //consider optional type
+                        if (obj != null) {
+                            String value = tuple.getString(index);
+                            params.add(new BasicNameValuePair(name, value));
+                            uriBuilder = uriBuilder.addParameter(name, value);
+                        }
                     }
                 }
             }
@@ -346,8 +349,11 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                         String name = attr.getName();
                         if (getRequestAttributes().contains(name)) {
                             int index = attr.getIndex();
-                            String value = tuple.getString(index);
-                            params.add(new BasicNameValuePair(name, value));
+                            Object obj = tuple.getObject(index); //consider optional type
+                            if (obj != null) {
+                                String value = tuple.getString(index);
+                                params.add(new BasicNameValuePair(name, value));
+                            }
                         }
                     }
                     req.setEntity(new UrlEncodedFormEntity(params));
@@ -360,8 +366,11 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                         String name = attr.getName();
                         if (getRequestAttributes().contains(name)) {
                             int index = attr.getIndex();
-                            String value = tuple.getString(index);
-                            payload = payload+value;
+                            Object obj = tuple.getObject(index); //consider optional type
+                            if (obj != null) {
+                                String value = tuple.getString(index);
+                                payload = payload+value;
+                            }
                         }
                     }
                     req.setEntity(new StringEntity(payload, contentType));
