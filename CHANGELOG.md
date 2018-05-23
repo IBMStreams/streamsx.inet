@@ -1,5 +1,9 @@
 Changes
 =======
+## v2.9.5:
+* fixes for optional type
+* enhancement #324
+
 ## v2.9.4:
 * Internationalization of HTTPRequest Operator
 * Bug fixes in HTTPRequest Operator
