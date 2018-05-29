@@ -3,6 +3,19 @@ namespace sample;
 use com.ibm.streamsx.inet.http::HTTPPost;
 use com.ibm.streamsx.inet.http::HTTPResponse;
 
+/**
+ * This sample demonstrates the use of the HTTPPost operator.
+ * This sample executes a number of http requests and prints the result to the standard output.
+ * If you want to store the user credentials securely, you should consider to use a
+ * Streams Application Configuration Object. see 
+ * [https://www.ibm.com/support/knowledgecenter/en/SSCRJU_4.2.0/com.ibm.streams.dev.doc/doc/creating-secure-app-configs-dev.html]
+ * and fetch the values from the application property with spl function getApplicationConfigurationProperty.
+ * 
+ * @param   url        The url list for the http requests
+ * @param   data       The message data used in method POST
+ * @param   iterations The number of requests send
+ * @param   period     The period of the requests
+ */
 public composite Main {
 	param
 		expression<list<rstring>>              $url    : (list<rstring>)             getSubmissionTimeValue(

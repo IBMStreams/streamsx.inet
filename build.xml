@@ -146,6 +146,7 @@
         <arg value="${tktitle}"/>
         <arg value="--directory"/>
         <arg value="${tkdir}"/>
+        <arg value="--warn-no-comments"/>
      </exec>
   </target>
 

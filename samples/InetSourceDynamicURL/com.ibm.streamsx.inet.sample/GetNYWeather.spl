@@ -63,7 +63,6 @@ return ["http://w1.weather.gov/data/METAR/KNYC.1.txt"];
  * The URL is evaluated before every fetch. If the URL has changed, information
  * about the last modification time is discarded.  
  */
- 
 composite GetWeatherDynamic
 {
   graph

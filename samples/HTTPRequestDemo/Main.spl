@@ -3,8 +3,6 @@ use com.ibm.streamsx.inet.http::HTTPRequest;
 /**
  * This sample demonstrates the use of the HTTPRequest operator.
  * This sample executes a number of http requests and prints the result to the standard output.
- * feed the content of files from a ftp-server into a IBM Streams application. It can be used for
- * a quick test of an ftp server connection.
  * If you want to store the user credentials securely, you should consider to use a
  * Streams Application Configuration Object. see 
  * [https://www.ibm.com/support/knowledgecenter/en/SSCRJU_4.2.0/com.ibm.streams.dev.doc/doc/creating-secure-app-configs-dev.html]
@@ -12,8 +10,9 @@ use com.ibm.streamsx.inet.http::HTTPRequest;
  * 
  * @param   url        The url list for the http requests
  * @param   method     The method list for the http request
- * @param   data       The message data used in methods POST and PUT
- * @param   contt      The message header Content-Type for methods POST ant PUT
+ * @param   data       The message data used in method PUT
+ * @param   mess       Attribute to be used in method POST
+ * @param   contt      The Content-Type for methods POST ant PUT
  * @param   iterations The number of requests send
  * @param   period     The period of the requests
  */

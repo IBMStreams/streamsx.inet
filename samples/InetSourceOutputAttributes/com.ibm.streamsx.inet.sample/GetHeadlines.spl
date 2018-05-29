@@ -25,14 +25,26 @@ list<rstring> getTitles(rstring content) {
   return titles;
 }
 
-
+/**
+ * Format a date-time string
+ * 
+ * @param when       the timestamp to format
+ * @param pattern    tga patter to be used
+ * @return           the formated date-time string
+ */
 public rstring formatDateTimeLocal(float64 when, rstring pattern) {
   timestamp ts = createTimestamp((int64)when, 0u);
   mutable Sys.tm tm = {};
   time(ts, tm);
   return strftime(tm, pattern); }
 
-
+/**
+ * Demonstrates the use of Inetsource operator with output clause.
+ * 
+ * @param   urls        The url list for the http requests
+ * @param   timeout     The timeout for the http request
+ * @param   interval    The interval of the repetition of the requests
+ */
 public composite GetHeadlines {
 
   param

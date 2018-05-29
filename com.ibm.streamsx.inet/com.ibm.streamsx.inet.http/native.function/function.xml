@@ -145,6 +145,7 @@ Errorcodes see in [https://curl.haxx.se/libcurl/c/libcurl-errors.html]
 @param	extraHeaders		if this list is not emtpy, the list is passed to the server as HTTP Headers
 @param	username			if this string is not empty, this user name is passed to to the server
 @param	password			if this string is not empty, this password is passed to the server
+@param	headers				the returned header data
 @param	error				the returned error code
 @return	the received http message body
         </function:description>
@@ -159,6 +160,7 @@ Errorcodes see in [https://curl.haxx.se/libcurl/c/libcurl-errors.html]
 @param	extraHeaders		if this list is not emtpy, the list is passed to the server as HTTP Headers
 @param	username			if this string is not empty, this user name is passed to to the server
 @param	password			if this string is not empty, this password is passed to the server
+@param	headers				the returned header data
 @param	error				the returned error code
 @param	requestTimeout		This is the maximum time in seconds that you allow the libcurl transfer operation to take. Normally, name lookups can take a considerable time
 and limiting operations to less than a few minutes risk aborting perfectly normal operations. Default timeout is 0 (zero) which means it never times out.
@@ -181,6 +183,7 @@ Errorcodes see in [https://curl.haxx.se/libcurl/c/libcurl-errors.html]
 @param  keyFile             if this string is not empty, this is the absolute path to a private key file to be sent to the server
 @param  keyType             if this string is not empty, this is the key file type (PEM, P12) 
 @param  keyPass		        if this string is not empty, this is the password for the private key
+@param	headers				the returned header data
 @param	error				the returned error code
 @param	requestTimeout		This is the maximum time in seconds that you allow the libcurl transfer operation to take. Normally, name lookups can take a considerable time
 and limiting operations to less than a few minutes risk aborting perfectly normal operations. Default timeout is 0 (zero) which means it never times out.
