@@ -37,7 +37,7 @@
 
       <dd class="dd">
 <ul class="sl simple">
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$sample$Main.html#spldoc_compilationunit__composite_operator__Main">Main</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$sample$Main.html#spldoc_compilationunit__composite_operator__Main">Main</a></strong>: This sample demonstrates the use of the HTTPPost operator.
 </li>
 
 </ul>
@@ -61,19 +61,26 @@
   <embed class="image" src="../../image/tk$HTTPPostDemo/op$sample$Main.svg" width="337" height="109"/>
 </div>
 
+<div class="section">
+
+<p class="p">This sample demonstrates the use of the HTTPPost operator. This sample executes a number of http requests and prints the result to the standard output. If you want to store the user credentials securely, you should consider to use a Streams Application Configuration Object. see  <a class="xref" href="https://www.ibm.com/support/knowledgecenter/en/SSCRJU_4.2.0/com.ibm.streams.dev.doc/doc/creating-secure-app-configs-dev.html">https://www.ibm.com/support/knowledgecenter/en/SSCRJU_4.2.0/com.ibm.streams.dev.doc/doc/creating-secure-app-configs-dev.html</a> and fetch the values from the application property with spl function getApplicationConfigurationProperty.
+</p>
+
+</div>
+
 <div class="section"><h2 class="title sectiontitle">Parameters</h2>
 
 <ul class="sl simple">
-<li class="sli"><strong class="ph b">url</strong>
+<li class="sli"><strong class="ph b">url</strong>: The url list for the http requests
 </li>
 
-<li class="sli"><strong class="ph b">data</strong>
+<li class="sli"><strong class="ph b">data</strong>: The message data used in method POST
 </li>
 
-<li class="sli"><strong class="ph b">iterations</strong>
+<li class="sli"><strong class="ph b">iterations</strong>: The number of requests send
 </li>
 
-<li class="sli"><strong class="ph b">period</strong>
+<li class="sli"><strong class="ph b">period</strong>: The period of the requests
 </li>
 
 </ul>

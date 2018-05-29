@@ -1,0 +1,890 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="Operator InetSource"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="spldoc_operator"/>
+<link rel="stylesheet" type="text/css" href="../../html/commonltr.css"/>
+<link rel="stylesheet" type="text/css" href="../../html/spldoc.css"/>
+<title>Operator InetSource</title>
+</head>
+<body id="spldoc_operator">
+
+
+<h1 class="title topictitle1">Operator <tt class="ph tt">InetSource</tt></h1>
+
+<div class="body refbody">
+<div class="section">
+<p class="p">
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 2.9.5</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet</a> &gt; InetSource</p>
+
+</div>
+
+<div class="section splprimop">
+  <embed class="image" src="../../image/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet$InetSource.svg" width="872" height="112"/>
+</div>
+
+<div class="section">
+
+<p class="p">The <tt class="ph tt">InetSource</tt> operator periodically retrieves data from network servers and generates a stream from those contents. This operator can also be used to stream the contents of local files. The <tt class="ph tt">InetSource</tt> operator shares some characteristics with the <tt class="ph tt">FileSource</tt> operator from the IBM Streams Processing Language (SPL) standard toolkit, but it provides more functions.  The two operators differ in the following ways:
+</p>
+
+<div class="p">
+<ul class="ul">
+<li class="li"> The <tt class="ph tt">FileSource</tt> operator reads from local files.   In addition to reading local files, the <tt class="ph tt">InetSource</tt> operator supports remote reading of files by using HTTP, HTTPS, and FTP.</li>
+
+<li class="li">
+<p class="p"> By default, the <tt class="ph tt">FileSource</tt> operator reads its target input only once.    By default, the <tt class="ph tt">InetSource</tt> operator periodically checks the target files for updates on a user-controllable schedule.   In addition, you can choose to use the <tt class="ph tt">InetSource</tt> operator to either stream out of the entire target file contents on each read,   or stream out only the additions to the contents of the target file since the previous read.
+</p>
+</li>
+
+<li class="li">
+<p class="p"> The <tt class="ph tt">FileSource</tt> operator supports a single target for reading, while the <tt class="ph tt">InetSource</tt> operator can support multiple targets.   The URI of each target can use any of the supported protocols (HTTP, HTTPS, FTP, FTPS, or FILE) and a mix of these protocols.   An example of multi-target reading is in the <tt class="ph tt">WeatherConditions.spl</tt> file within the Commodity Purchasing Sample Application,   where 24 HTTP-based URLs are simultaneously monitored for changes.
+</p>
+</li>
+
+</ul>
+
+</div>
+
+<p class="p">The data retrieved is implicitly assigned to the first output attribute that does not have explicit output assignments. The data attribute must be of type <tt class="ph tt">rstring</tt>, <tt class="ph tt">list&lt;rstring&gt;</tt>, <tt class="ph tt">blob</tt>, or <tt class="ph tt">xml</tt>:
+</p>
+
+<div class="p">
+<ul class="ul">
+<li class="li"> When the data attribute is of type <tt class="ph tt">rstring</tt> or <tt class="ph tt">list&lt;rstring&gt;</tt>, the retrieved data is assumed to contain text: the operator parses the data into lines and assigns them to the attribute in one or more output tuples, according to the <tt class="ph tt">emitTuplePerXxxx</tt> parameters.</li>
+
+<li class="li">
+<p class="p"> When the data attribute is of type <tt class="ph tt">blob</tt> or <tt class="ph tt">xml</tt>, all of the retrieved data is assigned to the attribute in one output tuple, and the <tt class="ph tt">emitTuplePerXxxx</tt> parameters are ignored. Note that if the attribute is of type <tt class="ph tt">xml</tt> and the retrieved data contains invalid XML, an error is logged and no output is produced.
+</p>
+</li>
+
+</ul>
+
+</div>
+
+<p class="p">Other output attributes may be assigned values explicitly using the operator's output assignment functions. These functions assign the requested and responding URLs, the response code, the data type, and the elapsed time for fetching the data.
+</p>
+
+<p class="p">The output stream of the <tt class="ph tt">InetSource</tt> operator can be fed into a <tt class="ph tt">Functor</tt> operator with custom logic to parse the data into any number of SPL types. For more information and examples, see the <tt class="ph tt">WeatherConditions.spl</tt> and <tt class="ph tt">GetHeadlines.spl</tt> sample applications.
+</p>
+
+<p class="p">By default, there is no time limit for fetching data from remote servers; servers that accept a request but do not return a response can block the operator indefinitely. Optionally, a time limit for fetching data can be specified. If the time limit is exceeded, the fetch is canceled, an error is logged, and no output is produced.
+</p>
+
+<p class="p"><strong class="ph b">Behavior in a consistent region</strong>
+</p>
+
+<p class="p">This operator cannot be used in a consistent region.
+</p>
+
+<p class="p"><strong class="ph b">Note:</strong> The <tt class="ph tt">InetSource</tt> operator uses the open source libcurl library to enable data transfer for various protocols, including HTTP, HTTPS, FTP, and FTPS. Proxy support can be enabled by configuring the <strong class="ph b">http_proxy</strong>, <strong class="ph b">HTTPS_PROXY</strong>, <strong class="ph b">FTP_PROXY</strong>, and <strong class="ph b">ALL_PROXY</strong> environment variables as described on the curl man page at the following link: <a class="xref" href="http://curl.haxx.se/docs/manpage.html">http://curl.haxx.se/docs/manpage.html</a>.
+</p>
+
+  <dl class="dl"><dt class="dt dlterm"><a class="xref" href="op$com.ibm.streamsx.inet$InetSource$1.html">Examples</a>
+</dt>
+<dd class="dd">
+</dd>
+</dl>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Summary</h2>
+
+<dl class="dl" compact="compact">
+ 
+  <dt class="dt dlterm">Ports</dt>
+
+  <dd class="dd">This operator has 0 input ports and 1 output port.</dd>
+
+ 
+ 
+  <dt class="dt dlterm">Windowing</dt>
+
+  <dd class="dd">This operator does not accept any windowing configurations.</dd>
+
+ 
+ 
+  <dt class="dt dlterm">Parameters</dt>
+
+  <dd class="dd">This operator supports 15 parameters.
+<p class="p"> Required: 
+<a class="xref" href="#spldoc_operator__parameter__URIList">URIList</a>
+
+</p>
+
+<p class="p"> Optional: 
+<a class="xref" href="#spldoc_operator__parameter__doNotStreamInitialFetch">doNotStreamInitialFetch</a>, <a class="xref" href="#spldoc_operator__parameter__emitTuplePerFetch">emitTuplePerFetch</a>, <a class="xref" href="#spldoc_operator__parameter__emitTuplePerRecordCount">emitTuplePerRecordCount</a>, <a class="xref" href="#spldoc_operator__parameter__emitTuplePerURI">emitTuplePerURI</a>, <a class="xref" href="#spldoc_operator__parameter__fetchInterval">fetchInterval</a>, <a class="xref" href="#spldoc_operator__parameter__ignoreURIcheckException">ignoreURIcheckException</a>, <a class="xref" href="#spldoc_operator__parameter__incrementalFetch">incrementalFetch</a>, <a class="xref" href="#spldoc_operator__parameter__initDelay">initDelay</a>, <a class="xref" href="#spldoc_operator__parameter__inputLinesPerRecord">inputLinesPerRecord</a>, <a class="xref" href="#spldoc_operator__parameter__intraRecordPadValue">intraRecordPadValue</a>, <a class="xref" href="#spldoc_operator__parameter__iterations">iterations</a>, <a class="xref" href="#spldoc_operator__parameter__punctPerFetch">punctPerFetch</a>, <a class="xref" href="#spldoc_operator__parameter__timeout">timeout</a>, <a class="xref" href="#spldoc_operator__parameter__unconditionalFetch">unconditionalFetch</a>
+
+</p>
+</dd>
+
+ 
+ 
+  <dt class="dt dlterm">Metrics</dt>
+
+  <dd class="dd">This operator does not report any metrics.</dd>
+
+ 
+</dl>
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Properties</h2>
+
+<dl class="dl" compact="compact">
+ 
+  <dt class="dt dlterm">Implementation</dt>
+
+  <dd class="dd">C++</dd>
+
+ 
+ 
+  <dt class="dt dlterm"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__providessinglethreadedexecutioncontext">Threading</a></dt>
+
+  <dd class="dd"><tt class="ph tt">Always</tt> - Operator always provides a single threaded execution context.</dd>
+
+ 
+</dl>
+
+</div>
+
+<div class="section">
+<p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__output_port_set">Output Ports</a></strong></p>
+<dl class="dl">
+  
+     <dt class="dt dlterm">Assignments</dt>
+
+     <dd class="dd">This operator allows any SPL expression of the correct type to be assigned to output attributes.</dd>
+
+  
+</dl>
+
+<dl class="dl">
+      <dt class="dt dlterm"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__customoutputfunctions">Output Functions</a></dt>
+
+    <dd class="dd">
+      <dl class="dl">
+      
+        <dt class="dt dlterm">InetSourceOutputAssignments</dt>
+
+        <dd class="dd">
+          <dl class="dl">
+            <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+            
+              <dt class="dt dlterm">
+                <tt class="ph tt">   rstring TargetURL()</tt>              </dt>
+
+            <dd class="dd">
+
+<p class="p">              This function assigns the URL that was requested when fetching the data assigned to the data attribute. This is one of the URLs specified in the 'URLList' parameter.
+</p>
+              <p class="p"/>
+
+            </dd>
+
+                        
+              <dt class="dt dlterm">
+                <tt class="ph tt">   rstring EffectiveURL()</tt>              </dt>
+
+            <dd class="dd">
+
+<p class="p">              This function assigns the URL that responded when fetching the data assigned to the data attribute. This may be one of the URLs specified in the 'URLList' parameter, or it may be different if the requested URL was redirected elsewhere.
+</p>
+              <p class="p"/>
+
+            </dd>
+
+                        
+              <dt class="dt dlterm">
+                <tt class="ph tt">   rstring ContentType()</tt>              </dt>
+
+            <dd class="dd">
+
+<p class="p">              This function assigns the value of the 'ContentType' header from an HTTP response, if the data fetched was an HTTP response and a 'ContentType' header was inclued, or else an empty string if not.
+</p>
+              <p class="p"/>
+
+            </dd>
+
+                        
+              <dt class="dt dlterm">
+                <tt class="ph tt">   int32 ResponseCode()</tt>              </dt>
+
+            <dd class="dd">
+
+<p class="p">              This function assigns the value of the response code.
+</p>
+              <p class="p"/>
+
+            </dd>
+
+                        
+              <dt class="dt dlterm">
+                <tt class="ph tt">   float64 FetchTime()</tt>              </dt>
+
+            <dd class="dd">
+
+<p class="p">              This function assigns the elapsed time the fetch took to complete, in seconds
+</p>
+              <p class="p"/>
+
+            </dd>
+
+                        
+              <dt class="dt dlterm">
+                <tt class="ph tt">   &lt;any T&gt; T copy()</tt>              </dt>
+
+            <dd class="dd">
+              <p class="p"/>
+
+            </dd>
+
+                      </dl>
+        </dd>
+
+      
+      </dl>
+
+    </dd>
+
+  </dl>
+
+ <dl class="dl">
+  
+   <dt class="dt dlterm">Ports (0)</dt>
+
+   <dd class="dd">
+
+    <p class="p"/>
+
+    <dl class="dl">
+     
+      <dt class="dt dlterm">Properties</dt>
+
+      <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__output_port_set__optional">Optional</a>: false
+     </li>
+
+   </ul>
+
+   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__output_port_set__tuplemutationallowed">TupleMutationAllowed</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__output_port_set__windowpunctuationoutputmode">WindowPunctuationOutputMode</a>: Generating
+     </li>
+
+   </ul>
+
+</dd>
+     
+    </dl>
+
+    <p class="p"/>
+
+   </dd>
+
+  
+</dl>
+
+</div>
+
+<div class="section">
+<p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters">Parameters</a></strong></p>
+This operator supports 15 parameters.
+<p class="p"> Required: 
+<a class="xref" href="#spldoc_operator__parameter__URIList">URIList</a>
+
+</p>
+
+<p class="p"> Optional: 
+<a class="xref" href="#spldoc_operator__parameter__doNotStreamInitialFetch">doNotStreamInitialFetch</a>, <a class="xref" href="#spldoc_operator__parameter__emitTuplePerFetch">emitTuplePerFetch</a>, <a class="xref" href="#spldoc_operator__parameter__emitTuplePerRecordCount">emitTuplePerRecordCount</a>, <a class="xref" href="#spldoc_operator__parameter__emitTuplePerURI">emitTuplePerURI</a>, <a class="xref" href="#spldoc_operator__parameter__fetchInterval">fetchInterval</a>, <a class="xref" href="#spldoc_operator__parameter__ignoreURIcheckException">ignoreURIcheckException</a>, <a class="xref" href="#spldoc_operator__parameter__incrementalFetch">incrementalFetch</a>, <a class="xref" href="#spldoc_operator__parameter__initDelay">initDelay</a>, <a class="xref" href="#spldoc_operator__parameter__inputLinesPerRecord">inputLinesPerRecord</a>, <a class="xref" href="#spldoc_operator__parameter__intraRecordPadValue">intraRecordPadValue</a>, <a class="xref" href="#spldoc_operator__parameter__iterations">iterations</a>, <a class="xref" href="#spldoc_operator__parameter__punctPerFetch">punctPerFetch</a>, <a class="xref" href="#spldoc_operator__parameter__timeout">timeout</a>, <a class="xref" href="#spldoc_operator__parameter__unconditionalFetch">unconditionalFetch</a>
+
+</p>
+<dl class="dl">
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__URIList"><!-- --></a><tt class="ph tt">URIList</tt></dt>
+
+     <dd class="dd">
+<p class="p">          This parameter specifies a comma-separated list of quoted strings that contain Uniform Resource Identifiers (URIs) from which you want to retrieve data. A fetch request is sent to each URI in the list and processing occurs on any data that is returned. Each URI in the list must include the protocol to be used when making a retrieval request to that URI; supported protocols include HTTP, HTTPS, FTP, FTPS, and file. For the file protocol, there is support for accessing the input file by using either absolute paths or relative paths. Absolute paths must be preceded by a slash (<tt class="ph tt">/</tt>), denoting the top-most directory where the file is located. Relative paths are rooted at the data directory which is created automatically by the SPL compiler under the current application directory. Thus, an absolute path access will result in four slashes (<tt class="ph tt">////</tt>) after the file protocol, that is, <tt class="ph tt">file:////</tt>, while a relative path access will result in three slashes (<tt class="ph tt">///</tt>) after the file protocol, that is,<tt class="ph tt">file:///</tt>. If there is more than one URI in the list, each URI can use any of the supported protocols. This parameter is required and must have at least one quoted URI rstring in its value list.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: list&lt;rstring&gt;
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: false
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__doNotStreamInitialFetch"><!-- --></a><tt class="ph tt">doNotStreamInitialFetch</tt></dt>
+
+     <dd class="dd">
+<p class="p">          By default, the InetSource operator will start streaming out the contents of its target URI(s) on the very first fetch interval. If you want to suppress the streaming out of the first fetch results, use the <tt class="ph tt">doNotStreamInitialFetch</tt> parameter. This modifier is especially useful when monitoring the state of files that might have leftover data in them from a previous application run, where you do not want to reprocess that data again. Note that this modifier is not very useful unless you also specify the <tt class="ph tt">incrementalFetch</tt> parameter with it. The effect of specifying both modifiers is to instruct the InetSource operator to load its cache on the initial fetch, then start streaming out additions to the target URIs on subsequent fetches. This parameter is optional; if present, it must have exactly one value that is a boolean constant.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Constant
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__emitTuplePerFetch"><!-- --></a><tt class="ph tt">emitTuplePerFetch</tt></dt>
+
+     <dd class="dd">
+<p class="p">          This parameter controls how frequently a tuple is emitted from the InetSource operator. It is mutually exclusive with the <tt class="ph tt">emitTuplePerURI</tt> and <tt class="ph tt">emitTuplePerRecordCount</tt> parameters. When this parameter is specified, the output schema must be of type list&lt;rstring&gt; because the data from each fetch is contained in an element of the attribute. This parameter is optional; if present, it must have exactly one value that is a boolean constant.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Constant
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__emitTuplePerRecordCount"><!-- --></a><tt class="ph tt">emitTuplePerRecordCount</tt></dt>
+
+     <dd class="dd">
+<p class="p">          This parameter controls how frequently a tuple is emitted from the InetSource operator. It is mutually exclusive with the <tt class="ph tt">emitTuplePerFetch</tt> and <tt class="ph tt">emitTuplePerURI</tt> paramters. When this parameter is specified, a tuple is emitted each time the specified number of records are received. The output schema must be of type list&lt;rstring&gt; because string data that exceeds the SPL string length limit is broken up into multiple elements in the output list. By default, a line is a record. If you change the <tt class="ph tt">inputLinesPerRecord</tt> parameter, this changes. The emit parameters control how those records are added to the output tuple. If <tt class="ph tt">inputLinesPerRecord</tt> is higher than the number of lines read, then you only get as many lines as were read. With multiple URIs, records never span content from URIs, however the emit parameters control how the records are put into tuples and when tuples are submitted (as described in each emit parameter section). This parameter is optional; if present, it must have exactly one value of type uint32 that is an expression which can be evaluated at compile time.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: uint32
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__emitTuplePerURI"><!-- --></a><tt class="ph tt">emitTuplePerURI</tt></dt>
+
+     <dd class="dd">
+<p class="p">          This parameter controls how frequently a tuple is emitted from the InetSource operator. It is mutually exclusive with the <tt class="ph tt">emitTuplePerFetch</tt> and <tt class="ph tt">emitTuplePerRecordCount</tt> parameters. When this parameter is specified, the output schema must be of type list&lt;rstring&gt; because the data from each URI is contained in an element of the attribute. This parameter is optional; if present, it must have exactly one value that is a boolean constant.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Constant
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__fetchInterval"><!-- --></a><tt class="ph tt">fetchInterval</tt></dt>
+
+     <dd class="dd">
+<p class="p">          One of the important differences between the InetSource and the SPL Standard Toolkit source operators is the ability of the InetSource operator to periodically refetch the data from the target URI or list of URIs. By default, the InetSource operator reexamines each URI in the target every ten minutes (600 seconds), but this interval can be customized by using the <tt class="ph tt">fetchInterval</tt> parameter. Note that the interval begins immediately after the final piece of data from a given fetch is processed, so the next fetch will begin at (<em class="ph i">processing_time</em> + <tt class="ph tt">fetchInterval</tt>) after the start of the current fetch. This parameter is optional; if present, it must have exactly one value of type uint32 that is an expression which can be evaluated at compile time.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: float64
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__ignoreURIcheckException"><!-- --></a><tt class="ph tt">ignoreURIcheckException</tt></dt>
+
+     <dd class="dd">
+<p class="p">          This optional parameter has the default value false. In the default case the supplied URI value is checked against RFC 2396. If the validation fails, an dynamically supplied URI is ignored and a statically supplied URI stops execution. If this parameter is set to true the result of the URI check is ignored and the URI is passed unchecked. In this case no canonical path extension and no adaptation to the data directory is available for file schema.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__incrementalFetch"><!-- --></a><tt class="ph tt">incrementalFetch</tt></dt>
+
+     <dd class="dd">
+<p class="p">          By default, the InetSource operator streams out the entire contents of each URI (remote server, or local file) as it exists at the time of each fetch, unless the URI's content timestamp is unchanged from the previous fetch (in which case the InetSource operator does not stream out any content). If you want the InetSource operator to stream out the URI contents starting at the first line that is different since the previous fetch, use the <tt class="ph tt">incrementalFetch</tt> parameter. This parameter is optional; if present, it must have exactly one value that is a boolean constant.
+</p>
+
+<p class="p">          <strong class="ph b">Note:</strong> The InetSource operator uses the open-source <tt class="ph tt">libcurl</tt> package for performing its content retrievals. The precise mechanism that <tt class="ph tt">libcurl</tt> uses to determine whether the timestamp on the target content has changed, is not documented in the <tt class="ph tt">libcurl</tt> API specification. For reference, see <a class="xref" href="http://curl.haxx.se/libcurl/c/curl_easy_setopt.html#CURLOPTTIMECONDITION">http://curl.haxx.se/libcurl/c/curl_easy_setopt.html#CURLOPTTIMECONDITION</a>.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__initDelay"><!-- --></a><tt class="ph tt">initDelay</tt></dt>
+
+     <dd class="dd">
+<p class="p">This parameter specifies an initial processing delay, in seconds, before the InetSource operator begins emitting tuples. This parameter is optional; if present, it must have exactly one value of type float64 that is an expression which can be evaluated at operator startup time.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: float64
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__inputLinesPerRecord"><!-- --></a><tt class="ph tt">inputLinesPerRecord</tt></dt>
+
+     <dd class="dd">
+<p class="p">          The InetSource operator starts its processing by formatting the data that is retrieved from the source URI into individual records. Each record is then copied into the attribute of the output stream tuple (if the attribute type is an <tt class="ph tt">rstring</tt>) or appended as a member to the end of the attribute (if the attribute type is a <tt class="ph tt">list&lt;rstring&gt;</tt> data type). By default, each line in the source URI is considered to be a single record and is carried into the tuple attribute directly. However, it is also fairly common for the data in the source URI to be laid out as multiple lines per logical record. For example, each logical record might be formatted within the raw input data as two non-blank lines followed by a blank line, for a total record length of three consecutive lines of text within the raw input data. For such cases, the <em class="ph i">inputLinesPerRecord</em> modifier is used. If this modifier is specified, the operator reads n lines of the input file and concatenates them into a single logical record, placing a blank character as a pad value between them. Note that the pad character can be changed to a different value by using the <tt class="ph tt">intraRecordPadValue</tt> parameter, which is specified by using a double-quoted string of zero or more characters. Both parameters are optional; if present, <tt class="ph tt">inputLinesPerRecord</tt> must have exactly one value of type uint32 that is an expression which can be evaluated at compile time; and intraRecordPadValue must have exactly one value of type rstring that is an expression which can be evaluated at compile time.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: uint32
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__intraRecordPadValue"><!-- --></a><tt class="ph tt">intraRecordPadValue</tt></dt>
+
+     <dd class="dd">
+<p class="p">          The InetSource operator starts its processing by formatting the data that is retrieved from the source URI into individual records. Each record is then copied into the attribute of the output stream tuple (if the attribute type is an <tt class="ph tt">rstring</tt>) or appended as a member to the end of the attribute (if the attribute type is a <tt class="ph tt">list&lt;rstring&gt;</tt> data type). By default, each line in the source URI is considered to be a single record and is carried into the tuple attribute directly. However, it is also fairly common for the data in the source URI to be laid out as multiple lines per logical record. For example, each logical record might be formatted within the raw input data as two non-blank lines followed by a blank line, for a total record length of three consecutive lines of text within the raw input data. For such cases, the <em class="ph i">inputLinesPerRecord</em> modifier is used. If this modifier is specified, the operator reads n lines of the input file and concatenates them into a single logical record, placing a blank character as a pad value between them. Note that the pad character can be changed to a different value by using the <tt class="ph tt">intraRecordPadValue</tt> parameter, which is specified by using a double-quoted string of zero or more characters. Both parameters are optional; if present, <tt class="ph tt">inputLinesPerRecord</tt> must have exactly one value of type uint32 that is an expression which can be evaluated at compile time; and intraRecordPadValue must have exactly one value of type rstring that is an expression which can be evaluated at compile time.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__iterations"><!-- --></a><tt class="ph tt">iterations</tt></dt>
+
+     <dd class="dd">
+<p class="p">          This parameter specifies how many times the operator will fetch data from the URLs specified by the <tt class="ph tt">URLList</tt> parameter. If the <tt class="ph tt">iterations</tt> parameter is not specified, or if a value of zero is specified, the operator will iterate endlessly, until the PE terminates. In any case, the operator pauses after each fetch, as specified by the <tt class="ph tt">fetchInterval</tt> parameter, except the last one.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: uint32
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__punctPerFetch"><!-- --></a><tt class="ph tt">punctPerFetch</tt></dt>
+
+     <dd class="dd">
+<p class="p">          This parameter determines whether window punctuation is emitted after each fetch. A fetch consists of retrieving data from all of the URIs in the list. One window marker is submitted after each fetch, including a fetch that returns no data (or no updated data, depending on the parameters). So with 3 URIs and a period of 10 minutes, you would get a window marker every 10 minutes or so, depending on how long it takes to fetch, even if no output tuple is submitted as a result of that 10-minute fetch cycle. This parameter is optional; if present, it must have exactly one value that is a boolean constant.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__timeout"><!-- --></a><tt class="ph tt">timeout</tt></dt>
+
+     <dd class="dd">
+<p class="p">          This parameter specifies a timeout, in seconds, for fetching data from the URLs specified by the 'URLList' parameter. If not specified, no timeout is set, and remote servers that accept requests but do not respond quickly will block the operator.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: int32
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__unconditionalFetch"><!-- --></a><tt class="ph tt">unconditionalFetch</tt></dt>
+
+     <dd class="dd">
+<p class="p">          As mentioned in the previous paragraph, the default behavior of the InetSource operator is to query the target device for the last-modified timestamp on each URI in the <tt class="ph tt">URIList</tt> parameter. The last-modified timestamp is used to determine whether to retrieve and stream out the data for that URI during the current retrieval cycle. If you want the InetSource operator to disregard this timestamp and stream out the entire contents on every retrieval, use the unconditionalFetch modifier. This parameter is optional; if present, it must have exactly one value that is a boolean constant.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+</dl>
+
+</div>
+
+<div class="section">
+<p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__codetemplate">Code Templates</a></strong></p>
+  <dl class="dl">
+    
+     <dt class="dt dlterm">InetSource</dt>
+
+     <dd class="dd">
+       <pre class="pre codeblock">
+stream&lt;${streamType}&gt; ${streamName} = InetSource() {
+            param
+                URIList : ["${urilistitem}"];
+        }
+      </pre>
+
+     <p class="p"/>
+
+     </dd>
+
+    
+  </dl>
+
+</div>
+
+<div class="section">
+<p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__dependencies">Libraries</a></strong></p>
+<dl class="dl">
+ 
+  <dt class="dt dlterm"><tt class="ph tt">curl-library</tt>  </dt>
+
+<dd class="dd"/>
+  <dd class="dd"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__dependencies__managedlibrary__lib">Library Name</a>: <tt class="ph tt">curl</tt></dd>
+
+ 
+ 
+  <dt class="dt dlterm"><tt class="ph tt">messages</tt>  </dt>
+
+<dd class="dd"/>
+  <dd class="dd"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__dependencies__managedlibrary__includepath">Include Path</a>: <tt class="ph tt">../../impl/include</tt></dd>
+
+ 
+</dl>
+
+</div>
+
+</div>
+
+
+</body>
+</html>

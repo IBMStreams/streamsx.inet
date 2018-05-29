@@ -63,7 +63,7 @@
 
 <div class="section">
 
-<p class="p">This sample demonstrates the use of the HTTPRequest operator. This sample executes a number of http requests and prints the result to the standard output. feed the content of files from a ftp-server into a IBM Streams application. It can be used for a quick test of an ftp server connection. If you want to store the user credentials securely, you should consider to use a Streams Application Configuration Object. see  <a class="xref" href="https://www.ibm.com/support/knowledgecenter/en/SSCRJU_4.2.0/com.ibm.streams.dev.doc/doc/creating-secure-app-configs-dev.html">https://www.ibm.com/support/knowledgecenter/en/SSCRJU_4.2.0/com.ibm.streams.dev.doc/doc/creating-secure-app-configs-dev.html</a> and fetch the values from the application property with spl function getApplicationConfigurationProperty.
+<p class="p">This sample demonstrates the use of the HTTPRequest operator. This sample executes a number of http requests and prints the result to the standard output. If you want to store the user credentials securely, you should consider to use a Streams Application Configuration Object. see  <a class="xref" href="https://www.ibm.com/support/knowledgecenter/en/SSCRJU_4.2.0/com.ibm.streams.dev.doc/doc/creating-secure-app-configs-dev.html">https://www.ibm.com/support/knowledgecenter/en/SSCRJU_4.2.0/com.ibm.streams.dev.doc/doc/creating-secure-app-configs-dev.html</a> and fetch the values from the application property with spl function getApplicationConfigurationProperty.
 </p>
 
 </div>
@@ -77,10 +77,13 @@
 <li class="sli"><strong class="ph b">method</strong>: The method list for the http request
 </li>
 
-<li class="sli"><strong class="ph b">data</strong>: The message data used in methods POST and PUT
+<li class="sli"><strong class="ph b">data</strong>: The message data used in method PUT
 </li>
 
-<li class="sli"><strong class="ph b">contt</strong>: The message header Content-Type for methods POST ant PUT
+<li class="sli"><strong class="ph b">mess</strong>: Attribute to be used in method POST
+</li>
+
+<li class="sli"><strong class="ph b">contt</strong>: The Content-Type for methods POST ant PUT
 </li>
 
 <li class="sli"><strong class="ph b">iterations</strong>: The number of requests send
