@@ -55,7 +55,7 @@ public class HTTPRequestOperAPI extends AbstractOperator {
             + "this attribute is copied as URL argument string and overwrites all other arguments. (all methods)\\n"
             + "* In method GET: If parameter `requestAttributesAsUrlArguments` is true, all Request Attribute names and "
             + "values are converted to URL query parameters.\\n"
-            + "The contents of the request is dependent on the method type.\\n"
+            + "The content of the request is dependent on the method type.\\n"
             + "# GET\\n"
             + "An HTTP GET request is made. If parameter `requestAttributesAsUrlArguments` is true, all request attributes "
             + "are converted to URL query parameters. If parameter `requestUrlArgumentsAttribute` is specified and this attribute is not "
@@ -64,7 +64,7 @@ public class HTTPRequestOperAPI extends AbstractOperator {
             + "An HTTP POST request is made, any request attributes are set as the body of the request message if parameter "
             + "`requestBodyAttribute` is not present or the value of the attribute is empty. The encoding of the request body takes "
             + "the content type into account. If content type is `application/json`, a json body is generated from request attributes. "
-            + "If content type is `application/x-www-form-urlencoded`, a url encoded body is generated from request attributes. "
+            + "If content type is `application/x-www-form-urlencoded`, a url-encoded body is generated from request attributes. "
             + "For all other content types, the content of all request attributes is concatenated into the message body. "
             + "If `requestBodyAttribute` attribute is not empty, the body of the request is copied from this attribute instead.\\n"
             + "# PUT\\n"
@@ -174,7 +174,7 @@ public class HTTPRequestOperAPI extends AbstractOperator {
         this.url = url;
     }
     @Parameter(optional = true, description = "Fixed URL to send HTTP requests to. Any tuple received"
-            + " on the input port results in a request to the URL provided (excep for method NONE)."
+            + " on the input port results in a request to the URL provided (except for method NONE)."
             + " One and only one of `url` and `fixedUrl` must be specified.")
     public void setFixedUrl(String fixedUrl) {
         this.fixedUrl = fixedUrl;
@@ -221,14 +221,14 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     }
     @Parameter(optional=true, description="If this parameter is true, the request attributes are appended as arguments to the url in method GET. "
             + "If this parameter is false, the request attributes are not appended to the url. Default is false. "
-            + "These arguments are overwritten from a non empty value in parameter `requestUrlArgumentsAttribute`.")
+            + "These arguments are overwritten from a non-empty value in parameter `requestUrlArgumentsAttribute`.")
     public void setRequestAttributesAsUrlArguments(boolean requestAttributesAsUrlArguments) {
         this.requestAttributesAsUrlArguments = requestAttributesAsUrlArguments;
     }
     @Parameter(optional=true, description="Request url arguments attribute. If this parameter is set and the value of "
             + "this attribute  is not empty, the content of this string is appended as arguments to the request url. "
             + "This overwrites the arguments which are generated from the request attributes. "
-            + "The value is expected to be unescaped and may contain non ASCII characters")
+            + "The value is expected to be unescaped and may contain non-ASCII characters")
     public void setRequestUrlArgumentsAttribute(TupleAttribute<Tuple, String> requestUrlArgumentsAttribute) {
         this.requestUrlArgumentsAttribute = requestUrlArgumentsAttribute;
     }
@@ -277,7 +277,7 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     }
     @Parameter(optional=true, description="Name of the attribute to populate the response status code as integer with. "
         + "The type of this attribute must be int32. This is the numerical value from the http response or -1 if no "
-        + "resonse was received."
+        + "response was received. "
         + "This parameter is not allowed if the operator has no output port. ")
         //+ "This parameter is mandatory if the number of attributes of the output stream is greater than one.")
     public void setOutputStatusCode(String outputStatusCode) {
@@ -309,7 +309,7 @@ public class HTTPRequestOperAPI extends AbstractOperator {
             this.outputCharSet = outputCharSet;
         }
     @Parameter(optional=true, description="Name of the attribute to populate the error diagnostics with. This string "
-        + "contains the diagnostics information when the program execution of the http operation throws an exception."
+        + "contains the diagnostics information when the program execution of the http operation throws an exception. "
         + "This string is empty when a http response was received. The status line of the http response is issued in "
         + "the `dataStatus` attribute.")
     public void setErrorDiagnostics(String errorDiagnostics) {
@@ -369,7 +369,7 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     public void setProxy(String proxy) {
         this.proxy = proxy;
     }
-    @Parameter(optional=true, description="The proxyport to be used. Default value is 8080. This parameter is ignored if no `proxy` parameter is specified.")
+    @Parameter(optional=true, description="The proxy-port to be used. Default value is 8080. This parameter is ignored if no `proxy` parameter is specified.")
     public void setProxyPort(int proxyPort) {
         this.proxyPort = proxyPort;
     }
