@@ -8,7 +8,6 @@ package com.ibm.streamsx.inet.http;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -118,7 +117,7 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     private String                        fixedContentType = null;
     private TupleAttribute<Tuple, String> contentType;
     private ContentType                   contentTypeToUse = null;
-    private List<String>                  extraHeaders = Collections.emptyList();
+    private List<String>                  extraHeaders = null;
     
     //request configuration
     private TupleAttribute<Tuple, String> requestBodyAttribute = null;  //request body
@@ -157,7 +156,6 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     //internal operator state
     private boolean shutdownRequested = false;
     private boolean hasDataPort = false;
-    //private boolean hasOutputAttributeParameter = false;
 
     // Function to return the url, method, content type from an input tuple or fixed
     private Function<Tuple, HTTPMethod>  methodGetter;
@@ -202,8 +200,8 @@ public class HTTPRequestOperAPI extends AbstractOperator {
         this.contentType = contentType;
     }
     @Parameter(optional = true, description = "Extra headers to send with request, format is `Header-Name: value`.")
-    public void setExtraHeaders(String[] extraHeaders) {
-        //This is never called get values in initialize method
+    public void setExtraHeaders(List<String> extraHeaders) {
+        this.extraHeaders = extraHeaders;
     }
     
     /***************************************
@@ -217,7 +215,7 @@ public class HTTPRequestOperAPI extends AbstractOperator {
             + "or request attributes, are used in the request body. "
             + "One empty element defines an empty list which means no attributes are considered request attributes. ")
     public void setRequestAttributes(String[] requestAttributes) {
-        //This is never called !? Is set in initialize
+        // Is set in initialize with special treatment
     }
     @Parameter(optional=true, description="If this parameter is true, the request attributes are appended as arguments to the url in method GET. "
             + "If this parameter is false, the request attributes are not appended to the url. Default is false. "
@@ -246,8 +244,6 @@ public class HTTPRequestOperAPI extends AbstractOperator {
         + "If this parameter is set, the operators returns one tuple for each line in the response body but at least one tuple if the body is empty. "
         + "Only one of `outputDataLine` and `outputBody` must be specified. "
         + "This parameter is not allowed if the operator has no output port.")
-        //+ "If the number of attributes of the output stream is greater than one, at least one of "
-        //+ "`dataAttributeName`, `bodyAttributeName`, `statusAttributeName`, `statusCodeAttributeName`, `headerAttributeName, contentEncodingAttributeName or contentTypeAttributeName must be set.")
     public void setOutputDataLine(String outputDataLine) {
         this.outputDataLine = outputDataLine;
     }
@@ -257,7 +253,6 @@ public class HTTPRequestOperAPI extends AbstractOperator {
         + "This parameter is not allowed if the operator has no output port."
         + "If this parameter is set and parameter `outputBodyRaw` is set, all responses with entitiy mime type not "
         + "equal to `application/octet-stream` or `default/binary` generate output here.")
-        //+ "This parameter is mandatory if the number of attributes of the output stream is greater than one.")
     public void setOutputBody(String outputBody) {
         this.outputBody = outputBody;
     }
@@ -271,7 +266,6 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     }
     @Parameter(optional=true, description="Name of the attribute to populate the response status line with. "
         + "This parameter is not allowed if the operator has no output port. ")
-        //+ "This parameter is mandatory if the number of attributes of the output stream is greater than one.")
     public void setOutputStatus(String outputStatus) {
         this.outputStatus = outputStatus;
     }
@@ -279,32 +273,27 @@ public class HTTPRequestOperAPI extends AbstractOperator {
         + "The type of this attribute must be int32. This is the numerical value from the http response or -1 if no "
         + "response was received. "
         + "This parameter is not allowed if the operator has no output port. ")
-        //+ "This parameter is mandatory if the number of attributes of the output stream is greater than one.")
     public void setOutputStatusCode(String outputStatusCode) {
         this.outputStatusCode = outputStatusCode;
     }
     @Parameter(optional=true, description="Name of the attribute to populate the response header information with. "
         + "The type of this attribute must be string list. "
         + "This parameter is not allowed if the operator has no output port. ")
-        //+ "This parameter is mandatory if the number of attributes of the output stream is greater than one.")
     public void setOutputHeader(String outputHeader) {
         this.outputHeader = outputHeader;
     }
     @Parameter(optional=true, description="Name of the attribute to populate the response content encoding header with. "
         + "This parameter is not allowed if the operator has no output port. ")
-        //+ "This parameter is mandatory if the number of attributes of the output stream is greater than one.")
     public void setOutputContentEncoding(String outputContentEncoding) {
         this.outputContentEncoding = outputContentEncoding;
     }
     @Parameter(optional=true, description="Name of the attribute to populate the response entity mime type with. "
         + "This parameter is not allowed if the operator has no output port. ")
-        //+ "This parameter is mandatory if the number of attributes of the output stream is greater than one.")
     public void setOutputContentType(String outputContentType) {
         this.outputContentType = outputContentType;
     }
     @Parameter(optional=true, description="Name of the attribute to populate the response entity charset with. "
             + "This parameter is not allowed if the operator has no output port. ")
-            //+ "This parameter is mandatory if the number of attributes of the output stream is greater than one.")
         public void setOutputCharSet(String outputCharSet) {
             this.outputCharSet = outputCharSet;
         }
@@ -347,8 +336,8 @@ public class HTTPRequestOperAPI extends AbstractOperator {
         this.authenticationFile = val;
     }
     @Parameter(optional=true, description="Properties to override those in the authentication file.")
-    public void setAuthenticationProperties(String[] authenticationProperties) {
-        //This is never called !? Is set in initialize
+    public void setAuthenticationProperties(List<String> authenticationProperties) {
+        this.authenticationProperties = authenticationProperties;
     }
     @Parameter(optional=true, description="Accept all SSL certificates, even those that are self-signed. "
         + "If this parameter is set, parameter `sslTrustStoreFile` is not allowed. "
@@ -431,7 +420,6 @@ public class HTTPRequestOperAPI extends AbstractOperator {
         occ.checkExcludedParameters("outputDataLine", "outputBody");
         occ.checkExcludedParameters("outputDataLine", "outputBodyRaw");
         occ.checkExcludedParameters("redirectStrategy", "disableRedirectHandling");
-        //occ.checkExcludedParameters("requestAttributes", "requestBodyAttribute");
         
         //The pair of these parameters is optional, we either need both to be present or neither of them
         boolean hasFile = parameterNames.contains("sslTrustStoreFile");
@@ -476,13 +464,6 @@ public class HTTPRequestOperAPI extends AbstractOperator {
             contentTypeGetter = t -> contentTypeToUse;
         } else {
             contentTypeGetter = tuple -> ContentType.getByMimeType(contentType.getValue(tuple));
-        }
-        //get values of list type here
-        if (parameterNames.contains("extraHeaders")) {
-            extraHeaders = context.getParameterValues("extraHeaders");
-        }
-        if (parameterNames.contains("authenticationProperties")) {
-            authenticationProperties = context.getParameterValues("authenticationProperties");
         }
 
         //Check whether all required request attributes are in input stream
@@ -716,5 +697,4 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     //internal operator state
     protected boolean getShutdownRequested() { return shutdownRequested; }
     protected boolean hasDataPort() { return hasDataPort; }
-    //protected boolean getHasOutputAttributeParameter() { return hasOutputAttributeParameter; }
 }
