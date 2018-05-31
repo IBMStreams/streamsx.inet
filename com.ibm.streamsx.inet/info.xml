@@ -15,7 +15,7 @@ This toolkit separates its functionality into a number of namespaces:
 * [namespace:com.ibm.streamsx.inet.wsserver|com.ibm.streamsx.inet.wsserver]: Operators that embed a WebSocket server to expose streaming data as WebSocket messages.
 
     </description>
-    <version>2.9.6</version>
+    <version>2.9.7.__dev__</version>
     <requiredProductVersion>4.0.1.0</requiredProductVersion>
   </identity>
   <dependencies/>
