@@ -28,6 +28,7 @@ public composite Main {
 			param
 				fixedUrl: $url;
 				method : method;
+				extraHeaders : "Cache-Control: no-cache";
 				outputBody : "respData";
 				outputStatus : "status";
 				outputStatusCode : "stat";
