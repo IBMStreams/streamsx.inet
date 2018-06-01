@@ -18,8 +18,6 @@ function myCompile {
 
 function myEvaluate {
 	if [[ TTRO_variantCase -ne 0 ]]; then
-		if ! linewisePatternMatch "$TT_evaluationFile" '' "${errorCodes[$TTRO_variantCase]}"; then
-			failureOccurred='true'
-		fi
+		linewisePatternMatchInterceptAndSuccess "$TT_evaluationFile" '' "${errorCodes[$TTRO_variantCase]}"
 	fi
 }
