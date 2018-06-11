@@ -1,5 +1,7 @@
 #--variantCount=12
 
+setCategory 'quick'
+
 function myExplain {
 	case "$TTRO_variantCase" in
 	0) echo "variant $TTRO_variantCase - GET fixed method";;

@@ -1,5 +1,7 @@
 #--variantCount=12
 
+setCategory 'quick'
+
 function explain {
 	case "$TTRO_variantCase" in
 	0)  echo "error: use fixedUrl and url";;

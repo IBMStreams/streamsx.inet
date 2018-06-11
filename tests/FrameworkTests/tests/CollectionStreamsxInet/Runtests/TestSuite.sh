@@ -1,6 +1,5 @@
-#--variantList="distributed standalone"
 
-if [[ $TTRO_variantSuite == standalone ]]; then skip; fi
+setCategory
 
 setVar 'TTPR_timeout' 240
 #Make sure instance and domain is running

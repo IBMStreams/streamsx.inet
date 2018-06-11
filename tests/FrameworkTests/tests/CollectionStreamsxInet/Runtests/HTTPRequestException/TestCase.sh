@@ -1,5 +1,7 @@
 #--variantCount=6
 
+setCategory 'quick'
+
 function myExplain {
 	case "$TTRO_variantCase" in
 	0)  echo "variant $TTRO_variantCase - PUT  method url httpx://httpbin.org/get outputBody";;
