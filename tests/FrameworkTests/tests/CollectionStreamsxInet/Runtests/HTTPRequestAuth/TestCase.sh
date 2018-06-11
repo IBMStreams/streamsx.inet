@@ -20,7 +20,7 @@ STEPS=(
 	'splCompile'
 	'submitJob'
 	'checkJobNo'
-	'waitForFin'
+	'waitForFinAndHealth'
 	'myEval'
 )
 
