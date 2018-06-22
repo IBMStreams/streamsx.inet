@@ -28,7 +28,7 @@ All required libs are now available in the source repository
 	<property name="lib.dir"           location="lib" />      <!-- used for cleanup only -->
 	<property name="nl.dir"            location="impl/nl" />
 	<property name="gensrc.dir"        location="impl/java/src-gen" />
-	<property name="test.run.dir"      location="tests" />
+	<property name="test.run.dir"      location="unittestrun" />
 	<property name="test.build.dir"    location="${test.run.dir}/bin" />
 	<property name="downloads.dir"     location="opt/downloaded" /> <!-- used for cleanup only -->
 	<property name="jarfile"           value="com.ibm.streamsx.inet.jar" />
