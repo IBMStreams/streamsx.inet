@@ -43,8 +43,8 @@
     </exec>
   </target>
 
-  <target name="clean" depends="cleansamples,releaseinfo-clean"
-      description="clean up toolkit code and samples">
+  <target name="clean" depends="spldocclean,samplesclean,releaseinfo-clean"
+      description="clean up toolkit code, samples code and all spldocs">
       <delete includeemptydirs="true">
           <fileset dir="${basedir}" includes="release-*/"/>
       </delete>
@@ -66,31 +66,33 @@
   />
 
   <target name="spldoc_work" depends="samples"> <!-- can not be called independently thus has no description -->
+    <!-- build the toolkit doc -->
     <antcall target="spldoctoolkit">
        <param name="tkdir" value="${toolkit}"/>
        <param name="tktitle" value="IBMStreams ${tkinfo.identity.name} Toolkit"/>
     </antcall>
-    <subant target="spldoctoolkit" genericantfile="${basedir}/build.xml">
-       <dirset dir="samples" includes="*"/>
+    <!-- build the sample doc for each sample-->
+    <subant target="spldocsample" genericantfile="${basedir}/build.xml">
+       <dirset dir="samples" includes="*" excludes="doc"/>
     </subant>
   </target>
 
   <target name="samples" depends="toolkit" description="Build the toolkit index for the samples">
     <subant target="indextoolkit" genericantfile="${basedir}/build.xml">
-       <dirset dir="samples" includes="*"/>
+       <dirset dir="samples" includes="*" excludes="doc"/>
     </subant>
   </target>
-  <target name="cleansamples" description="Clean up samples index and samples code">
+  <target name="samplesclean" description="Clean up samples index and samples code">
     <subant genericantfile="${basedir}/build.xml">
        <target name="cleantoolkit"/>
        <target name="cleansample"/>
-       <dirset dir="samples" includes="*"/>
+       <dirset dir="samples" includes="*" excludes="doc"/>
     </subant>
   </target>
 
   <target name="build-all-samples" depends="toolkit" description="Compile all samples">
     <subant target="buildsample" genericantfile="${basedir}/build.xml">
-       <dirset dir="samples" includes="*"/>
+       <dirset dir="samples" includes="*" excludes="doc"/>
     </subant>
   </target>
 
@@ -127,18 +129,20 @@
      </exec>
   </target>
   <target name="cleantoolkit">
-     <echo message="Tookit to clean: ${basedir}"/>
-     <exec executable="${streams.install}/bin/spl-make-toolkit">
-        <arg value="--clean"/>
-        <arg value="--directory"/>
-        <arg value="${basedir}"/>
-     </exec>
-     <delete dir="${basedir}/output" quiet="true"/>
+    <echo message="Tookit to clean: ${basedir}"/>
+    <exec executable="${streams.install}/bin/spl-make-toolkit">
+      <arg value="--clean"/>
+      <arg value="--directory"/>
+      <arg value="${basedir}"/>
+    </exec>
+    <delete dir="${basedir}/output" quiet="true"/>
+    <delete dir="${basedir}/doc" quiet="true"/>
   </target>
+  <!-- build the toolkit doc -->
   <target name="spldoctoolkit">
      <property name="tkdir" value="${basedir}"/>
      <echo message="Tookit to SPLDOC: ${tkdir}"/>
-     <exec executable="${streams.install}/bin/spl-make-doc">
+     <exec executable="${spl-md}">
         <arg value="--include-composite-operator-diagram"/>
         <arg value="--author"/>
         <arg value="IBMStreams Open Source Community at GitHub - https://github.com/IBMStreams/${ant.project.name}"/>
@@ -149,6 +153,45 @@
         <arg value="--warn-no-comments"/>
      </exec>
   </target>
+  <!-- build the sample doc for each sample -->
+  <target name="spldocsample">
+    <property name="tkdir" value="${basedir}"/>
+    <echo message="Sample to SPLDOC: ${tkdir}"/>
+    <exec executable="${spl-md}">
+      <arg value="--include-composite-operator-diagram"/>
+      <arg value="--author"/>
+      <arg value="IBMStreams Open Source Community at GitHub - https://github.com/IBMStreams/${ant.project.name}"/>
+      <arg value="--doc-title"/>
+      <arg value="${tktitle}"/>
+      <arg value="--directory"/>
+      <arg value="${tkdir}"/>
+      <arg value="--warn-no-comments"/>
+      <arg value="--include-source"/>
+    </exec>
+  </target>
+  <!-- build the common doc for all samples -->
+  <target name="spldoc-all-samples" depends="samples" description="build the doc for all samples">
+    <property name="tkdir" value="${basedir}"/>
+    <echo message="All samples to SPLDOC: ${tkdir}"/>
+    <exec executable="${spl-md}">
+      <arg value="--include-composite-operator-diagram"/>
+      <arg value="--author"/>
+      <arg value="IBMStreams Open Source Community at GitHub - https://github.com/IBMStreams/${ant.project.name}"/>
+      <arg value="--doc-title"/>
+      <arg value="${tktitle}"/>
+      <arg value="-t"/>
+      <arg value="samples"/>
+      <arg value="--warn-no-comments"/>
+      <arg value="--include-source"/>
+      <arg value="--output-directory"/>
+      <arg value="samples/doc/spldoc"/>
+    </exec>
+  </target>
+
+  <target name="spldocclean" description="clean the toolkit doc and the all samples doc">
+    <delete dir="${basedir}/doc" quiet="true"/>
+    <delete dir="${basedir}/samples/doc"/>
+  </target>
 
   <!-- Targets to build releases -->
   <target name="release" description="Make a toolkit release archive - purge workspace and build toolkit from scratch" depends="clean">
@@ -158,7 +201,7 @@
   <target name="release-target" depends="releaseinfo">
     <!-- prepare toolkit code and docs -->
     <antcall target="all" inheritAll="true"/>
-    <antcall target="cleansamples" inheritAll="true"/> <!-- remove toolkit index from samples -->
+    <antcall target="samplesclean" inheritAll="true"/> <!-- remove toolkit index from samples -->
     <!-- get os type string -->
     <property name="osVersion" value="${os.version}"/>
     <condition property="osPlat" value="el7">

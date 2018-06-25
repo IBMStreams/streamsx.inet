@@ -5,9 +5,12 @@ toolkit.xml
 # !foo.pm
 !CodeGenX.pm
 
-/com.ibm.streamsx.inet/doc/
 /com.ibm.streamsx.inet/impl/nl/*.dat
 /com.ibm.streamsx.inet/impl/nl/include
+/com.ibm.streamsx.inet/build.info
+/com.ibm.streamsx.inet/opt/downloaded/
+/release/
+doc/
 
 # generated operator models and icon files for java primitive operators
 /com.ibm.streamsx.inet/com.ibm.streamsx.inet.http/*/*.xml
@@ -26,15 +29,11 @@ toolkit.xml
 /com.ibm.streamsx.inet/com.ibm.streamsx.inet.rest/native.function/javaFunction.xml
 /com.ibm.streamsx.inet/impl/nl/include/InetResource.h
 
-# more generated files
-/com.ibm.streamsx.inet/opt/downloaded/
+# more generated files in samples
 samples/*/output
 samples/*/toolkit.xml
 samples/*/.toolkitList
 samples/*/bin
-/samples/*/doc
-/release/
-/com.ibm.streamsx.inet/build.info
 
 ## java excludes
 *.class
@@ -74,4 +73,6 @@ com.ibm.streamsx.inet/impl/lib/*.jar
 
 # ignore this file created by Mac OS:
 .DS_Store
+# Ignore top level project
 /.project
+
