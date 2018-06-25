@@ -30,7 +30,7 @@ use com.ibm.streamsx.inet.rest::*;
  * To compile this example:
  * 
  *     cd com.ibm.ssb.inet
- *     sc -T -M com.ibm.ssb.inet.rest.examples::SimpleInject
+ *     sc -T -M com.ibm.streamsx.inet.sample.rest::SimpleInject
  *     output/bin/standalone
  * Point browser to [http://127.0.0.1:8080]
  */
