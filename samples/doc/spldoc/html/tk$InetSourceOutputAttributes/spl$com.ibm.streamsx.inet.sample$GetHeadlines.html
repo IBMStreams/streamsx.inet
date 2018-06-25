@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="SPL File GetHeadlines.spl"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="spldoc_compilationunit"/>
+<link rel="stylesheet" type="text/css" href="../../html/commonltr.css"/>
+<link rel="stylesheet" type="text/css" href="../../html/spldoc.css"/>
+<title>SPL File GetHeadlines.spl</title>
+</head>
+<body id="spldoc_compilationunit">
+
+
+<h1 class="title topictitle1">SPL File <tt class="ph tt">GetHeadlines.spl</tt></h1>
+
+<div class="body refbody">
+<div class="section">
+<p class="p">
+<a class="xref" href="../toolkits/toolkits.html">Toolkits</a> &gt; <a class="xref" href="tk$InetSourceOutputAttributes.html">InetSourceOutputAttributes 1.0.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.sample.html">com.ibm.streamsx.inet.sample</a> &gt; GetHeadlines.spl</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Content</h2>
+  
+  <dl class="dl">
+    <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+    
+      <dt class="dt dlterm splhead-2">Operators</dt>
+
+      <dd class="dd">
+<ul class="sl simple">
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.inet.sample$GetHeadlines.html#spldoc_compilationunit__composite_operator__GetHeadlines">GetHeadlines</a></strong>: Demonstrates the use of Inetsource operator with output clause.
+</li>
+
+</ul>
+
+      </dd>
+
+    
+    
+      <dt class="dt dlterm splhead-2">Functions</dt>
+
+      <dd class="dd">
+<ul class="sl simple">
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.inet.sample$GetHeadlines.html#spldoc_compilationunit__function__formatDateTimeLocal.float64.rstring">formatDateTimeLocal(float64, rstring)</a></strong>: Format a date-time string 
+</li>
+
+</ul>
+
+      </dd>
+
+    
+  </dl>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Composites</h2>
+  
+</div>
+
+<div class="section" id="spldoc_compilationunit__composite_operator__GetHeadlines"><h2 class="title sectiontitle splpart">composite GetHeadlines</h2>
+  
+</div>
+
+<div class="section splgraph">
+  <embed class="image" src="../../image/tk$InetSourceOutputAttributes/op$com.ibm.streamsx.inet.sample$GetHeadlines.svg" width="347" height="245"/>
+</div>
+
+<div class="section">
+
+<p class="p">Demonstrates the use of Inetsource operator with output clause.
+</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">Parameters</h2>
+
+<ul class="sl simple">
+<li class="sli"><strong class="ph b">urls</strong>: The url list for the http requests
+</li>
+
+<li class="sli"><strong class="ph b">timeout</strong>: The timeout for the http request
+</li>
+
+<li class="sli"><strong class="ph b">interval</strong>: The interval of the repetition of the requests
+</li>
+
+</ul>
+
+</div>
+
+<div class="section">
+</div>
+
+<div class="section">
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-2">SPL Source Code</h2>
+  
+</div>
+
+
+<div class="section">
+   <pre class="pre codeblock">
+
+ public composite GetHeadlines {
+ 
+   param
+ 
+   expression&lt;list&lt;rstring&gt;&gt; $urls: 
+     [ "http://rss.cnn.com/rss/cnn_world.rss",
+       "http://feeds.bbci.co.uk/news/world/rss.xml",
+       "http://feeds.reuters.com/reuters/INbusinessNews",
+       "http://classic.iol.co.za/cmlink/1.640", // note: redirects to http://rss.iol.io/iol/news 
+       "http://www.ciol.com/article-2/", // note: returns content type HTML, not XML
+       "https://www.rbi.org.in/pressreleases_rss.xml" // note: returns response code of 503, not 200
+     ];
+   expression&lt;int32&gt; $timeout: 60; // one minute
+   expression&lt;float64&gt; $interval: 10.0 * 60.0; // ten minutes
+ 
+   type
+ 
+   InetType =
+     float64 ingestTimestamp, 
+     rstring targetURL, 
+     rstring effectiveURL, 
+     int32 responseCode, 
+     float64 fetchTime, 
+     rstring contentType, 
+     blob content;
+ 
+   graph
+ 
+ 
+   stream&lt;InetType&gt; InetStream as Out = InetSource() {
+     param
+       URIList: $urls;
+       fetchInterval: $interval;
+       timeout: $timeout;
+       emitTuplePerURI: true;
+     output Out:
+       ingestTimestamp = getTimestampInSecs(),
+       targetURL = TargetURL(),
+       effectiveURL = EffectiveURL(),
+       responseCode = ResponseCode(),
+       fetchTime = FetchTime(),
+       contentType = ContentType(); }
+ 
+   ( stream&lt;InetStream&gt; XMLInetStream ; stream&lt;InetStream&gt; NonXMLInetStream ) = Filter(InetStream) {
+     param
+     filter: responseCode==200 &amp;&amp; findFirst(lower(contentType),"xml")&gt;0; }
+   
+   () as Out1 = Custom(XMLInetStream as In) {
+     logic onTuple In: {
+       rstring redirected = targetURL!=effectiveURL ? " (redirected from " + targetURL + ")" : "";
+       printStringLn(formatDateTimeLocal(ingestTimestamp, "%Y-%m-%d %H:%M:%S") + "  headlines from " + effectiveURL + redirected + " fetched in " + (rstring)fetchTime + " seconds:");
+       list&lt;rstring&gt; headlines = getTitles(convertFromBlob(content));
+       for (rstring headline in headlines) { printStringLn("    " + headline); }
+     } }
+ 
+   () as Out2 = Custom(NonXMLInetStream as In) {
+     logic onTuple In: {
+       appTrc( Trace.error, targetURL + " returned response code " + (rstring)responseCode + ", content type '" + contentType + "'");
+     } }
+ 
+ 
+   () as DebugInetStream = FileSink(InetStream) { param file: "debug.GetHeadlines.InetStream.out"; format: txt; writePunctuations: true; flush: 1u; }
+   () as DebugXMLInetStream = FileSink(XMLInetStream) { param file: "debug.GetHeadlines.XMLInetStream.out"; format: txt; writePunctuations: true; flush: 1u; }
+   () as DebugNonXMLInetStream = FileSink(NonXMLInetStream) { param file: "debug.GetHeadlines.NonXMLInetStream.out"; format: txt; writePunctuations: true; flush: 1u; }
+ 
+ }
+
+   </pre>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Functions</h2>
+  
+</div>
+
+<div class="section" id="spldoc_compilationunit__function__formatDateTimeLocal.float64.rstring"><h2 class="title sectiontitle splpart">rstring formatDateTimeLocal(float64 when, rstring pattern)</h2>
+  
+</div>
+<div class="section">
+
+<p class="p">Format a date-time string
+</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">Parameters</h2>
+
+ <ul class="sl simple">
+   <li class="sli">
+<strong class="ph b">when</strong>: the timestamp to format
+   </li>
+
+   <li class="sli">
+<strong class="ph b">pattern</strong>: tga patter to be used
+   </li>
+
+ </ul>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">Returns</h2>
+
+<ul class="sl simple"><li class="sli">
+the formated date-time string</li>
+</ul>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-2">SPL Source Code</h2>
+  
+</div>
+
+<div class="section">
+   <pre class="pre codeblock">
+
+ public rstring formatDateTimeLocal(float64 when, rstring pattern) {
+   timestamp ts = createTimestamp((int64)when, 0u);
+   mutable Sys.tm tm = {};
+   time(ts, tm);
+   return strftime(tm, pattern); }
+ 
+
+   </pre>
+
+</div>
+
+</div>
+
+
+</body>
+</html>

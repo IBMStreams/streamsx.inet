@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="SPL File Main.spl"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="spldoc_compilationunit"/>
+<link rel="stylesheet" type="text/css" href="../../html/commonltr.css"/>
+<link rel="stylesheet" type="text/css" href="../../html/spldoc.css"/>
+<title>SPL File Main.spl</title>
+</head>
+<body id="spldoc_compilationunit">
+
+
+<h1 class="title topictitle1">SPL File <tt class="ph tt">Main.spl</tt></h1>
+
+<div class="body refbody">
+<div class="section">
+<p class="p">
+<a class="xref" href="../toolkits/toolkits.html">Toolkits</a> &gt; <a class="xref" href="tk$HTTPPostDemo.html">HTTPPostDemo 1.0.0</a> &gt; <a class="xref" href="ns$sample.html">sample</a> &gt; Main.spl</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Content</h2>
+  
+  <dl class="dl">
+    <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+    
+      <dt class="dt dlterm splhead-2">Operators</dt>
+
+      <dd class="dd">
+<ul class="sl simple">
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$sample$Main.html#spldoc_compilationunit__composite_operator__Main">Main</a></strong>: This sample demonstrates the use of the HTTPPost operator.
+</li>
+
+</ul>
+
+      </dd>
+
+    
+  </dl>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Composites</h2>
+  
+</div>
+
+<div class="section" id="spldoc_compilationunit__composite_operator__Main"><h2 class="title sectiontitle splpart">composite Main</h2>
+  
+</div>
+
+<div class="section splgraph">
+  <embed class="image" src="../../image/tk$HTTPPostDemo/op$sample$Main.svg" width="337" height="109"/>
+</div>
+
+<div class="section">
+
+<p class="p">This sample demonstrates the use of the HTTPPost operator. This sample executes a number of http requests and prints the result to the standard output. If you want to store the user credentials securely, you should consider to use a Streams Application Configuration Object. see  <a class="xref" href="https://www.ibm.com/support/knowledgecenter/en/SSCRJU_4.2.0/com.ibm.streams.dev.doc/doc/creating-secure-app-configs-dev.html">https://www.ibm.com/support/knowledgecenter/en/SSCRJU_4.2.0/com.ibm.streams.dev.doc/doc/creating-secure-app-configs-dev.html</a> and fetch the values from the application property with spl function getApplicationConfigurationProperty.
+</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">Parameters</h2>
+
+<ul class="sl simple">
+<li class="sli"><strong class="ph b">url</strong>: The url list for the http requests
+</li>
+
+<li class="sli"><strong class="ph b">data</strong>: The message data used in method POST
+</li>
+
+<li class="sli"><strong class="ph b">iterations</strong>: The number of requests send
+</li>
+
+<li class="sli"><strong class="ph b">period</strong>: The period of the requests
+</li>
+
+</ul>
+
+</div>
+
+<div class="section">
+</div>
+
+<div class="section">
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-2">SPL Source Code</h2>
+  
+</div>
+
+
+<div class="section">
+   <pre class="pre codeblock">
+
+ public composite Main {
+ 	param
+ 		expression&lt;list&lt;rstring&gt;&gt;              $url    : (list&lt;rstring&gt;)             getSubmissionTimeValue(
+ 			"url", '["http://httpbin.org/post","http://httpbin.org/put"]'
+ 		);
+ 		expression&lt;list&lt;rstring&gt;&gt;              $data   : (list&lt;rstring&gt;)             getSubmissionTimeValue(
+ 			"data", '["aaaa","bbbbb"]'
+ 		);
+ 		expression&lt;int32&gt;                      $iterations: (int32)                  getSubmissionTimeValue("iterations", "2");
+ 		expression&lt;float64&gt;                    $period    : (float64)                getSubmissionTimeValue("period", "0.1");
+ 	graph
+ 		//stream&lt;uint64 id, rstring url, rstring method, rstring data&gt; Trigger as O = Beacon() {
+ 		stream&lt;rstring jsonString&gt; Trigger as O = Beacon() {
+ 			param 
+ 				iterations : $iterations;
+ 				period     : $period;
+ 			output O:
+ 				jsonString = $url[(int32)IterationCount() % size($url)];
+ 		}
+ 		
+ 		stream&lt;HTTPResponse&gt; Response as O = HTTPPost(Trigger as I) {
+ 			param
+ 				url: "http://httpbin.org/post";
+ 				headerContentType : "application/json";
+ 				//headerContentType : "DEFAULT_TEXT";
+ 				//vmArg: "-Djavax.net.debug=ssl:handshake", "-Dcom.ibm.jsse2.overrideDefaultTLS=true";
+ 		}
+ 		
+ 		() as Printer = Custom(Response as I) {
+ 			logic
+ 				onTuple I: println(I);
+ 				onPunct I: println(currentPunct());
+ 		}
+ 	
+ 	config
+ 		restartable : false;
+ }
+
+   </pre>
+
+</div>
+
+</div>
+
+
+</body>
+</html>
