@@ -1,4 +1,4 @@
-#--variantList:="$TTRO_streamsxInetSamples"
+#--variantList="$TTRO_streamsxInetSamples"
 
 setCategory 'quick'
 
