@@ -1,6 +1,0 @@
-# This files contains necessary properties for the test case to execute
-# and will be sourced from the run test script
-variants=2
-expectFailure=1
-typeOfCase=compile
-
