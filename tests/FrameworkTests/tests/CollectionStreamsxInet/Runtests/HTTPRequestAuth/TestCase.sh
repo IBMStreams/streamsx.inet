@@ -14,7 +14,7 @@ function myExplain {
 	esac
 }
 
-PREPS='myExplain copyAndTransformSpl'
+PREPS='myExplain copyAndMorphSpl'
 
 STEPS=(
 	'splCompile'
@@ -35,8 +35,8 @@ function myEval {
 	4|5)
 		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0,stat=200*" '*oauth_token=\\\\\\"zzzz\\\\\\"*' '*oauth_consumer_key=\\\\\\"xxxx\\\\\\"*';;
 	6)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0,stat=200*" '*\\"Authorization\\":\\"Bearer zzzz\\"*';;
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0,stat=200*" '*\\"Authorization\\": \\"Bearer zzzz\\"*';;
 	7)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0,stat=200*" '*\\"Authorization\\":\\"Bearer Propzzzz\\"*';;
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0,stat=200*" '*\\"Authorization\\": \\"Bearer Propzzzz\\"*';;
 	esac
 }

@@ -3,14 +3,9 @@ use com.ibm.streamsx.testframe::FileSink1;
 
 public composite Main {
 	param
-		//_0_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/basic-auth/user1/passwd1');
-		//_1_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/basic-auth/user1/passwd1');
-		//_2_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/basic-auth/user2/passwd2');
-		//_3_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/basic-auth/user2/passwd2');
-		//_4_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/get');
-		//_5_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/get');
-		//_6_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/get');
-		//_7_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/get');
+		//<0 1>expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/basic-auth/user1/passwd1');
+		//<2 3>expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/basic-auth/user2/passwd2');
+		//<4 5 6 7>expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/get');
 	graph
 		stream<uint64 id, rstring method> Trigger as O = Beacon() {
 			param 
@@ -27,19 +22,15 @@ public composite Main {
 				outputBody : "respData";
 				outputStatus : "status";
 				outputStatusCode : "stat";
-				//_1_authenticationFile : "etc/http_request_auth.properties";
-				//_2_authenticationFile : "etc/http_request_auth.properties";
-				//_4_authenticationFile : "etc/http_request_oauth1.properties";
-				//_6_authenticationFile : "etc/http_request_oauth2.properties";
-				//_2_authenticationProperties : "ANY_HOST=user2:passwd2";
-				//_3_authenticationProperties : "ANY_HOST=user2:passwd2";
-				//_5_authenticationProperties : "consumerKey=xxxx","consumerSecret=yyyy","accessToken=zzzz","accessTokenSecret=qqqq";
-				//_7_authenticationProperties : "accessToken=Propzzzz";
-				//_3_authenticationType : "STANDARD";
-				//_4_authenticationType : "OAUTH1";
-				//_5_authenticationType : "OAUTH1";
-				//_6_authenticationType : "OAUTH2";
-				//_7_authenticationType : "OAUTH2";
+				//<1 2>authenticationFile : "etc/http_request_auth.properties";
+				//<4>authenticationFile : "etc/http_request_oauth1.properties";
+				//<6>authenticationFile : "etc/http_request_oauth2.properties";
+				//<2 3>authenticationProperties : "ANY_HOST=user2:passwd2";
+				//<5>authenticationProperties : "consumerKey=xxxx","consumerSecret=yyyy","accessToken=zzzz","accessTokenSecret=qqqq";
+				//<7>authenticationProperties : "accessToken=Propzzzz";
+				//<3>authenticationType : "STANDARD";
+				//<4 5>authenticationType : "OAUTH1";
+				//<6 7>authenticationType : "OAUTH2";
 		}
 		
 		() as Sink = FileSink1(Response) { }
