@@ -12,7 +12,7 @@ function myExplain {
 	esac
 }
 
-PREPS='myExplain copyAndTransformSpl'
+PREPS='myExplain copyAndMorphSpl'
 
 STEPS=(
 	'splCompile'
@@ -27,10 +27,10 @@ FINS='cancelJob'
 function myEval {
 	case "$TTRO_variantCase" in
 	0|1|2)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*\\"Host\\":\\"httpbin.org\\"*' '*\\"Accept-Encoding\\":\\"gzip,deflate\\"*';;
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*\\"Host\\": \\"httpbin.org\\"*' '*\\"Accept-Encoding\\": \\"gzip,deflate\\"*';;
 	3)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*\\"Host\\":\\"httpbin.org\\"*'
-		linewisePatternMatchInterceptAndError   "$TT_dataDir/Tuples" "" '*\\"Accept-Encoding\\":\\"gzip,deflate\\"*';;
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*\\"Host\\": \\"httpbin.org\\"*'
+		linewisePatternMatchInterceptAndError   "$TT_dataDir/Tuples" "" '*\\"Accept-Encoding\\": \\"gzip,deflate\\"*';;
 	4|5)
 		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*respData="*"*';;
 	esac

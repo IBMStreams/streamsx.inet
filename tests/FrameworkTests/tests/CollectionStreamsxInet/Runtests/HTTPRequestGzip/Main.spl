@@ -3,18 +3,11 @@ use com.ibm.streamsx.testframe::FileSink1;
 
 public composite Main {
 	param
-		//_0_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/get');
-		//_1_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/gzip');
-		//_2_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/deflate');
-		//_3_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/get');
-		//_4_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/gzip');
-		//_5_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/deflate');
-		//_0_expression<boolean> $disableComp: (boolean)getSubmissionTimeValue("disableComp", "false");
-		//_1_expression<boolean> $disableComp: (boolean)getSubmissionTimeValue("disableComp", "false");
-		//_2_expression<boolean> $disableComp: (boolean)getSubmissionTimeValue("disableComp", "false");
-		//_3_expression<boolean> $disableComp: (boolean)getSubmissionTimeValue("disableComp", "true");
-		//_4_expression<boolean> $disableComp: (boolean)getSubmissionTimeValue("disableComp", "true");
-		//_5_expression<boolean> $disableComp: (boolean)getSubmissionTimeValue("disableComp", "true");
+		//<0 3>expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/get');
+		//<1 4>expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/gzip');
+		//<2 5>expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/deflate');
+		//<0 1 2>expression<boolean> $disableComp: (boolean)getSubmissionTimeValue("disableComp", "false");
+		//<3 4 5>expression<boolean> $disableComp: (boolean)getSubmissionTimeValue("disableComp", "true");
 	graph
 		stream<uint64 id, rstring method> Trigger as O = Beacon() {
 			param 

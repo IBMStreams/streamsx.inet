@@ -18,7 +18,7 @@ function myExplain {
 	esac
 }
 
-PREPS='myExplain copyAndTransformSpl'
+PREPS='myExplain copyAndMorphSpl'
 
 STEPS=(
 	'splCompile'
@@ -34,7 +34,7 @@ FINS='cancelJob'
 function myEval {
 	case "$TTRO_variantCase" in
 	0|4|6)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*Host\\":\\"httpbin.org*' '*err=""*';;
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*Host\\": \\"httpbin.org*' '*err=""*';;
 	1|5)
 		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*respData=""*' '*err=""*';;
 	2|3|7|8|9|10|11)

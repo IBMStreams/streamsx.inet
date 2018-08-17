@@ -19,7 +19,7 @@ function myExplain {
 	esac
 }
 
-PREPS='myExplain copyAndTransformSpl'
+PREPS='myExplain copyAndMorphSpl'
 
 STEPS=(
 	'splCompile'
@@ -34,15 +34,15 @@ FINS='cancelJob'
 function myEval {
 	case "$TTRO_variantCase" in
 	0|1)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*\\"Host\\":\\"httpbin.org\\"*';;
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*\\"Host\\": \\"httpbin.org\\"*';;
 	2|3)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*\\"Host\\":\\"httpbin.org\\"*';;
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*\\"Host\\": \\"httpbin.org\\"*';;
 	4|5)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*\\"Host\\":\\"httpbin.org\\"*' '*\\"data\\":\\"My post data\\"*';;
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*\\"Host\\": \\"httpbin.org\\"*' '*\\"data\\": \\"My post data\\"*';;
 	6|7)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*\\"Host\\":\\"httpbin.org\\"*' '*\\"data\\":\\"My put data\\"*';;
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*\\"Host\\": \\"httpbin.org\\"*' '*\\"data\\": \\"My put data\\"*';;
 	8|9)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*\\"Host\\":\\"httpbin.org\\"*';;
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*\\"Host\\": \\"httpbin.org\\"*';;
 	10|11)
 		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*";;
 	esac
