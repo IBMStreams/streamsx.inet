@@ -1,5 +1,7 @@
 #--variantCount=12
 
+setSkip 'Proxy may change the result'
+
 function myExplain {
 	case "$TTRO_variantCase" in
 	0)  echo "variant $TTRO_variantCase - GET  method url http://httpbin.org/redirect-to?url=http://httpbin.org/get&status_code=307";;

@@ -1,22 +1,25 @@
 # Distributed and standalone Run test for FTP
 
 #--variantList='distributed standalone'
-##--variantList:=distributed
 
 setCategory 'quick'
+
+if ! isExisting 'TTRO_ftpServerAvailable' || isFalse 'TTRO_ftpServerAvailable'; then
+	setSkip "No ftp server available at $TTPR_ftpServerHost"
+fi
 
 PREPS='copyOnly splCompile'
 STEPS='mySubmit myWaitForCompletion myCancelJob myEvaluate'
 
 function mySubmit {
 	if [[ $TTRO_variantCase == "standalone" ]]; then
-		if echoAndExecute output/bin/standalone; then
+		if echoAndExecute output/bin/standalone "host=$TTPR_ftpServerHost"; then
 			return 0
 		else
 			setFailure "Could not start standalone job"
 		fi
 	else
-		if submitJob; then
+		if submitJob "-P" "host=$TTPR_ftpServerHost"; then
 			declare -p TTTT_jobno
 			return 0
 		else
