@@ -8,14 +8,13 @@ FINS='cleanUpInstAndDomain'
 
 checkFtpServer() {
 	printInfo "Check whether ftp server is reachable at $TTPR_ftpServerHost"
-	ftp -n "$TTPR_ftpServerHost" > ftpResult 2> ftpError << END_SCRIPT
+	if ftp -n "$TTPR_ftpServerHost" > ftpResult 2> ftpError << END_SCRIPT
 quote USER anonymous
 quote PASS
 ls
 bye
 END_SCRIPT
-	local result=$?
-	if [[ $result -eq 0 ]]; then
+	then
 		if linewisePatternMatch ftpResult true '*1MB.zip*'; then
 			printInfo "ftp server is reachable"
 			setVar 'TTRO_ftpServerAvailable' 'true'
