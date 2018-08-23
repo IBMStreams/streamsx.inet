@@ -1,5 +1,7 @@
 #--variantCount=6
 
+setSkip 'Proxy may change the result'
+
 function myExplain {
 	case "$TTRO_variantCase" in
 	0) echo "variant $TTRO_variantCase - GET uncompressed";;
