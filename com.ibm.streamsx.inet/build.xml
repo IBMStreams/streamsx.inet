@@ -42,8 +42,6 @@ All required libs are now available in the source repository
 	<!-- Since not all of the libs may be available for product build, not all of the libs may be available at build time -->
 	<path id="cp.manifest">
 		<fileset dir="opt">
-			<include name="eclipse-4.2.2/plugins/*.jar"/>
-			<include name="wssupport/Java-WebSocket-1.3.0.jar"/>
 			<include name="signpost-1.2/lib/*.jar"/>
 			<include name="httpcomponents-client-4.5.5/lib/*.jar"/>
 		</fileset>
@@ -71,16 +69,6 @@ All required libs are now available in the source repository
 				<include name="com.ibm.streamsx.inet.http/HTTPGetXMLContent/*"/>
 				<include name="com.ibm.streamsx.inet.http/HTTPPost/*"/>
 				<include name="com.ibm.streamsx.inet.http/HTTPRequest/*"/>
-				<include name="com.ibm.streamsx.inet.rest/HTTPBLOBInjection/*"/>
-				<include name="com.ibm.streamsx.inet.rest/HTTPJSONInjection/*"/>
-				<include name="com.ibm.streamsx.inet.rest/HTTPTupleInjection/*"/>
-				<include name="com.ibm.streamsx.inet.rest/HTTPRequestProcess/*"/>
-				<include name="com.ibm.streamsx.inet.rest/HTTPTupleView/*"/>
-				<include name="com.ibm.streamsx.inet.rest/HTTPXMLInjection/*"/>
-				<include name="com.ibm.streamsx.inet.rest/HTTPXMLView/*"/>
-				<include name="com.ibm.streamsx.inet.rest/WebContext/*"/>
-				<include name="com.ibm.streamsx.inet.wsserver/WebSocketInject/*"/>
-				<include name="com.ibm.streamsx.inet.wsserver/WebSocketSend/*"/>
 			</fileset>
 		</delete>
 		<delete dir="${gensrc.dir}"/>

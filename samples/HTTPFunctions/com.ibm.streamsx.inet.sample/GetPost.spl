@@ -62,28 +62,4 @@ logic onProcess: {
     } // end onProcess
 }// end custom
 
-stream<rstring str, int32 iter> Received = HTTPTupleInjection () {
-
-param 
-port: 8080;
-
-}
-
-() as postchecker = Custom(Received) {
-        
-       logic state: {
-        mutable int32 numTuples = 0;
-       }
-       onTuple Received: {
-         if (iter != numTuples) {
-            abort();
-         }
-         numTuples++;
-         if (numTuples == 5) {
-            appTrc(Trace.error, "Application successful, exiting");
-            shutdownPE();
-         }
-       }
-}
-
 }
