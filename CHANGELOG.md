@@ -1,5 +1,8 @@
 Changes
 =======
+## v3.0.0
+* move content os namespaces rest and wssercver to inetserver toolkit
+
 ## v2.9.6:
 * Some minor fixes
 * Enhanced test coverage
