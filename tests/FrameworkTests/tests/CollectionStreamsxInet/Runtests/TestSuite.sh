@@ -1,7 +1,10 @@
 setVar 'TTPR_timeout' 240
 
 #setVar 'TTPR_ftpServerHost' 'speedtest.tele2.net'
-setVar 'TTPR_ftpServerHost' "$HOSTNAME"
+# If the property TTPR_ftpServerHost was set soutside of this script, this ftp server is used for the tests
+# If this property is not set, an attempt is made to start a local ftp server and this local server is used for the tests
+# If this property is set and empty (false), all ftp test should be skipped
+#setVar 'TTPR_ftpServerHost' 'speedtest.tele2.net'
 setVar 'TTPR_ftpServerUser' 'ftpuser'
 setVar 'TTPR_ftpServerPasswd' 'streams'
 
@@ -12,14 +15,28 @@ FINS='stopFtpServer cleanUpInstAndDomainAtStop'
 
 
 startFtpServer() {
-	startStopFtpServer start
+	if isNotExisting 'TTPR_ftpServerHost'; then
+		startStopFtpServer start
+		setVar 'TTPR_ftpServerHost' "$HOSTNAME"
+		setVar 'TTRO_ftpServerLocal' 'true'
+	else
+		printInfo "Property TTPR_ftpServerHost exists -> no start of local ftp server"
+	fi
 }
 
 stopFtpServer() {
-	startStopFtpServer stop
+	if isExistingAndTrue 'TTRO_ftpServerLocal'; then
+		startStopFtpServer stop
+	else
+		printInfo "no start of local ftp server -> no stop of local ftp server"
+	fi
 }
 
 checkFtpServer() {
+	if isFalse 'TTPR_ftpServerHost'; then
+		printInfo "TTPR_ftpServerHost is empty -> No ftp test enabled"
+		return 0
+	fi
 	printInfo "Check whether ftp server is reachable at $TTPR_ftpServerHost"
 	if ftp -n "$TTPR_ftpServerHost" > ftpResult 2> ftpError << END_SCRIPT
 quote USER anonymous
@@ -36,7 +53,8 @@ END_SCRIPT
 			setVar 'TTPR_ftpServerPubFile2' "$PWD/20MB.zip"
 			setVar 'TTRO_ftpServerAvailable' 'true'
 		else
-			printError "Make sure that the ftp server is running and allows anonymous read access"
+			printError "Make sure that a remote ftp server is running and allows anonymous read access to files 1MB.zip and 20MB.zip"
+			printError "Or enable a local vsftp and "
 			printError "Prepare the public file storage with 2 files 1MB.zip and 20MB.zip"
 			printError "Execure commands"
 			printError "'openssl rand -out /var/ftp/1MB.zip 1048576'"
