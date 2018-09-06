@@ -4,8 +4,8 @@
 
 setCategory 'quick'
 
-if ! isExisting 'TTRO_ftpServerAvailable' || isFalse 'TTRO_ftpServerAvailable'; then
-	setSkip "No ftp server available at $TTPR_ftpServerHost"
+if isExisting 'TTPR_ftpServerHost' && isFalse 'TTPR_ftpServerHost'; then
+	setSkip "\$TTPR_ftpServerHost is empty -> No ftp server available skip ftp tests"
 fi
 
 PREPS='copyOnly splCompile'

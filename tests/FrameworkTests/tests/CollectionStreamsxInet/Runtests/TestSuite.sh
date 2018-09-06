@@ -66,8 +66,8 @@ END_SCRIPT
 
 startStopFtpServer() {
 	printInfo "$1 local ftp server"
-	echo "\$PATH=$PATH"
-	if ! service vsftpd "$1"; then
+	#echo "\$PATH=$PATH"
+	if ! /sbin/service vsftpd "$1"; then
 		printError "Can not $1 local ftp server"
 	fi
 	return 0
