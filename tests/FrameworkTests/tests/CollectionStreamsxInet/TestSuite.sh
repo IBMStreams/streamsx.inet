@@ -13,3 +13,8 @@ for x in $TTRO_streamsxInetSamplesPath/*; do
 done
 printInfo "All samples are: $all"
 setVar 'TTRO_streamsxInetSamples' "$all"
+
+PREPS=(
+	'export'
+	'ps'
+)
