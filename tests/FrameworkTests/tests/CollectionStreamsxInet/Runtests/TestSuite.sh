@@ -65,10 +65,17 @@ END_SCRIPT
 }
 
 startStopFtpServer() {
+	if [[ ( $1 != 'start' ) && ( $1 != 'stop' ) ]]; then
+		printErrorAndExit "$FUNCNAME wrong argument '$1'" $errRt
+	fi
 	printInfo "$1 local ftp server"
 	#echo "\$PATH=$PATH"
+	printInfo "try : /sbin/service vsftpd $1"
 	if ! /sbin/service vsftpd "$1"; then
-		printError "Can not $1 local ftp server"
+		printInfo "try : sudo /sbin/service vsftpd $1"
+		if ! /sbin/service vsftpd "$1"; then
+			printError "Can not $1 local ftp server"
+		fi
 	fi
 	return 0
 }
