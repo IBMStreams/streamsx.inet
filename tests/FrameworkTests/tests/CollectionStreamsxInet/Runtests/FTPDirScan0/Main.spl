@@ -53,9 +53,9 @@ composite Main {
 		
 		() as ErrorSink = FileSink1(ErrorStream) {
 			param
-				filenameTuples : "ErrorTuples";
-				filenameWidowMarker: "ErrorWindowMarker";
-				filenameFinalMarker: "ErrorFinalMarker";
+				fnameTuples : "ErrorTuples";
+				fnameWindowMarker: "ErrorWindowMarker";
+				fnameFinalMarker: "ErrorFinalMarker";
 		}
 		
 	config

@@ -1,4 +1,3 @@
-setVar 'TTPR_timeout' 240
 
 #setVar 'TTPR_ftpServerHost' 'speedtest.tele2.net'
 # If the property TTPR_ftpServerHost was set soutside of this script, this ftp server is used for the tests
@@ -10,7 +9,7 @@ setVar 'TTPR_ftpServerPasswd' 'streams'
 
 
 #Make sure instance and domain is running, ftp server running
-PREPS='cleanUpInstAndDomainAtStart mkDomain startDomain mkInst startInst startFtpServer checkFtpServer'
+PREPS='cleanUpInstAndDomainAtStart mkDomain startDomain mkInst startInst startFtpServer checkFtpServer prepFtpServer'
 FINS='stopFtpServer cleanUpInstAndDomainAtStop'
 
 
@@ -38,12 +37,13 @@ checkFtpServer() {
 		return 0
 	fi
 	printInfo "Check whether ftp server is reachable at $TTPR_ftpServerHost"
+	mkdir anonymous
 	if ftp -n "$TTPR_ftpServerHost" > ftpResult 2> ftpError << END_SCRIPT
 quote USER anonymous
 quote PASS
 ls
-get 1MB.zip
-get 20MB.zip
+get 1MB.zip anonymous/1MB.zip
+get 20MB.zip anonymous/20MB.zip
 bye
 END_SCRIPT
 	then
@@ -60,6 +60,30 @@ END_SCRIPT
 			printError "'openssl rand -out /var/ftp/1MB.zip 1048576'"
 			printError "'openssl rand -out /var/ftp/20MB.zip 20971520'"
 		fi
+	fi
+	return 0
+}
+
+prepFtpServer() {
+	printInfo "Login as $TTPR_ftpServerUser and prepare remote directory ftpr and ftpw"
+	printInfo "Login as $TTPR_ftpServerUser and remote files ftpr/1MB.zip and ftpr/20MB.zip"
+	mkdir ftpuser
+	openssl rand -out ftpuser/1MB.zip 1048576
+	openssl rand -out ftpuser/20MB.zip 20971520
+	if ftp -n "$TTPR_ftpServerHost" << END_SCRIPT
+quote USER $TTPR_ftpServerUser
+quote PASS $TTPR_ftpServerPasswd
+ls
+mkdir ftpr
+mkdir ftpw
+put ftpuser/1MB.zip ftpr/1MB.zip
+put ftpuser/20MB.zip ftpr/20MB.zip
+bye
+END_SCRIPT
+	then
+		printInfo "Transfer ok"
+	else
+		printError "Transfer failure"
 	fi
 	return 0
 }

@@ -1,3 +1,5 @@
+setVar 'TTPR_timeout' 240
+
 # The common test suite for inet toolkit tests
 import "$TTRO_scriptDir/streamsutils.sh"
 
