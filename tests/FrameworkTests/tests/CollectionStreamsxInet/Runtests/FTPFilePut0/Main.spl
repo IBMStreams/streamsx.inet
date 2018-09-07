@@ -1,0 +1,69 @@
+use com.ibm.streamsx.inet.ftp::*;
+use com.ibm.streamsx.testframe::FileSink1;
+use spl.adapter::FileSource;
+
+composite Main {
+	param
+		expression<Protocol> $protocol :      (Protocol)getSubmissionTimeValue("protocol");
+		expression<rstring> $host :           getSubmissionTimeValue("host");
+		expression<rstring> $path :           getSubmissionTimeValue("path", "/");
+		expression<rstring> $username :       getSubmissionTimeValue("username");
+		expression<rstring> $password :       getSubmissionTimeValue("password");
+		expression<boolean> $verbosity :      (boolean)getSubmissionTimeValue("verbosity", "false");
+
+	graph
+		//provide a trigger stream for the ftp directory scan
+		stream<rstring fileName> TriggerStream = Beacon() {
+			logic state : list<rstring> filenames = ["1MB.zip", "20MB.zip"];
+			param iterations : 2;
+			output TriggerStream : fileName = filenames[IterationCount()];
+		}
+		
+		stream<blob cont, rstring fileName> ContentStream as O = FileSource(TriggerStream as I) {
+			param format: block;
+			output O : fileName = FileName();
+		}
+
+		(
+			stream<rstring file, uint64 size, rstring url, boolean success, uint32 transferCount, uint32 failureCount, uint64 bytesTransferred> ResultStream as OUT;
+			stream<rstring errorText, int32 error, uint32 transferCount, uint32 failureCount, uint64 bytesTransferred> ErrorStream as ERR
+		) = FTPPutFile(ContentStream as IN) {
+			param
+				protocol : $protocol;
+				host : $host;
+				path : $path;
+				filename : IN.fileName;
+				localFilename : IN.fileName;
+				username : $username;
+				password : $password;
+				connectionCloseMode : ever;
+				curlVerbose : $verbosity;
+			output
+				OUT :
+					size = FileSize(),
+					url = Url(),
+					success = Success(),
+					transferCount = TransferCount(),
+					failureCount = TransferFailureCount(),
+					bytesTransferred = BytesTransferred();
+				ERR:
+					errorText = ErrorText(),
+					error = ErrorCode(),
+					transferCount = TransferCount(),
+					failureCount =  TransferFailureCount(),
+					bytesTransferred = BytesTransferred();
+		}
+		
+		() as Sink = FileSink1(ResultStream) {
+		}
+		
+		() as ErrorSink = FileSink1(ErrorStream) {
+			param
+				fnameTuples : "ErrorTuples";
+				fnameWindowMarker: "ErrorTuples";
+				fnameFinalMarker: "ErrorTuples";
+		}
+		
+	config
+		restartable : false;
+}
