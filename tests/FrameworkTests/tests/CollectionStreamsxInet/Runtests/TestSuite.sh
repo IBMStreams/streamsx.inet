@@ -42,6 +42,7 @@ checkFtpServer() {
 quote USER anonymous
 quote PASS
 ls
+binary
 get 1MB.zip anonymous/1MB.zip
 get 20MB.zip anonymous/20MB.zip
 bye
@@ -76,6 +77,7 @@ quote PASS $TTPR_ftpServerPasswd
 ls
 mkdir ftpr
 mkdir ftpw
+binary
 put ftpuser/1MB.zip ftpr/1MB.zip
 put ftpuser/20MB.zip ftpr/20MB.zip
 bye
