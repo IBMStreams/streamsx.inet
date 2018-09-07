@@ -26,7 +26,7 @@ STEPS=(
 FINS='cancelJobAndLog'
 
 mySubmit() {
-	submitJobInterceptAndSuccess '-P' "host=$TTPR_ftpServerHost" '-P' "username=$TTPR_ftpServerUser" '-P' "password=$TTPR_ftpServerPasswd" '-P' 'protocol=ftp' '-P' 'path=/ftpw/'
+	submitJobInterceptAndSuccess '-P' "host=$TTPR_ftpServerHost" '-P' "username=$TTPR_ftpServerUser" '-P' "password=$TTPR_ftpServerPasswd" '-P' 'protocol=ftp' '-P' "path=/$TTPR_ftpDirForWriteTests/"
 }
 
 getFiles() {
@@ -34,7 +34,7 @@ getFiles() {
 	if ftp -n "$TTPR_ftpServerHost" << END_SCRIPT
 quote USER $TTPR_ftpServerUser
 quote PASS $TTPR_ftpServerPasswd
-cd ftpw
+cd $TTPR_ftpDirForWriteTests
 ls
 binary
 get 1MB.zip resultFiles/1MB.zip

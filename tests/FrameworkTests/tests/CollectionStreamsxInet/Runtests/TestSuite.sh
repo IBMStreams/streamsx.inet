@@ -7,6 +7,8 @@
 setVar 'TTPR_ftpServerUser' 'ftpuser'
 setVar 'TTPR_ftpServerPasswd' 'streams'
 
+setVar 'TTPR_ftpDirForReadTests' "ftpr$HOSTNAME"
+setVar 'TTPR_ftpDirForWriteTests' "ftpw$HOSTNAME"
 
 #Make sure instance and domain is running, ftp server running
 PREPS='cleanUpInstAndDomainAtStart mkDomain startDomain mkInst startInst startFtpServer checkFtpServer prepFtpServer'
@@ -66,8 +68,8 @@ END_SCRIPT
 }
 
 prepFtpServer() {
-	printInfo "Login as $TTPR_ftpServerUser and prepare remote directory ftpr and ftpw"
-	printInfo "Login as $TTPR_ftpServerUser and remote files ftpr/1MB.zip and ftpr/20MB.zip"
+	printInfo "Login as $TTPR_ftpServerUser and prepare remote directory $TTPR_ftpDirForReadTests and $TTPR_ftpDirForWriteTests"
+	printInfo "Login as $TTPR_ftpServerUser and remote files $TTPR_ftpDirForReadTests/1MB.zip and $TTPR_ftpDirForReadTests/20MB.zip"
 	mkdir ftpuser
 	openssl rand -out ftpuser/1MB.zip 1048576
 	openssl rand -out ftpuser/20MB.zip 20971520
@@ -75,11 +77,11 @@ prepFtpServer() {
 quote USER $TTPR_ftpServerUser
 quote PASS $TTPR_ftpServerPasswd
 ls
-mkdir ftpr
-mkdir ftpw
+mkdir $TTPR_ftpDirForReadTests
+mkdir $TTPR_ftpDirForWriteTests
 binary
-put ftpuser/1MB.zip ftpr/1MB.zip
-put ftpuser/20MB.zip ftpr/20MB.zip
+put ftpuser/1MB.zip $TTPR_ftpDirForReadTests/1MB.zip
+put ftpuser/20MB.zip $TTPR_ftpDirForReadTests/20MB.zip
 bye
 END_SCRIPT
 	then
