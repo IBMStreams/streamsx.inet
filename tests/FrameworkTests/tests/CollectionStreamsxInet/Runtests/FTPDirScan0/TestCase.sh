@@ -1,6 +1,6 @@
 # test for FTP Reader as dir scan
 
-#--variantList='anonymous ftpuser'
+#--variantList='anonymous ftpuser ftpusersftp'
 
 setCategory 'quick'
 
@@ -20,11 +20,16 @@ STEPS=(
 FINS='cancelJob'
 
 mySubmit() {
-	if [[ $TTRO_variantCase == 'anonymous' ]]; then
-		submitJobInterceptAndSuccess '-P' "host=$TTPR_ftpServerHost" '-P' 'username=anonymous' '-P' 'password=' '-P' 'protocol=ftp'
-	else
-		submitJobInterceptAndSuccess '-P' "host=$TTPR_ftpServerHost" '-P' "username=$TTPR_ftpServerUser" '-P' "password=$TTPR_ftpServerPasswd" '-P' 'protocol=ftp' '-P' "path=/$TTPR_ftpDirForReadTests/"
-	fi
+	case "$TTRO_variantCase" in
+	anonymous)
+		submitJobInterceptAndSuccess '-P' "host=$TTPR_ftpServerHost" '-P' 'username=anonymous' '-P' 'password=' '-P' 'protocol=ftp';;
+	ftpuser)
+		submitJobInterceptAndSuccess '-P' "host=$TTPR_ftpServerHost" '-P' "username=$TTPR_ftpServerUser" '-P' "password=$TTPR_ftpServerPasswd" '-P' 'protocol=ftp' '-P' "path=/$TTPR_ftpDirForReadTests/";;
+	ftpusersftp)
+		submitJobInterceptAndSuccess '-P' "host=$TTPR_ftpServerHost" '-P' "username=$TTPR_ftpServerUser" '-P' "password=$TTPR_ftpServerPasswd" '-P' 'protocol=sftp' '-P' "path=~/$TTPR_ftpDirForReadTests/";;
+	*)
+		printErrorAndExit "Wrong variant $TTRO_variantCase" $errRt;;
+	esac
 }
 
 myEval() {

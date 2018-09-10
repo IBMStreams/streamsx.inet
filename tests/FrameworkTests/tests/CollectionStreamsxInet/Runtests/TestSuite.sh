@@ -77,8 +77,22 @@ prepFtpServer() {
 quote USER $TTPR_ftpServerUser
 quote PASS $TTPR_ftpServerPasswd
 ls
+verbose
+delete $TTPR_ftpDirForReadTests/1MB.zip
+delete $TTPR_ftpDirForReadTests/20MB.zip
+delete $TTPR_ftpDirForWriteTests/0/1MB.zip
+delete $TTPR_ftpDirForWriteTests/0/20MB.zip
+delete $TTPR_ftpDirForWriteTests/1/1MB.zip
+delete $TTPR_ftpDirForWriteTests/1/20MB.zip
+rmdir $TTPR_ftpDirForReadTests
+rmdir ${TTPR_ftpDirForWriteTests}/0
+rmdir ${TTPR_ftpDirForWriteTests}/1
+rmdir $TTPR_ftpDirForWriteTests
+
 mkdir $TTPR_ftpDirForReadTests
 mkdir $TTPR_ftpDirForWriteTests
+mkdir ${TTPR_ftpDirForWriteTests}/0
+mkdir ${TTPR_ftpDirForWriteTests}/1
 binary
 put ftpuser/1MB.zip $TTPR_ftpDirForReadTests/1MB.zip
 put ftpuser/20MB.zip $TTPR_ftpDirForReadTests/20MB.zip

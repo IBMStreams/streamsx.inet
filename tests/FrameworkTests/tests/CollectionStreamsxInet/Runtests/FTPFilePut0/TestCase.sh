@@ -1,4 +1,6 @@
-# test for FTP Reader as dir scan
+# test for FTP PutFile
+
+#--variantList='ftpuser ftpusersftp'
 
 setCategory 'quick'
 
@@ -26,15 +28,26 @@ STEPS=(
 FINS='cancelJobAndLog'
 
 mySubmit() {
-	submitJobInterceptAndSuccess '-P' "host=$TTPR_ftpServerHost" '-P' "username=$TTPR_ftpServerUser" '-P' "password=$TTPR_ftpServerPasswd" '-P' 'protocol=ftp' '-P' "path=/$TTPR_ftpDirForWriteTests/"
+	case "$TTRO_variantCase" in
+	ftpuser)
+		submitJobInterceptAndSuccess '-P' "host=$TTPR_ftpServerHost" '-P' "username=$TTPR_ftpServerUser" '-P' "password=$TTPR_ftpServerPasswd" '-P' 'protocol=ftp' '-P' "path=/$TTPR_ftpDirForWriteTests/0";;
+	ftpusersftp)
+		submitJobInterceptAndSuccess '-P' "host=$TTPR_ftpServerHost" '-P' "username=$TTPR_ftpServerUser" '-P' "password=$TTPR_ftpServerPasswd" '-P' 'protocol=sftp' '-P' "path=~/$TTPR_ftpDirForWriteTests/1";;
+	*)
+		printErrorAndExit "Wrong variant $TTRO_variantCase" $errRt;;
+	esac
 }
 
 getFiles() {
 	mkdir resultFiles
+	local rdir="$TTPR_ftpDirForWriteTests/0"
+	if [[ $TTRO_variantCase == 'ftpusersftp' ]]; then
+		rdir="$TTPR_ftpDirForWriteTests/1"
+	fi
 	if ftp -n "$TTPR_ftpServerHost" << END_SCRIPT
 quote USER $TTPR_ftpServerUser
 quote PASS $TTPR_ftpServerPasswd
-cd $TTPR_ftpDirForWriteTests
+cd $rdir
 ls
 binary
 get 1MB.zip resultFiles/1MB.zip
