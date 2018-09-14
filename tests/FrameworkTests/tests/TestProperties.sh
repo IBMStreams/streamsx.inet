@@ -11,3 +11,5 @@ setVar 'TTPR_streamsxJsonToolkit' "$STREAMS_INSTALL/toolkits/com.ibm.streamsx.js
 
 setVar 'TT_toolkitPath' "${TTPR_streamsxInetToolkit}:${TTPR_streamsxJsonToolkit}" #consider more than one tk...
 
+# http server location
+setVar 'TTPR_httpServerDir' "$TTRO_inputDir/../HTTPTestServer"

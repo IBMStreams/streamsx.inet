@@ -22,7 +22,7 @@ function myExplain {
 PREPS='myExplain copyAndMorphSpl'
 
 STEPS=(
-	'splCompile'
+	"splCompile host=$TTPR_httpServerAddr"
 	'submitJob'
 	'checkJobNo'
 	'waitForFinAndHealth'
@@ -33,17 +33,29 @@ FINS='cancelJob'
 
 function myEval {
 	case "$TTRO_variantCase" in
-	0|1)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*\\"Host\\": \\"httpbin.org\\"*';;
-	2|3)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*\\"Host\\": \\"httpbin.org\\"*';;
-	4|5)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*\\"Host\\": \\"httpbin.org\\"*' '*\\"data\\": \\"My post data\\"*';;
-	6|7)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*\\"Host\\": \\"httpbin.org\\"*' '*\\"data\\": \\"My put data\\"*';;
-	8|9)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=200*" '*\\"Host\\": \\"httpbin.org\\"*';;
-	10|11)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*";;
+	0)
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" '*id=0*stat=200*method: GET*scheme: http*uri: /get*';;
+	1)
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" '*id=0*method="GET"*stat=200*method: GET*scheme: http*uri: /get*';;
+	2)
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" '*id=0*stat=200*method: GET*scheme: http*uri: /get*';;
+	3)
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" '*id=0*method="GET"*stat=200*method: GET*scheme: http*uri: /get*';;
+	4)
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" '*id=0*stat=200*method: POST*scheme: http*uri: /post*<h2>body</h2><p>My post data*';;
+	5)
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" '*id=0*method="POST"*stat=200*method: POST*scheme: http*uri: /post*<h2>body</h2><p>My post data*';;
+	6)
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" '*id=0*stat=200*method: PUT*scheme: http*uri: /put*<h2>body</h2><p>My put data*';;
+	7)
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" '*id=0*method="PUT"*stat=200*method: PUT*scheme: http*uri: /put*<h2>body</h2><p>My put data*';;
+	8)
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" '*id=0*stat=200*method: DELETE*scheme: http*uri: /delete*';;
+	9)
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" '*id=0*method="DELETE"*stat=200*method: DELETE*scheme: http*uri: /delete*';;
+	10)
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" '*id=0*';;
+	11)
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" '*id=0*method="NONE"*';;
 	esac
 }
