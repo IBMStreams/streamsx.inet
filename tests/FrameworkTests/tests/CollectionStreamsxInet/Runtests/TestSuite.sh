@@ -10,9 +10,13 @@ setVar 'TTPR_ftpServerPasswd' 'streams'
 setVar 'TTPR_ftpDirForReadTests' "ftpr$HOSTNAME"
 setVar 'TTPR_ftpDirForWriteTests' "ftpw$HOSTNAME"
 
+# http server install location
+setVar 'TTPR_httpServerDir' "$TTRO_inputDir/../HTTPTestServer"
+
 # expected http server definitions
 # TTPR_httpServerHost
-# if TTPR_httpServerHost is not set, the http server is not started
+# if TTPR_httpServerHost is not set, the http server is started from http server install location TTPR_httpServerDir
+# the following props depend usualy from host
 # TTPR_httpServerAddr  "${TTPR_httpServerHost}:8097"
 # TTPR_httpsServerAddr "${TTPR_httpServerHost}:1443"
 
