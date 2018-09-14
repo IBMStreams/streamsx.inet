@@ -15,11 +15,11 @@ function myExplain {
 
 PREPS=(
 	'myExplain'
-	'copyAndTransformSpl'
+	'copyAndMorphSpl'
 )
 
 STEPS=(
-	'splCompile'
+	"splCompile host=$TTPR_httpServerAddr"
 	'executeLogAndError output/bin/standalone -t 2'
 	'linewisePatternMatchInterceptAndSuccess "$TT_evaluationFile" "" "*CDIST0226E Operator has output attribute name parameter but has no output port*"'
 )

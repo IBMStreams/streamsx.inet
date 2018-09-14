@@ -11,30 +11,23 @@ public composite Main {
 				iterations : 1;
 			output O:
 				id = IterationCount(),
-				//_1_method = "GET",
-				//_3_method = "GET",
-				//_5_method = "POST",
-				//_7_method = "PUT",
-				//_9_method = "DELETE",
-				//_11_method = "NONE",
+				//<1 3>method = "GET",
+				//<5>method = "POST",
+				//<7>method = "PUT",
+				//<9>method = "DELETE",
+				//<11>method = "NONE",
 				data = $data;
 		}
 		
 		() as Response = HTTPRequest(Trigger as I) {
 			param
 				fixedUrl: $url;
-				//_1_method : method;
-				//_3_method : method;
-				//_5_method : method;
-				//_7_method : method;
-				//_9_method : method;
-				//_11_method : method;
-				//_0_fixedMethod : GET;
-				//_2_fixedMethod : GET;
-				//_4_fixedMethod : POST;
-				//_6_fixedMethod : PUT;
-				//_8_fixedMethod : DELETE;
-				//_10_fixedMethod : NONE;
+				//<1 3 5 7 9 11>method : method;
+				//<0 2>fixedMethod : GET;
+				//<4>fixedMethod : POST;
+				//<6>fixedMethod : PUT;
+				//<8>fixedMethod : DELETE;
+				//<10>fixedMethod : NONE;
 				requestBodyAttribute : data;
 		}
 		

@@ -19,11 +19,18 @@ function myExplain {
 	esac
 }
 
-declare -a urlList=( 'http://httpbin.org/get' 'http://httpbin.org/redirect/3' 'http://httpbin.org/post' 'http://httpbin.org/put' 'http://httpbin.org/delete' '' )
+declare -a urlList=(
+	"http://$TTPR_httpServerAddr/get"
+	"http://$TTPR_httpServerAddr/redirect/3"
+	"http://$TTPR_httpServerAddr/post"
+	"http://$TTPR_httpServerAddr/put"
+	"http://$TTPR_httpServerAddr/delete"
+	''
+)
 
 PREPS=(
 	'myExplain'
-	'copyAndTransformSpl'
+	'copyAndMorphSpl'
 	'mkdir -p "$TT_dataDir"'
 )
 
