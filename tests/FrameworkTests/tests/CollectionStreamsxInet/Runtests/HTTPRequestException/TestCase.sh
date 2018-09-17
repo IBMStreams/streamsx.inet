@@ -4,20 +4,33 @@ setCategory 'quick'
 
 function myExplain {
 	case "$TTRO_variantCase" in
-	0)  echo "variant $TTRO_variantCase - PUT  method url httpx://httpbin.org/get outputBody";;
-	1)  echo "variant $TTRO_variantCase - GET  method url httpx://httpbin.org/get outputDataLine";;
-	2)  echo "variant $TTRO_variantCase - HEAD method url http://httpbin.orgx/get outputBody";;
-	3)  echo "variant $TTRO_variantCase - POST  method url http://httpbin.orgx/get outputDataLine";;
-	4)  echo "variant $TTRO_variantCase - get  method url http://httpbin.org/get outputBody";;
-	5)  echo "variant $TTRO_variantCase - get  method url http://httpbin.org/get outputDataLine";;
-	*) printErrorAndExit "invalid variant $TTRO_variantCase" $errRt;;
+	0)
+		myUrl="httpx://${TTPR_httpServerAddr}/get"
+		echo "variant $TTRO_variantCase - PUT  method url $myUrl outputBody";;
+	1)
+		myUrl="httpx://${TTPR_httpServerAddr}/get"
+		echo "variant $TTRO_variantCase - GET  method url $myUrl outputDataLine";;
+	2)
+		myUrl="http://xx${TTPR_httpServerAddr}/get"
+		echo "variant $TTRO_variantCase - HEAD method url $myUrl outputBody";;
+	3)
+		myUrl="http://xx${TTPR_httpServerAddr}/get"
+		echo "variant $TTRO_variantCase - POST  method url $myUrl outputDataLine";;
+	4)
+		myUrl="http://${TTPR_httpServerAddr}/get"
+		echo "variant $TTRO_variantCase - get  method url $myUrl outputBody";;
+	5)
+		myUrl="http://${TTPR_httpServerAddr}/get"
+		echo "variant $TTRO_variantCase - get  method url $myUrl outputDataLine";;
+	*)
+		printErrorAndExit "invalid variant $TTRO_variantCase" $errRt;;
 	esac
 }
 
-PREPS='myExplain copyAndTransformSpl'
+PREPS='myExplain copyAndMorphSpl'
 
 STEPS=(
-	'splCompile'
+	'splCompile url=$myUrl'
 	'submitJob'
 	'checkJobNo'
 	'waitForFinAndHealth'
@@ -30,7 +43,14 @@ FINS='cancelJob'
 function myEval {
 	case "$TTRO_variantCase" in
 	0|1)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" '*status=""*' "*stat=-1*" "*ClientProtocolException*" '*respData=""*';;
+		if linewisePatternMatch "$TT_dataDir/Tuples" "true" "*id=0*" '*status=""*' "*stat=-1*" "*ClientProtocolException*" '*respData=""*'; then
+			return 0
+		elif linewisePatternMatch "$TT_dataDir/Tuples" "true" "*id=0*" '*status=""*' "*stat=-1*" "*UnsupportedSchemeException*" '*respData=""*'; then
+			return 0
+		else
+			setFailure "None of the above matches"
+		fi;;
+		
 	2|3)
 		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" '*status=""*' "*stat=-1*" "*UnknownHostException*" '*respData=""*';;
 	4|5)

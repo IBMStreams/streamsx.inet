@@ -90,6 +90,7 @@ public class HTTPTestServer {
         handler.addServletWithMapping(MethodServlet.class, "/put");
         handler.addServletWithMapping(MethodServlet.class, "/head");
         handler.addServletWithMapping(RedirectServlet.class, "/redirect/*");
+        handler.addServletWithMapping(StatusServlet.class, "/status/*");
 
         server.start();
         server.dumpStdErr();

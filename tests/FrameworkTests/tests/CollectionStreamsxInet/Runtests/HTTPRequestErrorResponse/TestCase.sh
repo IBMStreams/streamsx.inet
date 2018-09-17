@@ -21,10 +21,10 @@ function myExplain {
 	esac
 }
 
-PREPS='myExplain copyAndTransformSpl'
+PREPS='myExplain copyAndMorphSpl'
 
 STEPS=(
-	'splCompile'
+	"splCompile host=$TTPR_httpServerAddr"
 	'submitJob'
 	'checkJobNo'
 	'waitForFinAndHealth'
@@ -39,19 +39,19 @@ function myEval {
 	0|1)
 		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=404*" "*404 Not Found*";;
 	2|3)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=418*" "*teapot*";;
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=418*" "*Teapot*";;
 	4|5)
 		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=404*" '*respData=""*';;
 	6|7)
 		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=418*" '*respData=""*';;
 	8|9)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=404*" "*404 Not Found*";;
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=405*" "*405 HTTP method*";;
 	10|11)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=418*" "*teapot*";;
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=418*" "*Teapot*";;
 	12|13)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=404*" "*404 Not Found*";;
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=405*" "*405 HTTP method*";;
 	14|15)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=418*" "*teapot*";;
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" "*stat=418*" "*Teapot*";;
 	*)
 		PrintErrorAndExit "Wrong variant $TTRO_variantCase" $errRt
 	esac
@@ -65,12 +65,5 @@ function myEval2 {
 		if [[ $TTTT_lineCount -ne 1 ]]; then
 			setFailure "Invalid line count $TTTT_lineCount"
 		fi;;
-	1|9|13)
-		# cases with outputDataLine must not contain empty respData except in case of HEAD method
-		linewisePatternMatchInterceptAndError "$TT_dataDir/Tuples" "" '*respData=""*';;
-	5|7)
-		echo "empty test in case of HEAD method";;
-	3|11|15)
-		echo "This cases may also contain empty data lines";;
 	esac
 }

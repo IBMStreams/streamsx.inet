@@ -48,6 +48,6 @@ function myEval2 {
 	11)
 		linewisePatternMatchInterceptAndSuccess "$TT_evaluationFile" "" "*ERROR*HTTPRequestOper*IllegalArgumentException*";;
 	*)
-		linewisePatternMatchInterceptAndSuccess "$TT_evaluationFile" "" "*ERROR*HTTPRequestOper*ClientProtocolException*";;
+		linewisePatternMatchInterceptAndSuccess "$TT_evaluationFile" "" "*ERROR*HTTPRequestOper*ClientProtocolException*" "*ERROR*HTTPRequestOper*UnsupportedSchemeException*";;
 	esac
 }
