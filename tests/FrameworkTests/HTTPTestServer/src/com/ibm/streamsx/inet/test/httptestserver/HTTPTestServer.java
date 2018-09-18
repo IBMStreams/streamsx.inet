@@ -3,7 +3,14 @@
  */
 package com.ibm.streamsx.inet.test.httptestserver;
 
+import java.util.Collections;
+
 import org.eclipse.jetty.http.HttpVersion;
+import org.eclipse.jetty.security.ConstraintMapping;
+import org.eclipse.jetty.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.security.HashLoginService;
+import org.eclipse.jetty.security.LoginService;
+import org.eclipse.jetty.security.authentication.BasicAuthenticator;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -12,6 +19,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 /**
@@ -78,21 +86,47 @@ public class HTTPTestServer {
 		
 		server.setConnectors(new Connector[] { http, https });
 
-		ServletHandler handler = new ServletHandler();
-		server.setHandler(handler);
+		ServletHandler servletHandler = new ServletHandler();
 
-		handler.addServletWithMapping(HelloServlet.class, "/hello/*");
-		handler.addServletWithMapping(HeaderServlet.class, "/headers");
-		handler.addServletWithMapping(MethodServlet.class, "/get");
-		handler.addServletWithMapping(MethodServlet.class, "/delete");
-		handler.addServletWithMapping(MethodServlet.class, "/patch");
-		handler.addServletWithMapping(MethodServlet.class, "/post");
-		handler.addServletWithMapping(MethodServlet.class, "/put");
-		handler.addServletWithMapping(MethodServlet.class, "/head");
-		handler.addServletWithMapping(RedirectServlet.class, "/redirect/*");
-		handler.addServletWithMapping(StatusServlet.class, "/status/*");
-		handler.addServletWithMapping(RedirectToServlet.class, "/redirect-to");
+		servletHandler.addServletWithMapping(HelloServlet.class, "/hello/*");
+		servletHandler.addServletWithMapping(HeaderServlet.class, "/headers");
+		servletHandler.addServletWithMapping(MethodServlet.class, "/get");
+		servletHandler.addServletWithMapping(MethodServlet.class, "/delete");
+		servletHandler.addServletWithMapping(MethodServlet.class, "/patch");
+		servletHandler.addServletWithMapping(MethodServlet.class, "/post");
+		servletHandler.addServletWithMapping(MethodServlet.class, "/put");
+		servletHandler.addServletWithMapping(MethodServlet.class, "/head");
+		servletHandler.addServletWithMapping(RedirectServlet.class, "/redirect/*");
+		servletHandler.addServletWithMapping(StatusServlet.class, "/status/*");
+		servletHandler.addServletWithMapping(RedirectToServlet.class, "/redirect-to");
+		servletHandler.addServletWithMapping(AuthServlet.class, "/basic-auth/*");
 
+		LoginService loginService = new HashLoginService("MyRealm", "realm.properties");
+		server.addBean(loginService);
+		
+		ConstraintSecurityHandler security = new ConstraintSecurityHandler();
+		server.setHandler(security);
+		
+		Constraint constraint = new Constraint();
+		constraint.setName("auth");
+		constraint.setAuthenticate(true);
+		constraint.setRoles(new String[] { "user", "admin" });
+
+		ConstraintMapping mapping = new ConstraintMapping();
+		mapping.setPathSpec("/basic-auth/*");
+		//mapping.setPathSpec("/hello/*");
+		mapping.setConstraint(constraint);
+		security.setConstraintMappings(Collections.singletonList(mapping));
+		security.setAuthenticator(new BasicAuthenticator());
+		security.setLoginService(loginService);
+		security.setHandler(servletHandler);
+
+		//RolloverFileOutputStream outputStream = new RolloverFileOutputStream("server.log", true,10);
+		//DebugHandler debugHandler = new DebugHandler();
+		//debugHandler.setOutputStream(outputStream);
+		//debugHandler.setHandler(server.getHandler());
+		//server.setHandler(debugHandler);
+		
 		server.start();
 		server.dumpStdErr();
 		server.join();

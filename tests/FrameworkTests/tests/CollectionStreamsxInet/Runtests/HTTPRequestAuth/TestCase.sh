@@ -17,7 +17,7 @@ function myExplain {
 PREPS='myExplain copyAndMorphSpl'
 
 STEPS=(
-	'splCompile'
+	"splCompile host=$TTPR_httpServerAddr"
 	'submitJob'
 	'checkJobNo'
 	'waitForFinAndHealth'
@@ -30,13 +30,15 @@ function myEval {
 	case "$TTRO_variantCase" in
 	0)
 		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "" "*id=0,stat=401*";;
-	1|2|3)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "" "*id=0,stat=200*";;
+	1)
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "" "*id=0,stat=200*" "*user: user1*";;
+	2|3)
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "" "*id=0,stat=200*" "*user: user2*";;
 	4|5)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0,stat=200*" '*oauth_token=\\\\\\"zzzz\\\\\\"*' '*oauth_consumer_key=\\\\\\"xxxx\\\\\\"*';;
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0,stat=200*" '*oauth_token=\\"zzzz\\"*' '*oauth_consumer_key=\\"xxxx\\"*';;
 	6)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0,stat=200*" '*\\"Authorization\\": \\"Bearer zzzz\\"*';;
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0,stat=200*" '*Authorization: Bearer zzzz*';;
 	7)
-		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0,stat=200*" '*\\"Authorization\\": \\"Bearer Propzzzz\\"*';;
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0,stat=200*" '*Authorization: Bearer Propzzzz*';;
 	esac
 }
