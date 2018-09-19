@@ -36,7 +36,7 @@ public class StatusServlet extends HttpServlet {
 		String uri = request.getRequestURI();
 		StringTokenizer st = new StringTokenizer(uri, "/");
 		if ( st.countTokens() != 2 ) {
-			response.sendError(HttpServletResponse.SC_NOT_ACCEPTABLE, "url must have 2 components");
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "url must have 2 components");
 			return;
 		}
 		st.nextToken();
@@ -45,7 +45,7 @@ public class StatusServlet extends HttpServlet {
 			Integer no = Integer.parseInt(numberString);
 			response.sendError(no);
 		} catch (java.lang.NumberFormatException e) {
-			response.sendError(HttpServletResponse.SC_NOT_ACCEPTABLE, "must be a number : " + numberString);
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "must be a number : " + numberString);
 		}
 	}
 

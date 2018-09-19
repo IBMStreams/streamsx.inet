@@ -3,6 +3,8 @@
  */
 package com.ibm.streamsx.inet.test.httptestserver;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.Collections;
 
 import org.eclipse.jetty.http.HttpVersion;
@@ -18,7 +20,10 @@ import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
-import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.util.resource.PathResource;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
@@ -83,30 +88,44 @@ public class HTTPTestServer {
 				new HttpConnectionFactory(https_config));
 		https.setPort(httpsPort);
 		https.setIdleTimeout(500000);
-		
 		server.setConnectors(new Connector[] { http, https });
 
-		ServletHandler servletHandler = new ServletHandler();
+		//gzip handler
+		GzipHandler gzip = new GzipHandler();
+		gzip.setIncludedMethods("GET","POST");
+		gzip.setMinGzipSize(245);
+		gzip.setIncludedMimeTypes("text/plain","text/css","text/html", "application/javascript");
+		gzip.setIncludedPaths("/gzip/*");
 
-		servletHandler.addServletWithMapping(HelloServlet.class, "/hello/*");
-		servletHandler.addServletWithMapping(HeaderServlet.class, "/headers");
-		servletHandler.addServletWithMapping(MethodServlet.class, "/get");
-		servletHandler.addServletWithMapping(MethodServlet.class, "/delete");
-		servletHandler.addServletWithMapping(MethodServlet.class, "/patch");
-		servletHandler.addServletWithMapping(MethodServlet.class, "/post");
-		servletHandler.addServletWithMapping(MethodServlet.class, "/put");
-		servletHandler.addServletWithMapping(MethodServlet.class, "/head");
-		servletHandler.addServletWithMapping(RedirectServlet.class, "/redirect/*");
-		servletHandler.addServletWithMapping(StatusServlet.class, "/status/*");
-		servletHandler.addServletWithMapping(RedirectToServlet.class, "/redirect-to");
-		servletHandler.addServletWithMapping(AuthServlet.class, "/basic-auth/*");
+		//Servlet context handler and context (static)
+		Path webRootPath = new File("webapps/static-root/").toPath().toRealPath();
+		ServletContextHandler context = new ServletContextHandler();
+		context.setContextPath("/");
+		context.setBaseResource(new PathResource(webRootPath));
+		context.setWelcomeFiles(new String[] { "index.html" });
+		//add servlets
+		context.addServlet(HelloServlet.class, "/hello/*");
+		context.addServlet(HeaderServlet.class, "/headers");
+		context.addServlet(MethodServlet.class, "/get");
+		context.addServlet(MethodServlet.class, "/delete");
+		context.addServlet(MethodServlet.class, "/patch");
+		context.addServlet(MethodServlet.class, "/post");
+		context.addServlet(MethodServlet.class, "/put");
+		context.addServlet(MethodServlet.class, "/head");
+		context.addServlet(RedirectServlet.class, "/redirect/*");
+		context.addServlet(StatusServlet.class, "/status/*");
+		context.addServlet(RedirectToServlet.class, "/redirect-to");
+		context.addServlet(AuthServlet.class, "/basic-auth/*");
+		context.addServlet(HelloServlet.class, "/gzip");
+		context.addServlet(DefaultServlet.class,"/"); // always last, always on "/"
 
+		gzip.setHandler(context);
+		
 		LoginService loginService = new HashLoginService("MyRealm", "realm.properties");
 		server.addBean(loginService);
 		
 		ConstraintSecurityHandler security = new ConstraintSecurityHandler();
-		server.setHandler(security);
-		
+
 		Constraint constraint = new Constraint();
 		constraint.setName("auth");
 		constraint.setAuthenticate(true);
@@ -114,19 +133,15 @@ public class HTTPTestServer {
 
 		ConstraintMapping mapping = new ConstraintMapping();
 		mapping.setPathSpec("/basic-auth/*");
-		//mapping.setPathSpec("/hello/*");
 		mapping.setConstraint(constraint);
 		security.setConstraintMappings(Collections.singletonList(mapping));
 		security.setAuthenticator(new BasicAuthenticator());
 		security.setLoginService(loginService);
-		security.setHandler(servletHandler);
 
-		//RolloverFileOutputStream outputStream = new RolloverFileOutputStream("server.log", true,10);
-		//DebugHandler debugHandler = new DebugHandler();
-		//debugHandler.setOutputStream(outputStream);
-		//debugHandler.setHandler(server.getHandler());
-		//server.setHandler(debugHandler);
-		
+		security.setHandler(gzip);
+
+		server.setHandler(security);
+
 		server.start();
 		server.dumpStdErr();
 		server.join();
