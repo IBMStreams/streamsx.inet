@@ -11,6 +11,7 @@
         <pathelement location="bin"/>
         <pathelement location="opt/jetty-all-9.4.12.v20180830-uber.jar"/>
     </path>
+
     <target name="init">
         <mkdir dir="bin"/>
         <copy includeemptydirs="false" todir="bin">
@@ -20,12 +21,15 @@
             </fileset>
         </copy>
     </target>
-    <target name="clean">
+
+    <target name="clean" description="Delete all compiler generated artifacts">
         <delete dir="bin"/>
     </target>
-    <target depends="clean" name="cleanall"/>
-    <target depends="build-subprojects,build-project" name="build"/>
-    <target name="build-subprojects"/>
+
+    <target name="cleanall" depends="clean" description="Clean all artifacts"/>
+
+    <target name="build" depends="build-project" description="build the project"/>
+
     <target depends="init" name="build-project">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
@@ -33,8 +37,8 @@
             <classpath refid="HTTPTestServer.classpath"/>
         </javac>
     </target>
-    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
-    <target name="HTTPTestServer">
+
+    <target name="HTTPTestServer" description="start the server">
         <java classname="com.ibm.streamsx.inet.test.httptestserver.HTTPTestServer" failonerror="true" fork="yes">
             <classpath refid="HTTPTestServer.classpath"/>
         </java>
