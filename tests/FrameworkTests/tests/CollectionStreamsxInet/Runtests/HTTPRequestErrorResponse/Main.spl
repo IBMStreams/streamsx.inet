@@ -3,50 +3,19 @@ use com.ibm.streamsx.testframe::FileSink1;
 
 public composite Main {
 	param
-		//_0_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/getx');
-		//_1_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/getx');
-		//_2_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/status/418');
-		//_3_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/status/418');
+		//<0 1 4 5 8 9 12 13  >expression<rstring> $url: "http://" + getCompileTimeValue("host") + '/getx';
+		//<2 3 6 7 10 11 14 15>expression<rstring> $url: "http://" + getCompileTimeValue("host") + '/status/418';
 
-		//_4_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/getx');
-		//_5_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/getx');
-		//_6_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/status/418');
-		//_7_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/status/418');
-
-		//_8_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/getx');
-		//_9_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/getx');
-		//_10_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/status/418');
-		//_11_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/status/418');
-
-		//_12_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/getx');
-		//_13_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/getx');
-		//_14_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/status/418');
-		//_15_expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/status/418');
 	graph
 		stream<uint64 id, rstring method, rstring data> Trigger as O = Beacon() {
 			param 
 				iterations : 1;
 			output O:
 				id = IterationCount(),
-				//_0_method = "GET",
-				//_1_method = "GET",
-				//_2_method = "GET",
-				//_3_method = "GET",
-				
-				//_4_method = "HEAD",
-				//_5_method = "HEAD",
-				//_6_method = "HEAD",
-				//_7_method = "HEAD",
-
-				//_8_method = "POST",
-				//_9_method = "POST",
-				//_10_method = "POST",
-				//_11_method = "POST",
-
-				//_12_method = "PUT",
-				//_13_method = "PUT",
-				//_14_method = "PUT",
-				//_15_method = "PUT",
+				//<0 1 2 3>method = "GET",
+				//<4 5 6 7>method = "HEAD",
+				//<8 9 10 11>method = "POST",
+				//<12 13 14 15>method = "PUT",
 				data = "My data";
 		}
 		
@@ -55,33 +24,14 @@ public composite Main {
 				fixedUrl: $url;
 				method: method;
 				requestBodyAttribute : data;
-				//_0_outputBody : "respData";
-				//_1_outputDataLine : "respData";
-				//_2_outputBody : "respData";
-				//_3_outputDataLine : "respData";
-				
-				//_4_outputBody : "respData";
-				//_5_outputDataLine : "respData";
-				//_6_outputBody : "respData";
-				//_7_outputDataLine : "respData";
-
-				//_8_outputBody : "respData";
-				//_9_outputDataLine : "respData";
-				//_10_outputBody : "respData";
-				//_11_outputDataLine : "respData";
-
-				//_12_outputBody : "respData";
-				//_13_outputDataLine : "respData";
-				//_14_outputBody : "respData";
-				//_15_outputDataLine : "respData";
+				//<0 2 4 6 8 10 12 14>outputBody : "respData";
+				//<1 3 5 7 9 11 13 15>outputDataLine : "respData";
 				outputStatus : "status";
 				outputStatusCode : "stat";
-				
 		}
 		
 		() as Sink = FileSink1(Response) { }
 		
-	
 	config
 		restartable : false;
 }

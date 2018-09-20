@@ -10,4 +10,3 @@ setVar 'TTPR_streamsxInetToolkit' "$TTRO_inputDir/../../../com.ibm.streamsx.inet
 setVar 'TTPR_streamsxJsonToolkit' "$STREAMS_INSTALL/toolkits/com.ibm.streamsx.json"
 
 setVar 'TT_toolkitPath' "${TTPR_streamsxInetToolkit}:${TTPR_streamsxJsonToolkit}" #consider more than one tk...
-

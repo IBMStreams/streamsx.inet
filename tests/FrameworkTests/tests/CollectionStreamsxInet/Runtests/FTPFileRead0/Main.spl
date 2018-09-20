@@ -1,0 +1,64 @@
+use com.ibm.streamsx.inet.ftp::*;
+use com.ibm.streamsx.testframe::FileSink1;
+use spl.adapter::FileSink;
+
+composite Main {
+	param
+		expression<Protocol> $protocol :      (Protocol)getSubmissionTimeValue("protocol");
+		expression<rstring> $host :           getSubmissionTimeValue("host");
+		expression<rstring> $path :           getSubmissionTimeValue("path", "/");
+		expression<rstring> $username :       getSubmissionTimeValue("username");
+		expression<rstring> $password :       getSubmissionTimeValue("password");
+		expression<boolean> $verbosity :      (boolean)getSubmissionTimeValue("verbosity", "false");
+
+	graph
+		//provide a trigger stream for the ftp directory scan
+		stream<int32 count, rstring fileName> TriggerStream = Beacon() {
+			logic state : list<rstring> filenames = ["1MB.zip", "20MB.zip"];
+			param iterations : 2;
+			output TriggerStream : count = (int32)IterationCount(), fileName = filenames[IterationCount()];
+		}
+		
+		(
+			stream<blob cont, rstring fileName> FileStream as OUT;
+			stream<rstring errorText, int32 error, uint32 transferCount, uint32 failureCount, uint64 bytesTransferred> ErrorStream as ERR
+		) = FTPReader(TriggerStream as IN) {
+			param
+				protocol : $protocol;
+				host : $host;
+				path : $path;
+				filename : IN.fileName;
+				username : $username;
+				password : $password;
+				connectionCloseMode : ever;
+				curlVerbose : $verbosity;
+			output
+				OUT : cont = Binary();
+				ERR:
+					errorText = ErrorText(),
+					error = ErrorCode(),
+					transferCount = TransferCount(),
+					failureCount =  TransferFailureCount(),
+					bytesTransferred = BytesTransferred();
+		}
+		
+		stream<rstring files> FilesWritten = FileSink(FileStream as I) {
+			param
+				closeMode: dynamic;
+				file: fileName;
+				format: block;
+				suppress: fileName;
+				append: false;
+		}
+		() as Sink = FileSink1(FilesWritten) {}
+		
+		() as ErrorSink = FileSink1(ErrorStream) {
+			param
+				fnameTuples : "ErrorTuples";
+				fnameWindowMarker: "ErrorTuples";
+				fnameFinalMarker: "ErrorTuples";
+		}
+		
+	config
+		restartable : false;
+}

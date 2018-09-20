@@ -3,11 +3,11 @@ use com.ibm.streamsx.testframe::FileSink1;
 
 public composite Main {
 	param
-		//<0 1>expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/get');
-		//<2 3>expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/redirect/3');
-		//<4 5>expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/post');
-		//<6 7>expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/put');
-		//<8 9>expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/delete');
+		//<0 1>expression<rstring> $url: getSubmissionTimeValue("url", "http://" + getCompileTimeValue("host") + '/get');
+		//<2 3>expression<rstring> $url: getSubmissionTimeValue("url", "http://" + getCompileTimeValue("host") + '/redirect/3');
+		//<4 5>expression<rstring> $url: getSubmissionTimeValue("url", "http://" + getCompileTimeValue("host") + '/post');
+		//<6 7>expression<rstring> $url: getSubmissionTimeValue("url", "http://" + getCompileTimeValue("host") + '/put');
+		//<8 9>expression<rstring> $url: getSubmissionTimeValue("url", "http://" + getCompileTimeValue("host") + '/delete');
 		//<10 11>expression<rstring> $url: getSubmissionTimeValue("url", '');
 		
 		//<0 1 2 3>expression<rstring> $data:  getSubmissionTimeValue("data", "");
@@ -28,7 +28,7 @@ public composite Main {
 				data = $data;
 		}
 		
-		stream<uint64 id, rstring method, rstring url, rstring status, int32 stat, rstring respData> Response as O = HTTPRequest(Trigger as I) {
+		stream<uint64 id, rstring method, rstring status, int32 stat, rstring respData> Response as O = HTTPRequest(Trigger as I) {
 			param
 				fixedUrl: $url;
 				//<1 3 5 7 9 11>method : method;

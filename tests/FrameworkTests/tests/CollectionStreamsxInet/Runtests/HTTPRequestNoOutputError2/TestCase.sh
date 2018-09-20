@@ -18,11 +18,17 @@ function myExplain {
 	esac
 }
 
-declare -a urlList=( 'httpx://httpbin.org/get' 'http://httpbin.orgx/redirect/3' 'httpx://httpbin.org/post' 'httpx://httpbin.org/put' 'httxp://httpbin.org/delete' 'http://httpbin.org/get' )
+declare -a urlList=(
+	"httpx://$TTPR_httpServerAddr/get"
+	"http://xx${TTPR_httpServerAddr}/redirect/3"
+	"httpx://$TTPR_httpServerAddr/post"
+	"httpx://$TTPR_httpServerAddr/put"
+	"httxp://$TTPR_httpServerAddr/delete"
+	"http://$TTPR_httpServerAddr/get" )
 
 PREPS=(
 	'myExplain'
-	'copyAndTransformSpl'
+	'copyAndMorphSpl'
 	'mkdir -p "$TT_dataDir"'
 )
 
@@ -42,6 +48,6 @@ function myEval2 {
 	11)
 		linewisePatternMatchInterceptAndSuccess "$TT_evaluationFile" "" "*ERROR*HTTPRequestOper*IllegalArgumentException*";;
 	*)
-		linewisePatternMatchInterceptAndSuccess "$TT_evaluationFile" "" "*ERROR*HTTPRequestOper*ClientProtocolException*";;
+		linewisePatternMatchInterceptAndSuccess "$TT_evaluationFile" "" "*ERROR*HTTPRequestOper*ClientProtocolException*" "*ERROR*HTTPRequestOper*UnsupportedSchemeException*";;
 	esac
 }

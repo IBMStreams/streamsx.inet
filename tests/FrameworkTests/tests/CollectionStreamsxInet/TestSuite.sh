@@ -1,3 +1,5 @@
+setVar 'TTPR_timeout' 240
+
 # The common test suite for inet toolkit tests
 import "$TTRO_scriptDir/streamsutils.sh"
 
@@ -13,3 +15,8 @@ for x in $TTRO_streamsxInetSamplesPath/*; do
 done
 printInfo "All samples are: $all"
 setVar 'TTRO_streamsxInetSamples' "$all"
+
+PREPS=(
+	'export'
+	'ps'
+)

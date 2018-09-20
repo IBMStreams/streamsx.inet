@@ -3,11 +3,11 @@ use com.ibm.streamsx.testframe::FileSink1;
 
 public composite Main {
 	param
-		//<0 3>expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/get');
-		//<1 4>expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/gzip');
-		//<2 5>expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/deflate');
-		//<0 1 2>expression<boolean> $disableComp: (boolean)getSubmissionTimeValue("disableComp", "false");
-		//<3 4 5>expression<boolean> $disableComp: (boolean)getSubmissionTimeValue("disableComp", "true");
+		//<0 3>expression<rstring> $url: 'http://' + getCompileTimeValue("host") + '/hello';
+		//<1 4>expression<rstring> $url: 'http://' + getCompileTimeValue("host") + '/gzip';
+		//<2 5>expression<rstring> $url: 'http://'+ getCompileTimeValue("host") + '/deflate';
+		//<0 1 2>expression<boolean> $disableComp: false;
+		//<3 4 5>expression<boolean> $disableComp: true;
 	graph
 		stream<uint64 id, rstring method> Trigger as O = Beacon() {
 			param 
@@ -17,14 +17,15 @@ public composite Main {
 				method = "GET";
 		}
 		
-		stream<uint64 id, rstring method, rstring url, rstring status, int32 stat, rstring respData> Response as O = HTTPRequest(Trigger as I) {
+		stream<uint64 id, int32 stat, rstring respData, rstring contentEncoding, list<rstring> outHeaders> Response as O = HTTPRequest(Trigger as I) {
 			param
 				fixedUrl: $url;
 				method : method;
-				extraHeaders : "Cache-Control: no-cache";
+				//extraHeaders : "Cache-Control: no-cache";
 				outputBody : "respData";
-				outputStatus : "status";
 				outputStatusCode : "stat";
+				outputContentEncoding : "contentEncoding";
+				outputHeader : "outHeaders";
 				disableContentCompression : $disableComp;
 		}
 		

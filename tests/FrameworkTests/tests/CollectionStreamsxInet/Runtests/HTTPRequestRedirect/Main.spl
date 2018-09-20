@@ -3,10 +3,10 @@ use com.ibm.streamsx.testframe::FileSink1;
 
 public composite Main {
 	param
-		//<0 4 8>expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/redirect-to?url=http://httpbin.org/get&status_code=307');
-		//<1 5 9>expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/redirect-to?url=http://httpbin.org/get&status_code=307');
-		//<2 6 10>expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/redirect-to?url=http://httpbin.org/post&status_code=307');
-		//<3 7 11>expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/redirect-to?url=http://httpbin.org/put&status_code=307');
+		//<0 4 8>expression<rstring> $url:  'http://' + getCompileTimeValue("host") + '/redirect-to?url=http://' + getCompileTimeValue("host") + '/get&status_code=307';
+		//<1 5 9>expression<rstring> $url:  'http://' + getCompileTimeValue("host") + '/redirect-to?url=http://' + getCompileTimeValue("host") + '/head&status_code=307';
+		//<2 6 10>expression<rstring> $url: 'http://' + getCompileTimeValue("host") + '/redirect-to?url=http://' + getCompileTimeValue("host") + '/post&status_code=307';
+		//<3 7 11>expression<rstring> $url: 'http://' + getCompileTimeValue("host") + '/redirect-to?url=http://' + getCompileTimeValue("host") + '/put&status_code=307';
 
 	graph
 		stream<uint64 id, rstring method, rstring data> Trigger as O = Beacon() {

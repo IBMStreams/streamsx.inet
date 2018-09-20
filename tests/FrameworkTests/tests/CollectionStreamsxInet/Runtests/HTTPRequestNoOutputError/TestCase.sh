@@ -18,11 +18,11 @@ function myExplain {
 	esac
 }
 
-declare -a urlList=( 'http://httpbin.org/getx' 'http://httpbin.org/redirectx/3' 'http://httpbin.org/postx' 'http://httpbin.org/putx' 'http://httpbin.org/deletex' 'x' )
+declare -a urlList=( "http://$TTPR_httpServerAddr/getx" "http://$TTPR_httpServerAddr/redirectx/3" "http://$TTPR_httpServerAddr/postx" "http://$TTPR_httpServerAddr/putx" "http://$TTPR_httpServerAddr/deletex" 'x' )
 
 PREPS=(
 	'myExplain'
-	'copyAndTransformSpl'
+	'copyAndMorphSpl'
 	'mkdir -p "$TT_dataDir"'
 )
 
@@ -39,6 +39,6 @@ function myEval2 {
 	10|11)
 		return 0;;
 	*)
-		linewisePatternMatchInterceptAndSuccess "$TT_evaluationFile" "" "*WARN*HTTPRequestOper*status=HTTP*404 NOT FOUND";;
+		linewisePatternMatchInterceptAndSuccess "$TT_evaluationFile" "" "*WARN*HTTPRequestOper*status=HTTP*404*" "*WARN*HTTPRequestOper*status=HTTP*405*";;
 	esac
 }
