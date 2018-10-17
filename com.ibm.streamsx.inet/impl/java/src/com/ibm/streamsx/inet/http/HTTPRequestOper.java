@@ -47,6 +47,7 @@ import com.ibm.json.java.JSONArray;
 import com.ibm.json.java.JSONObject;
 import com.ibm.streams.operator.StreamingInput;
 import com.ibm.streams.operator.Tuple;
+import com.ibm.streams.operator.TupleAttribute;
 import com.ibm.streams.operator.encoding.EncodingFactory;
 import com.ibm.streams.operator.encoding.JSONEncoding;
 import com.ibm.streams.operator.logging.TraceLevel;
@@ -139,7 +140,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     URI uri = createUriWithParams(url, tuple, false);
                     HttpPost post = new HttpPost(uri);
                     createEntity(post, tuple, contentType, true);
-                    setHeader(post);
+                    setHeader(post, tuple);
                     signRequest(post);
                     setConnectionParams(post);
                     sendRequest(tuple, post);
@@ -149,7 +150,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     URI uri = createUriWithParams(url, tuple, false);
                     HttpPut put = new HttpPut(uri);
                     createEntity(put, tuple, contentType, false);
-                    setHeader(put);
+                    setHeader(put, tuple);
                     signRequest(put);
                     setConnectionParams(put);
                     sendRequest(tuple, put);
@@ -159,7 +160,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     URI uri = createUriWithParams(url, tuple, false);
                     HttpPatch patch = new HttpPatch(uri);
                     createEntity(patch, tuple, contentType, false);
-                    setHeader(patch);
+                    setHeader(patch, tuple);
                     signRequest(patch);
                     setConnectionParams(patch);
                     sendRequest(tuple, patch);
@@ -168,7 +169,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             case GET: {
                     URI uri = createUriWithParams(url, tuple, true);
                     HttpGet get = new HttpGet(uri);
-                    setHeader(get);
+                    setHeader(get, tuple);
                     signRequest(get);
                     setConnectionParams(get);
                     sendRequest(tuple, get);
@@ -178,7 +179,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             case HEAD: {
                     URI uri = createUriWithParams(url, tuple, false);
                     HttpHead head = new HttpHead(uri);
-                    setHeader(head);
+                    setHeader(head, tuple);
                     signRequest(head);
                     setConnectionParams(head);
                     sendRequest(tuple, head);
@@ -187,7 +188,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             case OPTIONS: {
                     URI uri = createUriWithParams(url, tuple, false);
                     HttpOptions options = new HttpOptions(uri);
-                    setHeader(options);
+                    setHeader(options, tuple);
                     signRequest(options);
                     setConnectionParams(options);
                     sendRequest(tuple, options);
@@ -196,7 +197,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             case DELETE: {
                     URI uri = createUriWithParams(url, tuple, false);
                     HttpDelete delete = new HttpDelete(uri);
-                    setHeader(delete);
+                    setHeader(delete, tuple);
                     signRequest(delete);
                     setConnectionParams(delete);
                     sendRequest(tuple, delete);
@@ -205,7 +206,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             case TRACE: {
                     URI uri = createUriWithParams(url, tuple, false);
                     HttpTrace trace = new HttpTrace(uri);
-                    setHeader(trace);
+                    setHeader(trace, tuple);
                     signRequest(trace);
                     setConnectionParams(trace);
                     sendRequest(tuple, trace);
@@ -283,8 +284,20 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
     /************************************************
      * set extra headers
      ************************************************/
-    private void setHeader(HttpRequestBase request) {
-        Map<String, String> headerMap = HTTPUtils.getHeaderMapThrow(getExtraHeaders());
+    private void setHeader(HttpRequestBase request, Tuple tuple) {
+        ArrayList<String> headerList = getExtraHeaders();
+        TupleAttribute<Tuple, String> headerAttribute = getExtraHeaderAttribute();
+        //add the header from extraHeaderAttribute to the extra headers list if the value is not empty
+        if (headerAttribute != null) {
+            if (headerList == null) {
+                headerList = new ArrayList<String>(1);
+            }
+            String additionalHeader = headerAttribute.getValue(tuple);
+            if (!additionalHeader.isEmpty()) {
+                headerList.add(additionalHeader);
+            }
+        }
+        Map<String, String> headerMap = HTTPUtils.getHeaderMapThrow(headerList);
         for (Map.Entry<String, String> header : headerMap.entrySet()) {
             request.setHeader(header.getKey(), header.getValue());
         }

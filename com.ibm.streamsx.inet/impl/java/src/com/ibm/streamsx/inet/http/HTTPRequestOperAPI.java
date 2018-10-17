@@ -117,7 +117,8 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     private String                        fixedContentType = null;
     private TupleAttribute<Tuple, String> contentType;
     private ContentType                   contentTypeToUse = null;
-    private List<String>                  extraHeaders = null;
+    private ArrayList<String>             extraHeaders = null;
+    private TupleAttribute<Tuple, String> extraHeaderAttribute = null;
     
     //request configuration
     private TupleAttribute<Tuple, String> requestBodyAttribute = null;  //request body
@@ -201,7 +202,13 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     }
     @Parameter(optional = true, description = "Extra headers to send with request, format is `Header-Name: value`.")
     public void setExtraHeaders(List<String> extraHeaders) {
-        this.extraHeaders = extraHeaders;
+        this.extraHeaders = new ArrayList<String>(extraHeaders);
+    }
+    @Parameter(optional = true, description = "One extra header to send with the request, the attribute must contain a string in the form "
+            + "`Header-Name: value`. If the attribute value is an empty string, no additional header is send. This parameter may be applied together "
+            + "with parameter `extraHeaders`.")
+    public void setExtraHeaderAttribute(TupleAttribute<Tuple, String> extraHeaderAttribute) {
+        this.extraHeaderAttribute = extraHeaderAttribute;
     }
     
     /***************************************
@@ -658,7 +665,8 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     protected ContentType getContentType(Tuple tuple) { return contentTypeGetter.apply(tuple); }
 
     //getter
-    protected List<String>                  getExtraHeaders() { return extraHeaders; }
+    protected ArrayList<String>             getExtraHeaders() { return extraHeaders; }
+    protected TupleAttribute<Tuple, String> getExtraHeaderAttribute() { return extraHeaderAttribute; }
     
     //request config
     protected TupleAttribute<Tuple, String> getRequestBodyAttribute() { return requestBodyAttribute; }
