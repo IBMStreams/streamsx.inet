@@ -141,7 +141,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     HttpPost post = new HttpPost(uri);
                     createEntity(post, tuple, contentType, true);
                     setHeader(post, tuple);
-                    signRequest(post);
+                    signRequest(post, tuple);
                     setConnectionParams(post);
                     sendRequest(tuple, post);
                 }
@@ -151,7 +151,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     HttpPut put = new HttpPut(uri);
                     createEntity(put, tuple, contentType, false);
                     setHeader(put, tuple);
-                    signRequest(put);
+                    signRequest(put, tuple);
                     setConnectionParams(put);
                     sendRequest(tuple, put);
                 }
@@ -161,7 +161,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     HttpPatch patch = new HttpPatch(uri);
                     createEntity(patch, tuple, contentType, false);
                     setHeader(patch, tuple);
-                    signRequest(patch);
+                    signRequest(patch, tuple);
                     setConnectionParams(patch);
                     sendRequest(tuple, patch);
                 }
@@ -170,7 +170,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     URI uri = createUriWithParams(url, tuple, true);
                     HttpGet get = new HttpGet(uri);
                     setHeader(get, tuple);
-                    signRequest(get);
+                    signRequest(get, tuple);
                     setConnectionParams(get);
                     sendRequest(tuple, get);
                 }
@@ -180,7 +180,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     URI uri = createUriWithParams(url, tuple, false);
                     HttpHead head = new HttpHead(uri);
                     setHeader(head, tuple);
-                    signRequest(head);
+                    signRequest(head, tuple);
                     setConnectionParams(head);
                     sendRequest(tuple, head);
                 }
@@ -189,7 +189,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     URI uri = createUriWithParams(url, tuple, false);
                     HttpOptions options = new HttpOptions(uri);
                     setHeader(options, tuple);
-                    signRequest(options);
+                    signRequest(options, tuple);
                     setConnectionParams(options);
                     sendRequest(tuple, options);
                 }
@@ -198,7 +198,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     URI uri = createUriWithParams(url, tuple, false);
                     HttpDelete delete = new HttpDelete(uri);
                     setHeader(delete, tuple);
-                    signRequest(delete);
+                    signRequest(delete, tuple);
                     setConnectionParams(delete);
                     sendRequest(tuple, delete);
                 }
@@ -207,7 +207,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                     URI uri = createUriWithParams(url, tuple, false);
                     HttpTrace trace = new HttpTrace(uri);
                     setHeader(trace, tuple);
-                    signRequest(trace);
+                    signRequest(trace, tuple);
                     setConnectionParams(trace);
                     sendRequest(tuple, trace);
                 }
@@ -309,7 +309,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
      * @throws OAuthExpectationFailedException 
      * @throws OAuthMessageSignerException 
      ************************************************/
-    private void signRequest(HttpRequestBase request) throws OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException {
+    private void signRequest(HttpRequestBase request, Tuple tuple) throws OAuthMessageSignerException, OAuthExpectationFailedException, OAuthCommunicationException {
         switch (getAuthenticationType()) {
         case STANDARD:
             break;
@@ -317,7 +317,11 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             getOAuthConsumer().sign(request);
             break;
         case OAUTH2:
-            request.setHeader(getOAuth2AuthHeaderKey(), getOAuth2AuthHeaderValue());
+            if (getAccessTokenAttribute() == null) {
+                request.setHeader(getOAuth2AuthHeaderKey(), getOAuth2AuthHeaderValue());
+            } else {
+                request.setHeader(getOAuth2AuthHeaderKey(), getOAuth2AuthHeaderValue() + getAccessTokenAttribute().getValue(tuple));
+            }
             break;
         }
     }

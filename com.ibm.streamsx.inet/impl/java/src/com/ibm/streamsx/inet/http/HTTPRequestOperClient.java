@@ -243,7 +243,11 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
             break;
         case OAUTH2:
             oAuth2AuthHeaderKey = new String("Authorization");
-            oAuth2AuthHeaderValue = new String(props.getProperty("authMethod", "Bearer") + " " + getRequiredProperty("accessToken"));
+            if (getAccessTokenAttribute() == null) {
+                oAuth2AuthHeaderValue = new String(props.getProperty("authMethod", "Bearer") + " " + getRequiredProperty("accessToken"));
+            } else {
+                oAuth2AuthHeaderValue = new String(props.getProperty("authMethod", "Bearer") + " ");
+            }
             break;
         case STANDARD:
             break;
