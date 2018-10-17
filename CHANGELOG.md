@@ -1,4 +1,4 @@
-Changes
+# Changes
 =======
 ## v2.9.6:
 * Some minor fixes
@@ -22,3 +22,6 @@ Changes
 * New Operator HTTPRequest
 * New sample HTTPRequestDemo
 
+## New Version:
+* Operator HTTPRequestAdd - new parameter extraHeaderAttribute
+* Operator HTTPRequestAdd - new parameter accessTokenAttribute
