@@ -1,4 +1,4 @@
-Changes
+# Changes
 =======
 ## v3.0.0
 * move content os namespaces rest and wssercver to inetserver toolkit
@@ -25,3 +25,6 @@ Changes
 * New Operator HTTPRequest
 * New sample HTTPRequestDemo
 
+## New Version:
+* Operator HTTPRequestAdd - new parameter extraHeaderAttribute
+* Operator HTTPRequestAdd - new parameter accessTokenAttribute

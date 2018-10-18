@@ -117,7 +117,10 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     private String                        fixedContentType = null;
     private TupleAttribute<Tuple, String> contentType;
     private ContentType                   contentTypeToUse = null;
-    private List<String>                  extraHeaders = null;
+    private ArrayList<String>             extraHeaders = null;
+    private TupleAttribute<Tuple, String> extraHeaderAttribute = null;
+    private TupleAttribute<Tuple, String> accessTokenAttribute = null;
+    private TupleAttribute<Tuple, String> tokenTypeAttribute = null;
     
     //request configuration
     private TupleAttribute<Tuple, String> requestBodyAttribute = null;  //request body
@@ -201,9 +204,27 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     }
     @Parameter(optional = true, description = "Extra headers to send with request, format is `Header-Name: value`.")
     public void setExtraHeaders(List<String> extraHeaders) {
-        this.extraHeaders = extraHeaders;
+        this.extraHeaders = new ArrayList<String>(extraHeaders);
     }
-    
+    @Parameter(optional = true, description = "One extra header to send with the request, the attribute must contain a string in the form "
+            + "`Header-Name: value`. If the attribute value is an empty string, no additional header is send. This parameter may be applied together "
+            + "with parameter `extraHeaders`.")
+    public void setExtraHeaderAttribute(TupleAttribute<Tuple, String> extraHeaderAttribute) {
+        this.extraHeaderAttribute = extraHeaderAttribute;
+    }
+    @Parameter(optional = true, description = "Attribute that specifies the access token if `authenticationType` is `OAUTH2`. Any "
+            + "value of this attribute overwrites the value of the `accessToken` property in `authenticationFile` or in "
+            + "`authenticationProperties`. This parameter is meaningless if the `authenticationType` is different from `OAUTH2`")
+    public void setAccessTokenAttribute(TupleAttribute<Tuple, String> accessTokenAttribute) {
+        this.accessTokenAttribute = accessTokenAttribute;
+    }
+    @Parameter(optional = true, description = "Attribute that specifies the access token type if `authenticationType` is `OAUTH2`. Any "
+            + "value of this attribute overwrites the value of the `authMethod` property in `authenticationFile` or in "
+            + "`authenticationProperties`. This parameter is meaningless if the `authenticationType` is different from `OAUTH2`")
+    public void setTokenTypeAttribute(TupleAttribute<Tuple, String> tokenTypeAttribute) {
+        this.tokenTypeAttribute = tokenTypeAttribute;
+    }
+
     /***************************************
      * request configuration
      ***************************************/
@@ -211,8 +232,8 @@ public class HTTPRequestOperAPI extends AbstractOperator {
             + "these attributes is sent as request body in method POST. If parameter `requestAttributesAsUrlArguments` is true, "
             + "the request attributes are additionally appended as arguments to the url in method GET. "
             + "If this parameter is missing, "
-            + "all attributes, excluding those that are used to specify the URL, method, content type, Request url arguments "
-            + "or request attributes, are used in the request body. "
+            + "all attributes, excluding those that are used to specify the URL, method, content type, Request url arguments, "
+            + "extra header, access token, token type or request body, are used in the request body. "
             + "One empty element defines an empty list which means no attributes are considered request attributes. ")
     public void setRequestAttributes(String[] requestAttributes) {
         // Is set in initialize with special treatment
@@ -236,7 +257,7 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     public void setRequestBodyAttribute(TupleAttribute<Tuple, String> requestBodyAttribute) {
         this.requestBodyAttribute = requestBodyAttribute;
     }
-    
+
     /********************************
      * output parameters
      ********************************/
@@ -495,6 +516,12 @@ public class HTTPRequestOperAPI extends AbstractOperator {
                 requestAttributes.remove(requestUrlArgumentsAttribute.getAttribute().getName());
             if (requestBodyAttribute != null)
                 requestAttributes.remove(requestBodyAttribute.getAttribute().getName());
+            if (extraHeaderAttribute != null)
+                requestAttributes.remove(extraHeaderAttribute.getAttribute().getName());
+            if (accessTokenAttribute != null)
+                requestAttributes.remove(accessTokenAttribute.getAttribute().getName());
+            if (tokenTypeAttribute != null)
+                requestAttributes.remove(tokenTypeAttribute.getAttribute().getName());
         }
         //Check whether all attributes are string type if fixed content type is ne json
         /*if (((fixedContentType != null) && (contentTypeToUse != ContentType.APPLICATION_JSON)) || requestAttributesAsUrlArguments) {
@@ -658,7 +685,10 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     protected ContentType getContentType(Tuple tuple) { return contentTypeGetter.apply(tuple); }
 
     //getter
-    protected List<String>                  getExtraHeaders() { return extraHeaders; }
+    protected ArrayList<String>             getExtraHeaders() { return extraHeaders; }
+    protected TupleAttribute<Tuple, String> getExtraHeaderAttribute() { return extraHeaderAttribute; }
+    protected TupleAttribute<Tuple, String> getAccessTokenAttribute() { return accessTokenAttribute; }
+    protected TupleAttribute<Tuple, String> getTokenTypeAttribute()   { return tokenTypeAttribute; }
     
     //request config
     protected TupleAttribute<Tuple, String> getRequestBodyAttribute() { return requestBodyAttribute; }

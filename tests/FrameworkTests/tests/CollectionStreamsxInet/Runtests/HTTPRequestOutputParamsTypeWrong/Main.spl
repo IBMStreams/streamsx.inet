@@ -3,7 +3,7 @@ use com.ibm.streamsx.testframe::FileSink1;
 
 public composite Main {
 	param
-		expression<rstring> $url: getSubmissionTimeValue("url", "http://httpbin.org/get");
+		expression<rstring> $url: getSubmissionTimeValue("url", "http://" + getCompileTimeValue("host") + '/get');
 		expression<rstring> $data:  getSubmissionTimeValue("data", "my data");
 	graph
 		stream<uint64 id, rstring method, rstring data> Trigger as O = Beacon() {
@@ -15,30 +15,27 @@ public composite Main {
 				data = $data;
 		}
 		
-		//_0_stream<uint64 id, rstring method, rstring url, list<rstring> myAttribute, uint32 stat>
-		//_1_stream<uint64 id, rstring method, rstring url, list<rstring> myAttribute, uint32 stat>
-		//_2_stream<uint64 id, rstring method, rstring url, list<rstring> myAttribute, uint32 stat>
-		//_3_stream<uint64 id, rstring method, rstring url, list<rstring> myAttribute, uint32 stat>
-		//_4_stream<uint64 id, rstring method, rstring url, rstring myAttribute, uint32 stat>
-		//_5_stream<uint64 id, rstring method, rstring url, list<uint64> myAttribute, uint32 stat>
-		//_6_stream<uint64 id, rstring method, rstring url, list<rstring> myAttribute, uint32 stat>
-		//_7_stream<uint64 id, rstring method, rstring url, list<rstring> myAttribute, uint32 stat>
-		//_8_stream<uint64 id, rstring method, rstring url, float64 myAttribute, int32 stat>
+		//<0 1 2 3>stream<uint64 id, rstring method, rstring url, list<rstring> myAttribute, uint32 stat>
+		//<4>stream<uint64 id, rstring method, rstring url, rstring myAttribute, uint32 stat>
+		//<5>stream<uint64 id, rstring method, rstring url, list<uint64> myAttribute, uint32 stat>
+		//<6>stream<uint64 id, rstring method, rstring url, list<rstring> myAttribute, uint32 stat>
+		//<7>stream<uint64 id, rstring method, rstring url, list<rstring> myAttribute, uint32 stat>
+		//<8>stream<uint64 id, rstring method, rstring url, float64 myAttribute, int32 stat>
 		Response = HTTPRequest(Trigger) {
 			param
 				fixedUrl: $url;
 				method : method;
 				requestBodyAttribute : data;
-				//_0_outputDataLine: "myAttribute";
-				//_1_outputBody: "myAttribute";
-				//_2_outputContentEncoding: "myAttribute";
-				//_3_outputContentType: "myAttribute";
-				//_4_outputHeader: "myAttribute";
-				//_5_outputHeader: "myAttribute";
-				//_6_outputStatus: "myAttribute";
-				//_7_outputStatusCode: "stat";
-				//_8_errorDiagnostics: "myAttribute";
-				//_8_outputStatusCode: "stat";
+				//<0>outputDataLine: "myAttribute";
+				//<1>outputBody: "myAttribute";
+				//<2>outputContentEncoding: "myAttribute";
+				//<3>outputContentType: "myAttribute";
+				//<4>outputHeader: "myAttribute";
+				//<5>outputHeader: "myAttribute";
+				//<6>outputStatus: "myAttribute";
+				//<7>outputStatusCode: "stat";
+				//<8>errorDiagnostics: "myAttribute";
+				//<8>outputStatusCode: "stat";
 		}
 
 		() as Sink = FileSink1(Response) { }

@@ -1,0 +1,63 @@
+use com.ibm.streamsx.inet.ftp::*;
+use com.ibm.streamsx.testframe::FileSink1;
+
+composite Main {
+	param
+		expression<Protocol> $protocol :      (Protocol)getSubmissionTimeValue("protocol");
+		expression<rstring> $host :           getSubmissionTimeValue("host");
+		expression<rstring> $path :           getSubmissionTimeValue("path", "/");
+		expression<rstring> $username :       getSubmissionTimeValue("username");
+		expression<rstring> $password :       getSubmissionTimeValue("password");
+		expression<boolean> $verbosity :      (boolean)getSubmissionTimeValue("verbosity", "false");
+
+	graph
+		//provide a trigger stream for the ftp directory scan
+		stream<int32 count> TriggerStream = Beacon() {
+			param iterations : 1;
+			output TriggerStream : count = (int32)IterationCount();
+		}
+		
+		//scan the remote directory
+		(
+			stream<rstring fileName, uint64 size, rstring date, rstring user, boolean isFile, uint32 transferCount, uint32 failureCount, uint64 bytesTransferred, float64 speed> FilenameStream as OUT;
+			stream<rstring errorText, int32 error, uint32 transferCount, uint32 failureCount, uint64 bytesTransferred> ErrorStream as ERR
+		) = FTPReader(TriggerStream) {
+			param
+				protocol : $protocol;
+				isDirReader : true;
+				host : $host;
+				path : $path;
+				username : $username;
+				password : $password;
+				curlVerbose : $verbosity;
+			output
+				OUT :
+					fileName = FileName(),
+					size = FileSize(),
+					date = FileDate(),
+					user = FileUser(),
+					isFile = IsFile(),
+					transferCount = TransferCount(),
+					failureCount = TransferFailureCount(),
+					bytesTransferred = BytesTransferred(),
+					speed = TransferSpeed();
+				ERR:
+					errorText = ErrorText(),
+					error = ErrorCode(),
+					transferCount = TransferCount(),
+					failureCount =  TransferFailureCount(),
+					bytesTransferred = BytesTransferred();
+		}
+		
+		() as Sink = FileSink1(FilenameStream) {}
+		
+		() as ErrorSink = FileSink1(ErrorStream) {
+			param
+				fnameTuples : "ErrorTuples";
+				fnameWindowMarker: "ErrorWindowMarker";
+				fnameFinalMarker: "ErrorFinalMarker";
+		}
+		
+	config
+		restartable : false;
+}

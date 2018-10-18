@@ -3,16 +3,20 @@ use com.ibm.streamsx.testframe::FileSink1;
 
 public composite Main {
 	param
-		//<0 1>expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/basic-auth/user1/passwd1');
-		//<2 3>expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/basic-auth/user2/passwd2');
-		//<4 5 6 7>expression<rstring> $url: getSubmissionTimeValue("url", 'http://httpbin.org/get');
+		//<0 1>        expression<rstring> $url: 'http://' + getCompileTimeValue("host") + '/basic-auth/user1/passwd1';
+		//<2 3>        expression<rstring> $url: 'http://' + getCompileTimeValue("host") + '/basic-auth/user2/passwd2';
+		//<4 5 6 8 10> expression<rstring> $url: 'http://' + getCompileTimeValue("host") + '/get';
+		//<7 9 11>     expression<rstring> $url: 'http://' + getCompileTimeValue("host") + '/post';
 	graph
-		stream<uint64 id, rstring method> Trigger as O = Beacon() {
+		stream<uint64 id, rstring method, rstring tok, rstring tktype> Trigger as O = Beacon() {
 			param 
 				iterations : 1;
 			output O:
 				id = IterationCount(),
-				method = "GET";
+				//<0 1 2 3 4 5 6 8 10>method = "GET",
+				//<7 9 11>            method = "POST",
+				tok = "tokenFromAttr",
+				tktype = "typevariable";
 		}
 		
 		stream<uint64 id, int32 stat, rstring method, rstring status, rstring respData> Response as O = HTTPRequest(Trigger as I) {
@@ -25,12 +29,16 @@ public composite Main {
 				//<1 2>authenticationFile : "etc/http_request_auth.properties";
 				//<4>authenticationFile : "etc/http_request_oauth1.properties";
 				//<6>authenticationFile : "etc/http_request_oauth2.properties";
+				//<8>authenticationFile : "etc/http_request_oauth2x.properties";
 				//<2 3>authenticationProperties : "ANY_HOST=user2:passwd2";
 				//<5>authenticationProperties : "consumerKey=xxxx","consumerSecret=yyyy","accessToken=zzzz","accessTokenSecret=qqqq";
 				//<7>authenticationProperties : "accessToken=Propzzzz";
+				//<9>authenticationProperties : "accessToken=Propzzzz","authMethod=Bearer1";
 				//<3>authenticationType : "STANDARD";
 				//<4 5>authenticationType : "OAUTH1";
-				//<6 7>authenticationType : "OAUTH2";
+				//<6 7 8 9 10 11>authenticationType : "OAUTH2";
+				//<8 9 10 11>accessTokenAttribute : tok;
+				//<10 11>tokenTypeAttribute : tktype;
 		}
 		
 		() as Sink = FileSink1(Response) { }

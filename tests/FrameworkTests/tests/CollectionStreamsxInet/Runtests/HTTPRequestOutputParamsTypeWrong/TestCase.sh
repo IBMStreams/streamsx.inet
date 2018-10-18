@@ -17,11 +17,11 @@ function myExplain {
 
 PREPS=(
 	'myExplain'
-	'copyAndTransformSpl'
+	'copyAndMorphSpl'
 )
 
 STEPS=(
-	'splCompile'
+	"splCompile host=$TTPR_httpServerAddr"
 	'executeLogAndError output/bin/standalone -t 2'
 	'linewisePatternMatchInterceptAndSuccess "$TT_evaluationFile" "" "${errorCodes[$TTRO_variantCase]}"'
 )
