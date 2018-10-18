@@ -59,7 +59,6 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
     private HttpClientContext httpContext = HttpClientContext.create();
     private OAuthConsumer oAuthConsumer = null;
     private String oAuth2AuthHeaderKey = null;
-    private String oAuth2AuthHeaderValue = null;
 
     
     /******************************************************************
@@ -243,17 +242,20 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
             break;
         case OAUTH2:
             oAuth2AuthHeaderKey = new String("Authorization");
-            if (getAccessTokenAttribute() == null) {
-                oAuth2AuthHeaderValue = new String(props.getProperty("authMethod", "Bearer") + " " + getRequiredProperty("accessToken"));
-            } else {
-                oAuth2AuthHeaderValue = new String(props.getProperty("authMethod", "Bearer") + " ");
-            }
             break;
         case STANDARD:
             break;
         }
     }
 
+    //getter oauth
+    protected String getAccessToken() {
+        return getRequiredProperty("accessToken");
+    }
+    protected String getTokenType() {
+        return props.getProperty("authMethod", "Bearer");
+    }
+    
     /**
      * Returns the property value. 
      * @param name
@@ -273,6 +275,5 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
     protected CloseableHttpClient getHttpClient() { return httpClient; }
     protected OAuthConsumer getOAuthConsumer() { return oAuthConsumer; }
     protected String getOAuth2AuthHeaderKey() { return oAuth2AuthHeaderKey; }
-    protected String getOAuth2AuthHeaderValue() { return oAuth2AuthHeaderValue; }
     protected HttpClientContext getHttpContext() { return httpContext; }
 }

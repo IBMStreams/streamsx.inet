@@ -317,11 +317,20 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             getOAuthConsumer().sign(request);
             break;
         case OAUTH2:
-            if (getAccessTokenAttribute() == null) {
-                request.setHeader(getOAuth2AuthHeaderKey(), getOAuth2AuthHeaderValue());
+            String authType_ = null;
+            String authToken_ = null;
+            if (getTokenTypeAttribute() == null) {
+                authType_ = getTokenType();
             } else {
-                request.setHeader(getOAuth2AuthHeaderKey(), getOAuth2AuthHeaderValue() + getAccessTokenAttribute().getValue(tuple));
+                authType_ = getTokenTypeAttribute().getValue(tuple);
             }
+            if (getAccessTokenAttribute() == null) {
+                authToken_ = getAccessToken();
+            } else {
+                authToken_ = getAccessTokenAttribute().getValue(tuple);
+            }
+            String val_ = authType_ + " " + authToken_;
+            request.setHeader(getOAuth2AuthHeaderKey(), val_);
             break;
         }
     }
