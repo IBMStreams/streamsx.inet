@@ -39,7 +39,8 @@ samples/*/bin
 *.class
 
 # exclude generated Java primitive operator model files
-*$StreamsModel.java
+# are now genrated into separate folder src-gen which is completely ignored
+#*$StreamsModel.java
 
 # Package Files #
 com.ibm.streamsx.inet/impl/lib/*.jar
