@@ -1,7 +1,7 @@
 namespace com.ibm.streamsx.inet.sample;
 use com.ibm.streamsx.inet.http::httpGet;
 use com.ibm.streamsx.inet.http::httpPost;
-use com.ibm.streamsx.inet.rest::HTTPTupleInjection;
+
 composite GetPost {
 graph
 stream<rstring result> GetStream = Custom() {

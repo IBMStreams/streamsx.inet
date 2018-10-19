@@ -1,7 +1,9 @@
 # Changes
 =======
-## v3.0.0
-* move content os namespaces rest and wssercver to inetserver toolkit
+
+## v3.0.0:
+* The http rest functions and the WebSocket server functions are now moved into [streamsx.inetserver toolkit](https://github.com/IBMStreams/streamsx.inetserver/releases)
+* Operator HTTPRequestAdd - new parameters extraHeaderAttribute, accessTokenAttribute and tokenTypeAttribute
 
 ## v2.9.6:
 * Some minor fixes
@@ -24,7 +26,3 @@
 * New sample HTTPPostDemo
 * New Operator HTTPRequest
 * New sample HTTPRequestDemo
-
-## New Version:
-* Operator HTTPRequestAdd - new parameter extraHeaderAttribute
-* Operator HTTPRequestAdd - new parameter accessTokenAttribute

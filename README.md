@@ -17,6 +17,8 @@ Operators, functions & types are described using SPLDOC at
 
 http://ibmstreams.github.io/streamsx.inet/com.ibm.streamsx.inet/doc/spldoc/html/index.html
 
+The http rest functions and the WebSocket server functions are now moved into [streamsx.inetserver toolkit](https://github.com/IBMStreams/streamsx.inetserver/releases)
+
 To learn more about Streams:
 * [IBM Streams on Github](http://ibmstreams.github.io)
 * [Introduction to Streams Quick Start Edition](http://ibmstreams.github.io/streamsx.documentation/docs/4.1/qse-intro/)

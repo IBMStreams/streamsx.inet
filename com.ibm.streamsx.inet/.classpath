@@ -11,19 +11,7 @@
 	<classpathentry kind="lib" path="opt/httpcomponents-client-4.5.5/lib/httpmime-4.5.5.jar"/>
 	<classpathentry kind="lib" path="opt/signpost-1.2/lib/signpost-core-1.2.jar"/>
 	<classpathentry kind="lib" path="opt/signpost-1.2/lib/signpost-commonshttp4-1.2.1.1.jar"/>
-	<classpathentry kind="lib" path="opt/eclipse-4.2.2/plugins/javax.servlet_3.0.0.v201112011016.jar"/>
-	<classpathentry kind="lib" path="opt/eclipse-4.2.2/plugins/javax.servlet.jsp_2.2.0.v201112011158.jar"/>
-	<classpathentry kind="lib" path="opt/eclipse-4.2.2/plugins/org.eclipse.jetty.continuation_8.1.3.v20120522.jar"/>
-	<classpathentry kind="lib" path="opt/eclipse-4.2.2/plugins/org.eclipse.jetty.http_8.1.3.v20120522.jar"/>
-	<classpathentry kind="lib" path="opt/eclipse-4.2.2/plugins/org.eclipse.jetty.io_8.1.3.v20120522.jar"/>
-	<classpathentry kind="lib" path="opt/eclipse-4.2.2/plugins/org.eclipse.jetty.security_8.1.3.v20120522.jar"/>
-	<classpathentry kind="lib" path="opt/eclipse-4.2.2/plugins/org.eclipse.jetty.server_8.1.3.v20120522.jar"/>
-	<classpathentry kind="lib" path="opt/eclipse-4.2.2/plugins/org.eclipse.jetty.servlet_8.1.3.v20120522.jar"/>
-	<classpathentry kind="lib" path="opt/eclipse-4.2.2/plugins/org.eclipse.jetty.util_8.1.3.v20120522.jar"/>
-	<classpathentry kind="lib" path="opt/eclipse-4.2.2/plugins/org.eclipse.jetty.webapp_8.1.3.v20120522.jar"/>
-	<classpathentry kind="lib" path="opt/eclipse-4.2.2/plugins/org.eclipse.jetty.xml_8.1.3.v20120522.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="opt/wssupport/Java-WebSocket-1.3.0.jar"/>
 	<classpathentry kind="src" path="impl/java/src-gen">
 		<attributes>
 			<attribute name="optional" value="true"/>

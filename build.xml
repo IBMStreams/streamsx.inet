@@ -1,14 +1,17 @@
 <project name="streamsx.inet" default="all" basedir=".">
-    <description>
-        Build file for streamsx.inet project, built the toolkits and samples.
-    </description>
+  <description>
+    Build file for streamsx.inet project, built the toolkits and samples.
+  </description>
+
   <!-- set global properties for this build -->
   <property environment="env" />
   <property name="streams.install" value="${env.STREAMS_INSTALL}" />
-  <property name="toolkit" location="com.ibm.streamsx.inet"/>
-  <property name="toolkit.test" location="tests" />
-  <property name="release.dir" location="release" />
-  <property name="release.info.file"  value="${toolkit}/build.info"/>
+  <property name="toolkit.string"  value="com.ibm.streamsx.inet"/>
+  <property name="toolkit.dir"     location="${toolkit.string}"/>
+  <property name="toolkit.test"    location="tests" />
+  <property name="release.dir"     location="release" />
+  <property name="release.info.file"  value="${toolkit.dir}/build.info"/>
+
   <property name="spl-md"  value="${env.STREAMS_INSTALL}/bin/spl-make-doc" />
   <property name="spl-st"  value="${env.STREAMS_INSTALL}/bin/streamtool" />
 
@@ -28,9 +31,9 @@
         <arg value="HEAD"/>
     </exec>
     <!-- Update the info.xml -->
-    <replace file="${toolkit}/info.xml" token="__dev__" value="commit_${commithash}" summary="yes"/>
+    <replace file="${toolkit.dir}/info.xml" token="__dev__" value="commit_${commithash}" summary="yes"/>
     <!-- Extract info from the toolkit's info.xml -->
-    <xmlproperty file="${toolkit}/info.xml" prefix="tkinfo" keepRoot="no"/>
+    <xmlproperty file="${toolkit.dir}/info.xml" prefix="tkinfo" keepRoot="no"/>
     <echo message="Toolkit Version: ${tkinfo.identity.version}"/>
     <echo message="Git Hash: ${commithash}"/>
   </target>
@@ -39,7 +42,7 @@
     <exec executable="git">
         <arg value="checkout"/>
         <arg value="--"/>
-        <arg value="${toolkit}/info.xml"/>
+        <arg value="${toolkit.dir}/info.xml"/>
     </exec>
   </target>
 
@@ -48,17 +51,17 @@
       <delete includeemptydirs="true">
           <fileset dir="${basedir}" includes="release-*/"/>
       </delete>
-      <ant dir="${toolkit}" target="clean"/>
+      <ant dir="${toolkit.dir}" target="clean"/>
   </target>
 
   <target name="toolkit"
       description="Build any code and index the toolkit." >
-      <ant dir="${toolkit}" target="all"/>
+      <ant dir="${toolkit.dir}" target="all"/>
   </target>
   
   <target name="toolkitIndexOnly" description="Index the toolkit.">
-      <ant dir="${toolkit}" target="cleanToolkitxml" />
-      <ant dir="${toolkit}" target="indextoolkit" />
+      <ant dir="${toolkit.dir}" target="cleanToolkitxml" />
+      <ant dir="${toolkit.dir}" target="indextoolkit" />
   </target> 	
 
   <target name="spldoc" depends="setcommitversion, spldoc_work, revertversion"
@@ -68,7 +71,7 @@
   <target name="spldoc_work" depends="samples"> <!-- can not be called independently thus has no description -->
     <!-- build the toolkit doc -->
     <antcall target="spldoctoolkit">
-       <param name="tkdir" value="${toolkit}"/>
+       <param name="tkdir" value="${toolkit.dir}"/>
        <param name="tktitle" value="IBMStreams ${tkinfo.identity.name} Toolkit"/>
     </antcall>
     <!-- build the sample doc for each sample-->
@@ -98,7 +101,7 @@
 
   <!-- Test targets -->
   <target name="tests" depends="toolkit">
-     <ant dir="${toolkit}" target="test"/>
+     <ant dir="${toolkit.dir}" target="test"/>
      <ant dir="${toolkit.test}" target="all"/>
   </target>
 
@@ -222,8 +225,8 @@
     <tar compression="gzip" longfile="gnu"
           destfile="${releasefilename}"
           basedir="${basedir}"
-          includes="${tkinfo.identity.name}/** samples/**"
-          excludes="**/.gitignore **/.gitkeep com.ibm.streamsx.inet/impl/java/src-gen/** com.ibm.streamsx.inet/impl/java/classes/** com.ibm.streamsx.inet/impl/cpp/bin/** com.ibm.streamsx.inet/.project com.ibm.streamsx.inet/.settings/** com.ibm.streamsx.inet/.classpath "
+          includes="${toolkit.string}/** samples/** README.md LICENSE.md"
+          excludes="**/.gitignore **/.gitkeep ${toolkit.string}/.project ${toolkit.string}/.settings/** ${toolkit.string}/.classpath ${toolkit.string}/icons/ ${toolkit.string}/impl/java/ ${toolkit.string}/impl/cpp/ ${toolkit.string}/impl/src/ ${toolkit.string}/impl/Makefile ${toolkit.string}/build.xml "
     />
     <checksum file="${releasefilename}"/>
     <checksum algorithm="sha1" file="${releasefilename}"/>
@@ -251,7 +254,7 @@
       <arg value="cat ${release.info.file}" />
     </exec>
     <!-- Extract info from the toolkit's info.xml -->
-    <xmlproperty file="${toolkit}/info.xml" prefix="tkinfo" keepRoot="no"/>
+    <xmlproperty file="${toolkit.dir}/info.xml" prefix="tkinfo" keepRoot="no"/>
   </target>
 
   <target name="releaseinfo-clean" description="remove the release information file ${release.info.file}">
@@ -291,7 +294,7 @@
       <arg value="-d"/>
       <arg value="-x"/>
       <arg value="--"/>
-      <arg value="${toolkit}/"/>
+      <arg value="${toolkit.string}/"/>
       <arg value="samples/"/>
       <arg value="README.md"/>
       <arg value="doc/"/>
@@ -305,7 +308,7 @@
       <arg value="-d"/>
       <arg value="-x"/>
       <arg value="--"/>
-      <arg value="${toolkit}/"/>
+      <arg value="${toolkit.string}/"/>
       <arg value="samples/"/>
       <arg value="README.md"/>
       <arg value="doc/"/>

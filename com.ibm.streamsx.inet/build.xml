@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 # Licensed Materials - Property of IBM
-# Copyright IBM Corp. 2011, 2013, 2014
+# Copyright IBM Corp. 2011, 2013, 2014, 2018
 # US Government Users Restricted Rights - Use, duplication or
 # disclosure restricted by GSA ADP Schedule Contract with
 # IBM Corp.
@@ -10,9 +10,8 @@
 <!-- 
 Found that if you built under Streams studio, *$StreamsModel.java
 artifacts were left around and caused issues with the ant build.
--->
+configure Studio build annotation processor to generate sources into impl/java/src-gen
 
-<!--
 We do not use maven downloads any longer
 All required libs are now available in the source repository
 -->
@@ -39,7 +38,6 @@ All required libs are now available in the source repository
 		<pathelement location="${streams.install}/lib/com.ibm.streams.operator.samples.jar" />
 	</path>
 
-	<!-- Since not all of the libs may be available for product build, not all of the libs may be available at build time -->
 	<path id="cp.manifest">
 		<fileset dir="opt">
 			<include name="signpost-1.2/lib/*.jar"/>
