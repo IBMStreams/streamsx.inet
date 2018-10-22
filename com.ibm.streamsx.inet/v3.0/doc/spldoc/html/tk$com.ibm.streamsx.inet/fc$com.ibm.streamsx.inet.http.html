@@ -1,0 +1,1921 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="C++ Native Functions: com.ibm.streamsx.inet.http"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="spldoc_functions"/>
+<link rel="stylesheet" type="text/css" href="../../html/commonltr.css"/>
+<link rel="stylesheet" type="text/css" href="../../html/spldoc.css"/>
+<title>C++ Native Functions: com.ibm.streamsx.inet.http</title>
+</head>
+<body id="spldoc_functions">
+
+
+<h1 class="title topictitle1">C++ Native Functions: <tt class="ph tt">com.ibm.streamsx.inet.http</tt></h1>
+
+<div class="body refbody">
+<div class="section">
+<p class="p">
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 3.0.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.http.html">com.ibm.streamsx.inet.http</a> &gt; C++ Native Functions</p>
+
+</div>
+
+<div class="section">
+This page documents native functions that can be invoked from SPL, including the SPL interfaces that can be used to invoke each of the native functions.
+</div>
+
+<div class="section">
+<p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/FunctionModel.html#spldoc_reference_function_model__functionset__functions">Functions</a></strong></p>
+<dl class="dl" compact="compact">
+ 
+   <dt class="dt dlterm splpart" id="spldoc_functions__httpDelete.rstring.list:.:rstring:.:.rstring.rstring.int32"><tt class="ph tt">      public rstring httpDelete(rstring url,list&lt;rstring&gt; extraHeaders, rstring user, rstring password, mutable int32 error)      </tt>   </dt>
+
+   <dd class="dd">
+<p class="p">HTTP DELETE on the given url, using the username and password, if present. It follows redirects. If there is an error, a non-zero is returned by error. Errorcodes see in <a class="xref" href="https://curl.haxx.se/libcurl/c/libcurl-errors.html">https://curl.haxx.se/libcurl/c/libcurl-errors.html</a>
+</p>
+
+   <dl class="dl">
+     <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+     
+       <dt class="dt dlterm">Parameters</dt>
+
+       <dd class="dd">
+         <dl class="dl" compact="compact">
+           
+             <dt class="dt dlterm"><tt class="ph tt">url</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the url to delete 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">extraHeaders</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this list is not emtpy, the list is passed to the server as HTTP Headers 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">user</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this user name is passed to to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">password</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this password is passed to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">error</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned error code 
+</p>
+
+             </dd>
+
+           
+         </dl>
+
+       </dd>
+
+     
+     
+       <dt class="dt dlterm">Returns</dt>
+
+       <dd class="dd">
+
+<p class="p">the received http message body
+</p>
+       </dd>
+
+     
+</dl>
+
+   </dd>
+
+ 
+ 
+   <dt class="dt dlterm splpart" id="spldoc_functions__httpDelete.rstring.list:.:rstring:.:.rstring.rstring.int32.int32.int32"><tt class="ph tt">      public rstring httpDelete(rstring url,list&lt;rstring&gt; extraHeaders, rstring user, rstring password, mutable int32 error, int32 requestTimeout, int32 connectionTimeout)      </tt>   </dt>
+
+   <dd class="dd">
+<p class="p">HTTP DELETE on the given url, using the username and password, if present. It follows redirects. If there is an error, a non-zero is returned by error. Errorcodes see in <a class="xref" href="https://curl.haxx.se/libcurl/c/libcurl-errors.html">https://curl.haxx.se/libcurl/c/libcurl-errors.html</a>
+</p>
+
+   <dl class="dl">
+     <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+     
+       <dt class="dt dlterm">Parameters</dt>
+
+       <dd class="dd">
+         <dl class="dl" compact="compact">
+           
+             <dt class="dt dlterm"><tt class="ph tt">url</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the url to delete 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">extraHeaders</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this list is not emtpy, the list is passed to the server as HTTP Headers 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">user</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this user name is passed to to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">password</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this password is passed to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">error</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned error code 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">requestTimeout</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">This is the maximum time in seconds that you allow the libcurl transfer operation to take. Normally, name lookups can take a considerable time and limiting operations to less than a few minutes risk aborting perfectly normal operations. Default timeout is 0 (zero) which means it never times out. 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">connectionTimeout</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">This is the maximum time in seconds that you allow the connection to the server to take. This only limits the connection phase, once it has connected, this option is of no more use. Set to zero to switch to the default built-in connection timeout - 120 seconds. 
+</p>
+
+             </dd>
+
+           
+         </dl>
+
+       </dd>
+
+     
+     
+       <dt class="dt dlterm">Returns</dt>
+
+       <dd class="dd">
+
+<p class="p">the received http message body
+</p>
+       </dd>
+
+     
+</dl>
+
+   </dd>
+
+ 
+ 
+   <dt class="dt dlterm splpart" id="spldoc_functions__httpDelete.rstring.list:.:rstring:.:.rstring.rstring.rstring.rstring.rstring.rstring.rstring.int32.int32.int32"><tt class="ph tt">      public rstring httpDelete(rstring url,list&lt;rstring&gt; extraHeaders, rstring user, rstring password, rstring certFile, rstring certType, rstring keyFile, rstring keyType, rstring keyPass, mutable int32 error, int32 requestTimeout, int32 connectionTimeout)      </tt>   </dt>
+
+   <dd class="dd">
+<p class="p">HTTP DELETE on the given url, using the username and password, if present and certificates. It follows redirects. If there is an error, a non-zero is returned by error. Errorcodes see in <a class="xref" href="https://curl.haxx.se/libcurl/c/libcurl-errors.html">https://curl.haxx.se/libcurl/c/libcurl-errors.html</a>. Certificate/Key type of P12 requires libcurl to be compiled with OpenSSL.
+</p>
+
+   <dl class="dl">
+     <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+     
+       <dt class="dt dlterm">Parameters</dt>
+
+       <dd class="dd">
+         <dl class="dl" compact="compact">
+           
+             <dt class="dt dlterm"><tt class="ph tt">url</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the url to delete 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">extraHeaders</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this list is not emtpy, the list is passed to the server as HTTP Headers 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">user</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this user name is passed to to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">password</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this password is passed to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">certFile</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this is the absolute path to a certificate file sent to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">certType</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this is the cert file type (PEM, P12) 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">keyFile</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this is the absolute path to a private key file to be sent to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">keyType</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this is the key file type (PEM, P12)  
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">keyPass</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this is the password for the private key 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">error</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned error code 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">requestTimeout</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">This is the maximum time in seconds that you allow the libcurl transfer operation to take. Normally, name lookups can take a considerable time and limiting operations to less than a few minutes risk aborting perfectly normal operations. Default timeout is 0 (zero) which means it never times out. 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">connectionTimeout</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">This is the maximum time in seconds that you allow the connection to the server to take. This only limits the connection phase, once it has connected, this option is of no more use. Set to zero to switch to the default built-in connection timeout - 120 seconds. 
+</p>
+
+             </dd>
+
+           
+         </dl>
+
+       </dd>
+
+     
+     
+       <dt class="dt dlterm">Returns</dt>
+
+       <dd class="dd">
+
+<p class="p">the received http message body
+</p>
+       </dd>
+
+     
+</dl>
+
+   </dd>
+
+ 
+ 
+   <dt class="dt dlterm splpart" id="spldoc_functions__httpGet.rstring.list:.:rstring:.:.rstring.rstring.int32"><tt class="ph tt">      public rstring httpGet(rstring url,list&lt;rstring&gt; extraHeaders, rstring user, rstring password, mutable int32 error)      </tt>   </dt>
+
+   <dd class="dd">
+<p class="p">HTTP GET on the given url, using the username and password, if present. It follows redirects. If there is an error, a non-zero is returned by error. Errorcodes see in <a class="xref" href="https://curl.haxx.se/libcurl/c/libcurl-errors.html">https://curl.haxx.se/libcurl/c/libcurl-errors.html</a>
+</p>
+
+   <dl class="dl">
+     <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+     
+       <dt class="dt dlterm">Parameters</dt>
+
+       <dd class="dd">
+         <dl class="dl" compact="compact">
+           
+             <dt class="dt dlterm"><tt class="ph tt">url</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the url to get 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">extraHeaders</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this list is not emtpy, the list is passed to the server as HTTP Headers 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">user</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this user name is passed to to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">password</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this password is passed to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">error</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned error code 
+</p>
+
+             </dd>
+
+           
+         </dl>
+
+       </dd>
+
+     
+     
+       <dt class="dt dlterm">Returns</dt>
+
+       <dd class="dd">
+
+<p class="p">the received http message body
+</p>
+       </dd>
+
+     
+</dl>
+
+   </dd>
+
+ 
+ 
+   <dt class="dt dlterm splpart" id="spldoc_functions__httpGet.rstring.list:.:rstring:.:.rstring.rstring.int32.int32.int32"><tt class="ph tt">      public rstring httpGet(rstring url,list&lt;rstring&gt; extraHeaders, rstring user, rstring password, mutable int32 error, int32 requestTimeout, int32 connectionTimeout)      </tt>   </dt>
+
+   <dd class="dd">
+<p class="p">HTTP GET on the given url, using the username and password, if present. It follows redirects. If there is an error, a non-zero is returned by error. Errorcodes see in <a class="xref" href="https://curl.haxx.se/libcurl/c/libcurl-errors.html">https://curl.haxx.se/libcurl/c/libcurl-errors.html</a>
+</p>
+
+   <dl class="dl">
+     <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+     
+       <dt class="dt dlterm">Parameters</dt>
+
+       <dd class="dd">
+         <dl class="dl" compact="compact">
+           
+             <dt class="dt dlterm"><tt class="ph tt">url</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the url to get 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">extraHeaders</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this list is not emtpy, the list is passed to the server as HTTP Headers 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">user</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this user name is passed to to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">password</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this password is passed to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">error</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned error code 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">requestTimeout</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">This is the maximum time in seconds that you allow the libcurl transfer operation to take. Normally, name lookups can take a considerable time and limiting operations to less than a few minutes risk aborting perfectly normal operations. Default timeout is 0 (zero) which means it never times out. 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">connectionTimeout</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">This is the maximum time in seconds that you allow the connection to the server to take. This only limits the connection phase, once it has connected, this option is of no more use. Set to zero to switch to the default built-in connection timeout - 120 seconds. 
+</p>
+
+             </dd>
+
+           
+         </dl>
+
+       </dd>
+
+     
+     
+       <dt class="dt dlterm">Returns</dt>
+
+       <dd class="dd">
+
+<p class="p">the received http message body
+</p>
+       </dd>
+
+     
+</dl>
+
+   </dd>
+
+ 
+ 
+   <dt class="dt dlterm splpart" id="spldoc_functions__httpGet.rstring.list:.:rstring:.:.rstring.rstring.list:.:rstring:.:.int32"><tt class="ph tt">      public rstring httpGet(rstring url,list&lt;rstring&gt; extraHeaders, rstring user, rstring password, mutable list&lt;rstring&gt; headers, mutable int32 error)      </tt>   </dt>
+
+   <dd class="dd">
+<p class="p">HTTP GET on the given url, using the username and password, if present. It follows redirects. Received header information are provided in headers parameter. If there is an error, a non-zero is returned by error. Errorcodes see in <a class="xref" href="https://curl.haxx.se/libcurl/c/libcurl-errors.html">https://curl.haxx.se/libcurl/c/libcurl-errors.html</a>
+</p>
+
+   <dl class="dl">
+     <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+     
+       <dt class="dt dlterm">Parameters</dt>
+
+       <dd class="dd">
+         <dl class="dl" compact="compact">
+           
+             <dt class="dt dlterm"><tt class="ph tt">url</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the url to get 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">extraHeaders</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this list is not emtpy, the list is passed to the server as HTTP Headers 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">user</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this user name is passed to to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">password</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this password is passed to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">headers</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned header data 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">error</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned error code 
+</p>
+
+             </dd>
+
+           
+         </dl>
+
+       </dd>
+
+     
+     
+       <dt class="dt dlterm">Returns</dt>
+
+       <dd class="dd">
+
+<p class="p">the received http message body
+</p>
+       </dd>
+
+     
+</dl>
+
+   </dd>
+
+ 
+ 
+   <dt class="dt dlterm splpart" id="spldoc_functions__httpGet.rstring.list:.:rstring:.:.rstring.rstring.list:.:rstring:.:.int32.int32.int32"><tt class="ph tt">      public rstring httpGet(rstring url,list&lt;rstring&gt; extraHeaders, rstring user, rstring password, mutable list&lt;rstring&gt; headers, mutable int32 error, int32 requestTimeout, int32 connectionTimeout)      </tt>   </dt>
+
+   <dd class="dd">
+<p class="p">HTTP GET on the given url, using the username and password, if present. It follows redirects. Received header information are provided in headers parameter. If there is an error, a non-zero is returned by error. Errorcodes see in <a class="xref" href="https://curl.haxx.se/libcurl/c/libcurl-errors.html">https://curl.haxx.se/libcurl/c/libcurl-errors.html</a>
+</p>
+
+   <dl class="dl">
+     <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+     
+       <dt class="dt dlterm">Parameters</dt>
+
+       <dd class="dd">
+         <dl class="dl" compact="compact">
+           
+             <dt class="dt dlterm"><tt class="ph tt">url</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the url to get 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">extraHeaders</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this list is not emtpy, the list is passed to the server as HTTP Headers 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">user</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this user name is passed to to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">password</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this password is passed to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">headers</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned header data 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">error</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned error code 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">requestTimeout</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">This is the maximum time in seconds that you allow the libcurl transfer operation to take. Normally, name lookups can take a considerable time and limiting operations to less than a few minutes risk aborting perfectly normal operations. Default timeout is 0 (zero) which means it never times out. 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">connectionTimeout</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">This is the maximum time in seconds that you allow the connection to the server to take. This only limits the connection phase, once it has connected, this option is of no more use. Set to zero to switch to the default built-in connection timeout - 120 seconds. 
+</p>
+
+             </dd>
+
+           
+         </dl>
+
+       </dd>
+
+     
+     
+       <dt class="dt dlterm">Returns</dt>
+
+       <dd class="dd">
+
+<p class="p">the received http message body
+</p>
+       </dd>
+
+     
+</dl>
+
+   </dd>
+
+ 
+ 
+   <dt class="dt dlterm splpart" id="spldoc_functions__httpGet.rstring.list:.:rstring:.:.rstring.rstring.rstring.rstring.rstring.rstring.rstring.list:.:rstring:.:.int32.int32.int32"><tt class="ph tt">      public rstring httpGet(rstring url,list&lt;rstring&gt; extraHeaders, rstring user, rstring password, rstring certFile, rstring certType, rstring keyFile, rstring keyType, rstring keyPass, mutable list&lt;rstring&gt; headers, mutable int32 error, int32 requestTimeout, int32 connectionTimeout)      </tt>   </dt>
+
+   <dd class="dd">
+<p class="p">HTTP GET on the given url, using the username and password, if present, and using certificates/private keys. It follows redirects. Received header information are provided in headers parameter. If there is an error, a non-zero is returned by error. Errorcodes see in <a class="xref" href="https://curl.haxx.se/libcurl/c/libcurl-errors.html">https://curl.haxx.se/libcurl/c/libcurl-errors.html</a>.  Note: Certificate and key file types of P12 are supported only if libcurl is compiled with OpenSSL (run curl --version to see which library is supported).
+</p>
+
+   <dl class="dl">
+     <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+     
+       <dt class="dt dlterm">Parameters</dt>
+
+       <dd class="dd">
+         <dl class="dl" compact="compact">
+           
+             <dt class="dt dlterm"><tt class="ph tt">url</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the url to get 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">extraHeaders</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this list is not emtpy, the list is passed to the server as HTTP Headers 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">user</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this user name is passed to to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">password</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this password is passed to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">certFile</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this is the absolute path to a certificate file sent to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">certType</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this is the cert file type (PEM, P12) 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">keyFile</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this is the absolute path to a private key file to be sent to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">keyType</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this is the key file type (PEM, P12)  
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">keyPass</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this is the password for the private key and certificate file 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">headers</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned header data 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">error</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned error code 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">requestTimeout</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">This is the maximum time in seconds that you allow the libcurl transfer operation to take. Normally, name lookups can take a considerable time and limiting operations to less than a few minutes risk aborting perfectly normal operations. Default timeout is 0 (zero) which means it never times out. 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">connectionTimeout</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">This is the maximum time in seconds that you allow the connection to the server to take. This only limits the connection phase, once it has connected, this option is of no more use. Set to zero to switch to the default built-in connection timeout - 120 seconds. 
+</p>
+
+             </dd>
+
+           
+         </dl>
+
+       </dd>
+
+     
+     
+       <dt class="dt dlterm">Returns</dt>
+
+       <dd class="dd">
+
+<p class="p">the received http message body
+</p>
+       </dd>
+
+     
+</dl>
+
+   </dd>
+
+ 
+ 
+   <dt class="dt dlterm splpart" id="spldoc_functions__httpPost.rstring.rstring.list:.:rstring:.:.rstring.rstring.list:.:rstring:.:.int32"><tt class="ph tt">      public rstring httpPost(rstring data, rstring url, list&lt;rstring&gt; extraHeaders, rstring username, rstring password, mutable list&lt;rstring&gt; headers, mutable int32 error)      </tt>   </dt>
+
+   <dd class="dd">
+<p class="p">HTTP POST data to the given url using the username and password (if non-empty). Does not follow redirects. Headers are returned in the headers list. Error is set to non-zero if there is an error.  The result of the POST is returned as an rstring. Errorcodes see in <a class="xref" href="https://curl.haxx.se/libcurl/c/libcurl-errors.html">https://curl.haxx.se/libcurl/c/libcurl-errors.html</a>
+</p>
+
+   <dl class="dl">
+     <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+     
+       <dt class="dt dlterm">Parameters</dt>
+
+       <dd class="dd">
+         <dl class="dl" compact="compact">
+           
+             <dt class="dt dlterm"><tt class="ph tt">data</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the content to post 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">url</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the url to post 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">extraHeaders</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this list is not emtpy, the list is passed to the server as HTTP Headers 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">username</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this user name is passed to to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">password</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this password is passed to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">headers</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned header data 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">error</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned error code 
+</p>
+
+             </dd>
+
+           
+         </dl>
+
+       </dd>
+
+     
+     
+       <dt class="dt dlterm">Returns</dt>
+
+       <dd class="dd">
+
+<p class="p">the received http message body
+</p>
+       </dd>
+
+     
+</dl>
+
+   </dd>
+
+ 
+ 
+   <dt class="dt dlterm splpart" id="spldoc_functions__httpPost.rstring.rstring.list:.:rstring:.:.rstring.rstring.list:.:rstring:.:.int32.int32.int32"><tt class="ph tt">      public rstring httpPost(rstring data, rstring url, list&lt;rstring&gt; extraHeaders, rstring username, rstring password, mutable list&lt;rstring&gt; headers, mutable int32 error, int32 requestTimeout, int32 connectionTimeout)      </tt>   </dt>
+
+   <dd class="dd">
+<p class="p">HTTP POST data to the given url using the username and password (if non-empty). Does not follow redirects. Headers are returned in the headers list. Error is set to non-zero if there is an error.  The result of the POST is returned as an rstring. Errorcodes see in <a class="xref" href="https://curl.haxx.se/libcurl/c/libcurl-errors.html">https://curl.haxx.se/libcurl/c/libcurl-errors.html</a>
+</p>
+
+   <dl class="dl">
+     <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+     
+       <dt class="dt dlterm">Parameters</dt>
+
+       <dd class="dd">
+         <dl class="dl" compact="compact">
+           
+             <dt class="dt dlterm"><tt class="ph tt">data</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the content to post 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">url</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the url to post 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">extraHeaders</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this list is not emtpy, the list is passed to the server as HTTP Headers 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">username</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this user name is passed to to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">password</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this password is passed to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">headers</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned header data 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">error</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned error code 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">requestTimeout</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">This is the maximum time in seconds that you allow the libcurl transfer operation to take. Normally, name lookups can take a considerable time and limiting operations to less than a few minutes risk aborting perfectly normal operations. Default timeout is 0 (zero) which means it never times out. 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">connectionTimeout</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">This is the maximum time in seconds that you allow the connection to the server to take. This only limits the connection phase, once it has connected, this option is of no more use. Set to zero to switch to the default built-in connection timeout - 120 seconds. 
+</p>
+
+             </dd>
+
+           
+         </dl>
+
+       </dd>
+
+     
+     
+       <dt class="dt dlterm">Returns</dt>
+
+       <dd class="dd">
+
+<p class="p">the received http message body
+</p>
+       </dd>
+
+     
+</dl>
+
+   </dd>
+
+ 
+ 
+   <dt class="dt dlterm splpart" id="spldoc_functions__httpPost.rstring.rstring.list:.:rstring:.:.rstring.rstring.rstring.rstring.rstring.rstring.rstring.list:.:rstring:.:.int32.int32.int32"><tt class="ph tt">      public rstring httpPost(rstring data, rstring url, list&lt;rstring&gt; extraHeaders, rstring username, rstring password, rstring certFile, rstring certType, rstring keyFile, rstring keyType, rstring keyPass, mutable list&lt;rstring&gt; headers, mutable int32 error, int32 requestTimeout, int32 connectionTimeout)      </tt>   </dt>
+
+   <dd class="dd">
+<p class="p">HTTP POST data to the given url using the username and password (if non-empty). Uses certificates and private key for SSL. Does not follow redirects. Headers are returned in the headers list. Error is set to non-zero if there is an error.  The result of the POST is returned as an rstring. Errorcodes see in <a class="xref" href="https://curl.haxx.se/libcurl/c/libcurl-errors.html">https://curl.haxx.se/libcurl/c/libcurl-errors.html</a>
+</p>
+
+   <dl class="dl">
+     <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+     
+       <dt class="dt dlterm">Parameters</dt>
+
+       <dd class="dd">
+         <dl class="dl" compact="compact">
+           
+             <dt class="dt dlterm"><tt class="ph tt">data</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the content to post 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">url</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the url to post 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">extraHeaders</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this list is not emtpy, the list is passed to the server as HTTP Headers 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">username</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this user name is passed to to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">password</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this password is passed to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">certFile</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this is the absolute path to a certificate file sent to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">certType</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this is the cert file type (PEM, P12) 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">keyFile</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this is the absolute path to a private key file to be sent to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">keyType</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this is the key file type (PEM, P12)  
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">keyPass</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this is the password for the private key 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">headers</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned header data 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">error</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned error code 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">requestTimeout</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">This is the maximum time in seconds that you allow the libcurl transfer operation to take. Normally, name lookups can take a considerable time and limiting operations to less than a few minutes risk aborting perfectly normal operations. Default timeout is 0 (zero) which means it never times out. 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">connectionTimeout</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">This is the maximum time in seconds that you allow the connection to the server to take. This only limits the connection phase, once it has connected, this option is of no more use. Set to zero to switch to the default built-in connection timeout - 120 seconds. 
+</p>
+
+             </dd>
+
+           
+         </dl>
+
+       </dd>
+
+     
+     
+       <dt class="dt dlterm">Returns</dt>
+
+       <dd class="dd">
+
+<p class="p">the received http message body
+</p>
+       </dd>
+
+     
+</dl>
+
+   </dd>
+
+ 
+ 
+   <dt class="dt dlterm splpart" id="spldoc_functions__httpPut.rstring.rstring.list:.:rstring:.:.rstring.rstring.list:.:rstring:.:.int32"><tt class="ph tt">      public rstring httpPut(rstring data, rstring url, list&lt;rstring&gt; extraHeaders, rstring username, rstring password, mutable list&lt;rstring&gt; headers, mutable int32 error)      </tt>   </dt>
+
+   <dd class="dd">
+<p class="p">HTTP PUT data to the given url using the username and password given if not empty. Does not follow redirects. Headers are returned in the headers list, error is set to a non-zero if there is an error, and the result of the PUT is returned in the rstring. Errorcodes see in <a class="xref" href="https://curl.haxx.se/libcurl/c/libcurl-errors.html">https://curl.haxx.se/libcurl/c/libcurl-errors.html</a>
+</p>
+
+   <dl class="dl">
+     <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+     
+       <dt class="dt dlterm">Parameters</dt>
+
+       <dd class="dd">
+         <dl class="dl" compact="compact">
+           
+             <dt class="dt dlterm"><tt class="ph tt">data</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the content to put 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">url</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the url to put 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">extraHeaders</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this list is not emtpy, the list is passed to the server as HTTP Headers 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">username</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this user name is passed to to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">password</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this password is passed to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">headers</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned header data 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">error</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned error code 
+</p>
+
+             </dd>
+
+           
+         </dl>
+
+       </dd>
+
+     
+     
+       <dt class="dt dlterm">Returns</dt>
+
+       <dd class="dd">
+
+<p class="p">the received http message body
+</p>
+       </dd>
+
+     
+</dl>
+
+   </dd>
+
+ 
+ 
+   <dt class="dt dlterm splpart" id="spldoc_functions__httpPut.rstring.rstring.list:.:rstring:.:.rstring.rstring.list:.:rstring:.:.int32.int32.int32"><tt class="ph tt">      public rstring httpPut(rstring data, rstring url, list&lt;rstring&gt; extraHeaders, rstring username, rstring password, mutable list&lt;rstring&gt; headers, mutable int32 error, int32 requestTimeout, int32 connectionTimeout)      </tt>   </dt>
+
+   <dd class="dd">
+<p class="p">HTTP PUT data to the given url using the username and password given if not empty. Does not follow redirects. Headers are returned in the headers list, error is set to a non-zero if there is an error, and the result of the PUT is returned in the rstring. Errorcodes see in <a class="xref" href="https://curl.haxx.se/libcurl/c/libcurl-errors.html">https://curl.haxx.se/libcurl/c/libcurl-errors.html</a>
+</p>
+
+   <dl class="dl">
+     <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+     
+       <dt class="dt dlterm">Parameters</dt>
+
+       <dd class="dd">
+         <dl class="dl" compact="compact">
+           
+             <dt class="dt dlterm"><tt class="ph tt">data</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the content to put 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">url</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the url to put 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">extraHeaders</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this list is not emtpy, the list is passed to the server as HTTP Headers 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">username</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this user name is passed to to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">password</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this password is passed to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">headers</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned header data 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">error</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned error code 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">requestTimeout</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">This is the maximum time in seconds that you allow the libcurl transfer operation to take. Normally, name lookups can take a considerable time and limiting operations to less than a few minutes risk aborting perfectly normal operations. Default timeout is 0 (zero) which means it never times out. 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">connectionTimeout</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">This is the maximum time in seconds that you allow the connection to the server to take. This only limits the connection phase, once it has connected, this option is of no more use. Set to zero to switch to the default built-in connection timeout - 120 seconds. 
+</p>
+
+             </dd>
+
+           
+         </dl>
+
+       </dd>
+
+     
+     
+       <dt class="dt dlterm">Returns</dt>
+
+       <dd class="dd">
+
+<p class="p">the received http message body
+</p>
+       </dd>
+
+     
+</dl>
+
+   </dd>
+
+ 
+ 
+   <dt class="dt dlterm splpart" id="spldoc_functions__httpPut.rstring.rstring.list:.:rstring:.:.rstring.rstring.rstring.rstring.rstring.rstring.rstring.list:.:rstring:.:.int32.int32.int32"><tt class="ph tt">      public rstring httpPut(rstring data, rstring url, list&lt;rstring&gt; extraHeaders, rstring username, rstring password, rstring certFile, rstring certType, rstring keyFile, rstring keyType, rstring keyPass, mutable list&lt;rstring&gt; headers, mutable int32 error, int32 requestTimeout, int32 connectionTimeout)      </tt>   </dt>
+
+   <dd class="dd">
+<p class="p">HTTP PUT data to the given url using the username and password given if not empty. Does not follow redirects. Headers are returned in the headers list, error is set to a non-zero if there is an error, and the result of the PUT is returned in the rstring. Errorcodes see in <a class="xref" href="https://curl.haxx.se/libcurl/c/libcurl-errors.html">https://curl.haxx.se/libcurl/c/libcurl-errors.html</a>
+</p>
+
+   <dl class="dl">
+     <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+     
+       <dt class="dt dlterm">Parameters</dt>
+
+       <dd class="dd">
+         <dl class="dl" compact="compact">
+           
+             <dt class="dt dlterm"><tt class="ph tt">data</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the content to put 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">url</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the url to put 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">extraHeaders</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this list is not emtpy, the list is passed to the server as HTTP Headers 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">username</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this user name is passed to to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">password</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this password is passed to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">certFile</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this is the absolute path to a certificate file sent to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">certType</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this is the cert file type (PEM, P12) 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">keyFile</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this is the absolute path to a private key file to be sent to the server 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">keyType</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this is the key file type (PEM, P12)  
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">keyPass</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">if this string is not empty, this is the password for the private key 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">headers</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned header data 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">error</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">the returned error code 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">requestTimeout</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">This is the maximum time in seconds that you allow the libcurl transfer operation to take. Normally, name lookups can take a considerable time and limiting operations to less than a few minutes risk aborting perfectly normal operations. Default timeout is 0 (zero) which means it never times out. 
+</p>
+
+             </dd>
+
+           
+           
+             <dt class="dt dlterm"><tt class="ph tt">connectionTimeout</tt></dt>
+
+             <dd class="dd">
+
+<p class="p">This is the maximum time in seconds that you allow the connection to the server to take. This only limits the connection phase, once it has connected, this option is of no more use. Set to zero to switch to the default built-in connection timeout - 120 seconds. 
+</p>
+
+             </dd>
+
+           
+         </dl>
+
+       </dd>
+
+     
+     
+       <dt class="dt dlterm">Returns</dt>
+
+       <dd class="dd">
+
+<p class="p">the received http message body
+</p>
+       </dd>
+
+     
+</dl>
+
+   </dd>
+
+ 
+ 
+   <dt class="dt dlterm splpart" id="spldoc_functions__urlDecode.rstring"><tt class="ph tt">      public rstring urlDecode(rstring decode)      </tt>   </dt>
+
+   <dd class="dd">
+<p class="p">Decode a URL encoded rstring.
+</p>
+
+   </dd>
+
+ 
+ 
+   <dt class="dt dlterm splpart" id="spldoc_functions__urlEncode.rstring"><tt class="ph tt">      public rstring urlEncode(rstring raw)      </tt>   </dt>
+
+   <dd class="dd">
+<p class="p">URL encode the given rstring.
+</p>
+
+   </dd>
+
+ 
+</dl>
+
+</div>
+
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,1596 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="Operator HTTPRequest"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="spldoc_operator"/>
+<link rel="stylesheet" type="text/css" href="../../html/commonltr.css"/>
+<link rel="stylesheet" type="text/css" href="../../html/spldoc.css"/>
+<title>Operator HTTPRequest</title>
+</head>
+<body id="spldoc_operator">
+
+
+<h1 class="title topictitle1">Operator <tt class="ph tt">HTTPRequest</tt></h1>
+
+<div class="body refbody">
+<div class="section">
+<p class="p">
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 3.0.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.http.html">com.ibm.streamsx.inet.http</a> &gt; HTTPRequest</p>
+
+</div>
+
+<div class="section splprimop">
+  <embed class="image" src="../../image/tk$com.ibm.streamsx.inet/op$com.ibm.streamsx.inet.http$HTTPRequest.svg" width="872" height="112"/>
+</div>
+
+<div class="section">
+
+<div class="p">Issue an HTTP request of the specified method for each input tuple. For method <tt class="ph tt">NONE</tt>, the request is suppressed. The URL and  method of the HTTP request either come from the input tuple using attributes specified by the <tt class="ph tt">url</tt> and <tt class="ph tt">method</tt> parameters or can be fixed using the <tt class="ph tt">fixedUrl</tt> and <tt class="ph tt">fixedMethod</tt> parameters. These parameters can be mixed, for example the URL can be fixed with <tt class="ph tt">fixedUrl</tt> while the method is set from each tuple using <tt class="ph tt">method</tt>. Entity enclosing requests (POST/PUT/PATCH) require a content type. The content type is specified with <tt class="ph tt">contenType</tt> or <tt class="ph tt">fixedContentType</tt> parameter. The default is <tt class="ph tt">application/json</tt>. The message body of an entity enclosing request can be defined in two ways:
+<ul class="ul">
+<li class="li"> Method POST: If the parameter <tt class="ph tt">requestBodyAttribute</tt> is defined and the value of the attribute is not empty, the value of the attribute is copied into the request body. Otherwise the names and values of the Request Attributes are used to generate the request form.</li>
+
+<li class="li"> Other Methods: If the parameter <tt class="ph tt">requestBodyAttribute</tt> is defined, the value of the attribute is copied into the request body.</li>
+
+</ul>
+The operator can append Url Arguments to the request line. This happens if:
+<ul class="ul">
+<li class="li"> If parameter <tt class="ph tt">requestUrlArgumentsAttribute</tt> is specified and this attribute is not empty, the value of this attribute is copied as URL argument string and overwrites all other arguments. (all methods)</li>
+
+<li class="li"> In method GET: If parameter <tt class="ph tt">requestAttributesAsUrlArguments</tt> is true, all Request Attribute names and values are converted to URL query parameters.</li>
+
+</ul>
+The content of the request is dependent on the method type.
+</div>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">GET
+</h2>
+
+<p class="p">An HTTP GET request is made. If parameter <tt class="ph tt">requestAttributesAsUrlArguments</tt> is true, all request attributes are converted to URL query parameters. If parameter <tt class="ph tt">requestUrlArgumentsAttribute</tt> is specified and this attribute is not empty, this attribute is copied as URL argument string and overwrites all other arguments.
+</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">POST
+</h2>
+
+<p class="p">An HTTP POST request is made, any request attributes are set as the body of the request message if parameter <tt class="ph tt">requestBodyAttribute</tt> is not present or the value of the attribute is empty. The encoding of the request body takes the content type into account. If content type is <tt class="ph tt">application/json</tt>, a json body is generated from request attributes. If content type is <tt class="ph tt">application/x-www-form-urlencoded</tt>, a url-encoded body is generated from request attributes. For all other content types, the content of all request attributes is concatenated into the message body. If <tt class="ph tt">requestBodyAttribute</tt> attribute is not empty, the body of the request is copied from this attribute instead.
+</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">PUT
+</h2>
+
+<p class="p">An HTTP PUT request is made, the body of the request message is copied from <tt class="ph tt">requestBodyAttribute</tt> attribute.
+</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">PATCH
+</h2>
+
+<p class="p">An HTTP PATCH request is made, the body of the request message is copied from <tt class="ph tt">requestBodyAttribute</tt> attribute.
+</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">OPTIONS
+</h2>
+
+<p class="p">No message body is generated.
+</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">HEAD
+</h2>
+
+<p class="p">An HTTP HEAD request is made.
+</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">DELETE
+</h2>
+
+<p class="p">No message body is generated.
+</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">TRACE
+</h2>
+
+<p class="p">No message body is generated.
+</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">NONE
+</h2>
+
+<p class="p">No http request is generated but an output tuple is submitted if the output port is present and attributes are passed from input port to output port.
+</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">Request Attributes
+</h2>
+
+<div class="p">Attributes from the input tuple are request parameters except for:
+<ul class="ul">
+<li class="li"> Any attribute specified by parameters <tt class="ph tt">url</tt>, <tt class="ph tt">method</tt>, <tt class="ph tt">contentType</tt>, <tt class="ph tt">requestBodyAttribute</tt> or <tt class="ph tt">equestUrlArguments</tt>.</li>
+
+<li class="li"> If parameter <tt class="ph tt">requestAttributes</tt> is set, all attributes of this parameter are considered a request attribute.</li>
+
+<li class="li"> If parameter <tt class="ph tt">requestAttributes</tt> has one empty element, no attributes are considered a request attribute.</li>
+
+</ul>
+
+</div>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">Http Authentication
+</h2>
+
+<p class="p">The operator supports the following authentication methods: Basic, Digest, OAuth1a and OAuth2.0; see parameter <tt class="ph tt">authenticationType</tt>.
+</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">Behavior in a consistent region
+</h2>
+
+<p class="p">This operator cannot be used inside a consistent region.
+</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Summary</h2>
+
+<dl class="dl" compact="compact">
+ 
+  <dt class="dt dlterm">Ports</dt>
+
+  <dd class="dd">This operator has 1 input port and 1 output port.</dd>
+
+ 
+ 
+  <dt class="dt dlterm">Windowing</dt>
+
+  <dd class="dd">This operator does not accept any windowing configurations.</dd>
+
+ 
+ 
+  <dt class="dt dlterm">Parameters</dt>
+
+  <dd class="dd">This operator supports 38 parameters.
+<p class="p"> Optional: 
+<a class="xref" href="#spldoc_operator__parameter__accessTokenAttribute">accessTokenAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__authenticationFile">authenticationFile</a>, <a class="xref" href="#spldoc_operator__parameter__authenticationProperties">authenticationProperties</a>, <a class="xref" href="#spldoc_operator__parameter__authenticationType">authenticationType</a>, <a class="xref" href="#spldoc_operator__parameter__connectionTimeout">connectionTimeout</a>, <a class="xref" href="#spldoc_operator__parameter__contentType">contentType</a>, <a class="xref" href="#spldoc_operator__parameter__disableAutomaticRetries">disableAutomaticRetries</a>, <a class="xref" href="#spldoc_operator__parameter__disableContentCompression">disableContentCompression</a>, <a class="xref" href="#spldoc_operator__parameter__disableRedirectHandling">disableRedirectHandling</a>, <a class="xref" href="#spldoc_operator__parameter__errorDiagnostics">errorDiagnostics</a>, <a class="xref" href="#spldoc_operator__parameter__extraHeaderAttribute">extraHeaderAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__extraHeaders">extraHeaders</a>, <a class="xref" href="#spldoc_operator__parameter__fixedContentType">fixedContentType</a>, <a class="xref" href="#spldoc_operator__parameter__fixedMethod">fixedMethod</a>, <a class="xref" href="#spldoc_operator__parameter__fixedUrl">fixedUrl</a>, <a class="xref" href="#spldoc_operator__parameter__method">method</a>, <a class="xref" href="#spldoc_operator__parameter__outputBody">outputBody</a>, <a class="xref" href="#spldoc_operator__parameter__outputBodyRaw">outputBodyRaw</a>, <a class="xref" href="#spldoc_operator__parameter__outputCharSet">outputCharSet</a>, <a class="xref" href="#spldoc_operator__parameter__outputContentEncoding">outputContentEncoding</a>, <a class="xref" href="#spldoc_operator__parameter__outputContentType">outputContentType</a>, <a class="xref" href="#spldoc_operator__parameter__outputDataLine">outputDataLine</a>, <a class="xref" href="#spldoc_operator__parameter__outputHeader">outputHeader</a>, <a class="xref" href="#spldoc_operator__parameter__outputStatus">outputStatus</a>, <a class="xref" href="#spldoc_operator__parameter__outputStatusCode">outputStatusCode</a>, <a class="xref" href="#spldoc_operator__parameter__proxy">proxy</a>, <a class="xref" href="#spldoc_operator__parameter__proxyPort">proxyPort</a>, <a class="xref" href="#spldoc_operator__parameter__redirectStrategy">redirectStrategy</a>, <a class="xref" href="#spldoc_operator__parameter__requestAttributes">requestAttributes</a>, <a class="xref" href="#spldoc_operator__parameter__requestAttributesAsUrlArguments">requestAttributesAsUrlArguments</a>, <a class="xref" href="#spldoc_operator__parameter__requestBodyAttribute">requestBodyAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__requestUrlArgumentsAttribute">requestUrlArgumentsAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__sslAcceptAllCertificates">sslAcceptAllCertificates</a>, <a class="xref" href="#spldoc_operator__parameter__sslTrustStoreFile">sslTrustStoreFile</a>, <a class="xref" href="#spldoc_operator__parameter__sslTrustStorePassword">sslTrustStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__tokenTypeAttribute">tokenTypeAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__url">url</a>, <a class="xref" href="#spldoc_operator__parameter__userAgent">userAgent</a>
+
+</p>
+</dd>
+
+ 
+ 
+  <dt class="dt dlterm">Metrics</dt>
+
+  <dd class="dd">This operator reports 3 metrics.</dd>
+
+ 
+</dl>
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Properties</h2>
+
+<dl class="dl" compact="compact">
+ 
+  <dt class="dt dlterm">Implementation</dt>
+
+  <dd class="dd">Java</dd>
+
+ 
+</dl>
+
+</div>
+
+<div class="section">
+<p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__input_port_set">Input Ports</a></strong></p>
+<dl class="dl">
+  
+   <dt class="dt dlterm">Ports (0)</dt>
+
+   <dd class="dd">
+
+<p class="p">This stream contains the information sent in a http request. Each tuple with valid request data results in an HTTP request except if method <tt class="ph tt">NONE</tt> is specified.
+</p>
+   </dd>
+
+  
+    
+      <dt class="dt dlterm">Properties</dt>
+
+      <dd class="dd">
+   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__input_port_set__optional">Optional</a>: false
+     </li>
+
+   </ul>
+
+   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__input_port_set__controlport">ControlPort</a>: false
+</li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__input_port_set__windowingmode">WindowingMode</a>: NonWindowed
+</li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__input_port_set__windowpunctuationinputmode">WindowPunctuationInputMode</a>: Oblivious
+</li>
+
+   </ul>
+
+      </dd>
+
+    
+</dl>
+
+</div>
+
+<div class="section">
+<p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__output_port_set">Output Ports</a></strong></p>
+<dl class="dl">
+  
+     <dt class="dt dlterm">Assignments</dt>
+
+       <dd class="dd">Java operators do not support output assignments.
+       </dd>
+
+  
+</dl>
+
+<dl class="dl">
+  
+   <dt class="dt dlterm">Ports (0)</dt>
+
+   <dd class="dd">
+
+<p class="p">Data received in the http response be sent on this port. Other attributes are assigned from input stream.
+</p>
+
+<p class="p"/>
+
+   <dl class="dl">
+    
+      <dt class="dt dlterm">Properties</dt>
+
+      <dd class="dd">
+   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__output_port_set__optional">Optional</a>: true
+     </li>
+
+   </ul>
+
+   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__output_port_set__windowpunctuationoutputmode">WindowPunctuationOutputMode</a>: Preserving
+     </li>
+
+   </ul>
+
+      </dd>
+
+    
+   </dl>
+
+   <p class="p"/>
+
+   </dd>
+
+  
+</dl>
+
+</div>
+
+<div class="section">
+<p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters">Parameters</a></strong></p>
+This operator supports 38 parameters.
+<p class="p"> Optional: 
+<a class="xref" href="#spldoc_operator__parameter__accessTokenAttribute">accessTokenAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__authenticationFile">authenticationFile</a>, <a class="xref" href="#spldoc_operator__parameter__authenticationProperties">authenticationProperties</a>, <a class="xref" href="#spldoc_operator__parameter__authenticationType">authenticationType</a>, <a class="xref" href="#spldoc_operator__parameter__connectionTimeout">connectionTimeout</a>, <a class="xref" href="#spldoc_operator__parameter__contentType">contentType</a>, <a class="xref" href="#spldoc_operator__parameter__disableAutomaticRetries">disableAutomaticRetries</a>, <a class="xref" href="#spldoc_operator__parameter__disableContentCompression">disableContentCompression</a>, <a class="xref" href="#spldoc_operator__parameter__disableRedirectHandling">disableRedirectHandling</a>, <a class="xref" href="#spldoc_operator__parameter__errorDiagnostics">errorDiagnostics</a>, <a class="xref" href="#spldoc_operator__parameter__extraHeaderAttribute">extraHeaderAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__extraHeaders">extraHeaders</a>, <a class="xref" href="#spldoc_operator__parameter__fixedContentType">fixedContentType</a>, <a class="xref" href="#spldoc_operator__parameter__fixedMethod">fixedMethod</a>, <a class="xref" href="#spldoc_operator__parameter__fixedUrl">fixedUrl</a>, <a class="xref" href="#spldoc_operator__parameter__method">method</a>, <a class="xref" href="#spldoc_operator__parameter__outputBody">outputBody</a>, <a class="xref" href="#spldoc_operator__parameter__outputBodyRaw">outputBodyRaw</a>, <a class="xref" href="#spldoc_operator__parameter__outputCharSet">outputCharSet</a>, <a class="xref" href="#spldoc_operator__parameter__outputContentEncoding">outputContentEncoding</a>, <a class="xref" href="#spldoc_operator__parameter__outputContentType">outputContentType</a>, <a class="xref" href="#spldoc_operator__parameter__outputDataLine">outputDataLine</a>, <a class="xref" href="#spldoc_operator__parameter__outputHeader">outputHeader</a>, <a class="xref" href="#spldoc_operator__parameter__outputStatus">outputStatus</a>, <a class="xref" href="#spldoc_operator__parameter__outputStatusCode">outputStatusCode</a>, <a class="xref" href="#spldoc_operator__parameter__proxy">proxy</a>, <a class="xref" href="#spldoc_operator__parameter__proxyPort">proxyPort</a>, <a class="xref" href="#spldoc_operator__parameter__redirectStrategy">redirectStrategy</a>, <a class="xref" href="#spldoc_operator__parameter__requestAttributes">requestAttributes</a>, <a class="xref" href="#spldoc_operator__parameter__requestAttributesAsUrlArguments">requestAttributesAsUrlArguments</a>, <a class="xref" href="#spldoc_operator__parameter__requestBodyAttribute">requestBodyAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__requestUrlArgumentsAttribute">requestUrlArgumentsAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__sslAcceptAllCertificates">sslAcceptAllCertificates</a>, <a class="xref" href="#spldoc_operator__parameter__sslTrustStoreFile">sslTrustStoreFile</a>, <a class="xref" href="#spldoc_operator__parameter__sslTrustStorePassword">sslTrustStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__tokenTypeAttribute">tokenTypeAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__url">url</a>, <a class="xref" href="#spldoc_operator__parameter__userAgent">userAgent</a>
+
+</p>
+<dl class="dl">
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__accessTokenAttribute"><!-- --></a><tt class="ph tt">accessTokenAttribute</tt></dt>
+
+<dd class="dd">
+<p class="p">Attribute that specifies the access token if <tt class="ph tt">authenticationType</tt> is <tt class="ph tt">OAUTH2</tt>. Any value of this attribute overwrites the value of the <tt class="ph tt">accessToken</tt> property in <tt class="ph tt">authenticationFile</tt> or in <tt class="ph tt">authenticationProperties</tt>. This parameter is meaningless if the <tt class="ph tt">authenticationType</tt> is different from <tt class="ph tt">OAUTH2</tt>
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Attribute
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__authenticationFile"><!-- --></a><tt class="ph tt">authenticationFile</tt></dt>
+
+<dd class="dd">
+<div class="p">Path to the properties file containing authentication information. Authentication file is recommended to be stored in the application_dir/etc directory. Path of this file can be absolute or relative, if relative path is specified then it is relative to the application directory. The content of this file depends on the <tt class="ph tt">authenticationType</tt>.
+<ul class="ul">
+<li class="li"> If <tt class="ph tt">authenticationType</tt> is <tt class="ph tt">STANDARD</tt>: A valid line is composed from the authentication Scope (hostname or <tt class="ph tt">ANY_HOST</tt>, equal sign, user, colon, password. E.g.: ANY_HOST=user:passwd</li>
+
+<li class="li"> If <tt class="ph tt">authenticationType</tt> is <tt class="ph tt">OAUTH1</tt>: The authentication file must contain key/value pairs for the keys: <tt class="ph tt">consumerKey</tt>, <tt class="ph tt">consumerSecret</tt>, <tt class="ph tt">accessToken</tt> and <tt class="ph tt">accessTokenSecret</tt>.</li>
+
+<li class="li"> If <tt class="ph tt">authenticationType</tt> is <tt class="ph tt">OAUTH2</tt>: The authentication file must contain one key/value pair for key <tt class="ph tt">accessToken=myAccessToken</tt>.</li>
+
+</ul>
+The authentication file may contain one key/value pair for key <tt class="ph tt">authMethod</tt>. See <tt class="ph tt">http_request_auth.properties</tt>, <tt class="ph tt">http_request_oauth1.properties</tt> and <tt class="ph tt">http_request_oauth2.properties</tt> in the toolkits etc directory for a sample of authentication properties.
+</div>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__authenticationProperties"><!-- --></a><tt class="ph tt">authenticationProperties</tt></dt>
+
+<dd class="dd">
+<p class="p">Properties to override those in the authentication file.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__authenticationType"><!-- --></a><tt class="ph tt">authenticationType</tt></dt>
+
+<dd class="dd">
+<p class="p">The type of used authentication method. Valid options are "STANDARD", "OAUTH1," and "OAUTH2". Default is "STANDARD". If "STANDARD" is selected, the authorization may be none, basic or digest authorization. If the server requires basic or digest authorization one of the parameters <tt class="ph tt">authenticationFile</tt> or <tt class="ph tt">authenticationProperties</tt> is required. If the "OAUTH1" option is selected, the requests will be singed using OAuth 1.0a If the "OAUTH2" option is selected, the requests will be singed using OAuth 2.0.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__connectionTimeout"><!-- --></a><tt class="ph tt">connectionTimeout</tt></dt>
+
+<dd class="dd">
+<p class="p">Set the connection timeout in milliseconds. If value is 0, the default connection timeout is used. Default is 0.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: int32
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__contentType"><!-- --></a><tt class="ph tt">contentType</tt></dt>
+
+<dd class="dd">
+<p class="p">MIME content type of entity for <tt class="ph tt">POST</tt> and <tt class="ph tt">PUT</tt> requests. Only one of <tt class="ph tt">contentType</tt> and <tt class="ph tt">fixedContentType</tt> must be specified. Defaults to <tt class="ph tt">application/json</tt>.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Attribute
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__disableAutomaticRetries"><!-- --></a><tt class="ph tt">disableAutomaticRetries</tt></dt>
+
+<dd class="dd">
+<p class="p">Disables automatic request recovery and re-execution. Default is false
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__disableContentCompression"><!-- --></a><tt class="ph tt">disableContentCompression</tt></dt>
+
+<dd class="dd">
+<p class="p">Disables automatic content decompression. Default is false
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__disableRedirectHandling"><!-- --></a><tt class="ph tt">disableRedirectHandling</tt></dt>
+
+<dd class="dd">
+<p class="p">Disables automatic redirect handling. Default is false. This parameter must not be used together with parameter <tt class="ph tt">redirectStrategy</tt>
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__errorDiagnostics"><!-- --></a><tt class="ph tt">errorDiagnostics</tt></dt>
+
+<dd class="dd">
+<p class="p">Name of the attribute to populate the error diagnostics with. This string contains the diagnostics information when the program execution of the http operation throws an exception. This string is empty when a http response was received. The status line of the http response is issued in the <tt class="ph tt">dataStatus</tt> attribute.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__extraHeaderAttribute"><!-- --></a><tt class="ph tt">extraHeaderAttribute</tt></dt>
+
+<dd class="dd">
+<p class="p">One extra header to send with the request, the attribute must contain a string in the form <tt class="ph tt">Header-Name: value</tt>. If the attribute value is an empty string, no additional header is send. This parameter may be applied together with parameter <tt class="ph tt">extraHeaders</tt>.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Attribute
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__extraHeaders"><!-- --></a><tt class="ph tt">extraHeaders</tt></dt>
+
+<dd class="dd">
+<p class="p">Extra headers to send with request, format is <tt class="ph tt">Header-Name: value</tt>.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__fixedContentType"><!-- --></a><tt class="ph tt">fixedContentType</tt></dt>
+
+<dd class="dd">
+<p class="p">Fixed MIME content type of entity for <tt class="ph tt">POST</tt> and <tt class="ph tt">PUT</tt> requests. Only one of <tt class="ph tt">contentType</tt> and <tt class="ph tt">fixedContentType</tt> must be specified. Defaults to <tt class="ph tt">application/json</tt>.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__fixedMethod"><!-- --></a><tt class="ph tt">fixedMethod</tt></dt>
+
+<dd class="dd">
+<p class="p">Fixed method for each HTTP request. Every HTTP request  uses the method provided. One and only one of <tt class="ph tt">method</tt> and <tt class="ph tt">fixedMethod</tt> must be specified.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: com.ibm.streamsx.inet.http.HTTPMethod
+ (<tt class="ph tt">OPTIONS, GET, HEAD, POST, PUT, PATCH, DELETE, TRACE, NONE</tt>)  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: CustomLiteral
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__fixedUrl"><!-- --></a><tt class="ph tt">fixedUrl</tt></dt>
+
+<dd class="dd">
+<p class="p">Fixed URL to send HTTP requests to. Any tuple received on the input port results in a request to the URL provided (except for method NONE). One and only one of <tt class="ph tt">url</tt> and <tt class="ph tt">fixedUrl</tt> must be specified.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__method"><!-- --></a><tt class="ph tt">method</tt></dt>
+
+<dd class="dd">
+<p class="p">Attribute that specifies the method to be used in the HTTP request for a tuple. One and only one of <tt class="ph tt">method</tt> and <tt class="ph tt">fixedMethod</tt> must be specified.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Attribute
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__outputBody"><!-- --></a><tt class="ph tt">outputBody</tt></dt>
+
+<dd class="dd">
+<p class="p">Name of the attribute to populate the response body with. If this parameter is set, the operators returns one tuple for each request. Only one of <tt class="ph tt">outputDataLine</tt> and <tt class="ph tt">outputBody</tt> must be specified. This parameter is not allowed if the operator has no output port.If this parameter is set and parameter <tt class="ph tt">outputBodyRaw</tt> is set, all responses with entitiy mime type not equal to <tt class="ph tt">application/octet-stream</tt> or <tt class="ph tt">default/binary</tt> generate output here.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__outputBodyRaw"><!-- --></a><tt class="ph tt">outputBodyRaw</tt></dt>
+
+<dd class="dd">
+<p class="p">Name of the attribute to populate the raw response body with. The type of this attribute must be <tt class="ph tt">blob</tt>. Only one of <tt class="ph tt">outputDataLine</tt> and <tt class="ph tt">outputBodyRaw</tt> must be specified. This parameter is not allowed if the operator has no output port. You may use <tt class="ph tt">outputBodyRaw</tt> and <tt class="ph tt">outputBody</tt>.If this parameter is set and parameter <tt class="ph tt">outputBody</tt> is set, all responses with entitiy mime type equal to <tt class="ph tt">application/octet-stream</tt> or <tt class="ph tt">default/binary</tt> will generate output here.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__outputCharSet"><!-- --></a><tt class="ph tt">outputCharSet</tt></dt>
+
+<dd class="dd">
+<p class="p">Name of the attribute to populate the response entity charset with. This parameter is not allowed if the operator has no output port. 
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__outputContentEncoding"><!-- --></a><tt class="ph tt">outputContentEncoding</tt></dt>
+
+<dd class="dd">
+<p class="p">Name of the attribute to populate the response content encoding header with. This parameter is not allowed if the operator has no output port. 
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__outputContentType"><!-- --></a><tt class="ph tt">outputContentType</tt></dt>
+
+<dd class="dd">
+<p class="p">Name of the attribute to populate the response entity mime type with. This parameter is not allowed if the operator has no output port. 
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__outputDataLine"><!-- --></a><tt class="ph tt">outputDataLine</tt></dt>
+
+<dd class="dd">
+<p class="p">Name of the attribute to populate one line of the response data with. If this parameter is set, the operators returns one tuple for each line in the response body but at least one tuple if the body is empty. Only one of <tt class="ph tt">outputDataLine</tt> and <tt class="ph tt">outputBody</tt> must be specified. This parameter is not allowed if the operator has no output port.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__outputHeader"><!-- --></a><tt class="ph tt">outputHeader</tt></dt>
+
+<dd class="dd">
+<p class="p">Name of the attribute to populate the response header information with. The type of this attribute must be string list. This parameter is not allowed if the operator has no output port. 
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__outputStatus"><!-- --></a><tt class="ph tt">outputStatus</tt></dt>
+
+<dd class="dd">
+<p class="p">Name of the attribute to populate the response status line with. This parameter is not allowed if the operator has no output port. 
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__outputStatusCode"><!-- --></a><tt class="ph tt">outputStatusCode</tt></dt>
+
+<dd class="dd">
+<p class="p">Name of the attribute to populate the response status code as integer with. The type of this attribute must be int32. This is the numerical value from the http response or -1 if no response was received. This parameter is not allowed if the operator has no output port. 
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__proxy"><!-- --></a><tt class="ph tt">proxy</tt></dt>
+
+<dd class="dd">
+<p class="p">Hostname of the http-proxy to be used. If this parameter is omitted no proxy is used.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__proxyPort"><!-- --></a><tt class="ph tt">proxyPort</tt></dt>
+
+<dd class="dd">
+<p class="p">The proxy-port to be used. Default value is 8080. This parameter is ignored if no <tt class="ph tt">proxy</tt> parameter is specified.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: int32
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__redirectStrategy"><!-- --></a><tt class="ph tt">redirectStrategy</tt></dt>
+
+<dd class="dd">
+<div class="p">Set the redirection strategy. Possible values are:
+<ul class="ul">
+<li class="li"> DEFAULT: This enables the automatic redirect handling. This strategy honors the restrictions on automatic redirection of entity enclosing methods such as POST and PUT imposed by the HTTP specification. 302 Moved Temporarily, 301 Moved Permanently and 307 Temporary Redirect status codes will result in an automatic redirect of HEAD and GET methods only. POST and PUT methods will not be automatically redirected as requiring user confirmation.</li>
+
+<li class="li"> LAX: This relaxes the default settings and enables the automatic redirection of all HEAD, GET, POST, and DELETE requests.</li>
+
+<li class="li"> NONE: This disables the automatic redirection handling.</li>
+
+</ul>
+This parameter must not be used together with parameter <tt class="ph tt">disableRedirectHandling</tt>. Default is <tt class="ph tt">DEFAULT</tt>
+</div>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__requestAttributes"><!-- --></a><tt class="ph tt">requestAttributes</tt></dt>
+
+<dd class="dd">
+<p class="p">Names of the attributes which are part of the request body. The content of these attributes is sent as request body in method POST. If parameter <tt class="ph tt">requestAttributesAsUrlArguments</tt> is true, the request attributes are additionally appended as arguments to the url in method GET. If this parameter is missing, all attributes, excluding those that are used to specify the URL, method, content type, Request url arguments, extra header, access token, token type or request body, are used in the request body. One empty element defines an empty list which means no attributes are considered request attributes. 
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__requestAttributesAsUrlArguments"><!-- --></a><tt class="ph tt">requestAttributesAsUrlArguments</tt></dt>
+
+<dd class="dd">
+<p class="p">If this parameter is true, the request attributes are appended as arguments to the url in method GET. If this parameter is false, the request attributes are not appended to the url. Default is false. These arguments are overwritten from a non-empty value in parameter <tt class="ph tt">requestUrlArgumentsAttribute</tt>.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__requestBodyAttribute"><!-- --></a><tt class="ph tt">requestBodyAttribute</tt></dt>
+
+<dd class="dd">
+<p class="p">Request body attribute for any method that accepts an entity (PUT / POST / PATCH). In method PUT and PATCH the body of request is taken from this attribute. In method POST, any non-empty value overwrites the request attributes.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Attribute
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__requestUrlArgumentsAttribute"><!-- --></a><tt class="ph tt">requestUrlArgumentsAttribute</tt></dt>
+
+<dd class="dd">
+<p class="p">Request url arguments attribute. If this parameter is set and the value of this attribute  is not empty, the content of this string is appended as arguments to the request url. This overwrites the arguments which are generated from the request attributes. The value is expected to be unescaped and may contain non-ASCII characters
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Attribute
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__sslAcceptAllCertificates"><!-- --></a><tt class="ph tt">sslAcceptAllCertificates</tt></dt>
+
+<dd class="dd">
+<p class="p">Accept all SSL certificates, even those that are self-signed. If this parameter is set, parameter <tt class="ph tt">sslTrustStoreFile</tt> is not allowed. Setting this option will allow potentially insecure connections. Default is false.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__sslTrustStoreFile"><!-- --></a><tt class="ph tt">sslTrustStoreFile</tt></dt>
+
+<dd class="dd">
+<p class="p">Path to .jks trust store file used for TODO: ?server? and client authentication. If this parameter is set, parameter <tt class="ph tt">sslTrustStorePassword</tt> is required.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__sslTrustStorePassword"><!-- --></a><tt class="ph tt">sslTrustStorePassword</tt></dt>
+
+<dd class="dd">
+<p class="p">Password for the trust store and the keys it contains
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__tokenTypeAttribute"><!-- --></a><tt class="ph tt">tokenTypeAttribute</tt></dt>
+
+<dd class="dd">
+<p class="p">Attribute that specifies the access token type if <tt class="ph tt">authenticationType</tt> is <tt class="ph tt">OAUTH2</tt>. Any value of this attribute overwrites the value of the <tt class="ph tt">authMethod</tt> property in <tt class="ph tt">authenticationFile</tt> or in <tt class="ph tt">authenticationProperties</tt>. This parameter is meaningless if the <tt class="ph tt">authenticationType</tt> is different from <tt class="ph tt">OAUTH2</tt>
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Attribute
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__url"><!-- --></a><tt class="ph tt">url</tt></dt>
+
+<dd class="dd">
+<p class="p">Attribute that specifies the URL to be used in the HTTP request for a tuple. One and only one of <tt class="ph tt">url</tt> and <tt class="ph tt">fixedUrl</tt> must be specified.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Attribute
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__userAgent"><!-- --></a><tt class="ph tt">userAgent</tt></dt>
+
+<dd class="dd">
+<p class="p">Assigns the header User-Agent value. Default is "Apache-HttpClient/4.5.5 (Java/1.8.0)"
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+</dl>
+
+</div>
+
+<div class="section">
+<p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__metrics">Metrics</a></strong></p>
+<dl class="dl">
+  
+    <dt class="dt dlterm"><tt class="ph tt">nRequestTransmit</tt> - <a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__metrics_kind_counter">Counter</a></dt>
+
+    <dd class="dd">
+
+<p class="p">The number of request transmit attempts.
+</p>
+
+     <p class="p"/>
+
+     </dd>
+
+  
+  
+    <dt class="dt dlterm"><tt class="ph tt">nResponseNoSuccess</tt> - <a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__metrics_kind_counter">Counter</a></dt>
+
+    <dd class="dd">
+
+<p class="p">The number of received responses with result codes other than success.
+</p>
+
+     <p class="p"/>
+
+     </dd>
+
+  
+  
+    <dt class="dt dlterm"><tt class="ph tt">nResponseSuccess</tt> - <a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__metrics_kind_counter">Counter</a></dt>
+
+    <dd class="dd">
+
+<p class="p">The number of received responses with result code: success (2xx).
+</p>
+
+     <p class="p"/>
+
+     </dd>
+
+  
+</dl>
+
+</div>
+
+<div class="section">
+<p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__dependencies">Libraries</a></strong></p>
+
+ <dl class="dl">
+ 
+  <dt class="dt dlterm">Operator class library
+  </dt>
+
+  <dd class="dd"/>
+
+  <dd class="dd"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__dependencies__managedlibrary__libpath">Library Path</a>: <tt class="ph tt">../../impl/lib/com.ibm.streamsx.inet.jar, ../../opt/httpcomponents-client-4.5.5/lib/*</tt></dd>
+
+ 
+ </dl>
+
+</div>
+
+</div>
+
+
+</body>
+</html>
