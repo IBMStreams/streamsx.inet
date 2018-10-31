@@ -5,7 +5,7 @@ package com.ibm.streamsx.inet.test.httptestserver;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.Collections;
+import java.util.ArrayList;
 
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.security.ConstraintMapping;
@@ -116,6 +116,7 @@ public class HTTPTestServer {
 		context.addServlet(StatusServlet.class, "/status/*");
 		context.addServlet(RedirectToServlet.class, "/redirect-to");
 		context.addServlet(AuthServlet.class, "/basic-auth/*");
+		context.addServlet(Oauth2Servlet.class, "/oauth2/*");
 		context.addServlet(HelloServlet.class, "/gzip");
 		context.addServlet(DefaultServlet.class,"/"); // always last, always on "/"
 
@@ -131,10 +132,16 @@ public class HTTPTestServer {
 		constraint.setAuthenticate(true);
 		constraint.setRoles(new String[] { "user", "admin" });
 
-		ConstraintMapping mapping = new ConstraintMapping();
-		mapping.setPathSpec("/basic-auth/*");
-		mapping.setConstraint(constraint);
-		security.setConstraintMappings(Collections.singletonList(mapping));
+		ConstraintMapping mapping1 = new ConstraintMapping();
+		mapping1.setPathSpec("/basic-auth/*");
+		mapping1.setConstraint(constraint);
+		ConstraintMapping mapping2 = new ConstraintMapping();
+		mapping2.setPathSpec("/oauth2/*");
+		mapping2.setConstraint(constraint);
+		ArrayList<ConstraintMapping> mappings = new ArrayList<ConstraintMapping>();
+		mappings.add(mapping1);
+		mappings.add(mapping2);
+		security.setConstraintMappings(mappings);
 		security.setAuthenticator(new BasicAuthenticator());
 		security.setLoginService(loginService);
 
