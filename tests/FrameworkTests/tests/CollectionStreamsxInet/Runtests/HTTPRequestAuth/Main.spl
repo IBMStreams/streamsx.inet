@@ -3,8 +3,8 @@ use com.ibm.streamsx.testframe::FileSink1;
 
 public composite Main {
 	param
-		//<0 1>        expression<rstring> $url: 'http://' + getCompileTimeValue("host") + '/basic-auth/user1/passwd1';
-		//<2 3>        expression<rstring> $url: 'http://' + getCompileTimeValue("host") + '/basic-auth/user2/passwd2';
+		//<0 1 12 13>  expression<rstring> $url: 'http://' + getCompileTimeValue("host") + '/basic-auth/user1/passwd1';
+		//<2 3 14 15>  expression<rstring> $url: 'http://' + getCompileTimeValue("host") + '/basic-auth/user2/passwd2';
 		//<4 5 6 8 10> expression<rstring> $url: 'http://' + getCompileTimeValue("host") + '/get';
 		//<7 9 11>     expression<rstring> $url: 'http://' + getCompileTimeValue("host") + '/post';
 	graph
@@ -14,7 +14,7 @@ public composite Main {
 			output O:
 				id = IterationCount(),
 				//<0 1 2 3 4 5 6 8 10>method = "GET",
-				//<7 9 11>            method = "POST",
+				//<7 9 11 12 13 14 15>method = "POST",
 				tok = "tokenFromAttr",
 				tktype = "typevariable";
 		}
@@ -26,15 +26,15 @@ public composite Main {
 				outputBody : "respData";
 				outputStatus : "status";
 				outputStatusCode : "stat";
-				//<1 2>authenticationFile : "etc/http_request_auth.properties";
+				//<1 2 13 14>authenticationFile : "etc/http_request_auth.properties";
 				//<4>authenticationFile : "etc/http_request_oauth1.properties";
 				//<6>authenticationFile : "etc/http_request_oauth2.properties";
 				//<8>authenticationFile : "etc/http_request_oauth2x.properties";
-				//<2 3>authenticationProperties : "ANY_HOST=user2:passwd2";
+				//<2 3 14 15>authenticationProperties : "ANY_HOST=user2:passwd2";
 				//<5>authenticationProperties : "consumerKey=xxxx","consumerSecret=yyyy","accessToken=zzzz","accessTokenSecret=qqqq";
 				//<7>authenticationProperties : "accessToken=Propzzzz";
 				//<9>authenticationProperties : "accessToken=Propzzzz","authMethod=Bearer1";
-				//<3>authenticationType : "STANDARD";
+				//<3 15>authenticationType : "STANDARD";
 				//<4 5>authenticationType : "OAUTH1";
 				//<6 7 8 9 10 11>authenticationType : "OAUTH2";
 				//<8 9 10 11>accessTokenAttribute : tok;
