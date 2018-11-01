@@ -117,6 +117,7 @@ public class HTTPTestServer {
 		context.addServlet(RedirectToServlet.class, "/redirect-to");
 		context.addServlet(AuthServlet.class, "/basic-auth/*");
 		context.addServlet(Oauth2Servlet.class, "/oauth2/*");
+		context.addServlet(ResourceServlet.class, "/resource/*");
 		context.addServlet(HelloServlet.class, "/gzip");
 		context.addServlet(DefaultServlet.class,"/"); // always last, always on "/"
 
