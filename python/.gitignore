@@ -1,0 +1,10 @@
+/**/__pycache__/
+/**/*.pyc
+/**/job*.tar.gz
+/**/*tk*/
+/**/*tk*.zip
+/package/docs/build/
+/package/docs/source/generated/
+/package/streamsx.inet.egg-info/
+/package/dist/
+/package/build/
