@@ -1,6 +1,6 @@
 # coding=utf-8
 # Licensed Materials - Property of IBM
-# Copyright IBM Corp. 2018
+# Copyright IBM Corp. 2019
 
 """
 Overview
@@ -8,9 +8,9 @@ Overview
 
 Provides functions to run HTTP requests.
 
-Use this package with the following services on IBM Cloud:
+This package is compatible with Streaming Analytics service on IBM Cloud:
 
-  * `Streaming Analytics <https://www.ibm.com/cloud/streaming-analytics>`_
+  * `IBM Streaming Analytics <https://www.ibm.com/cloud/streaming-analytics>`_
 
 Sample
 ++++++
@@ -23,10 +23,10 @@ A simple example of a Streams application that emits http requests::
     import streamsx.inet as inet
 
     topo = Topology()
-    url = 'http://httpbin.org/get'
-    s = topo.source(['get-sample-with-fix-url']).as_string()
-    res_http = inet.request_get(s, url)
-    res_http.print()
+    s = topo.source(['http://httpbin.org/get']).as_string()
+    result_http_get = inet.request_get(s)
+    result_http_get.print()
+
     submit('STREAMING_ANALYTICS_SERVICE', topo)
 
 

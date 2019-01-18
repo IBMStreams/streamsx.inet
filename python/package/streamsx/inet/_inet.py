@@ -1,6 +1,6 @@
 # coding=utf-8
 # Licensed Materials - Property of IBM
-# Copyright IBM Corp. 2018
+# Copyright IBM Corp. 2019
 
 import datetime
 from tempfile import gettempdir
@@ -10,12 +10,24 @@ from streamsx.topology.schema import CommonSchema, StreamSchema
 from streamsx.spl.types import rstring
 
 
-#topology.add_file_dependency(tmpfile, 'opt')
 
-HttpRequestGetResponseSchema = StreamSchema('tuple<rstring status, int32 statusCode, rstring contentEncoding, rstring contentType, list<rstring> responseHeader, rstring responseData>')
+HttpGetResponseSchema = StreamSchema('tuple<rstring status, int32 statusCode, rstring contentEncoding, rstring contentType, list<rstring> responseHeader, rstring responseData>')
+"""Structured schema containing HTTP GET response values.
+
+``'tuple<rstring status, int32 statusCode, rstring contentEncoding, rstring contentType, list<rstring> responseHeader, rstring responseData>'``
+"""
+
 
 def request_get(stream, url=None, url_attribute=None, name=None):
     """Issues a HTTP GET request. You can specifiy the URL either dynamic (part of input stream) or static (as parameter).
+
+    Example with URL as part of the input stream of type ``CommonSchema.String``. The parameters ``url`` and ``url_attribute`` can be omitted in this case::
+
+        import streamsx.inet as inet
+        
+        s = topo.source(['http://httpbin.org/get']).as_string()
+        result_http_get = inet.request_get(s)
+        result_http_get.print()
 
     Args:
         stream(Stream): Stream of tuples containing the HTTP request url. Supports ``streamsx.topology.schema.StreamSchema`` (schema for a structured stream) or ``CommonSchema.String`` as input.
@@ -24,7 +36,7 @@ def request_get(stream, url=None, url_attribute=None, name=None):
         name(str): Sink name in the Streams context, defaults to a generated name.
 
     Returns:
-        Output Stream with schema ``streamsx.inet.HttpRequestGetResponseSchema``.
+        Output Stream with schema :py:const:`~streamsx.inet.HttpGetResponseSchema`.
     """
 
     if url_attribute is None and url is None:
@@ -33,7 +45,7 @@ def request_get(stream, url=None, url_attribute=None, name=None):
         else:
             raise ValueError("Either url_attribute or url parameter must be set.")
 
-    _op = _HTTPRequest(stream, schema=HttpRequestGetResponseSchema, name=name)
+    _op = _HTTPRequest(stream, schema=HttpGetResponseSchema, name=name)
     _op.params['fixedMethod'] = _op.expression('GET')
     if url_attribute is not None:
         _op.params['url'] = _op.attribute(stream, url_attribute)
