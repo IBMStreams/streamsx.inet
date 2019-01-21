@@ -12,7 +12,7 @@ from streamsx.spl.types import rstring
 
 
 HttpResponseSchema = StreamSchema('tuple<rstring status, int32 statusCode, rstring contentEncoding, rstring contentType, list<rstring> responseHeader, rstring responseData>')
-"""Structured schema containing HTTP GET response values.
+"""Structured schema containing HTTP GET/PUT/POST/DELETE response values.
 
 ``'tuple<rstring status, int32 statusCode, rstring contentEncoding, rstring contentType, list<rstring> responseHeader, rstring responseData>'``
 """

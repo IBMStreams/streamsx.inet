@@ -16,7 +16,6 @@ This package exposes SPL operators in the `com.ibm.streamsx.inet <https://ibmstr
 
 .. automodule:: streamsx.inet
 
-
 Indices and tables
 ==================
 
