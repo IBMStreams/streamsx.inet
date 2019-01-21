@@ -32,9 +32,7 @@ A simple example of a Streams application that emits http requests::
 
 """
 
-__version__='0.1.0'
+__version__='0.2.0'
 
-#__all__ = ['request_get','request_post','request_put','request_delete']
-#from streamsx.inet._inet import request_get,request_post,request_put,request_delete
-__all__ = ['request_get']
-from streamsx.inet._inet import request_get
+__all__ = ['request_delete', 'request_get', 'request_post','request_put', 'HttpResponseSchema']
+from streamsx.inet._inet import request_delete, request_get, request_post, request_put, HttpResponseSchema

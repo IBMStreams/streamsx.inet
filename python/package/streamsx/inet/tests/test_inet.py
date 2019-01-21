@@ -67,4 +67,47 @@ class TestHTTP(TestCase):
         tester.run_for(60)
         tester.test(self.test_ctxtype, self.test_config, always_collect_logs=True)
 
+    def test_request_delete_url_in_input_stream_string_type(self):
+        topo = Topology('test_request_delete_url_in_input_stream_string_type')
+
+        s = topo.source(['http://httpbin.org/delete']).as_string()
+        res_http = inet.request_delete(s)
+        res_http.print()
+        tester = Tester(topo)
+        tester.tuple_count(res_http, 1)
+        tester.run_for(60)
+        tester.test(self.test_ctxtype, self.test_config, always_collect_logs=True)
+
+    def test_request_post_url_in_input_stream_string_type(self):
+        topo = Topology('test_request_post_url_in_input_stream_string_type')
+
+        s = topo.source(['http://httpbin.org/post']).as_string()
+        res_http = inet.request_post(s)
+        res_http.print()
+        tester = Tester(topo)
+        tester.tuple_count(res_http, 1)
+        tester.run_for(60)
+        tester.test(self.test_ctxtype, self.test_config, always_collect_logs=True)
+
+    def test_request_post_url_in_input_stream_string_type_content_type_param(self):
+        topo = Topology('test_request_post_url_in_input_stream_string_type_content_type_param')
+
+        s = topo.source(['http://httpbin.org/post']).as_string()
+        res_http = inet.request_post(s, content_type='application/x-www-form-urlencoded')
+        res_http.print()
+        tester = Tester(topo)
+        tester.tuple_count(res_http, 1)
+        tester.run_for(60)
+        tester.test(self.test_ctxtype, self.test_config, always_collect_logs=True)
+
+    def test_request_put_with_url_contt_params_body_in_input_stream_string_type(self):
+        topo = Topology('test_request_put_with_url_contt_params_body_in_input_stream_string_type')
+
+        s = topo.source(['hello world']).as_string()
+        result_http_put = inet.request_put(s, url='http://httpbin.org/put', content_type='text/plain')
+        result_http_put.print()
+        tester = Tester(topo)
+        tester.tuple_count(result_http_put, 1)
+        tester.run_for(60)
+        tester.test(self.test_ctxtype, self.test_config, always_collect_logs=True)
 
