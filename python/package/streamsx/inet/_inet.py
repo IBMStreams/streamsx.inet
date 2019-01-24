@@ -18,7 +18,7 @@ HttpResponseSchema = StreamSchema('tuple<rstring status, int32 statusCode, rstri
 """
 
 
-def request_delete(stream, url=None, url_attribute=None, name=None):
+def request_delete(stream, url=None, url_attribute=None, ssl_accept_all_certificates=False, name=None):
     """Issues a HTTP DELETE request. You can specifiy the URL either dynamic (part of input stream) or static (as parameter).
 
     Example with URL as part of the input stream of type ``CommonSchema.String``. The parameters ``url`` and ``url_attribute`` can be omitted in this case::
@@ -32,7 +32,8 @@ def request_delete(stream, url=None, url_attribute=None, name=None):
     Args:
         stream(Stream): Stream of tuples containing the HTTP request url. Supports ``streamsx.topology.schema.StreamSchema`` (schema for a structured stream) or ``CommonSchema.String`` as input.
         url(str): String containing the URL to send HTTP requests to.
-        url_attribute(str): Attribute name of the input stream containing the URL to send HTTP requests to. Use this as alternative to the 'url' parameter.         
+        url_attribute(str): Attribute name of the input stream containing the URL to send HTTP requests to. Use this as alternative to the 'url' parameter.
+        ssl_accept_all_certificates(bool): Accept all SSL certificates, even those that are self-signed. Setting this option will allow potentially insecure connections. Default is false.
         name(str): Sink name in the Streams context, defaults to a generated name.
 
     Returns:
@@ -58,11 +59,12 @@ def request_delete(stream, url=None, url_attribute=None, name=None):
     _op.params['outputContentEncoding'] = 'contentEncoding'
     _op.params['outputContentType'] = 'contentType'
     _op.params['outputHeader'] = 'responseHeader'
+    _op.params['sslAcceptAllCertificates'] = ssl_accept_all_certificates
 
     return _op.outputs[0]
 
 
-def request_get(stream, url=None, url_attribute=None, name=None):
+def request_get(stream, url=None, url_attribute=None, ssl_accept_all_certificates=False, name=None):
     """Issues a HTTP GET request. You can specifiy the URL either dynamic (part of input stream) or static (as parameter).
 
     Example with URL as part of the input stream of type ``CommonSchema.String``. The parameters ``url`` and ``url_attribute`` can be omitted in this case::
@@ -76,7 +78,8 @@ def request_get(stream, url=None, url_attribute=None, name=None):
     Args:
         stream(Stream): Stream of tuples containing the HTTP request url. Supports ``streamsx.topology.schema.StreamSchema`` (schema for a structured stream) or ``CommonSchema.String`` as input.
         url(str): String containing the URL to send HTTP requests to.
-        url_attribute(str): Attribute name of the input stream containing the URL to send HTTP requests to. Use this as alternative to the 'url' parameter.      
+        url_attribute(str): Attribute name of the input stream containing the URL to send HTTP requests to. Use this as alternative to the 'url' parameter.
+        ssl_accept_all_certificates(bool): Accept all SSL certificates, even those that are self-signed. Setting this option will allow potentially insecure connections. Default is false.
         name(str): Sink name in the Streams context, defaults to a generated name.
 
     Returns:
@@ -102,11 +105,12 @@ def request_get(stream, url=None, url_attribute=None, name=None):
     _op.params['outputContentEncoding'] = 'contentEncoding'
     _op.params['outputContentType'] = 'contentType'
     _op.params['outputHeader'] = 'responseHeader'
+    _op.params['sslAcceptAllCertificates'] = ssl_accept_all_certificates
 
     return _op.outputs[0]
 
 
-def request_post(stream, url=None, url_attribute=None, body_attribute=None, content_type=None, content_type_attribute=None, name=None):
+def request_post(stream, url=None, url_attribute=None, body_attribute=None, content_type=None, content_type_attribute=None, ssl_accept_all_certificates=False, name=None):
     """Issues a HTTP POST request. You can specifiy the URL either dynamic (part of input stream) or static (as parameter).
 
     Example with URL as part of the input stream of type ``CommonSchema.String``. The parameters ``url`` and ``url_attribute`` can be omitted in this case::
@@ -131,7 +135,8 @@ def request_post(stream, url=None, url_attribute=None, body_attribute=None, cont
         url_attribute(str): Attribute name of the input stream containing the URL to send HTTP requests to. Use this as alternative to the 'url' parameter.
         body_attribute(str): Request body attribute for POST method that accepts an entity.
         content_type(str): MIME content type of entity for POST requests. If not specified the default 'application/json' is used.
-        content_type_attribute(str): Attribute name of the input stream containing the MIME content type. Use this as alternative to the 'content_type' parameter.        
+        content_type_attribute(str): Attribute name of the input stream containing the MIME content type. Use this as alternative to the 'content_type' parameter.
+        ssl_accept_all_certificates(bool): Accept all SSL certificates, even those that are self-signed. Setting this option will allow potentially insecure connections. Default is false.
         name(str): Sink name in the Streams context, defaults to a generated name.
 
     Returns:
@@ -167,11 +172,12 @@ def request_post(stream, url=None, url_attribute=None, body_attribute=None, cont
     _op.params['outputContentEncoding'] = 'contentEncoding'
     _op.params['outputContentType'] = 'contentType'
     _op.params['outputHeader'] = 'responseHeader'
+    _op.params['sslAcceptAllCertificates'] = ssl_accept_all_certificates
 
     return _op.outputs[0]
 
 
-def request_put(stream, url=None, url_attribute=None, body_attribute=None, content_type=None, content_type_attribute=None, name=None):
+def request_put(stream, url=None, url_attribute=None, body_attribute=None, content_type=None, content_type_attribute=None, ssl_accept_all_certificates=False, name=None):
     """Issues a HTTP PUT request. You can specifiy the URL either dynamic (part of input stream) or static (as parameter).
 
     Example with parameters ``url``, ``content_type`` and input stream containing the request body::
@@ -188,7 +194,8 @@ def request_put(stream, url=None, url_attribute=None, body_attribute=None, conte
         url_attribute(str): Attribute name of the input stream containing the URL to send HTTP requests to. Use this as alternative to the 'url' parameter.
         body_attribute(str): Request body attribute for PUT method that accepts an entity.
         content_type(str): MIME content type of entity for PUT requests. If not specified the default 'application/json' is used.
-        content_type_attribute(str): Attribute name of the input stream containing the MIME content type. Use this as alternative to the 'content_type' parameter.        
+        content_type_attribute(str): Attribute name of the input stream containing the MIME content type. Use this as alternative to the 'content_type' parameter.
+        ssl_accept_all_certificates(bool): Accept all SSL certificates, even those that are self-signed. Setting this option will allow potentially insecure connections. Default is false.
         name(str): Sink name in the Streams context, defaults to a generated name.
 
     Returns:
@@ -228,6 +235,7 @@ def request_put(stream, url=None, url_attribute=None, body_attribute=None, conte
     _op.params['outputContentEncoding'] = 'contentEncoding'
     _op.params['outputContentType'] = 'contentType'
     _op.params['outputHeader'] = 'responseHeader'
+    _op.params['sslAcceptAllCertificates'] = ssl_accept_all_certificates
 
     return _op.outputs[0]
 
@@ -320,6 +328,4 @@ class _HTTPRequest(streamsx.spl.op.Invoke):
             params['userAgent'] = userAgent
 
         super(_HTTPRequest, self).__init__(topology,kind,inputs,schema,params,name)
-
-
 
