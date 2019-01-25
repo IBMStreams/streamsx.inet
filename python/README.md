@@ -34,5 +34,16 @@ Package can be tested with TopologyTester using the [Streaming Analytics](https:
 
 ```
 cd package
-python3 -u -m unittest streamsx.inet.tests.test_inet.TestHTTP
+python3 -u -m unittest streamsx.inet.tests.test_inet.TestHTTPStreaminAnalytics
+```
+
+Package can be tested with TopologyTester using a local and running Streams domain.
+Make shure that the streams environment is set, the domain and instance is running and the environment variables:
+STREAMS_USERNAME
+STREAMS_PASSWORD
+are setup.
+
+```
+cd package
+python3 -u -m unittest streamsx.inet.tests.test_inet.TestHTTPDistributed
 ```

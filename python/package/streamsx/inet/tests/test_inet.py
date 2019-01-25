@@ -20,15 +20,6 @@ import json
 ##
 
 class TestHTTP(TestCase):
-    def setUp(self):
-        Tester.setup_streaming_analytics(self, force_remote_build=True)
-
-    @classmethod
-    def setUpClass(self):
-        # start streams service
-        connection = sr.StreamingAnalyticsConnection()
-        service = connection.get_streaming_analytics()
-        result = service.start_instance()
 
     def test_request_get_fixed_url(self):
         topo = Topology('test_request_get_fixed_url')
@@ -59,7 +50,7 @@ class TestHTTP(TestCase):
         pulse = op.Source(topo, "spl.utility::Beacon", 'tuple<rstring url>', params = {'iterations':1})
         pulse.url = pulse.output('"http://httpbin.org/get"')
 
-        res_http = inet.request_get(pulse.stream, url_attribute='url')
+        res_http = inet.request_get(pulse.stream, url_attribute='url', ssl_accept_all_certificates=True)
         res_http.print()
 
         tester = Tester(topo)
@@ -71,7 +62,7 @@ class TestHTTP(TestCase):
         topo = Topology('test_request_delete_url_in_input_stream_string_type')
 
         s = topo.source(['http://httpbin.org/delete']).as_string()
-        res_http = inet.request_delete(s)
+        res_http = inet.request_delete(s, ssl_accept_all_certificates=True)
         res_http.print()
         tester = Tester(topo)
         tester.tuple_count(res_http, 1)
@@ -93,7 +84,7 @@ class TestHTTP(TestCase):
         topo = Topology('test_request_post_url_in_input_stream_string_type_content_type_param')
 
         s = topo.source(['http://httpbin.org/post']).as_string()
-        res_http = inet.request_post(s, content_type='application/x-www-form-urlencoded')
+        res_http = inet.request_post(s, content_type='application/x-www-form-urlencoded', ssl_accept_all_certificates=True)
         res_http.print()
         tester = Tester(topo)
         tester.tuple_count(res_http, 1)
@@ -104,10 +95,25 @@ class TestHTTP(TestCase):
         topo = Topology('test_request_put_with_url_contt_params_body_in_input_stream_string_type')
 
         s = topo.source(['hello world']).as_string()
-        result_http_put = inet.request_put(s, url='http://httpbin.org/put', content_type='text/plain')
+        result_http_put = inet.request_put(s, url='http://httpbin.org/put', content_type='text/plain', ssl_accept_all_certificates=False)
         result_http_put.print()
         tester = Tester(topo)
         tester.tuple_count(result_http_put, 1)
         tester.run_for(60)
         tester.test(self.test_ctxtype, self.test_config, always_collect_logs=True)
+
+class TestHTTPDistributed(TestHTTP):
+    def setUp(self):
+        Tester.setup_distributed(self)
+
+class TestHTTPStreaminAnalytics(TestHTTP):
+    def setUp(self):
+        Tester.setup_streaming_analytics(self, force_remote_build=True)
+
+    @classmethod
+    def setUpClass(self):
+        # start streams service
+        connection = sr.StreamingAnalyticsConnection()
+        service = connection.get_streaming_analytics()
+        result = service.start_instance()
 
