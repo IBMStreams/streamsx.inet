@@ -106,7 +106,7 @@ class TestHTTPDistributed(TestHTTP):
     def setUp(self):
         Tester.setup_distributed(self)
 
-class TestHTTPStreaminAnalytics(TestHTTP):
+class TestHTTPStreamingAnalytics(TestHTTP):
     def setUp(self):
         Tester.setup_streaming_analytics(self, force_remote_build=True)
 
