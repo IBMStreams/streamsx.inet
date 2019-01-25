@@ -34,7 +34,7 @@ Package can be tested with TopologyTester using the [Streaming Analytics](https:
 
 ```
 cd package
-python3 -u -m unittest streamsx.inet.tests.test_inet.TestHTTPStreaminAnalytics
+python3 -u -m unittest streamsx.inet.tests.test_inet.TestHTTPStreamingAnalytics
 ```
 
 Package can be tested with TopologyTester using a local and running Streams domain.
