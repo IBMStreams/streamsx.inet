@@ -31,13 +31,14 @@ class Test(unittest.TestCase):
             tk.add_toolkit(topo, self.inet_toolkit_location)
 
     def _service(self, remote_build=True):
+        auth_host = os.environ['AUTH_HOST']
         streams_rest_url = os.environ['STREAMS_REST_URL']
         streams_service_name = os.environ['STREAMS_SERVICE_NAME']
         streams_user = os.environ['STREAMS_USERNAME']
         streams_password = os.environ['STREAMS_PASSWORD']
         uri_parsed = urlparse(streams_rest_url)
         hostname = uri_parsed.hostname
-        r = requests.get('https://'+hostname+':31843/v1/preauth/validateAuth', auth=(streams_user, streams_password), verify=False)
+        r = requests.get('https://'+auth_host+'/v1/preauth/validateAuth', auth=(streams_user, streams_password), verify=False)
         token = r.json()['accessToken']
         cfg =  {
             'type':'streams',
