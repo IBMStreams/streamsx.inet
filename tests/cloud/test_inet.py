@@ -30,23 +30,25 @@ class Test(unittest.TestCase):
         if self.inet_toolkit_location is not None:
             tk.add_toolkit(topo, self.inet_toolkit_location)
 
-    def _service(self, remote_build=True):
+    def _service (self, force_remote_build = True):
         auth_host = os.environ['AUTH_HOST']
         streams_rest_url = os.environ['STREAMS_REST_URL']
         streams_service_name = os.environ['STREAMS_SERVICE_NAME']
-        streams_user = os.environ['STREAMS_USERNAME']
-        streams_password = os.environ['STREAMS_PASSWORD']
-        uri_parsed = urlparse(streams_rest_url)
+        auth_user = os.environ['AUTH_USERNAME']
+        auth_password = os.environ['AUTH_PASSWORD']
+        uri_parsed = urlparse (streams_rest_url)
         hostname = uri_parsed.hostname
-        r = requests.get('https://'+auth_host+'/v1/preauth/validateAuth', auth=(streams_user, streams_password), verify=False)
+        r = requests.get ('https://' + auth_host + '/v1/preauth/validateAuth', auth=(auth_user, auth_password), verify=False)
         token = r.json()['accessToken']
-        cfg =  {
-            'type':'streams',
-            'connection_info':{
-                'serviceBuildEndpoint':'https://'+hostname+':32085',
-                'serviceRestEndpoint': 'https://'+uri_parsed.netloc+'/streams/rest/instances/'+streams_service_name},
-            'service_token': token }
-        cfg[streamsx.topology.context.ConfigParams.FORCE_REMOTE_BUILD] = remote_build
+        cfg = {
+            'type': 'streams',
+            'connection_info': {
+                'serviceBuildEndpoint': 'https://' + hostname + ':32085',
+                'serviceRestEndpoint': 'https://' + uri_parsed.netloc + '/streams/rest/instances/' + streams_service_name
+            },
+            'service_token': token
+        }
+        cfg [streamsx.topology.context.ConfigParams.FORCE_REMOTE_BUILD] = force_remote_build
         return cfg
 
     def _build_launch_app(self, name, composite_name, parameters, num_result_tuples, test_toolkit):
