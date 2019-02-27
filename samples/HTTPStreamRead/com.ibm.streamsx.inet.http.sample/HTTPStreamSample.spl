@@ -1,6 +1,6 @@
 /*
 *******************************************************************************
-* Copyright (C) 2010,2014, International Business Machines Corporation. 
+* Copyright (C) 2019, International Business Machines Corporation. 
 * All Rights Reserved. *
 *******************************************************************************
 */
@@ -19,7 +19,7 @@ public composite HTTPStreamSample
     {
 
       param 
-						url : getSubmissionTimeValue("url");
+        url : getSubmissionTimeValue("url", "http://httpbin.org");
 
     } 
 
