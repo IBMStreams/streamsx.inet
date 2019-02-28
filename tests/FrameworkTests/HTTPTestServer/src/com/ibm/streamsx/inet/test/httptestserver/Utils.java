@@ -20,6 +20,11 @@ class Utils {
         return "</body>\n</html>\n";
     }
     
+    //print form end without final newline
+    static String printFormEnd2() {
+        return "</body>\n</html>";
+    }
+    
     static String printAllHeades(HttpServletRequest request, HttpServletResponse response) {
         String res = "<h2>headers</h2>\n<p>\n";
         for (Enumeration<String> headers = request.getHeaderNames(); headers.hasMoreElements();) {

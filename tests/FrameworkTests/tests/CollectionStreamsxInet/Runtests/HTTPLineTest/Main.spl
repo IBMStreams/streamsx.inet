@@ -1,0 +1,38 @@
+use com.ibm.streamsx.inet.http::HTTPRequest;
+use com.ibm.streamsx.testframe::FileSink1;
+use com.ibm.streamsx.inet::InetSource;
+
+public composite Main {
+	param
+		//<0 2>expression<rstring> $url: getSubmissionTimeValue("url", "http://" + getCompileTimeValue("host") + '/hello');
+		//<1 3>expression<rstring> $url: getSubmissionTimeValue("url", "http://" + getCompileTimeValue("host") + '/hello2');
+	graph
+		stream<uint64 id> Trigger as O = Beacon() {
+			param 
+				iterations : 1;
+			output O:
+				id = IterationCount();
+		}
+		
+		//<0 1>stream<uint64 id, rstring method, rstring status, int32 stat, rstring respData> Response as O = HTTPRequest(Trigger as I) {
+		//<0 1>	param
+		//<0 1>		fixedUrl: $url;
+		//<0 1>		fixedMethod : GET;
+		//<0 1>		outputBody : "respData";
+		//<0 1>		outputStatus : "status";
+		//<0 1>		outputStatusCode : "stat";
+		//<0 1>}
+
+		//<2 3>stream<rstring respData> Response as O = InetSource() {
+		//<2 3>	param
+		//<2 3>		URIList : [$url];
+		//<2 3>		iterations : 1u;
+		//<2 3>		punctPerFetch : true;
+		//<2 3>}
+		
+		() as Sink = FileSink1(Response) { }
+
+	
+	config
+		restartable : false;
+}
