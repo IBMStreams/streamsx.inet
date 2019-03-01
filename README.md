@@ -17,7 +17,7 @@ Find the project Documentation at: http://ibmstreams.github.io/streamsx.inet/
 The http rest functions and the WebSocket server functions are now moved into [streamsx.inetserver toolkit](https://github.com/IBMStreams/streamsx.inetserver/releases)
 
 # How to use this Toolkit
-See DEVELOPMENT.md
+See [DEVELOPMENT.md](DEVELOPMENT.md)
 
 # Requirements
 This toolkit requires the following packages installed

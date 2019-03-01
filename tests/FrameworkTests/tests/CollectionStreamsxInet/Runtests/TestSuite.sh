@@ -1,8 +1,11 @@
-
-#setVar 'TTPR_ftpServerHost' 'speedtest.tele2.net'
 # If the property TTPR_ftpServerHost was set soutside of this script, this ftp server is used for the tests
 # If this property is not set, an attempt is made to start a local ftp server and this local server is used for the tests
-# If this property is set and empty (false), all ftp test should be skipped
+# If this property is set and empty (false), no attempt is made to start the ftp server and all ftp test should be skipped
+# If the running user is not in the sudoers list, you can start the ftp-server manually and setup TTPR_ftpServerHost variable like:
+# sudo service vsftpd start
+# export TTPR_ftpServerHost=$HOSTNAME
+# or use the -D command line option to inject the property : -D TTPR_ftpServerHost=$HOSTNAME
+
 #setVar 'TTPR_ftpServerHost' 'speedtest.tele2.net'
 setVar 'TTPR_ftpServerUser' 'ftpuser'
 setVar 'TTPR_ftpServerPasswd' 'streams'
@@ -16,7 +19,7 @@ setVar 'TTPR_httpServerDir' "$TTRO_inputDir/../HTTPTestServer"
 # expected http server definitions
 # TTPR_httpServerHost
 # if TTPR_httpServerHost is not set, the http server is started from http server install location TTPR_httpServerDir
-# the following props depend usualy from host
+# the following props depend usually from host
 # TTPR_httpServerAddr  "${TTPR_httpServerHost}:8097"
 # TTPR_httpsServerAddr "${TTPR_httpServerHost}:1443"
 

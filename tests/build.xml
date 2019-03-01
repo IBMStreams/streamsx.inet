@@ -25,6 +25,7 @@
 	
 	<target name="test-clean" description="Main target to clean generated test results">
 		<delete dir="${test.work.dir}"/>
+		<delete dir="${test.framework.dir}/runTTFWorkdir"/>
 	</target>
 	
 	<target name="clean-all" depends="test-clean,clean" description="Main target to clean the build files of the test envirpionment and to clean the generated test results">

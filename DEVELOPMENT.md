@@ -62,15 +62,20 @@ This change in the info.xml file can be removed with ant target revertversion.
 The tests directory contains test suites and test utilities. The FrameworkTests test collection containes a HTTP Test server and a ftp test server.
 To use the local ftp server you must install package vsftp (version 2.2.2 or higher)
 To read more about the configuration of the test servers look into file
-tests/FrameworkTests/tests/CollectionStreamsxInet/Runtests/TestSuite.sh
+[tests/FrameworkTests/tests/CollectionStreamsxInet/Runtests/TestSuite.sh](tests/FrameworkTests/tests/CollectionStreamsxInet/Runtests/TestSuite.sh)
 
 The test run can be customized with file
-tests/FrameworkTests/tests/TestProperties.sh
+[tests/FrameworkTests/tests/TestProperties.sh](tests/FrameworkTests/tests/TestProperties.sh)
 
 To find out more about the test utility go into directory 
-tests/FrameworkTests
-and run the commands:
+`tests/FrameworkTests`
+and run the commands: 
+```
 ./runTest.sh -h
 ./runTest.sh --man
 ./runTest.sh --ref ''
 ./runTest.sh --ref "\$TTRO_scriptDir/streamsutils.sh"
+```
+
+To look into the test results open firefox and open the *index.html* file in the test workdir.
+
