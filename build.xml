@@ -54,6 +54,11 @@
       <ant dir="${toolkit.dir}" target="clean"/>
   </target>
 
+  <target name="clean-all" depends="clean"
+      description="clean up toolkit code, samples code and all spldocs and test artifacts">
+      <ant dir="${toolkit.test}" target="clean-all"/>
+  </target>
+
   <target name="toolkit"
       description="Build any code and index the toolkit." >
       <ant dir="${toolkit.dir}" target="all"/>
@@ -100,11 +105,15 @@
   </target>
 
   <!-- Test targets -->
-  <target name="tests" depends="toolkit">
+  <target name="test" depends="toolkit" description="Start the (quick) test">
      <ant dir="${toolkit.dir}" target="test"/>
-     <ant dir="${toolkit.test}" target="all"/>
+     <ant dir="${toolkit.test}" target="test"/>
   </target>
 
+  <target name="test-full" depends="toolkit" description="Start the full test">
+     <ant dir="${toolkit.dir}" target="test"/>
+     <ant dir="${toolkit.test}" target="test-full"/>
+  </target>
 
   <!-- Targets called on samples -->
   <target name="buildsample">
