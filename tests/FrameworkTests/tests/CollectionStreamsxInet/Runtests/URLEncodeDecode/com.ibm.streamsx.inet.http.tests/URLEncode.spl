@@ -1,0 +1,38 @@
+namespace com.ibm.streamsx.inet.http.tests;
+use com.ibm.streamsx.inet.http::urlEncode;
+use com.ibm.streamsx.inet.http::urlDecode;
+use com.ibm.streamsx.testframe::FileSink1;
+
+composite URLEncodeTestMain {
+
+graph
+	stream<rstring result>Result as O = Custom() {
+		logic onProcess: {
+			rstring raw = "This has spaces and newline \n.";
+			println(raw);
+			rstring encoded = urlEncode(raw);
+			println(encoded);
+			rstring decoded = urlDecode(encoded);
+			println(decoded);
+			submit({result=decoded}, O);
+			if (decoded != raw) {
+				abort();
+			}
+			rstring raw2 = "This has a null \0 now stuff after the null";
+			println(raw2);
+			rstring encoded2 = urlEncode(raw2);
+			println(encoded2);
+			rstring decoded2 = urlDecode(encoded2);
+			println(decoded2);
+			submit({result=decoded2}, O);
+			if (raw2 != decoded2) {
+				abort();
+			}
+		}
+	}
+	
+	() as Sink = FileSink1(Result) { }
+
+	config
+		restartable : false;
+}

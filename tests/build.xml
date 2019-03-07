@@ -1,32 +1,60 @@
 <!--
 // *******************************************************************************
-// * Copyright (C)2014, International Business Machines Corporation and *
+// * Copyright (C)2019, International Business Machines Corporation and *
 // * others. All Rights Reserved. *
 // *******************************************************************************
 -->
-<project name="streamsx.messaging.tests" default="all" basedir=".">
-    <description>
-        Build file for streamsx.messaging project tests
-    </description>
-  <property environment="env" />
-  <property name="streams.install" value="${env.STREAMS_INSTALL}" />
+<project name="streamsx.inet.tests" default="all" basedir=".">
+
+	<description>Build file for streamsx.inet toolkit tests</description>
+
+	<property name="test.framework.dir" location="FrameworkTests"/>
+	<property name="test.work.dir"      location="testwork"/>
+
+	<target name="all" description="Main target to build the test environemnt" depends="extract"/>
 	
-  <target name="all" depends="http"/>
-  <target name="clean" depends="http-clean"/>
+	<target name="extract" description="extract the test framework scripts">
+		<exec executable="./runTest.sh" dir="${test.framework.dir}">
+			<arg value="--version"/>
+		</exec>
+	</target>
+	
+	<target name="clean" description="Main target to clean exec files">
+		<delete dir="${test.framework.dir}/scripts"/>
+	</target>
+	
+	<target name="test-clean" description="Main target to clean generated test results">
+		<delete dir="${test.work.dir}"/>
+		<delete dir="${test.framework.dir}/runTTFWorkdir"/>
+	</target>
+	
+	<target name="clean-all" depends="test-clean,clean" description="Main target to clean the build files of the test envirpionment and to clean the generated test results">
+	</target>
 
-  <target name="http">
-    <exec executable="make">
-      <arg value="-C"/>
-      <arg value="tests.http"/>
-    </exec>
-  </target>
-  <target name="http-clean">
-    <exec executable="make">
-      <arg value="-C"/>
-      <arg value="tests.http"/>
-      <arg value="clean"/>
-    </exec>
-  </target>
+	<target name="test" depends="extract" description="start the quick test">
+		<exec executable="./scripts/bin/runTTF" dir="${test.framework.dir}">
+			<arg value="--version"/>
+		</exec>
+		<exec executable="./scripts/bin/runTTF" dir="${test.framework.dir}">
+			<arg value="--directory"/> <arg value="tests"/>
+			<arg value="--workdir"/> <arg value="${test.work.dir}"/>
+			<arg value="--noprompt"/>
+			<arg value="--no-browser"/>
+			<arg value="--xtraprint"/>
+			<arg value="--category"/> <arg value="quick"/>
+		</exec>
+	</target>
 
-
+	<target name="test-full" depends="extract" description="start the full test">
+		<exec executable="./scripts/bin/runTTF" dir="${test.framework.dir}">
+			<arg value="--version"/>
+		</exec>
+		<exec executable="./scripts/bin/runTTF" dir="${test.framework.dir}">
+			<arg value="--directory"/> <arg value="tests"/>
+			<arg value="--workdir"/> <arg value="${test.work.dir}"/>
+			<arg value="--noprompt"/>
+			<arg value="--no-browser"/>
+			<arg value="--xtraprint"/>
+		</exec>
+	</target>
 </project>

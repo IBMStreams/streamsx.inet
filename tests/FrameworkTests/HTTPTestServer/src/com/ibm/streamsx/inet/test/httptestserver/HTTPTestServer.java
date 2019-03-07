@@ -105,6 +105,7 @@ public class HTTPTestServer {
 		context.setWelcomeFiles(new String[] { "index.html" });
 		//add servlets
 		context.addServlet(HelloServlet.class, "/hello/*");
+		context.addServlet(HelloServlet2.class, "/hello2/*");
 		context.addServlet(HeaderServlet.class, "/headers");
 		context.addServlet(MethodServlet.class, "/get");
 		context.addServlet(MethodServlet.class, "/delete");

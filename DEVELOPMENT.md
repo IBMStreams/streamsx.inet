@@ -49,8 +49,33 @@ The top-level build.xml contains the main targets:
 * toolkit - Build the complete toolkit code
 * build-all-samples - Builds all samples. Developers should ensure this target is successful when creating a pull request.
 * release - Builds release artifacts, which is a tar bundle containing the toolkits and samples. It includes stamping the SPLDOC and toolkit version numbers with the git commit number (thus requires git to be available).
+* test - Start the (quick) test
+* test-full - Start the full test
+
+Execute the comman ant -p to display the target information.
 
 The release should use Java 8 for the Java compile to allow the widest use of the toolkit (with Streams 4.0.1 or later). (Note Streams 4.0.1 ships Java 8).
 The build script inserts the commit hash into the toolkit version if the version number has a form like X.Y.Z.__dev__ 
 This change in the info.xml file can be removed with ant target revertversion.
+
+# Test the toolkit
+The tests directory contains test suites and test utilities. The FrameworkTests test collection containes a HTTP Test server and a ftp test server.
+To use the local ftp server you must install package vsftp (version 2.2.2 or higher)
+To read more about the configuration of the test servers look into file
+[tests/FrameworkTests/tests/CollectionStreamsxInet/Runtests/TestSuite.sh](tests/FrameworkTests/tests/CollectionStreamsxInet/Runtests/TestSuite.sh)
+
+The test run can be customized with file
+[tests/FrameworkTests/tests/TestProperties.sh](tests/FrameworkTests/tests/TestProperties.sh)
+
+To find out more about the test utility go into directory 
+`tests/FrameworkTests`
+and run the commands: 
+```
+./runTest.sh -h
+./runTest.sh --man
+./runTest.sh --ref ''
+./runTest.sh --ref "\$TTRO_scriptDir/streamsutils.sh"
+```
+
+To look into the test results open firefox and open the *index.html* file in the test workdir.
 
