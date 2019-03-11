@@ -8,6 +8,10 @@ import streamsx.rest as sr
 import os, os.path
 import urllib3
 
+import streamsx.topology.context
+import requests
+from urllib.parse import urlparse
+
 class Test(unittest.TestCase):
     """ Test invocations of composite operators in local Streams instance """
 
@@ -19,12 +23,35 @@ class Test(unittest.TestCase):
     def setUp(self):
         Tester.setup_distributed(self)
         self.inet_toolkit_location = "../../com.ibm.streamsx.inet"
-        self.isCloudTest = False
+
 
     def _add_toolkits(self, topo, test_toolkit):
         tk.add_toolkit(topo, test_toolkit)
         if self.inet_toolkit_location is not None:
             tk.add_toolkit(topo, self.inet_toolkit_location)
+
+    def _service (self, force_remote_build = True):
+        auth_host = os.environ['AUTH_HOST']
+        auth_user = os.environ['AUTH_USERNAME']
+        auth_password = os.environ['AUTH_PASSWORD']
+        streams_rest_url = os.environ['STREAMS_REST_URL']
+        streams_service_name = os.environ['STREAMS_SERVICE_NAME']
+        streams_build_service_port = os.environ['STREAMS_BUILD_SERVICE_PORT']
+        uri_parsed = urlparse (streams_rest_url)
+        streams_build_service = uri_parsed.hostname + ':' + streams_build_service_port
+        streams_rest_service = uri_parsed.netloc
+        r = requests.get ('https://' + auth_host + '/v1/preauth/validateAuth', auth=(auth_user, auth_password), verify=False)
+        token = r.json()['accessToken']
+        cfg = {
+            'type': 'streams',
+            'connection_info': {
+                'serviceBuildEndpoint': 'https://' + streams_build_service,
+                'serviceRestEndpoint': 'https://' + streams_rest_service + '/streams/rest/instances/' + streams_service_name
+            },
+            'service_token': token
+        }
+        cfg [streamsx.topology.context.ConfigParams.FORCE_REMOTE_BUILD] = force_remote_build
+        return cfg
 
     def _build_launch_app(self, name, composite_name, parameters, num_result_tuples, test_toolkit):
         print ("------ "+name+" ------")
@@ -39,11 +66,18 @@ class Test(unittest.TestCase):
         self.tester.tuple_count(test_op.stream, num_result_tuples, exact=True)
 
         cfg = {}
-        job_config = streamsx.topology.context.JobConfig(tracing='warn')
+        if ("TestICP" in str(self)):
+            remote_build = False
+            if ("TestICPRemote" in str(self)):
+                remote_build = True
+            cfg = self._service(remote_build)
+
+        # change trace level
+        job_config = streamsx.topology.context.JobConfig(tracing='info')
         job_config.add(cfg)
 
-        if ("Cloud" not in str(self)):
-            cfg[streamsx.topology.context.ConfigParams.SSL_VERIFY] = False     
+        if ("TestCloud" not in str(self)):
+            cfg[streamsx.topology.context.ConfigParams.SSL_VERIFY] = False   
 
         # Run the test
         test_res = self.tester.test(self.test_ctxtype, cfg, assert_on_fail=True, always_collect_logs=True)
@@ -125,41 +159,32 @@ class TestCloud(Test):
     def setUp(self):
         Tester.setup_streaming_analytics(self, force_remote_build=False)
         self.inet_toolkit_location = "../../com.ibm.streamsx.inet"
-        self.isCloudTest = True
 
 
-class TestCloudLocal(Test):
+
+class TestCloudLocal(TestCloud):
     """ Test in Streaming Analytics Service using local installed toolkit """
 
     @classmethod
     def setUpClass(self):
-        # start streams service
-        connection = sr.StreamingAnalyticsConnection()
-        service = connection.get_streaming_analytics()
-        result = service.start_instance()
         super().setUpClass()
 
     def setUp(self):
         Tester.setup_streaming_analytics(self, force_remote_build=False)
         self.streams_install = os.environ.get('STREAMS_INSTALL')
         self.inet_toolkit_location = self.streams_install+'/toolkits/com.ibm.streamsx.inet'
-        self.isCloudTest = True
 
 
-class TestCloudRemote(Test):
+class TestCloudRemote(TestCloud):
     """ Test in Streaming Analytics Service using remote toolkit and remote build """
 
     @classmethod
     def setUpClass(self):
-        # start streams service
-        connection = sr.StreamingAnalyticsConnection()
-        service = connection.get_streaming_analytics()
-        result = service.start_instance()
         super().setUpClass()
 
     def setUp(self):
         Tester.setup_streaming_analytics(self, force_remote_build=True)
         # remote toolkit is used
         self.inet_toolkit_location = None
-        self.isCloudTest = True
+
 
