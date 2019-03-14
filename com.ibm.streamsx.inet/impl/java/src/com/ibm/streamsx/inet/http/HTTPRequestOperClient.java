@@ -14,6 +14,7 @@ import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -136,7 +137,7 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
     /*
      * Build http client dependent on ssl context, proxy ..
      */
-    private void buildHttpClient() throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, CertificateException, IOException {
+    private void buildHttpClient() throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, CertificateException, IOException, UnrecoverableKeyException {
         //ssl 
         SSLContext sslDefaultContext = SSLContext.getDefault();
         String[] sslDefaultProtocols = sslDefaultContext.getDefaultSSLParameters().getProtocols();
@@ -151,7 +152,7 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
         }
 
         HttpClientBuilder clientBuilder = HttpClients.custom();
-
+        
         //trust all certificates
         if (getSslAcceptAllCertificates()) {
             tracer.log(TraceLevel.DEBUG, "sslAcceptAllCertificates=" + getSslAcceptAllCertificates());
@@ -181,12 +182,25 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
             //clientBuilder.useSystemProperties();
         }
 
-        // Trust own CA and all self-signed certs
-        if (getSslTrustStoreFile() != null) {
-            tracer.log(TraceLevel.DEBUG, "sslTrustStoreFile=" + getSslTrustStoreFile());
-            SSLContext sslcontext = SSLContexts.custom()
-                .loadTrustMaterial(new File(getSslTrustStoreFile()), getSslTrustStorePassword().toCharArray(), new TrustSelfSignedStrategy())
-                .build();
+        if ((getSslTrustStoreFile() != null) || (getSslKeyStoreFile() != null)) {
+            SSLContextBuilder sslContextBuilder = SSLContexts.custom();
+
+            // Trust own CA and all self-signed certs
+            if (getSslTrustStoreFile() != null) {
+                tracer.log(TraceLevel.DEBUG, "sslTrustStoreFile=" + getSslTrustStoreFile());
+                if (getSslTrustStorePassword() == null) 
+                    sslContextBuilder = sslContextBuilder.loadTrustMaterial(new File(getSslTrustStoreFile()), null,                                     new TrustSelfSignedStrategy());
+                else
+                    sslContextBuilder = sslContextBuilder.loadTrustMaterial(new File(getSslTrustStoreFile()), getSslTrustStorePassword().toCharArray(), new TrustSelfSignedStrategy());
+            }
+            if (getSslKeyStoreFile() != null) {
+                tracer.log(TraceLevel.DEBUG, "sslKeyStoreFile=" + getSslKeyStoreFile());
+                if (getSslKeyStorePassword() == null) 
+                    sslContextBuilder = sslContextBuilder.loadKeyMaterial(new File(getSslKeyStoreFile()), null,                                   getSslKeyPassword().toCharArray());
+                else
+                    sslContextBuilder = sslContextBuilder.loadKeyMaterial(new File(getSslKeyStoreFile()), getSslKeyStorePassword().toCharArray(), getSslKeyPassword().toCharArray());
+            }
+            SSLContext sslcontext = sslContextBuilder.build();
             
             SSLConnectionSocketFactory sslcsf = new SSLConnectionSocketFactory(
                     sslcontext,
@@ -194,7 +208,6 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
                     null,
                     SSLConnectionSocketFactory.getDefaultHostnameVerifier()
             );
-            
             clientBuilder.setSSLSocketFactory(sslcsf);
         }
 

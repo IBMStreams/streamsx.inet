@@ -45,17 +45,25 @@ composite Main {
 
 				//_9_url: url;
 				//_9_method: method;
-				//_9_sslAcceptAllCertificates: false;
-				//_9_sslTrustStoreFile: "myfile";
-				//_9_sslTrustStorePassword: "mypass";
+				//_9_sslAcceptAllCertificates: true;
+				//_9_sslKeyStoreFile: "myfile";
+				//_9_sslKeyPassword: "mykeypass";
 
 				//_10_url: url;
 				//_10_method: method;
-				//_10_sslTrustStoreFile: "myfile";
+				//_10_sslTrustStorePassword: "mypass";
 
 				//_11_url: url;
 				//_11_method: method;
-				//_11_sslTrustStorePassword: "mypass";
+				//_11_sslKeyStorePassword: "mypass";
+
+				//_12_url: url;
+				//_12_method: method;
+				//_12_sslKeyStoreFile: "myfile";
+
+				//_13_url: url;
+				//_13_method: method;
+				//_13_sslKeyPassword: "mykeypass";
 		}
 }
 
