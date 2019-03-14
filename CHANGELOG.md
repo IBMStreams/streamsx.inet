@@ -1,6 +1,10 @@
 # Changes
 =======
 
+## v3.0.1:
+* HTTPRequest operator allows tls-client authentication
+* Relaxed requirements for parameter sslTrustStorePassword
+
 ## v3.0.0:
 * The http rest functions and the WebSocket server functions are now moved into [streamsx.inetserver toolkit](https://github.com/IBMStreams/streamsx.inetserver/releases)
 * Operator HTTPRequestAdd - new parameters extraHeaderAttribute, accessTokenAttribute and tokenTypeAttribute
