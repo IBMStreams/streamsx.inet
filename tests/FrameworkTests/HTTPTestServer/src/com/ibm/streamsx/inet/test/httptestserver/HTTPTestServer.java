@@ -41,6 +41,23 @@ public class HTTPTestServer {
 		
 		int httpPort = 8097;
 		int httpsPort = 1443;
+		boolean requestClientCertificate = false;
+		if (args.length < 2) {
+			System.out.println("HTTPTest server requires 2 or 3 arguments: httpPort httpsPort, [--clientCert]");
+		} else {
+			httpPort = Integer.parseInt(args[0]);
+			httpsPort = Integer.parseInt(args[1]);
+		}
+		if (args.length > 2) {
+			if (args[2].equals("--clientCert")) {
+				requestClientCertificate = true;
+			}
+		}
+		
+		System.out.println("Start HTTP Test server listening on ports:");
+		System.out.print(" - http  port: "); System.out.println(httpPort);
+		System.out.print(" - https port: ");System.out.println(httpsPort);
+		System.out.print(" - requestClientCertificate: "); System.out.println(requestClientCertificate);
 		
 		Server server = new Server();
 
@@ -55,15 +72,17 @@ public class HTTPTestServer {
 		http.setPort(httpPort);
 		http.setIdleTimeout(30000);
 
-		// ssl context
+		// ssl context1
 		SslContextFactory sslContextFactory = new SslContextFactory();
-		//sslContextFactory.setKeyStorePath("/home/joergboe/git2/toolkit.streamsx.inet/tests/com.ibm.streams.inet.junit/resources/keystore");
-		sslContextFactory.setKeyStorePath("etc/keystore");
-		//sslContextFactory.setKeyStorePassword("");
-		sslContextFactory.setKeyManagerPassword("test");
-		//sslContextFactory.setKeyStorePath("/home/joergboe/jetty/jetty-distribution-9.4.12.v20180830/demo-base/etc/keystore");
-		//sslContextFactory.setKeyStorePassword("OBF:1vny1zlo1x8e1vnw1vn61x8g1zlu1vn4");
-		//sslContextFactory.setKeyManagerPassword("OBF:1u2u1wml1z7s1z7a1wnl1u2g");
+		sslContextFactory.setKeyStorePath("etc/keystore.jks");
+		//sslContextFactory.setKeyStorePassword("changeit");
+		sslContextFactory.setKeyManagerPassword("changeit");
+		sslContextFactory.setCertAlias("mykey");
+		if (requestClientCertificate) {
+			sslContextFactory.setTrustStorePath("etc/cacert.jks");
+			//sslContextFactory.setTrustStorePassword("changeit");
+			sslContextFactory.setNeedClientAuth(true);
+		}
 		System.out.println(sslContextFactory.dump());
 
 		// HTTPS Configuration
@@ -154,7 +173,6 @@ public class HTTPTestServer {
 		server.start();
 		server.dumpStdErr();
 		server.join();
-
 	}
 
 }

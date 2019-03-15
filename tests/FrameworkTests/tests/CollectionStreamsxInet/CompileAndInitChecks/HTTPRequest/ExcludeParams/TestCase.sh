@@ -39,8 +39,8 @@ errorCodes=(
 	'ERROR: CDISP7303E Operator parameter outputBody cannot be set when parameter outputDataLine is set*'
 	'ERROR: CDISP7303E Operator parameter sslTrustStoreFile cannot be set when parameter sslAcceptAllCertificates is set*'
 	'ERROR: CDISP7303E Operator parameter sslKeyStoreFile cannot be set when parameter sslAcceptAllCertificates is set*'
-	'ERROR: CDIST0217E HTTPRequest operator: Invalid trust/key store password parameter, do not provide a sslTrustStorePassword/sslKeyStorePassword if the appropriate store is not provided*'
-	'ERROR: CDIST0217E HTTPRequest operator: Invalid trust/key store password parameter, do not provide a sslTrustStorePassword/sslKeyStorePassword if the appropriate store is not provided*'
+	'ERROR: CDIST0247E HTTPRequest operator: Invalid trust/key store password parameter, do not provide a sslTrustStorePassword/sslKeyStorePassword if the appropriate store is not provided*'
+	'ERROR: CDIST0247E HTTPRequest operator: Invalid trust/key store password parameter, do not provide a sslTrustStorePassword/sslKeyStorePassword if the appropriate store is not provided*'
 	'ERROR: CDIST0218E HTTPRequest operator: Invalid keystore parameters, provide both a keyStoreFile and a keyStorePassword or provide neither*'
 	'ERROR: CDIST0218E HTTPRequest operator: Invalid keystore parameters, provide both a keyStoreFile and a keyStorePassword or provide neither*'
 )

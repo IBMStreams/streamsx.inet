@@ -9,14 +9,16 @@ declare -r commandPath="${0%/*}"
 
 usage() {
 	cat <<-EOF
-	
-	usage: ${command} [option ..]
+
+	usage: ${command} [option]
 
 	Start or stop the inet toolkit http test server.
-	
+
 	OPTIONS:
 	-h|--help                : display this help
 	--noprompt               : No interactive user interaction
+	-f                       : start one instance in foreground - ports: 8097 1443
+	-c                       : start one instance in foreground with client certificate request - ports 8098 1444
 	EOF
 }
 
@@ -26,7 +28,7 @@ userPrompt() {
 	while read -p "$pr"; do
 		if [[ $REPLY == y* || $REPLY == Y* || $REPLY == c* || $REPLY == C* ]]; then
 			inputWasY='true'
-			break	local command=${0##*/}
+			break
 
 		elif [[ $REPLY == e* || $REPLY == E* || $REPLY == n* || $REPLY == N* ]]; then
 			inputWasY=''
@@ -36,12 +38,13 @@ userPrompt() {
 	if [[ -n $inputWasY ]]; then
 		return 0
 	else
-		return 1	local command=${0##*/}
-
+		return 1
 	fi
 }
 
 declare noprompt=''
+declare foreground=''
+declare certrequest=''
 
 if [[ $# -gt 0 ]]; then
 	case "$1" in
@@ -49,8 +52,12 @@ if [[ $# -gt 0 ]]; then
 		usage
 		exit 0;;
 	--noprompt)
-		noprompt='true'
-		shift;;
+		noprompt='true';;
+	-f)
+		foreground='true';;
+	-c)
+		foreground='true'
+		certrequest='true';;
 	*)
 		echo "Wrong command line argument $1 exit" >&2
 		exit 1;;
@@ -79,9 +86,19 @@ fi
 cd "$commandPath"
 ant
 rm -f nohup.out
-echo "Starting  http test server"
-nohup "$javacmd" "-cp" "bin:opt/jetty-all-9.4.12.v20180830-uber.jar" "com.ibm.streamsx.inet.test.httptestserver.HTTPTestServer" &> nohup.out &
-
-echo -n "$!" > .pid
-
+if [[ -z $foreground ]]; then
+	echo "Starting  http test server"
+	nohup "$javacmd" "-cp" "bin:opt/jetty-all-9.4.12.v20180830-uber.jar" "com.ibm.streamsx.inet.test.httptestserver.HTTPTestServer" 8097 1443 &> nohup1.out &
+	echo -n "$!" > .pid1
+	nohup "$javacmd" "-cp" "bin:opt/jetty-all-9.4.12.v20180830-uber.jar" "com.ibm.streamsx.inet.test.httptestserver.HTTPTestServer" 8098 1444 --clientCert &> nohup2.out &
+	echo -n "$!" > .pid2
+else
+	if [[ -z $certrequest ]]; then
+		echo "Starting  http test server 8097 1443"
+		eval "$javacmd" "-cp" "bin:opt/jetty-all-9.4.12.v20180830-uber.jar" "com.ibm.streamsx.inet.test.httptestserver.HTTPTestServer" 8097 1443
+	else
+		echo "Starting  http test server 8098 1444 --clientCert"
+		eval "$javacmd" "-cp" "bin:opt/jetty-all-9.4.12.v20180830-uber.jar" "com.ibm.streamsx.inet.test.httptestserver.HTTPTestServer" 8098 1444 --clientCert
+	fi
+fi
 exit 0;
