@@ -13,17 +13,13 @@ import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Set;
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -32,6 +28,7 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -157,34 +154,13 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
         if (getSslAcceptAllCertificates()) {
             tracer.log(TraceLevel.DEBUG, "sslAcceptAllCertificates=" + getSslAcceptAllCertificates());
             SSLContextBuilder sslContextBuilder = SSLContextBuilder.create();
+            sslContextBuilder = sslContextBuilder.loadTrustMaterial(null, TrustAllStrategy.INSTANCE);
             SSLContext sslContext = sslContextBuilder.build();
-            
-            sslContext.init(
-                null,
-                new TrustManager[] {
-                    new X509TrustManager() {
-                        public X509Certificate[] getAcceptedIssuers() { return null; }
-                        public void checkClientTrusted(X509Certificate[] certs, String authType) { }
-                        public void checkServerTrusted(X509Certificate[] certs, String authType) { }
-                    }
-                },
-                new SecureRandom()
-            );
-
-            SSLConnectionSocketFactory sslcsf = new SSLConnectionSocketFactory(
-                    sslContext,
-                    sslDefaultProtocols,
-                    null,
-                    NoopHostnameVerifier.INSTANCE
-            );
-            
+            SSLConnectionSocketFactory sslcsf = new SSLConnectionSocketFactory(sslContext, sslDefaultProtocols, null, NoopHostnameVerifier.INSTANCE);
             clientBuilder.setSSLSocketFactory(sslcsf);
-            //clientBuilder.useSystemProperties();
-        }
-
-        if ((getSslTrustStoreFile() != null) || (getSslKeyStoreFile() != null)) {
+        //
+        } else if ((getSslTrustStoreFile() != null) || (getSslKeyStoreFile() != null)) {
             SSLContextBuilder sslContextBuilder = SSLContexts.custom();
-
             // Trust own CA and all self-signed certs
             if (getSslTrustStoreFile() != null) {
                 tracer.log(TraceLevel.DEBUG, "sslTrustStoreFile=" + getSslTrustStoreFile());
@@ -193,6 +169,7 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
                 else
                     sslContextBuilder = sslContextBuilder.loadTrustMaterial(new File(getSslTrustStoreFile()), getSslTrustStorePassword().toCharArray(), new TrustSelfSignedStrategy());
             }
+            // Set key store for client key
             if (getSslKeyStoreFile() != null) {
                 tracer.log(TraceLevel.DEBUG, "sslKeyStoreFile=" + getSslKeyStoreFile());
                 if (getSslKeyStorePassword() == null) 
@@ -201,13 +178,13 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
                     sslContextBuilder = sslContextBuilder.loadKeyMaterial(new File(getSslKeyStoreFile()), getSslKeyStorePassword().toCharArray(), getSslKeyPassword().toCharArray());
             }
             SSLContext sslcontext = sslContextBuilder.build();
-            
-            SSLConnectionSocketFactory sslcsf = new SSLConnectionSocketFactory(
-                    sslcontext,
-                    sslDefaultProtocols,
-                    null,
-                    SSLConnectionSocketFactory.getDefaultHostnameVerifier()
-            );
+            SSLConnectionSocketFactory sslcsf = new SSLConnectionSocketFactory(sslcontext, sslDefaultProtocols, null, SSLConnectionSocketFactory.getDefaultHostnameVerifier());
+            clientBuilder.setSSLSocketFactory(sslcsf);
+        //standard CA
+        } else {
+            SSLContextBuilder sslContextBuilder = SSLContexts.custom();
+            SSLContext sslcontext = sslContextBuilder.build();
+            SSLConnectionSocketFactory sslcsf = new SSLConnectionSocketFactory(sslcontext, sslDefaultProtocols, null, SSLConnectionSocketFactory.getDefaultHostnameVerifier());
             clientBuilder.setSSLSocketFactory(sslcsf);
         }
 
