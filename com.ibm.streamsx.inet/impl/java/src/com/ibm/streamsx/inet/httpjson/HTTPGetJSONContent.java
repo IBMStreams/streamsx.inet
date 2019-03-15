@@ -27,16 +27,19 @@ import com.ibm.streamsx.inet.http.AbstractHTTPGetContent;
  * HTTP GET of application/json content.
  *
  */
+
+@Deprecated
 @PrimitiveOperator(description = HTTPGetJSONContent.DESC, namespace = "com.ibm.streamsx.inet.http")
 @OutputPortSet(cardinality = 1, windowPunctuationOutputMode = WindowPunctuationOutputMode.Free, description = "Content of the HTTP GET request as an JSON attribute. Each successful HTTP request that returns a "
         + "content results in a submitted tuple with an rstring attribute containing the returned content.")
 @Icons(location32 = "icons/HTTPGetXMLContent_32.gif", location16 = "icons/HTTPGetXMLContent_16.gif")
 public class HTTPGetJSONContent extends AbstractHTTPGetContent<String> {
 
-    static final String DESC = "Periodically connects to an HTTP endpoint to GET JSON content as a single tuple. "
+    static final String DESC =
+              "**This operator is deprecated.** Use HTTPRequest operator instead.\\n\\n"
+            + "Periodically connects to an HTTP endpoint to GET JSON content as a single tuple. "
             + "The JSON content is assigned  to the `jsonString` attribute in the output tuple which must be "
-            + "of type `rstring`."
-            + "\\n\\n**This operator will be deprecated.** Use a combination of HTTPRequest and Beacon operator instead.";
+            + "of type `rstring`.";
 
     @Parameter(optional = true, description = CA_DESC)
     public void setContentAttribute(

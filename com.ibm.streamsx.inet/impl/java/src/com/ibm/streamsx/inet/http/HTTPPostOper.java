@@ -45,6 +45,7 @@ import com.ibm.streams.operator.model.PrimitiveOperator;
 import com.ibm.streams.operator.state.ConsistentRegionContext;
 import com.ibm.streamsx.inet.messages.Messages;
 
+@Deprecated
 @InputPorts(@InputPortSet(cardinality=1, 
 			description="By default, all attributes of the input stream are sent as POST data to the specified HTTP server."))
 @OutputPorts(@OutputPortSet(cardinality=1, optional=true, 
@@ -483,7 +484,8 @@ public class HTTPPostOper extends AbstractOperator
 	
 	
 
-	public static final String DESC = 
+	public static final String DESC =
+			"**This operator is deprecated.** Use HTTPRequest operator instead.\\n\\n" +
 			"This operator sends incoming tuples to the specified HTTP server as part of a POST request." +
 			" A single tuple will be sent as a body of one HTTP POST request." +
 			" Certain authentication modes are supported." +
@@ -491,8 +493,7 @@ public class HTTPPostOper extends AbstractOperator
 			" will be retried on the current thread and may temporarily block any additional tuples that arrive on the input port." +
 			" By default, the data is sent in application/x-www-form-urlencoded UTF-8 encoded format."  +
 	    CONSISTENT_CUT_INTRODUCER +
-			"\\nThis operator cannot be placed at the start of a consistent region." +
-			"\\n\\n**This operator will be deprecated.** Use HTTPRequest operator instead."
+			"\\nThis operator cannot be placed at the start of a consistent region."
 		;
 
 }
