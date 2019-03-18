@@ -379,13 +379,13 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     public void setSslTrustStorePassword(String sslTrustStorePassword){
         this.sslTrustStorePassword = sslTrustStorePassword;
     }
-    @Parameter(optional=true, description="Path to jks key store file used for client authentication. "
+    @Parameter(optional=true, description="Path to jks key store file used for client authentication. This store should contain one client key pair."
         + "If this parameter is set, parameter `sslTrustStorePassword` is optional."
         + "If this parameter is set, parameter `sslKeyPassword` is required.")
     public void setSslKeyStoreFile(String sslKeyStoreFile){
         this.sslKeyStoreFile = sslKeyStoreFile;
     }
-    @Parameter(optional=true, description="Password for the key store.")
+    @Parameter(optional=true, description="Password for the key store. If the password for the store differs from the key password, use this parameter.")
     public void setSslKeyStorePassword(String sslKeyStorePassword){
         this.sslKeyStorePassword = sslKeyStorePassword;
     }
@@ -474,7 +474,7 @@ public class HTTPRequestOperAPI extends AbstractOperator {
         //The pair of these parameters is optional, we either need both to be present or neither of them
         boolean hasKeyPassword = parameterNames.contains("sslKeyPassword");
         if(hasKeyPassword ^ hasKeyFile ) {
-            occ.setInvalidContext(Messages.getString("PARAM_TRUST_STORE_CHECK2"), new String[] {OPER_NAME});
+            occ.setInvalidContext(Messages.getString("PARAM_TRUST_STORE_CHECK2_N"), new String[] {OPER_NAME});
         }
     }
 

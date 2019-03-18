@@ -178,7 +178,7 @@ class HTTPRequestOperClient extends HTTPRequestOperAPI {
                     sslContextBuilder = sslContextBuilder.loadKeyMaterial(new File(getSslKeyStoreFile()), getSslKeyStorePassword().toCharArray(), getSslKeyPassword().toCharArray());
             }
             SSLContext sslcontext = sslContextBuilder.build();
-            SSLConnectionSocketFactory sslcsf = new SSLConnectionSocketFactory(sslcontext, sslDefaultProtocols, null, SSLConnectionSocketFactory.getDefaultHostnameVerifier());
+            SSLConnectionSocketFactory sslcsf = new SSLConnectionSocketFactory(sslcontext, sslDefaultProtocols, null, NoopHostnameVerifier.INSTANCE);
             clientBuilder.setSSLSocketFactory(sslcsf);
         //standard CA
         } else {
