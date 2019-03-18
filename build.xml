@@ -20,7 +20,7 @@
 
   <target name="all"
     description="Build the toolkit code, build the samples index and generate the spl documentation"
-    depends="toolkit, samples, spldoc_work"
+    depends="toolkit, samples, spldoc"
   />
 
   <target name="clean" depends="spldoc-clean,samples-clean,releaseinfo-clean"
@@ -52,20 +52,41 @@
       <ant dir="${toolkit.dir}" target="indextoolkit" />
   </target> 	
 
-  <target name="spldoc" depends="spldoc_work"
-    description="Create SPLDOC"
-  />
-
-  <target name="spldoc_work" depends="get_name, samples"> <!-- can not be called independently thus has no description -->
+  <target name="spldoc" depends="get_name, samples"
+    description="Create spldoc for toolkit and all samples">
     <!-- build the toolkit doc -->
-    <antcall target="spldoctoolkit">
-       <param name="tkdir" value="${toolkit.dir}"/>
-       <param name="tktitle" value="IBMStreams ${tkinfo.identity.name} Toolkit"/>
-    </antcall>
+    <echo message="Tookit to SPLDOC: ${toolkit.dir}"/>
+    <exec executable="${spl-md}" failonerror="true">
+      <arg value="--include-composite-operator-diagram"/>
+      <arg value="--author"/>
+      <arg value="IBMStreams Open Source Community at GitHub - https://github.com/IBMStreams/${ant.project.name}"/>
+      <arg value="--doc-title"/>
+      <arg value="IBMStreams ${tkinfo.identity.name} Toolkit"/>
+      <arg value="--toolkit-path"/>
+      <arg value="${toolkit.dir}"/>
+      <arg value="--warn-no-comments"/>
+      <arg value="--check-tags"/>
+    </exec>
     <!-- build the sample doc for each sample-->
-    <subant target="spldocsample" genericantfile="${basedir}/build.xml">
-       <dirset dir="samples" includes="*" excludes="doc"/>
-    </subant>
+    <exec executable="bash" outputproperty="samples.list" failonerror="true">
+        <arg value="-c"/>
+        <arg value="for x in samples/*/info.xml; do echo -n ${x%/*};  echo -n : ; done"/>
+    </exec>
+    <echo message="All samples to SPLDOC: ${samples.list}"/>
+    <exec executable="${spl-md}" failonerror="true">
+      <arg value="--include-composite-operator-diagram"/>
+      <arg value="--author"/>
+      <arg value="IBMStreams Open Source Community at GitHub - https://github.com/IBMStreams/${ant.project.name}"/>
+      <arg value="--doc-title"/>
+      <arg value="IBMStreams ${tkinfo.identity.name} Samples"/>
+      <arg value="--toolkit-path"/>
+      <arg value="${samples.list}"/>
+      <arg value="--warn-no-comments"/>
+      <arg value="--check-tags"/>
+      <arg value="--include-source"/>
+      <arg value="--output-directory"/>
+      <arg value="samples/doc/spldoc"/>
+    </exec>
   </target>
 
   <target name="samples" depends="toolkit" description="Build the toolkit index for the samples">
@@ -133,55 +154,6 @@
     <delete dir="${basedir}/output" quiet="true"/>
     <delete dir="${basedir}/doc" quiet="true"/>
   </target>
-  <!-- build the toolkit doc -->
-  <target name="spldoctoolkit">
-     <property name="tkdir" value="${basedir}"/>
-     <echo message="Tookit to SPLDOC: ${tkdir}"/>
-     <exec executable="${spl-md}">
-        <arg value="--include-composite-operator-diagram"/>
-        <arg value="--author"/>
-        <arg value="IBMStreams Open Source Community at GitHub - https://github.com/IBMStreams/${ant.project.name}"/>
-        <arg value="--doc-title"/>
-        <arg value="${tktitle}"/>
-        <arg value="--directory"/>
-        <arg value="${tkdir}"/>
-        <arg value="--warn-no-comments"/>
-     </exec>
-  </target>
-  <!-- build the sample doc for each sample -->
-  <target name="spldocsample">
-    <property name="tkdir" value="${basedir}"/>
-    <echo message="Sample to SPLDOC: ${tkdir}"/>
-    <exec executable="${spl-md}">
-      <arg value="--include-composite-operator-diagram"/>
-      <arg value="--author"/>
-      <arg value="IBMStreams Open Source Community at GitHub - https://github.com/IBMStreams/${ant.project.name}"/>
-      <arg value="--doc-title"/>
-      <arg value="${tktitle}"/>
-      <arg value="--directory"/>
-      <arg value="${tkdir}"/>
-      <arg value="--warn-no-comments"/>
-      <arg value="--include-source"/>
-    </exec>
-  </target>
-  <!-- build the common doc for all samples -->
-  <target name="spldoc-all-samples" depends="samples" description="build the doc for all samples">
-    <property name="tkdir" value="${basedir}"/>
-    <echo message="All samples to SPLDOC: ${tkdir}"/>
-    <exec executable="${spl-md}">
-      <arg value="--include-composite-operator-diagram"/>
-      <arg value="--author"/>
-      <arg value="IBMStreams Open Source Community at GitHub - https://github.com/IBMStreams/${ant.project.name}"/>
-      <arg value="--doc-title"/>
-      <arg value="${tktitle}"/>
-      <arg value="-t"/>
-      <arg value="samples"/>
-      <arg value="--warn-no-comments"/>
-      <arg value="--include-source"/>
-      <arg value="--output-directory"/>
-      <arg value="samples/doc/spldoc"/>
-    </exec>
-  </target>
 
   <target name="spldoc-clean" description="clean the toolkit doc and the all samples doc">
     <delete dir="${basedir}/doc" quiet="true"/>
@@ -196,7 +168,7 @@
   <target name="release-target" depends="releaseinfo">
     <!-- prepare toolkit code and docs -->
     <antcall target="all" inheritAll="true"/>
-    <antcall target="samplesclean" inheritAll="true"/> <!-- remove toolkit index from samples -->
+    <antcall target="samples-clean" inheritAll="true"/> <!-- remove toolkit index from samples -->
     <!-- get os type string -->
     <property name="osVersion" value="${os.version}"/>
     <condition property="osPlat" value="el7">
@@ -214,10 +186,11 @@
     <!-- create release bundle -->
     <mkdir dir="${release.dir}" />
     <property name="releasefilename" value="${release.dir}/streamsx.inet.toolkit-${tkinfo.identity.version}-${osPlat}-${os.arch}-${commithash.short}-${DSTAMP}-${TSTAMP}.tgz"/>
+    <echo message="Create release archive ${releasefilename}"/>
     <tar compression="gzip" longfile="gnu"
           destfile="${releasefilename}"
           basedir="${basedir}"
-          includes="${toolkit.string}/** samples/** README.md LICENSE.md"
+          includes="${toolkit.string}/** samples/** doc/** README.md LICENSE.md"
           excludes="**/.gitignore **/.gitkeep ${toolkit.string}/.project ${toolkit.string}/.settings/** ${toolkit.string}/.classpath ${toolkit.string}/icons/ ${toolkit.string}/impl/java/ ${toolkit.string}/impl/cpp/ ${toolkit.string}/impl/src/ ${toolkit.string}/impl/Makefile ${toolkit.string}/build.xml "
     />
     <checksum file="${releasefilename}"/>
