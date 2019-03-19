@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">Toolkits</a> &gt; <a class="xref" href="tk$HTTPRequestDemo.html">HTTPRequestDemo 1.0.0</a> &gt; <a class="xref" href="ns$.html">&lt;default&gt;</a> &gt; Main.spl</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Samples</a> &gt; <a class="xref" href="tk$HTTPRequestDemo.html">HTTPRequestDemo 1.0.0</a> &gt; <a class="xref" href="ns$.html">&lt;default&gt;</a> &gt; Main.spl</p>
 
 </div>
 
@@ -71,7 +71,13 @@
 <div class="section"><h2 class="title sectiontitle">Parameters</h2>
 
 <ul class="sl simple">
-<li class="sli"><strong class="ph b">url</strong>: The url list for the http requests
+<li class="sli"><strong class="ph b">host</strong>: The hostname of the http server
+</li>
+
+<li class="sli"><strong class="ph b">schema</strong>: The schema of the uri
+</li>
+
+<li class="sli"><strong class="ph b">url</strong>: The url list for the http requests (location)
 </li>
 
 <li class="sli"><strong class="ph b">method</strong>: The method list for the http request
@@ -112,8 +118,10 @@
 
  public composite Main {
  	param
+ 		expression&lt;rstring&gt;       $host       :                 getSubmissionTimeValue("host", "httpbin.org");
+ 		expression&lt;rstring&gt;       $schema     :                 getSubmissionTimeValue("schema", "https://");
  		expression&lt;list&lt;rstring&gt;&gt; $url        : (list&lt;rstring&gt;) getSubmissionTimeValue(
- 			"url", '["http://httpbin.org/get","https://httpbin.org/gzip","http://httpbin.org/redirect/3","http://httpbin.org/post","http://httpbin.org/post","http://httpbin.org/put", "http://httpbin.org/delete", "http://httpbin.org/basic-auth/user1/passwd1"]'
+ 			"url", '["/get","/gzip","/redirect/3","/post","/post","/put", "/delete", "/basic-auth/user1/passwd1"]'
  		);
  		expression&lt;list&lt;rstring&gt;&gt; $method     : (list&lt;rstring&gt;) getSubmissionTimeValue(
  			"method", '["GET","GET","GET","POST","POST","PUT","DELETE","GET"]'
@@ -136,14 +144,14 @@
  				period	 : $period;
  			output O:
  				id = IterationCount(),
- 				url = $url[(int32)IterationCount() % size($url)],
+ 				url = $schema + $host + $url[(int32)IterationCount() % size($url)],
  				method = $method[(int32)IterationCount() % size($method)],
  				data = $data[(int32)IterationCount() % size($data)],
  				mess = $mess[(int32)IterationCount() % size($mess)],
  				contentType = $contt[(int32)IterationCount() % size($contt)];
  		}
  		
- 		stream&lt;uint64 id, rstring method, rstring url, rstring status, int32 stat, rstring contentEncoding, rstring contentType, list&lt;rstring&gt; responseHeader, rstring respData&gt; Response as O = HTTPRequest(Trigger as I) {
+ 		stream&lt;uint64 id, rstring method, rstring url, rstring status, int32 stat, rstring contentEncoding, rstring contentType, list&lt;rstring&gt; responseHeader, rstring respData, rstring err&gt; Response as O = HTTPRequest(Trigger as I) {
  			param
  				url: url;
  				method : method;
@@ -153,15 +161,19 @@
  				outputContentEncoding : "contentEncoding";
  				outputContentType : "contentType";
  				outputHeader : "responseHeader";
+ 				errorDiagnostics : "err";
  				extraHeaders : "Myheader: aa(aa)", "Myheader2: bb&amp;b";
  				contentType : contentType;
  				requestBodyAttribute : data;
  				requestAttributesAsUrlArguments: true;
- 				sslTrustStoreFile : "etc/cacert";
- 				sslTrustStorePassword : "mypass";
+ 				//sslTrustStoreFile : "etc/cacert.jks";
+ 				//sslTrustStorePassword : "changeit";
+ 				//sslKeyStoreFile : "etc/clientkey.jks";
+ 				//sslKeyPassword : "changeit";
+ 				//sslAcceptAllCertificates : true;
  				authenticationType : "STANDARD";
  				authenticationFile : "etc/http_request_auth.properties";
- 				//authenticationFile : "../../../output/toolkits/com.ibm.streamsx.inet/etc/http_request_oauth2.properties";
+ 				//vmArg: "-Djavax.net.debug=ssl:handshake";
  		}
  		
  		() as Printer = Custom(Response as I) {
@@ -175,6 +187,8 @@
  					printStringLn((rstring)responseHeader);
  					printStringLn("body");
  					printStringLn(respData);
+ 					printStringLn("errorDiagnostics");
+ 					printStringLn(err);
  					//printStringLn(getApplicationConfigurationProperty("myConfig", "myProp", "default"));
  				}
  				onPunct I: println(currentPunct());
