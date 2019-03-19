@@ -40,7 +40,7 @@
  * 
  * # Client Key and Certificate
  * 
- * The `dnname` of an client key must match to the `dname` of the server key. To generate a client key use the following commands:
+ * The `dname` of an client key must match to the `dname` of the server key. To generate a client key use the following commands:
  *     keytool -genkeypair -keyalg RSA -alias myclientkey -keypass changeit -storepass changeit -keystore etc/clientkey.jks -dname '<the dname string from the server certificate>'
  * 
  * Extract the certificate for the server trust manager:

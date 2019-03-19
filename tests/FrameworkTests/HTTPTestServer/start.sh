@@ -69,19 +69,19 @@ if [[ -e $commandPath/.pid ]]; then
 fi
 
 declare javacmd='java'
-if [[ -e /usr/bin/java ]]; then
-	echo "use standard java /usr/bin/java"
-	/usr/bin/java -version
-	javacmd='/usr/bin/java'
-else
-	echo "No standard java engine found here: /usr/bin/java"
-	echo "If the streams java engine is used, the https connector does not work"
-	if [[ -z $noprompt ]]; then
-		if ! userPrompt; then
-			exit 2
-		fi
-	fi
-fi
+#if [[ -e /usr/bin/java ]]; then
+#	echo "use standard java /usr/bin/java"
+#	/usr/bin/java -version
+#	javacmd='/usr/bin/java'
+#else
+#	echo "No standard java engine found here: /usr/bin/java"
+#	echo "If the streams java engine is used, the https connector does not work"
+#	if [[ -z $noprompt ]]; then
+#		if ! userPrompt; then
+#			exit 2
+#		fi
+#	fi
+#fi
 
 cd "$commandPath"
 ant

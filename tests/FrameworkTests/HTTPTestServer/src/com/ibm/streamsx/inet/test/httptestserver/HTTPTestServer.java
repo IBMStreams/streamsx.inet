@@ -75,16 +75,46 @@ public class HTTPTestServer {
 		// ssl context1
 		SslContextFactory sslContextFactory = new SslContextFactory();
 		sslContextFactory.setKeyStorePath("etc/keystore.jks");
-		//sslContextFactory.setKeyStorePassword("changeit");
-		sslContextFactory.setKeyManagerPassword("changeit");
+		//sslContextFactory.setKeyStorePassword("changeit"); //store password is not required
+		sslContextFactory.setKeyManagerPassword("changeit"); //key password is required
 		sslContextFactory.setCertAlias("mykey");
 		if (requestClientCertificate) {
 			sslContextFactory.setTrustStorePath("etc/cacert.jks");
-			//sslContextFactory.setTrustStorePassword("changeit");
+			//sslContextFactory.setTrustStorePassword("changeit"); //store password is not required
 			sslContextFactory.setNeedClientAuth(true);
 		}
+		
+		sslContextFactory.setRenegotiationAllowed(false);
+		sslContextFactory.setExcludeProtocols("SSLv3");
+		sslContextFactory.setIncludeProtocols("TLSv1.2", "TLSv1.1");
+		
+		System.out.println("********************************");
 		System.out.println(sslContextFactory.dump());
-
+		System.out.println("********************************");
+		String[] exlist = sslContextFactory.getExcludeCipherSuites();
+		System.out.println("Excluded CipherSuites:");
+		for (int x=0; x<exlist.length; x++) {
+			System.out.println(exlist[x]);
+		}
+		String[] exlist2 = sslContextFactory.getExcludeProtocols();
+		for (int x=0; x<exlist2.length; x++) {
+			System.out.println(exlist2[x]);
+		}
+		System.out.println("Included CipherSuites:");
+		String[] exlist3 = sslContextFactory.getIncludeCipherSuites();
+		for (int x=0; x<exlist3.length; x++) {
+			System.out.println(exlist3[x]);
+		}
+		System.out.println("********************************");
+		
+		//must manipulate the excluded cipher specs to avoid that all specs are disables with streams java ssl engine
+		String[] specs = {"^.*_(MD5|SHA|SHA1)$","^TLS_RSA_.*$","^.*_NULL_.*$","^.*_anon_.*$"};
+		//String[] specs = {};
+		sslContextFactory.setExcludeCipherSuites(specs);
+		System.out.println("********************************");
+		System.out.println(sslContextFactory.dump());
+		System.out.println("********************************");
+		
 		// HTTPS Configuration
 		// A new HttpConfiguration object is needed for the next connector and
 		// you can pass the old one as an argument to effectively clone the
