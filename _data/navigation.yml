@@ -1,0 +1,30 @@
+# main links
+main:
+  - title: "Domain Knowledge"
+    url: /docs/knowledge/overview/
+  - title: "User Documentation"
+    url: /docs/user/overview
+  - title: "Developer Documentation"
+    url: /docs/developer/overview
+
+# knowledge documentation links
+knowledgedocs:
+  - title: Background knowledge
+    children:
+      - title: "Overview - Use case"
+        url: /docs/knowledge/usecase/overview
+
+# user documentation links
+userdocs:
+  - title: User documentation
+    children:
+      - title: "Overview"
+        url: /docs/user/overview
+
+# developer documentation links
+developerdocs:
+  - title: Developer documentation
+    children:
+      - title: "General Toolkit development"
+        url: /docs/developer/overview
+
