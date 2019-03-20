@@ -1,11 +1,11 @@
 # Running applications that use the Internet Toolkit
 
 To create applications that use the Internet Toolkit, you must configure either Streams Studio
-or the SPL compiler to be aware of the location of the toolkit. 
+or the SPL compiler to be aware of the location of the toolkit.
 
 ## Before you begin
 
-Install IBM InfoSphere Streams. Configure the product environment variables by entering the following command: 
+Install IBM InfoSphere Streams. Configure the product environment variables by entering the following command:
     source product-installation-root-directory/product-version/bin/streamsprofile.sh
 
 ## About this task
@@ -25,15 +25,15 @@ Alternatively, you can fully qualify the operators that are provided by toolkit 
     where MyMain is the name of the SPL main composite.
     **Note**: These command parameters override the **STREAMS_SPLPATH** environment variable.
   * Add the toolkit location in InfoSphere Streams Studio.
-2. Develop your application. To avoid the need to fully qualify the operators, add a use directive in your application. 
+2. Develop your application. To avoid the need to fully qualify the operators, add a use directive in your application.
   * For example, you can add the following clause in your SPL source file:
       use com.ibm.streamsx.inet::*;
       use com.ibm.streamsx.inet.http::*;
-    You can also specify a use clause for individual operators by replacing the asterisk (\*) with the operator name. For example: 
+    You can also specify a use clause for individual operators by replacing the asterisk (\*) with the operator name. For example:
       use com.ibm.streamsx.inet::InetSource;
 3. Build your application.  You can use the **sc** command or Streams Studio.  
-4. Start the InfoSphere Streams instance. 
-5. Run the application. You can submit the application as a job by using the **streamtool submitjob** command or by using Streams Studio. 
+4. Start the InfoSphere Streams instance.
+5. Run the application. You can submit the application as a job by using the **streamtool submitjob** command or by using Streams Studio.
 
 
 
@@ -55,7 +55,7 @@ The top-level build.xml contains the main targets:
 Execute the comman ant -p to display the target information.
 
 The release should use Java 8 for the Java compile to allow the widest use of the toolkit (with Streams 4.0.1 or later). (Note Streams 4.0.1 ships Java 8).
-The build script inserts the commit hash into the toolkit version if the version number has a form like X.Y.Z.__dev__ 
+The build script inserts the commit hash into the toolkit version if the version number has a form like X.Y.Z.__dev__
 This change in the info.xml file can be removed with ant target revertversion.
 
 # Test the toolkit
@@ -67,9 +67,9 @@ To read more about the configuration of the test servers look into file
 The test run can be customized with file
 [tests/FrameworkTests/tests/TestProperties.sh](tests/FrameworkTests/tests/TestProperties.sh)
 
-To find out more about the test utility go into directory 
+To find out more about the test utility go into directory
 `tests/FrameworkTests`
-and run the commands: 
+and run the commands:
 ```
 ./runTest.sh -h
 ./runTest.sh --man
@@ -79,3 +79,26 @@ and run the commands:
 
 To look into the test results open firefox and open the *index.html* file in the test workdir.
 
+# Update the github.io pages
+
+Checkout the label of the current version:
+```git checkout <vx.y.z>```
+
+Clean the workspace and generate the spl docs:
+```ant clean-all
+ant spldoc```
+
+Make an archive of the docs:
+```tar -cvzf alldocs.tgz doc/ samples/doc/```
+
+Checkout the branch gh-pages and overwrite the spl-doc directories:
+```git checkout gh-pages
+rm -rf doc/ samples/doc/
+tar -xvzf alldocs.tgz
+rm alldocs.tgz```
+
+Checkin the changes:
+```git add doc --all
+git add samples/doc/ --all
+git commit -m 'SPLDOC for new version <vx.y.z>'
+git push```
