@@ -19,7 +19,7 @@ This toolkit separates its functionality into a number of namespaces:
 * namespace:com.ibm.streamsx.inet.ftp: Operators that interact with external FTP servers.
 * namespace:com.ibm.streamsx.inet.http: Operators that interact with external HTTP servers.
 
-The http rest functions and the WebSocket server functions are now moved into [streamsx.inetserver toolkit|https://github.com/IBMStreams/streamsx.inetserver/releases]
+The http rest functions and the WebSocket server functions are now moved into [streamsx.inetserver toolkit](https://github.com/IBMStreams/streamsx.inetserver/releases)
 
 This version of the toolkit is intended for use with IBM Streams release 4.0.1 and later.
 

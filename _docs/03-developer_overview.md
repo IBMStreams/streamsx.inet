@@ -11,6 +11,6 @@ sidebar:
 {% include toc %}
 {% include editme %}
 
-See in [DEVELOPMENT.md|https://github.com/IBMStreams/streamsx.inet/blob/master/DEVELOPMENT.md]
+See in [DEVELOPMENT.md](https://github.com/IBMStreams/streamsx.inet/blob/master/DEVELOPMENT.md)
 
 
