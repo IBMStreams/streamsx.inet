@@ -97,9 +97,11 @@ Make an archive of the docs:
   tar -cvzf alldocs.tgz doc/ samples/doc/
 ```
 
-Checkout the branch gh-pages and overwrite the spl-doc directories:
+Checkout the branch gh-pages, move the spl-doc of the prior version and overwrite with the new spl-doc files:
 ```
   git checkout gh-pages
+  mkdir <prior version>
+  git mv doc/ <prior version>
   rm -rf doc/ samples/doc/
   tar -xvzf alldocs.tgz
   rm alldocs.tgz
