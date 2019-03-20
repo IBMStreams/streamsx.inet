@@ -82,23 +82,33 @@ To look into the test results open firefox and open the *index.html* file in the
 # Update the github.io pages
 
 Checkout the label of the current version:
-```git checkout <vx.y.z>```
+```
+  git checkout <vx.y.z>
+```
 
 Clean the workspace and generate the spl docs:
-```ant clean-all
-ant spldoc```
+```
+  ant clean-all
+  ant spldoc
+```
 
 Make an archive of the docs:
-```tar -cvzf alldocs.tgz doc/ samples/doc/```
+```
+  tar -cvzf alldocs.tgz doc/ samples/doc/
+```
 
 Checkout the branch gh-pages and overwrite the spl-doc directories:
-```git checkout gh-pages
-rm -rf doc/ samples/doc/
-tar -xvzf alldocs.tgz
-rm alldocs.tgz```
+```
+  git checkout gh-pages
+  rm -rf doc/ samples/doc/
+  tar -xvzf alldocs.tgz
+  rm alldocs.tgz
+```
 
 Checkin the changes:
-```git add doc --all
-git add samples/doc/ --all
-git commit -m 'SPLDOC for new version <vx.y.z>'
-git push```
+```
+  git add doc --all
+  git add samples/doc/ --all
+  git commit -m 'SPLDOC for new version <vx.y.z>'
+  git push
+```
