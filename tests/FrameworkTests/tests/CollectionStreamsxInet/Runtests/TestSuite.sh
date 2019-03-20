@@ -2,9 +2,12 @@
 # If this property is not set, an attempt is made to start a local ftp server and this local server is used for the tests
 # If this property is set and empty (false), no attempt is made to start the ftp server and all ftp test should be skipped
 # If the running user is not in the sudoers list, you can start the ftp-server manually and setup TTPR_ftpServerHost variable like:
-# sudo service vsftpd start
-# export TTPR_ftpServerHost=$HOSTNAME
+#     sudo service vsftpd start
+#     export TTPR_ftpServerHost=$HOSTNAME
 # or use the -D command line option to inject the property : -D TTPR_ftpServerHost=$HOSTNAME
+# The ssh deamon must be running on the ftp-server host
+#     sudo service sshd status
+#     sudo service sshd start
 
 #setVar 'TTPR_ftpServerHost' 'speedtest.tele2.net'
 setVar 'TTPR_ftpServerUser' 'ftpuser'

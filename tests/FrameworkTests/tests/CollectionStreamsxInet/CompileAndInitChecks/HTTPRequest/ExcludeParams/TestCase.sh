@@ -1,4 +1,4 @@
-#--variantCount=12
+#--variantCount=14
 
 setCategory 'quick'
 
@@ -13,14 +13,16 @@ function explain {
 	6)  echo "error: no url and no fixedUrl but with fixedMethod";;
 	7)  echo "error: use outputBody and outputDataLine";;
 	8)  echo "error: use sslTrustStoreFile and sslAcceptAllCertificates=true";;
-	9)  echo "error: use sslTrustStoreFile and sslAcceptAllCertificates=false";;
-	10) echo "error: use sslTrustStoreFile only";;
-	11) echo "error: use sslTrustStorePassword only";;
+	9)  echo "error: use sslKeyStoreFile and sslAcceptAllCertificates=false";;
+	10) echo "error: use sslTrustStorePassword only";;
+	11) echo "error: use sslKeyStorePassword only";;
+	12) echo "error: use sslKeyStoreFile only";;
+	13) echo "error: use sslKeyPassword only";;
 	esac
 }
 
 PREPS='explain copyAndTransformSpl TT_mainComposite=Main'
-        
+
 STEPS=(
 	'splCompileInterceptAndError'
 	'linewisePatternMatchInterceptAndSuccess "$TT_evaluationFile" "" "${errorCodes[$TTRO_variantCase]}"'
@@ -36,7 +38,9 @@ errorCodes=(
 	'ERROR: CDIST0216E HTTPRequest operator requires parameter url or fixedUrl*'
 	'ERROR: CDISP7303E Operator parameter outputBody cannot be set when parameter outputDataLine is set*'
 	'ERROR: CDISP7303E Operator parameter sslTrustStoreFile cannot be set when parameter sslAcceptAllCertificates is set*'
-	'ERROR: CDISP7303E Operator parameter sslTrustStoreFile cannot be set when parameter sslAcceptAllCertificates is set*'
-	'ERROR: CDIST0217E HTTPRequest operator: Invalid trust store parameters, provide both a sslTrustStoreFile and a sslTrustStorePassword or provide neither*'
-	'ERROR: CDIST0217E HTTPRequest operator: Invalid trust store parameters, provide both a sslTrustStoreFile and a sslTrustStorePassword or provide neither*'
+	'ERROR: CDISP7303E Operator parameter sslKeyStoreFile cannot be set when parameter sslAcceptAllCertificates is set*'
+	'ERROR: CDIST0247E HTTPRequest operator: Invalid trust/key store password parameter, do not provide a sslTrustStorePassword/sslKeyStorePassword if the appropriate store is not provided*'
+	'ERROR: CDIST0247E HTTPRequest operator: Invalid trust/key store password parameter, do not provide a sslTrustStorePassword/sslKeyStorePassword if the appropriate store is not provided*'
+	'ERROR: CDIST0248E HTTPRequest operator: Invalid keystore parameters, provide both a sslKeyStoreFile and a sslKeyPassword or provide neither.*'
+	'ERROR: CDIST0248E HTTPRequest operator: Invalid keystore parameters, provide both a sslKeyStoreFile and a sslKeyPassword or provide neither.*'
 )

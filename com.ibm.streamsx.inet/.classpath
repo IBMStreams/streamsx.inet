@@ -3,12 +3,12 @@
 	<classpathentry kind="src" path="impl/java/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="com.ibm.streams.java/com.ibm.streams.operator"/>
-	<classpathentry kind="lib" path="opt/httpcomponents-client-4.5.5/lib/commons-codec-1.10.jar"/>
-	<classpathentry kind="lib" path="opt/httpcomponents-client-4.5.5/lib/commons-logging-1.2.jar"/>
-	<classpathentry kind="lib" path="opt/httpcomponents-client-4.5.5/lib/httpclient-4.5.5.jar"/>
-	<classpathentry kind="lib" path="opt/httpcomponents-client-4.5.5/lib/httpclient-cache-4.5.5.jar"/>
-	<classpathentry kind="lib" path="opt/httpcomponents-client-4.5.5/lib/httpcore-4.4.9.jar"/>
-	<classpathentry kind="lib" path="opt/httpcomponents-client-4.5.5/lib/httpmime-4.5.5.jar"/>
+	<classpathentry kind="lib" path="opt/httpcomponents-client-4.5.7/lib/commons-codec-1.11.jar"/>
+	<classpathentry kind="lib" path="opt/httpcomponents-client-4.5.7/lib/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="opt/httpcomponents-client-4.5.7/lib/httpclient-4.5.7.jar"/>
+	<classpathentry kind="lib" path="opt/httpcomponents-client-4.5.7/lib/httpclient-cache-4.5.7.jar"/>
+	<classpathentry kind="lib" path="opt/httpcomponents-client-4.5.7/lib/httpcore-4.4.11.jar"/>
+	<classpathentry kind="lib" path="opt/httpcomponents-client-4.5.7/lib/httpmime-4.5.7.jar"/>
 	<classpathentry kind="lib" path="opt/signpost-1.2/lib/signpost-core-1.2.jar"/>
 	<classpathentry kind="lib" path="opt/signpost-1.2/lib/signpost-commonshttp4-1.2.1.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>

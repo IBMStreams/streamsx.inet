@@ -34,6 +34,7 @@ import com.ibm.streams.operator.state.ConsistentRegionContext;
 import com.ibm.streamsx.inet.messages.Messages;
 import com.ibm.streamsx.inet.http.HTTPPostOper;
 
+@Deprecated
 @OutputPorts({@OutputPortSet(cardinality=1, optional=false, windowPunctuationOutputMode=WindowPunctuationOutputMode.Generating,
 			  description="Data received from the server will be sent on this port."),
 			  @OutputPortSet(cardinality=1, optional=true, windowPunctuationOutputMode=WindowPunctuationOutputMode.Free, 
@@ -292,15 +293,15 @@ public class HTTPStreamReader extends AbstractOperator {
 	}
 	
 	
-	public static final String DESC  = 
+	public static final String DESC  =
+			"**This operator is deprecated.** Use HTTPRequest operator instead.\\n\\n" +
 			"Connects to an HTTP endpoint, reads \\\"chunks\\\" of data and sends it to the output port." +
 			" Every line read from the HTTP server endpoint is sent as a single tuple." +
 			" If a connection is closed by the server, a WINDOW punctuation will be sent on port 0." +
 			" Supported Authentications: Basic Authentication, OAuth 1.0a." +
 			" Supported Compressions: Gzip, Deflate." +
 	                HTTPPostOper.CONSISTENT_CUT_INTRODUCER+
-			"This operator cannot be used inside a consistent region." +
-			"\\n\\n**This operator will be deprecated.** Use a combination of HTTPRequest and Beacon operator instead."
+			"This operator cannot be used inside a consistent region."
 			;
 }
 

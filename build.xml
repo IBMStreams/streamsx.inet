@@ -20,33 +20,10 @@
 
   <target name="all"
     description="Build the toolkit code, build the samples index and generate the spl documentation"
-    depends="setcommitversion, toolkit, samples, spldoc_work"
+    depends="toolkit, samples, spldoc"
   />
 
-  <target name="setcommitversion">
-    <!-- Extract the git commit hash -->
-    <exec executable="git" outputproperty="commithash">
-        <arg value="rev-parse"/>
-        <arg value="--short"/>
-        <arg value="HEAD"/>
-    </exec>
-    <!-- Update the info.xml -->
-    <replace file="${toolkit.dir}/info.xml" token="__dev__" value="commit_${commithash}" summary="yes"/>
-    <!-- Extract info from the toolkit's info.xml -->
-    <xmlproperty file="${toolkit.dir}/info.xml" prefix="tkinfo" keepRoot="no"/>
-    <echo message="Toolkit Version: ${tkinfo.identity.version}"/>
-    <echo message="Git Hash: ${commithash}"/>
-  </target>
-
-  <target name="revertversion" description="Revert the version change (commithash) in info.xml">
-    <exec executable="git">
-        <arg value="checkout"/>
-        <arg value="--"/>
-        <arg value="${toolkit.dir}/info.xml"/>
-    </exec>
-  </target>
-
-  <target name="clean" depends="spldocclean,samplesclean,releaseinfo-clean"
+  <target name="clean" depends="spldoc-clean,samples-clean,releaseinfo-clean"
       description="clean up toolkit code, samples code and all spldocs">
       <delete includeemptydirs="true">
           <fileset dir="${basedir}" includes="release-*/"/>
@@ -59,30 +36,57 @@
       <ant dir="${toolkit.test}" target="clean-all"/>
   </target>
 
-  <target name="toolkit"
+  <target name="toolkit" depends="get_name"
       description="Build any code and index the toolkit." >
       <ant dir="${toolkit.dir}" target="all"/>
   </target>
-  
+
+  <target name="get_name">
+    <xmlproperty file="${toolkit.dir}/info.xml" prefix="tkinfo" keepRoot="no"/>
+    <echo message="Toolkit Name: ${tkinfo.identity.name}"/>
+    <echo message="Toolkit Version: ${tkinfo.identity.version}"/>
+  </target>
+
   <target name="toolkitIndexOnly" description="Index the toolkit.">
       <ant dir="${toolkit.dir}" target="cleanToolkitxml" />
       <ant dir="${toolkit.dir}" target="indextoolkit" />
   </target> 	
 
-  <target name="spldoc" depends="setcommitversion, spldoc_work, revertversion"
-    description="Create SPLDOC with git commit hash included in the version"
-  />
-
-  <target name="spldoc_work" depends="samples"> <!-- can not be called independently thus has no description -->
+  <target name="spldoc" depends="get_name, samples"
+    description="Create spldoc for toolkit and all samples">
     <!-- build the toolkit doc -->
-    <antcall target="spldoctoolkit">
-       <param name="tkdir" value="${toolkit.dir}"/>
-       <param name="tktitle" value="IBMStreams ${tkinfo.identity.name} Toolkit"/>
-    </antcall>
+    <echo message="Tookit to SPLDOC: ${toolkit.dir}"/>
+    <exec executable="${spl-md}" failonerror="true">
+      <arg value="--include-composite-operator-diagram"/>
+      <arg value="--author"/>
+      <arg value="IBMStreams Open Source Community at GitHub - https://github.com/IBMStreams/${ant.project.name}"/>
+      <arg value="--doc-title"/>
+      <arg value="IBMStreams ${tkinfo.identity.name} Toolkit"/>
+      <arg value="--toolkit-path"/>
+      <arg value="${toolkit.dir}"/>
+      <arg value="--warn-no-comments"/>
+      <arg value="--check-tags"/>
+    </exec>
     <!-- build the sample doc for each sample-->
-    <subant target="spldocsample" genericantfile="${basedir}/build.xml">
-       <dirset dir="samples" includes="*" excludes="doc"/>
-    </subant>
+    <exec executable="bash" outputproperty="samples.list" failonerror="true">
+        <arg value="-c"/>
+        <arg value="for x in samples/*/info.xml; do echo -n ${x%/*};  echo -n : ; done"/>
+    </exec>
+    <echo message="All samples to SPLDOC: ${samples.list}"/>
+    <exec executable="${spl-md}" failonerror="true">
+      <arg value="--include-composite-operator-diagram"/>
+      <arg value="--author"/>
+      <arg value="IBMStreams Open Source Community at GitHub - https://github.com/IBMStreams/${ant.project.name}"/>
+      <arg value="--doc-title"/>
+      <arg value="IBMStreams ${tkinfo.identity.name} Samples"/>
+      <arg value="--toolkit-path"/>
+      <arg value="${samples.list}"/>
+      <arg value="--warn-no-comments"/>
+      <arg value="--check-tags"/>
+      <arg value="--include-source"/>
+      <arg value="--output-directory"/>
+      <arg value="samples/doc/spldoc"/>
+    </exec>
   </target>
 
   <target name="samples" depends="toolkit" description="Build the toolkit index for the samples">
@@ -90,7 +94,7 @@
        <dirset dir="samples" includes="*" excludes="doc"/>
     </subant>
   </target>
-  <target name="samplesclean" description="Clean up samples index and samples code">
+  <target name="samples-clean" description="Clean up samples index and samples code">
     <subant genericantfile="${basedir}/build.xml">
        <target name="cleantoolkit"/>
        <target name="cleansample"/>
@@ -98,7 +102,7 @@
     </subant>
   </target>
 
-  <target name="build-all-samples" depends="toolkit" description="Compile all samples">
+  <target name="samples-build" depends="toolkit" description="Compile all samples">
     <subant target="buildsample" genericantfile="${basedir}/build.xml">
        <dirset dir="samples" includes="*" excludes="doc"/>
     </subant>
@@ -150,70 +154,21 @@
     <delete dir="${basedir}/output" quiet="true"/>
     <delete dir="${basedir}/doc" quiet="true"/>
   </target>
-  <!-- build the toolkit doc -->
-  <target name="spldoctoolkit">
-     <property name="tkdir" value="${basedir}"/>
-     <echo message="Tookit to SPLDOC: ${tkdir}"/>
-     <exec executable="${spl-md}">
-        <arg value="--include-composite-operator-diagram"/>
-        <arg value="--author"/>
-        <arg value="IBMStreams Open Source Community at GitHub - https://github.com/IBMStreams/${ant.project.name}"/>
-        <arg value="--doc-title"/>
-        <arg value="${tktitle}"/>
-        <arg value="--directory"/>
-        <arg value="${tkdir}"/>
-        <arg value="--warn-no-comments"/>
-     </exec>
-  </target>
-  <!-- build the sample doc for each sample -->
-  <target name="spldocsample">
-    <property name="tkdir" value="${basedir}"/>
-    <echo message="Sample to SPLDOC: ${tkdir}"/>
-    <exec executable="${spl-md}">
-      <arg value="--include-composite-operator-diagram"/>
-      <arg value="--author"/>
-      <arg value="IBMStreams Open Source Community at GitHub - https://github.com/IBMStreams/${ant.project.name}"/>
-      <arg value="--doc-title"/>
-      <arg value="${tktitle}"/>
-      <arg value="--directory"/>
-      <arg value="${tkdir}"/>
-      <arg value="--warn-no-comments"/>
-      <arg value="--include-source"/>
-    </exec>
-  </target>
-  <!-- build the common doc for all samples -->
-  <target name="spldoc-all-samples" depends="samples" description="build the doc for all samples">
-    <property name="tkdir" value="${basedir}"/>
-    <echo message="All samples to SPLDOC: ${tkdir}"/>
-    <exec executable="${spl-md}">
-      <arg value="--include-composite-operator-diagram"/>
-      <arg value="--author"/>
-      <arg value="IBMStreams Open Source Community at GitHub - https://github.com/IBMStreams/${ant.project.name}"/>
-      <arg value="--doc-title"/>
-      <arg value="${tktitle}"/>
-      <arg value="-t"/>
-      <arg value="samples"/>
-      <arg value="--warn-no-comments"/>
-      <arg value="--include-source"/>
-      <arg value="--output-directory"/>
-      <arg value="samples/doc/spldoc"/>
-    </exec>
-  </target>
 
-  <target name="spldocclean" description="clean the toolkit doc and the all samples doc">
+  <target name="spldoc-clean" description="clean the toolkit doc and the all samples doc">
     <delete dir="${basedir}/doc" quiet="true"/>
     <delete dir="${basedir}/samples/doc"/>
   </target>
 
   <!-- Targets to build releases -->
   <target name="release" description="Make a toolkit release archive - purge workspace and build toolkit from scratch" depends="clean">
-  	<antcall target="release-target" inheritAll="true"/>
+    <antcall target="release-target" inheritAll="true"/>
   </target>
 
   <target name="release-target" depends="releaseinfo">
     <!-- prepare toolkit code and docs -->
     <antcall target="all" inheritAll="true"/>
-    <antcall target="samplesclean" inheritAll="true"/> <!-- remove toolkit index from samples -->
+    <antcall target="samples-clean" inheritAll="true"/> <!-- remove toolkit index from samples -->
     <!-- get os type string -->
     <property name="osVersion" value="${os.version}"/>
     <condition property="osPlat" value="el7">
@@ -231,20 +186,20 @@
     <!-- create release bundle -->
     <mkdir dir="${release.dir}" />
     <property name="releasefilename" value="${release.dir}/streamsx.inet.toolkit-${tkinfo.identity.version}-${osPlat}-${os.arch}-${commithash.short}-${DSTAMP}-${TSTAMP}.tgz"/>
+    <echo message="Create release archive ${releasefilename}"/>
     <tar compression="gzip" longfile="gnu"
           destfile="${releasefilename}"
           basedir="${basedir}"
-          includes="${toolkit.string}/** samples/** README.md LICENSE.md"
+          includes="${toolkit.string}/** samples/** doc/** README.md LICENSE.md"
           excludes="**/.gitignore **/.gitkeep ${toolkit.string}/.project ${toolkit.string}/.settings/** ${toolkit.string}/.classpath ${toolkit.string}/icons/ ${toolkit.string}/impl/java/ ${toolkit.string}/impl/cpp/ ${toolkit.string}/impl/src/ ${toolkit.string}/impl/Makefile ${toolkit.string}/build.xml "
     />
     <checksum file="${releasefilename}"/>
     <checksum algorithm="sha1" file="${releasefilename}"/>
-    <!-- revert commithash -->
-    <antcall target="revertversion" inheritAll="true"/>
   </target>
 
   <!-- Extract the git commit hash and make release info -->
-  <target name="releaseinfo" depends="clean-ignored" description="Make the release information file ${release.info.file}">
+  <target name="releaseinfo" depends="get_name,clean-ignored" description="Make the release information file">
+    <echo message="create info-file ${release.info.file}"/>
     <exec executable="git" outputproperty="commithash.long" failonerror="true">
       <arg value="rev-parse" />
       <arg value="HEAD" />
@@ -262,16 +217,14 @@
       <arg value="-c" />
       <arg value="cat ${release.info.file}" />
     </exec>
-    <!-- Extract info from the toolkit's info.xml -->
-    <xmlproperty file="${toolkit.dir}/info.xml" prefix="tkinfo" keepRoot="no"/>
   </target>
 
-  <target name="releaseinfo-clean" description="remove the release information file ${release.info.file}">
+  <target name="releaseinfo-clean" description="remove the release information file">
     <delete file="${release.info.file}"/>
   </target>
 
-  <!--- Targets to purge the workspace before a release archive is ptroduced -->
-  <target name="clean-ignored" depends="warn-unclean" description="Remove all git-ignored files (exclude model files) and warn if workspace has uncommited changes"/>
+  <!--- Targets to purge the workspace before a release archive is produced -->
+  <target name="clean-ignored" depends="warn-unclean" description="Remove all git-ignored files and warn if workspace has uncommited changes"/>
 
   <target name="warn-unclean" depends="check-unclean" if="has.uncommited">
     <echo>!Your workspace is not clean!</echo>

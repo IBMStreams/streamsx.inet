@@ -8,7 +8,9 @@ use com.ibm.streamsx.inet.http::HTTPRequest;
  * [https://www.ibm.com/support/knowledgecenter/en/SSCRJU_4.2.0/com.ibm.streams.dev.doc/doc/creating-secure-app-configs-dev.html]
  * and fetch the values from the application property with spl function getApplicationConfigurationProperty.
  * 
- * @param   url        The url list for the http requests
+ * @param   host       The hostname of the http server
+ * @param   schema     The schema of the uri
+ * @param   url        The url list for the http requests (location)
  * @param   method     The method list for the http request
  * @param   data       The message data used in method PUT
  * @param   mess       Attribute to be used in method POST
@@ -18,8 +20,10 @@ use com.ibm.streamsx.inet.http::HTTPRequest;
  */
 public composite Main {
 	param
+		expression<rstring>       $host       :                 getSubmissionTimeValue("host", "httpbin.org");
+		expression<rstring>       $schema     :                 getSubmissionTimeValue("schema", "https://");
 		expression<list<rstring>> $url        : (list<rstring>) getSubmissionTimeValue(
-			"url", '["http://httpbin.org/get","https://httpbin.org/gzip","http://httpbin.org/redirect/3","http://httpbin.org/post","http://httpbin.org/post","http://httpbin.org/put", "http://httpbin.org/delete", "http://httpbin.org/basic-auth/user1/passwd1"]'
+			"url", '["/get","/gzip","/redirect/3","/post","/post","/put", "/delete", "/basic-auth/user1/passwd1"]'
 		);
 		expression<list<rstring>> $method     : (list<rstring>) getSubmissionTimeValue(
 			"method", '["GET","GET","GET","POST","POST","PUT","DELETE","GET"]'
@@ -42,14 +46,14 @@ public composite Main {
 				period	 : $period;
 			output O:
 				id = IterationCount(),
-				url = $url[(int32)IterationCount() % size($url)],
+				url = $schema + $host + $url[(int32)IterationCount() % size($url)],
 				method = $method[(int32)IterationCount() % size($method)],
 				data = $data[(int32)IterationCount() % size($data)],
 				mess = $mess[(int32)IterationCount() % size($mess)],
 				contentType = $contt[(int32)IterationCount() % size($contt)];
 		}
 		
-		stream<uint64 id, rstring method, rstring url, rstring status, int32 stat, rstring contentEncoding, rstring contentType, list<rstring> responseHeader, rstring respData> Response as O = HTTPRequest(Trigger as I) {
+		stream<uint64 id, rstring method, rstring url, rstring status, int32 stat, rstring contentEncoding, rstring contentType, list<rstring> responseHeader, rstring respData, rstring err> Response as O = HTTPRequest(Trigger as I) {
 			param
 				url: url;
 				method : method;
@@ -59,15 +63,19 @@ public composite Main {
 				outputContentEncoding : "contentEncoding";
 				outputContentType : "contentType";
 				outputHeader : "responseHeader";
+				errorDiagnostics : "err";
 				extraHeaders : "Myheader: aa(aa)", "Myheader2: bb&b";
 				contentType : contentType;
 				requestBodyAttribute : data;
 				requestAttributesAsUrlArguments: true;
-				sslTrustStoreFile : "etc/cacert";
-				sslTrustStorePassword : "mypass";
+				//sslTrustStoreFile : "etc/cacert.jks";
+				//sslTrustStorePassword : "changeit";
+				//sslKeyStoreFile : "etc/clientkey.jks";
+				//sslKeyPassword : "changeit";
+				//sslAcceptAllCertificates : true;
 				authenticationType : "STANDARD";
 				authenticationFile : "etc/http_request_auth.properties";
-				//authenticationFile : "../../../output/toolkits/com.ibm.streamsx.inet/etc/http_request_oauth2.properties";
+				//vmArg: "-Djavax.net.debug=ssl:handshake";
 		}
 		
 		() as Printer = Custom(Response as I) {
@@ -81,6 +89,8 @@ public composite Main {
 					printStringLn((rstring)responseHeader);
 					printStringLn("body");
 					printStringLn(respData);
+					printStringLn("errorDiagnostics");
+					printStringLn(err);
 					//printStringLn(getApplicationConfigurationProperty("myConfig", "myProp", "default"));
 				}
 				onPunct I: println(currentPunct());

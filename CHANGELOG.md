@@ -1,6 +1,21 @@
 # Changes
 =======
 
+## v3.1.0:
+* Update apache http client library to v 4.5.7
+* HTTPRequest operator: Allows tls-client authentication
+* HTTPRequest operator: Enable TLS1.2 for all connections
+* HTTPRequest operator: Relaxed requirements for parameter sslTrustStorePassword
+* HTTPRequest operator: server certificate does not require host match
+* Description added: how to create https certificates
+* Faster build
+* One common spl doc for samples generated
+* HTTP Test server works now also with streams java ssl engine
+* Added tests: HTTPLineTest, URLEncodeDecode
+* Removed old script tests
+* Cloud test suite added
+* Samples: Makefiles take the streams studio settings into account
+
 ## v3.0.0:
 * The http rest functions and the WebSocket server functions are now moved into [streamsx.inetserver toolkit](https://github.com/IBMStreams/streamsx.inetserver/releases)
 * Operator HTTPRequestAdd - new parameters extraHeaderAttribute, accessTokenAttribute and tokenTypeAttribute

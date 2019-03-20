@@ -147,6 +147,9 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     private boolean            sslAcceptAllCertificates = false;
     private String             sslTrustStoreFile = null;
     private String             sslTrustStorePassword = null;
+    private String             sslKeyStoreFile = null;
+    private String             sslKeyStorePassword = null;
+    private String             sslKeyPassword = null;
     private String             proxy = null;
     private int                proxyPort = 8080;
     private RedirectStrategy   redirectStrategy = RedirectStrategy.DEFAULT;
@@ -360,20 +363,35 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     public void setAuthenticationProperties(List<String> authenticationProperties) {
         this.authenticationProperties = authenticationProperties;
     }
-    @Parameter(optional=true, description="Accept all SSL certificates, even those that are self-signed. "
-        + "If this parameter is set, parameter `sslTrustStoreFile` is not allowed. "
+    @Parameter(optional=true, description="Accept all SSL certificates, this means the server certificate is not checked. "
+        + "If this parameter is set, parameter `sslTrustStoreFile` and `setSslKeyStoreFile` are not allowed. "
         + "Setting this option will allow potentially insecure connections. Default is false.")
     public void setSslAcceptAllCertificates(boolean sslAcceptAllCertificates) {
         this.sslAcceptAllCertificates = sslAcceptAllCertificates;
     }
-    @Parameter(optional=true, description="Path to .jks trust store file used for TODO: ?server? and client authentication. "
-        + "If this parameter is set, parameter `sslTrustStorePassword` is required.")
+    @Parameter(optional=true, description="Path to jks trust store file used for server authentication. "
+        + "Self signed certificates will be accepted."
+        + "If this parameter is set, parameter `sslTrustStorePassword` is optional.")
     public void setSslTrustStoreFile(String sslTrustStoreFile){
         this.sslTrustStoreFile = sslTrustStoreFile;
     }
-    @Parameter(optional=true, description="Password for the trust store and the keys it contains")
+    @Parameter(optional=true, description="Password for the trust store.")
     public void setSslTrustStorePassword(String sslTrustStorePassword){
         this.sslTrustStorePassword = sslTrustStorePassword;
+    }
+    @Parameter(optional=true, description="Path to jks key store file used for client authentication. This store should contain one client key pair."
+        + "If this parameter is set, parameter `sslTrustStorePassword` is optional."
+        + "If this parameter is set, parameter `sslKeyPassword` is required.")
+    public void setSslKeyStoreFile(String sslKeyStoreFile){
+        this.sslKeyStoreFile = sslKeyStoreFile;
+    }
+    @Parameter(optional=true, description="Password for the key store. If the password for the store differs from the key password, use this parameter.")
+    public void setSslKeyStorePassword(String sslKeyStorePassword){
+        this.sslKeyStorePassword = sslKeyStorePassword;
+    }
+    @Parameter(optional=true, description="Password for the keys in the key store.")
+    public void setSslKeyPassword(String sslKeyPassword){
+        this.sslKeyPassword = sslKeyPassword;
     }
     @Parameter(optional=true, description="Hostname of the http-proxy to be used. If this parameter is omitted no proxy is used.")
     public void setProxy(String proxy) {
@@ -441,14 +459,23 @@ public class HTTPRequestOperAPI extends AbstractOperator {
         occ.checkExcludedParameters("outputDataLine", "outputBody");
         occ.checkExcludedParameters("outputDataLine", "outputBodyRaw");
         occ.checkExcludedParameters("redirectStrategy", "disableRedirectHandling");
-        
-        //The pair of these parameters is optional, we either need both to be present or neither of them
-        boolean hasFile = parameterNames.contains("sslTrustStoreFile");
-        boolean hasPassword = parameterNames.contains("sslTrustStorePassword");
-        if(hasFile ^ hasPassword) {
-            occ.setInvalidContext(Messages.getString("PARAM_TRUST_STORE_CHECK"), new String[] {OPER_NAME});
+        //ssl
+        occ.checkExcludedParameters("sslAcceptAllCertificates", "sslTrustStoreFile", "sslKeyStoreFile");
+        boolean hasTrustFile = parameterNames.contains("sslTrustStoreFile");
+        boolean hasTrustStorePassword = parameterNames.contains("sslTrustStorePassword");
+        if(hasTrustStorePassword && ! hasTrustFile ) {
+            occ.setInvalidContext(Messages.getString("PARAM_TRUST_STORE_CHECK_N"), new String[] {OPER_NAME});
         }
-        occ.checkExcludedParameters("sslAcceptAllCertificates", "sslTrustStoreFile");
+        boolean hasKeyFile = parameterNames.contains("sslKeyStoreFile");
+        boolean hasKeyStorePassword = parameterNames.contains("sslKeyStorePassword");
+        if(hasKeyStorePassword && ! hasKeyFile ) {
+            occ.setInvalidContext(Messages.getString("PARAM_TRUST_STORE_CHECK_N"), new String[] {OPER_NAME});
+        }
+        //The pair of these parameters is optional, we either need both to be present or neither of them
+        boolean hasKeyPassword = parameterNames.contains("sslKeyPassword");
+        if(hasKeyPassword ^ hasKeyFile ) {
+            occ.setInvalidContext(Messages.getString("PARAM_TRUST_STORE_CHECK2_N"), new String[] {OPER_NAME});
+        }
     }
 
     /*****************************************
@@ -666,6 +693,7 @@ public class HTTPRequestOperAPI extends AbstractOperator {
         //trust store 
         URI baseConfigURI = context.getPE().getApplicationDirectory().toURI();
         sslTrustStoreFile = PathConversionHelper.convertToAbsPath(baseConfigURI, sslTrustStoreFile);
+        sslKeyStoreFile   = PathConversionHelper.convertToAbsPath(baseConfigURI, sslKeyStoreFile);
         authenticationFile = PathConversionHelper.convertToAbsPath(baseConfigURI, authenticationFile);
     }
 
@@ -715,6 +743,9 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     protected boolean            getSslAcceptAllCertificates() { return sslAcceptAllCertificates; }
     protected String             getSslTrustStoreFile() { return sslTrustStoreFile; }
     protected String             getSslTrustStorePassword() { return sslTrustStorePassword; }
+    protected String             getSslKeyStoreFile() { return sslKeyStoreFile; }
+    protected String             getSslKeyStorePassword() { return sslKeyStorePassword; }
+    protected String             getSslKeyPassword() { return sslKeyPassword; }
     protected String             getProxy() { return proxy; }
     protected int                getProxyPort() { return proxyPort; }
     protected RedirectStrategy   getRedirectStrategy() { return redirectStrategy; }
