@@ -87,6 +87,9 @@ prepFtpServer() {
 	printInfo "Login as $TTPR_ftpServerUser and prepare remote directory $TTPR_ftpDirForReadTests and $TTPR_ftpDirForWriteTests"
 	printInfo "Login as $TTPR_ftpServerUser and remote files $TTPR_ftpDirForReadTests/1MB.zip and $TTPR_ftpDirForReadTests/20MB.zip"
 	mkdir ftpuser
+	if [[ -z $TTPR_ftpServerHost]]; then
+		return 0
+	fi
 	openssl rand -out ftpuser/1MB.zip 1048576
 	openssl rand -out ftpuser/20MB.zip 20971520
 	if ftp -n "$TTPR_ftpServerHost" << END_SCRIPT
