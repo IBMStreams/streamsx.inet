@@ -56,7 +56,7 @@ checkFtpServer() {
 	fi
 	printInfo "Check whether ftp server is reachable at $TTPR_ftpServerHost"
 	mkdir anonymous
-	if ftp -n "$TTPR_ftpServerHost" > ftpResult 2> ftpError << END_SCRIPT
+	if ftp -n "$TTPR_ftpServerHost" > ftpResult << END_SCRIPT
 quote USER anonymous
 quote PASS
 ls
@@ -70,7 +70,6 @@ END_SCRIPT
 			printInfo "ftp server is reachable"
 			setVar 'TTPR_ftpServerPubFile1' "$PWD/1MB.zip"
 			setVar 'TTPR_ftpServerPubFile2' "$PWD/20MB.zip"
-			setVar 'TTRO_ftpServerAvailable' 'true'
 		else
 			printError "Make sure that a remote ftp server is running and allows anonymous read access to files 1MB.zip and 20MB.zip"
 			printError "Or enable a local vsftp and "
@@ -79,6 +78,8 @@ END_SCRIPT
 			printError "'openssl rand -out /var/ftp/1MB.zip 1048576'"
 			printError "'openssl rand -out /var/ftp/20MB.zip 20971520'"
 		fi
+	else
+		printError "Transfer failure"
 	fi
 	return 0
 }
