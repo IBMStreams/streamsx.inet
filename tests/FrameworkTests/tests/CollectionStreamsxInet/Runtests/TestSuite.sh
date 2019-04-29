@@ -55,14 +55,14 @@ checkFtpServer() {
 		return 0
 	fi
 	printInfo "Check whether ftp server is reachable at $TTPR_ftpServerHost"
-	mkdir anonymous
-	if ftp -n "$TTPR_ftpServerHost" > ftpResult << END_SCRIPT
-quote USER anonymous
-quote PASS
+	if lftp > ftpResult << END_SCRIPT
+set ftp:ssl-allow false
+open $TTPR_ftpServerHost
 ls
-binary
-get 1MB.zip anonymous/1MB.zip
-get 20MB.zip anonymous/20MB.zip
+!mkdir anonymous
+lcd anonymous
+get 1MB.zip
+get 20MB.zip
 bye
 END_SCRIPT
 	then
@@ -93,17 +93,16 @@ prepFtpServer() {
 	printInfo "Login as $TTPR_ftpServerUser and remote files $TTPR_ftpDirForReadTests/1MB.zip and $TTPR_ftpDirForReadTests/20MB.zip"
 	openssl rand -out ftpuser/1MB.zip 1048576
 	openssl rand -out ftpuser/20MB.zip 20971520
-	if ftp -n "$TTPR_ftpServerHost" << END_SCRIPT
-quote USER $TTPR_ftpServerUser
-quote PASS $TTPR_ftpServerPasswd
+	if lftp << END_SCRIPT
+set ftp:ssl-allow false
+open -u ${TTPR_ftpServerUser},${TTPR_ftpServerPasswd} $TTPR_ftpServerHost
 ls
-verbose
-delete $TTPR_ftpDirForReadTests/1MB.zip
-delete $TTPR_ftpDirForReadTests/20MB.zip
-delete $TTPR_ftpDirForWriteTests/0/1MB.zip
-delete $TTPR_ftpDirForWriteTests/0/20MB.zip
-delete $TTPR_ftpDirForWriteTests/1/1MB.zip
-delete $TTPR_ftpDirForWriteTests/1/20MB.zip
+rm -f $TTPR_ftpDirForReadTests/1MB.zip
+rm -f $TTPR_ftpDirForReadTests/20MB.zip
+rm -f $TTPR_ftpDirForWriteTests/0/1MB.zip
+rm -f $TTPR_ftpDirForWriteTests/0/20MB.zip
+rm -f $TTPR_ftpDirForWriteTests/1/1MB.zip
+rm -f $TTPR_ftpDirForWriteTests/1/20MB.zip
 rmdir $TTPR_ftpDirForReadTests
 rmdir ${TTPR_ftpDirForWriteTests}/0
 rmdir ${TTPR_ftpDirForWriteTests}/1
@@ -113,9 +112,9 @@ mkdir $TTPR_ftpDirForReadTests
 mkdir $TTPR_ftpDirForWriteTests
 mkdir ${TTPR_ftpDirForWriteTests}/0
 mkdir ${TTPR_ftpDirForWriteTests}/1
-binary
-put ftpuser/1MB.zip $TTPR_ftpDirForReadTests/1MB.zip
-put ftpuser/20MB.zip $TTPR_ftpDirForReadTests/20MB.zip
+put ftpuser/1MB.zip -o $TTPR_ftpDirForReadTests/1MB.zip
+put ftpuser/20MB.zip -o $TTPR_ftpDirForReadTests/20MB.zip
+ls
 bye
 END_SCRIPT
 	then
