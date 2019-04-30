@@ -44,14 +44,14 @@ getFiles() {
 	if [[ $TTRO_variantCase == 'ftpusersftp' ]]; then
 		rdir="$TTPR_ftpDirForWriteTests/1"
 	fi
-	if ftp -n "$TTPR_ftpServerHost" << END_SCRIPT
-quote USER $TTPR_ftpServerUser
-quote PASS $TTPR_ftpServerPasswd
+	if lftp << END_SCRIPT
+set ftp:ssl-allow false
+open -u ${TTPR_ftpServerUser},${TTPR_ftpServerPasswd} $TTPR_ftpServerHost
 cd $rdir
 ls
-binary
-get 1MB.zip resultFiles/1MB.zip
-get 20MB.zip resultFiles/20MB.zip
+lcd resultFiles
+get 1MB.zip
+get 20MB.zip
 bye
 END_SCRIPT
 	then
