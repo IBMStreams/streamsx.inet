@@ -3,17 +3,23 @@
     Build file for streamsx.inet project, built the toolkits and samples.
   </description>
 
-  <!-- set global properties for this build -->
   <property environment="env" />
+  <fail message="STREAMS_INSTALL is not set">
+    <condition>
+      <not><isset property="env.STREAMS_INSTALL"/></not>
+    </condition>
+  </fail>
+  <echo message="STREAMS_INSTALL : ${env.STREAMS_INSTALL}"/>
+
+  <!-- set global properties for this build -->
   <property name="streams.install" value="${env.STREAMS_INSTALL}" />
   <property name="toolkit.string"  value="com.ibm.streamsx.inet"/>
   <property name="toolkit.dir"     location="${toolkit.string}"/>
   <property name="toolkit.test"    location="tests" />
   <property name="release.dir"     location="release" />
   <property name="release.info.file"  value="${toolkit.dir}/build.info"/>
-
-  <property name="spl-md"  value="${env.STREAMS_INSTALL}/bin/spl-make-doc" />
-  <property name="spl-st"  value="${env.STREAMS_INSTALL}/bin/streamtool" />
+  <property name="spl-md"  value="${streams.install}/bin/spl-make-doc" />
+  <property name="spl-st"  value="${streams.install}/bin/streamtool" />
 
   <!-- Create the time stamp -->
   <tstamp/>

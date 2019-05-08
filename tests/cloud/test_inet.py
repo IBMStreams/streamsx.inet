@@ -30,29 +30,6 @@ class Test(unittest.TestCase):
         if self.inet_toolkit_location is not None:
             tk.add_toolkit(topo, self.inet_toolkit_location)
 
-    def _service (self, force_remote_build = True):
-        auth_host = os.environ['AUTH_HOST']
-        auth_user = os.environ['AUTH_USERNAME']
-        auth_password = os.environ['AUTH_PASSWORD']
-        streams_rest_url = os.environ['STREAMS_REST_URL']
-        streams_service_name = os.environ['STREAMS_SERVICE_NAME']
-        streams_build_service_port = os.environ['STREAMS_BUILD_SERVICE_PORT']
-        uri_parsed = urlparse (streams_rest_url)
-        streams_build_service = uri_parsed.hostname + ':' + streams_build_service_port
-        streams_rest_service = uri_parsed.netloc
-        r = requests.get ('https://' + auth_host + '/v1/preauth/validateAuth', auth=(auth_user, auth_password), verify=False)
-        token = r.json()['accessToken']
-        cfg = {
-            'type': 'streams',
-            'connection_info': {
-                'serviceBuildEndpoint': 'https://' + streams_build_service,
-                'serviceRestEndpoint': 'https://' + streams_rest_service + '/streams/rest/instances/' + streams_service_name
-            },
-            'service_token': token
-        }
-        cfg [streamsx.topology.context.ConfigParams.FORCE_REMOTE_BUILD] = force_remote_build
-        return cfg
-
     def _build_launch_app(self, name, composite_name, parameters, num_result_tuples, test_toolkit):
         print ("------ "+name+" ------")
         topo = Topology(name)
@@ -66,12 +43,6 @@ class Test(unittest.TestCase):
         self.tester.tuple_count(test_op.stream, num_result_tuples, exact=True)
 
         cfg = {}
-        if ("TestICP" in str(self)):
-            remote_build = False
-            if ("TestICPRemote" in str(self)):
-                remote_build = True
-            cfg = self._service(remote_build)
-
         # change trace level
         job_config = streamsx.topology.context.JobConfig(tracing='info')
         job_config.add(cfg)

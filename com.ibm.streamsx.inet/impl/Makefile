@@ -10,8 +10,11 @@ ifeq ($(CXX),g++)
   ifeq ($(PLATFORM),ppc64)
     CXX=/opt/at7.0/bin/g++
   endif
+  ifeq ($(PLATFORM),ppc64le)
+    CXX=/opt/at8.0/bin/g++
+  endif
 endif
-
+$(info CXX=$(CXX))
 
 # InfoSphere Streams Compiler/Linker Options
 SPL_PKGCFG=$(realpath $(STREAMS_INSTALL)/bin/dst-pe-pkg-config.sh)
