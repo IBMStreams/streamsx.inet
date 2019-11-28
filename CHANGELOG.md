@@ -1,5 +1,8 @@
 # Changes
 =======
+## v3.1.1:
+* Remove opt/downloaded from all lib enties to avoid classpath warnings
+* Corrections in tests 
 
 ## v3.1.0:
 * Update apache http client library to v 4.5.7
