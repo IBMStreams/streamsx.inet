@@ -57,7 +57,6 @@ import com.ibm.streams.operator.model.CustomMetric;
 import com.ibm.streams.operator.model.Icons;
 import com.ibm.streams.operator.model.InputPortSet;
 import com.ibm.streams.operator.model.InputPorts;
-import com.ibm.streams.operator.model.Libraries;
 import com.ibm.streams.operator.model.PrimitiveOperator;
 import com.ibm.streams.operator.types.Blob;
 import com.ibm.streams.operator.types.RString;
@@ -84,7 +83,6 @@ import com.ibm.streams.operator.StreamingOutput;
  * 
  ********************************************************************************************/
 @PrimitiveOperator(name = HTTPRequestOper.OPER_NAME, description = HTTPRequestOperAPI.DESC)
-@Libraries("opt/httpcomponents-client-4.5.5/lib/*")
 @Icons(location32 = "icons/HTTPPost_32.gif", location16 = "icons/HTTPPost_16.gif")
 @InputPorts(@InputPortSet(cardinality = 1, description = "This stream contains the information sent in a http request. Each tuple with valid request data results in an HTTP request except if method `NONE` is specified."))
 @OutputPorts(
