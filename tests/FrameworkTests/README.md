@@ -51,7 +51,10 @@ The test framework requires an valid Streams installation and environment.
 The ftp test server requires the packages **vsftpd** and **ftp**. Additionally the current user must be able to execute 
 `service vsftpd start` without password interaction (sudoers configuration). Alternatively you can start the ftp server by 
 hand and provide property `TTPR_ftpServerHost`.
-If the standard setup of the ftp server is used, an user `ftpuser` with password `streams` is required.
+If the standard setup of the ftp server is used, an user `ftpuser` with password `streams` is required. This standart setup can be overwritten
+with properties `TTPR_ftpServerUser` and `TTPR_ftpServerPasswd` in TestProperties.sh file.
 
-The http test server requires a standard java 1.8 runtime. With the streams java runtime the ssl connections are not possible.
+*Note:* The FtpTest requires an running ssh daemon at the ftp server host.
+
+The http test server requires the java 1.8 runtime from the streams installation: 
 The http test server requires that ports 8097 and 1443 are available at the local host.
