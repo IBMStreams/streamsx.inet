@@ -24,7 +24,6 @@ import com.ibm.streams.operator.compile.OperatorContextChecker;
 import com.ibm.streams.operator.logging.LogLevel;
 import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.model.Icons;
-import com.ibm.streams.operator.model.Libraries;
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPortSet.WindowPunctuationOutputMode;
 import com.ibm.streams.operator.model.OutputPorts;
@@ -41,7 +40,6 @@ import com.ibm.streamsx.inet.http.HTTPPostOper;
 			  description="Error information will be sent out on this port including the response code and any message recieved from the server. " +
 			  		"Tuple structure must conform to the [HTTPResponse] type specified in this namespace.")})
 @PrimitiveOperator(name=HTTPStreamReader.OPER_NAME, description=HTTPStreamReader.DESC)
-@Libraries(value={"opt/downloaded/*"})
 @Icons(location32="icons/"+HTTPStreamReader.OPER_NAME+"_32.gif", location16="icons/"+HTTPStreamReader.OPER_NAME+"_16.gif")
 public class HTTPStreamReader extends AbstractOperator {
 

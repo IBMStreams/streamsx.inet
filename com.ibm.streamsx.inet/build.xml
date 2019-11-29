@@ -29,7 +29,6 @@ All required libs are now available in the source repository
 	<property name="gensrc.dir"        location="impl/java/src-gen" />
 	<property name="test.run.dir"      location="unittestrun" />
 	<property name="test.build.dir"    location="${test.run.dir}/bin" />
-	<property name="downloads.dir"     location="opt/downloaded" /> <!-- used for cleanup only -->
 	<property name="jarfile"           value="com.ibm.streamsx.inet.jar" />
 
 	<defaultexcludes add="**/.gitkeep"/>
@@ -73,7 +72,6 @@ All required libs are now available in the source repository
 		<delete dir="${build.dir}" />
 		<delete dir="${lib.dir}" />
 		<delete dir="${impl.lib.dir}" />
-		<delete dir="${downloads.dir}" />
 		<delete dir="output" />
 		<delete dir="doc" />
 		<delete dir="${nl.dir}/include"/>

@@ -380,7 +380,7 @@ public class HTTPRequestOperAPI extends AbstractOperator {
         this.sslTrustStorePassword = sslTrustStorePassword;
     }
     @Parameter(optional=true, description="Path to jks key store file used for client authentication. This store should contain one client key pair."
-        + "If this parameter is set, parameter `sslTrustStorePassword` is optional."
+        + "If this parameter is set, parameter `sslKeyStorePassword` is optional."
         + "If this parameter is set, parameter `sslKeyPassword` is required.")
     public void setSslKeyStoreFile(String sslKeyStoreFile){
         this.sslKeyStoreFile = sslKeyStoreFile;

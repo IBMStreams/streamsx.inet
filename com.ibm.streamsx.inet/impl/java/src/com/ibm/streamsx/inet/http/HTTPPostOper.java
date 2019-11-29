@@ -37,7 +37,6 @@ import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.model.Icons;
 import com.ibm.streams.operator.model.InputPortSet;
 import com.ibm.streams.operator.model.InputPorts;
-import com.ibm.streams.operator.model.Libraries;
 import com.ibm.streams.operator.model.OutputPortSet;
 import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.Parameter;
@@ -55,7 +54,6 @@ import com.ibm.streamsx.inet.messages.Messages;
 
 ))
 @PrimitiveOperator(name=HTTPPostOper.OPER_NAME, description=HTTPPostOper.DESC)
-@Libraries(value={"opt/downloaded/*"})
 @Icons(location32="icons/HTTPPost_32.gif", location16="icons/HTTPPost_16.gif")
 public class HTTPPostOper extends AbstractOperator  
 {

@@ -8,7 +8,6 @@ toolkit.xml
 /com.ibm.streamsx.inet/impl/nl/*.dat
 /com.ibm.streamsx.inet/impl/nl/include
 /com.ibm.streamsx.inet/build.info
-/com.ibm.streamsx.inet/opt/downloaded/
 /release/
 doc/
 
