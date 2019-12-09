@@ -1,20 +1,21 @@
-# Copyright (C) 2013-2014, International Business Machines Corporation
+# Copyright (C) 2013-2019, International Business Machines Corporation
 # All Rights Reserved
 $(info ************************************************************************)
 $(info ***  make libinettoolkit                                             ***)
 $(info ************************************************************************)
 
 # Handle PPC platforms that require toolchain Compiler
+# you must set the desired compiler by exporting CXX
+$(info CXX=$(CXX))
 ifeq ($(CXX),g++)
   PLATFORM := $(shell uname -i)
   ifeq ($(PLATFORM),ppc64)
-    CXX=/opt/at7.0/bin/g++
+    $(info You build on ppc but you are using g++ from standard path! Consider to use at compiler: export CXX=/opt/at7.0/bin/g++)
   endif
   ifeq ($(PLATFORM),ppc64le)
-    CXX=/opt/at8.0/bin/g++
+    $(info You build on ppc but you are using g++ from standard path! Consider to use at compiler: export CXX=/opt/at8.0/bin/g++)
   endif
 endif
-$(info CXX=$(CXX))
 
 # InfoSphere Streams Compiler/Linker Options
 SPL_PKGCFG=$(realpath $(STREAMS_INSTALL)/bin/dst-pe-pkg-config.sh)
