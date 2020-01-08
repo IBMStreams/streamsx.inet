@@ -15,5 +15,3 @@ to start the server by hand:
 to stop the server by hand:
 `stop.sh`
 
-Note: This server must run with a standard java 1.8 runtime. With the streams java runtime the ssl connections are not possible
-
