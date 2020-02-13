@@ -70,9 +70,9 @@
           <target>1 より大きい emitTuplePerRecordCount パラメーター値は、リスト・ベースの属性のみに有効です。宣言されている値は ''{0}'' です。</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0204" extraData="INET_MALFORMED_URI" resname="CDIST0204E">
-          <source>The Uniform Resource Identifier string {0} specified in the URIList parameter contains a syntax error. The Processing Element will shut down now.</source>
+          <source>a URI specified in the URIList parameter contains a syntax error. The Processing Element will shut down now.</source>
           <!--TRNOTE Do not translate 'Uniform Resource Identifier' and 'Processing Element' -->
-          <target>URIList パラメーターに指定された Uniform Resource Identifier ストリング {0} に、構文エラーがあります。Processing Element はシャットダウンします。</target>
+          <target>URIList パラメーターに指定された URI に構文エラーがあります。Processing Element はシャットダウンします。</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0207" extraData="INET_OPORT_TYPE_CHECK_2" resname="CDIST0207E">
           <source>Output attribute ''{0}'' must be of type rstring or list&lt;rstring&gt; or blob or xml. It was declared as type {1}.</source>

@@ -57,12 +57,12 @@
         <trans-unit id="StreamsInetToolkitMessages_CDIST0201" extraData="INET_OPORT_TYPE_CHECK_1" resname="CDIST0201E">
           <source>Output attribute ''{0}'' must be of type rstring or list&lt;rstring&gt;. It was declared as type {1}.</source>
           <!--TRNOTE Do not translate the word rstring and list -->
-          <target>Ausgabeattribut ''{0}'' muss den Typ rstring oder list&lt;rstring&gt; haben, wurde jedoch als Typ {1} deklariert.</target>
+          <target>Das Ausgabeattribut ''{0}'' muss den Typ ''rstring'' oder ''list&lt;rstring&gt;'' aufweisen. Es wurde als Typ {1} deklariert.</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0202" extraData="INET_PARAM_CHECK_1" resname="CDIST0202E">
           <source>The emitTuplePerFetch and emitTuplePerURI parameters are valid for list-based attributes only. The attribute was declared as type ''{0}''.</source>
           <!--TRNOTE Do not translate the word emitTuplePerFetch and emitTuplePerURI -->
-          <target>Die Parameter emitTuplePerFetch und emitTuplePerURI sind nur für listenbasierte Attribute gültig. Das Attribut wurde als Typ ''{0}'' deklariert.</target>
+          <target>Die Parameter emitTuplePerFetch und emitTuplePerURI sind nur für listenbasierte Attribute gültig. Das Attribut wurde als Typ ''{0}'' deklariert. </target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0203" extraData="INET_PARAM_CHECK_2" resname="CDIST0203E">
           <source>Values of the emitTuplePerRecordCount parameter greater than one are valid for list-based attributes only. The declared value was ''{0}''.</source>
@@ -70,19 +70,19 @@
           <target>Werte größer als eins für den Parameter emitTuplePerRecordCount sind nur für listenbasierte Attribute gültig. Deklarierter Wert: ''{0}''.</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0204" extraData="INET_MALFORMED_URI" resname="CDIST0204E">
-          <source>The Uniform Resource Identifier string {0} specified in the URIList parameter contains a syntax error. The Processing Element will shut down now.</source>
+          <source>a URI specified in the URIList parameter contains a syntax error. The Processing Element will shut down now.</source>
           <!--TRNOTE Do not translate 'Uniform Resource Identifier' and 'Processing Element' -->
-          <target>Die im Parameter URIList angegebene URI-Zeichenfolge {0} enthält einen Syntaxfehler. Das Verarbeitungselement wird jetzt beendet.</target>
+          <target>Ein im Parameter URIList angegebener URI enthält einen Syntaxfehler. Das Verarbeitungselement wird jetzt beendet.</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0207" extraData="INET_OPORT_TYPE_CHECK_2" resname="CDIST0207E">
           <source>Output attribute ''{0}'' must be of type rstring or list&lt;rstring&gt; or blob or xml. It was declared as type {1}.</source>
           <!--TRNOTE Do not translate the word rstring, list, blob and xml -->
-          <target>Ausgabeattribut ''{0}'' muss den Typ rstring, list&lt;rstring&gt;, blob oder xml haben, wurde jedoch als Typ {1} deklariert.</target>
+          <target>Das Ausgabeattribut ''{0}'' muss den Typ ''rstring'', ''list&lt;rstring&gt;'', ''blob'' oder ''xml'' aufweisen. Es wurde als Typ {1} deklariert.</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0208" extraData="INET_OPORT_TYPE_CHECK_3" resname="CDIST0208E">
           <source>Output attribute ''{0}'' must be of type rstring. It was declared as type {1}.</source>
           <!--TRNOTE Do not translate the word rstring -->
-          <target>Ausgabeattribut ''{0}'' muss den Typ rstring haben, wurde jedoch als Typ {1} deklariert.</target>
+          <target>Das Ausgabeattribut ''{0}'' muss den Typ ''rstring'' aufweisen. Es wurde als Typ {1} deklariert.</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0209" extraData="INET_PARAM_CHECK_3" resname="CDIST0209E">
           <source>The emitTuplePerFetch and emitTuplePerURI parameters are valid only for attributes of type ''list$lt;rstring&gt;''. The attribute was declared as type ''{0}''.</source>
@@ -112,7 +112,7 @@
         <trans-unit id="StreamsInetToolkitMessages_CDIST0214" extraData="INET_FTP_READER_OUTPUT_PARAM_CHECK_1" resname="CDIST0214E">
           <source>The error output port must have one attribute of type rstring.</source>
           <!--TRNOTE Do not translate the words port and rstring -->
-          <target>Der Port für Fehlernachrichten muss ein Attribut des Typs ''rstring'' haben.</target>
+          <target>Der Port für Fehlernachrichten muss ein einziges Attribut des Typs ''rstring'' haben.</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0230" extraData="INET_NONZERO_LIBCURL_RC" resname="CDIST0230W">
           <source>A Uniform Resource Identifier retrieval from {0} was not successful. The numeric return code from the libcurl agent was {1,number,integer} and the error message text was: {2}. The Processing Element will continue running.</source>

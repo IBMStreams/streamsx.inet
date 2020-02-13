@@ -52,7 +52,7 @@
         <trans-unit id="StreamsInetToolkitMessages_CDIST0200" extraData="INET_CONSISTENT_CHECK" resname="CDIST0200E">
           <source>{0} operator cannot be used inside a consistent region.</source>
           <!--TRNOTE Do not translate the word consistent region -->
-          <target>O operador {0} não pode ser usado dentro de uma região consistente. </target>
+          <target>O operador {0} não pode ser usado dentro de uma região consistente.</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0201" extraData="INET_OPORT_TYPE_CHECK_1" resname="CDIST0201E">
           <source>Output attribute ''{0}'' must be of type rstring or list&lt;rstring&gt;. It was declared as type {1}.</source>
@@ -70,9 +70,9 @@
           <target>Os valores do parâmetro emitTuplePerRecordCount maiores que um são válidos somente para atributos baseados em lista. O valor declarado era ''{0}''.</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0204" extraData="INET_MALFORMED_URI" resname="CDIST0204E">
-          <source>The Uniform Resource Identifier string {0} specified in the URIList parameter contains a syntax error. The Processing Element will shut down now.</source>
+          <source>a URI specified in the URIList parameter contains a syntax error. The Processing Element will shut down now.</source>
           <!--TRNOTE Do not translate 'Uniform Resource Identifier' and 'Processing Element' -->
-          <target>A sequência do Identificador Uniforme de Recursos {0} especificada no parâmetro URIList contém um erro de sintaxe. O Processing Element será encerrado agora. </target>
+          <target>Um URI especificado no parâmetro URIList contém um erro de sintaxe. O Processing Element será encerrado agora.</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0207" extraData="INET_OPORT_TYPE_CHECK_2" resname="CDIST0207E">
           <source>Output attribute ''{0}'' must be of type rstring or list&lt;rstring&gt; or blob or xml. It was declared as type {1}.</source>
@@ -117,12 +117,12 @@
         <trans-unit id="StreamsInetToolkitMessages_CDIST0230" extraData="INET_NONZERO_LIBCURL_RC" resname="CDIST0230W">
           <source>A Uniform Resource Identifier retrieval from {0} was not successful. The numeric return code from the libcurl agent was {1,number,integer} and the error message text was: {2}. The Processing Element will continue running.</source>
           <!--TRNOTE Do not translate 'Uniform Resource Identifier' and 'Processing Element' -->
-          <target>A recuperação de um Identificador Uniforme de Recursos de {0} não foi bem-sucedida. O código de retorno numérico do agente libcurl era {1,number,integer} e o texto da mensagem de erro era: {2}. O Processing Element continuará em execução. </target>
+          <target>A recuperação de um Identificador Uniforme de Recursos de {0} não foi bem-sucedida. O código de retorno numérico do agente libcurl era {1,number,integer} e o texto da mensagem de erro era: {2}. O Processing Element continuará em execução.</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0231" extraData="INET_NONZERO_LIBCURL_RC_REPEATED" resname="CDIST0231W">
           <source>A Uniform Resource Identifier retrieval from {0} has not been successful for the last {3,number,integer} attempts. The numeric return code from the libcurl agent was {1,number,integer} and the error message text was: {2}. The Processing Element will continue running.</source>
           <!--TRNOTE Do not translate 'Uniform Resource Identifier', 'Processing Element' and libcurl -->
-          <target>A recuperação de um Identificador Uniforme de Recursos de {0} não foi bem-sucedida para as últimas {3,number,integer} tentativas. O código de retorno numérico do agente libcurl era {1,number,integer} e o texto da mensagem de erro era: {2}. O Processing Element continuará em execução. </target>
+          <target>A recuperação de um Identificador Uniforme de Recursos de {0} não foi bem-sucedida para as últimas {3,number,integer} tentativas. O código de retorno numérico do agente libcurl era {1,number,integer} e o texto da mensagem de erro era: {2}. O Processing Element continuará em execução.</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0232" extraData="INET_DEPRECATED_COF" resname="CDIST0232W">
           <source>Deprecated custom output function used: ''{0}''</source>
