@@ -62,7 +62,7 @@
         <trans-unit id="StreamsInetToolkitMessages_CDIST0202" extraData="INET_PARAM_CHECK_1" resname="CDIST0202E">
           <source>The emitTuplePerFetch and emitTuplePerURI parameters are valid for list-based attributes only. The attribute was declared as type ''{0}''.</source>
           <!--TRNOTE Do not translate the word emitTuplePerFetch and emitTuplePerURI -->
-          <target>I parametri emitTuplePerFetch e emitTuplePerURI sono validi solo per attributi basati su elenco. L''attributo era dichiarato come tipo ''{0}''.</target>
+          <target>I parametri emitTuplePerFetch e emitTuplePerURI sono validi solo per gli attributi basati su elenco. L''attributo era dichiarato come tipo ''{0}''.</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0203" extraData="INET_PARAM_CHECK_2" resname="CDIST0203E">
           <source>Values of the emitTuplePerRecordCount parameter greater than one are valid for list-based attributes only. The declared value was ''{0}''.</source>
@@ -70,9 +70,9 @@
           <target>Valori del parametro emitTuplePerRecordCount maggiori di uno sono validi solo per attributi basati su elenco. Il valore dichiarato era ''{0}''.</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0204" extraData="INET_MALFORMED_URI" resname="CDIST0204E">
-          <source>The Uniform Resource Identifier string {0} specified in the URIList parameter contains a syntax error. The Processing Element will shut down now.</source>
+          <source>a URI specified in the URIList parameter contains a syntax error. The Processing Element will shut down now.</source>
           <!--TRNOTE Do not translate 'Uniform Resource Identifier' and 'Processing Element' -->
-          <target>La stringa Uniform Resource Identifier {0} specificata nel parametro URIList contiene un errore di sintassi. L''elemento di elaborazione verrà chiuso adesso.</target>
+          <target>un URI specificato nel parametro URIList contiene un errore di sintassi. L''elemento di elaborazione verrà chiuso adesso.</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0207" extraData="INET_OPORT_TYPE_CHECK_2" resname="CDIST0207E">
           <source>Output attribute ''{0}'' must be of type rstring or list&lt;rstring&gt; or blob or xml. It was declared as type {1}.</source>
@@ -97,7 +97,7 @@
         <trans-unit id="StreamsInetToolkitMessages_CDIST0211" extraData="INET_FTP_READER_PARAM_CHECK_1" resname="CDIST0211E">
           <source>The custom output function ''Binary()'' is not available in operation mode ''isDirReader''.</source>
           <!--TRNOTE Do not translate the words Binary and isDirReader -->
-          <target>La funzione di output personalizzata ''Binary()'' non è disponibile in modalità di operazione ''isDirReader''.</target>
+          <target>La funzione di output personalizzata ''Binary()'' non è disponibile in modalità operativa ''isDirReader''.</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0212" extraData="INET_FTP_READER_PARAM_CHECK_2" resname="CDIST0212E">
           <source>The custom output function ''Binary()'' is not compatible to output functions ''Line()'', ''FileName()'', ''FileSize()'', ''FileDate()'', ''FileUser()'', ''FileGroup()'', ''FileInfo()'' and ''IsFile()''.</source>

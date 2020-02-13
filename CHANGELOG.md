@@ -1,5 +1,9 @@
 # Changes
 =======
+## v3.1.2:
+* Update globalization messages
+* Removed languages ko_KR, ru_RU
+
 ## v3.1.1:
 * Remove opt/downloaded from all lib enties to avoid classpath warnings
 * Corrections in tests 

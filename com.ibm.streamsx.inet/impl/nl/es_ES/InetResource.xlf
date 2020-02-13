@@ -52,7 +52,7 @@
         <trans-unit id="StreamsInetToolkitMessages_CDIST0200" extraData="INET_CONSISTENT_CHECK" resname="CDIST0200E">
           <source>{0} operator cannot be used inside a consistent region.</source>
           <!--TRNOTE Do not translate the word consistent region -->
-          <target>No se puede utilizar el operador {0} dentro de una región coherente.</target>
+          <target>El operador {0} no se puede utilizar dentro de una región coherente.</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0201" extraData="INET_OPORT_TYPE_CHECK_1" resname="CDIST0201E">
           <source>Output attribute ''{0}'' must be of type rstring or list&lt;rstring&gt;. It was declared as type {1}.</source>
@@ -62,17 +62,17 @@
         <trans-unit id="StreamsInetToolkitMessages_CDIST0202" extraData="INET_PARAM_CHECK_1" resname="CDIST0202E">
           <source>The emitTuplePerFetch and emitTuplePerURI parameters are valid for list-based attributes only. The attribute was declared as type ''{0}''.</source>
           <!--TRNOTE Do not translate the word emitTuplePerFetch and emitTuplePerURI -->
-          <target>Los parámetros emitTuplePerFetch y emitTuplePerURI son válidos sólo para atributos de lista. El atributo se ha declarado como tipo ''{0}''.</target>
+          <target>Los parámetros emitTuplePerFetch y emitTuplePerURI sólo son válidos para los atributos basados en lista. El atributo se ha declarado como de tipo ''{0}''.</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0203" extraData="INET_PARAM_CHECK_2" resname="CDIST0203E">
           <source>Values of the emitTuplePerRecordCount parameter greater than one are valid for list-based attributes only. The declared value was ''{0}''.</source>
           <!--TRNOTE Do not translate the word emitTuplePerRecordCount -->
-          <target>Los valores del parámetro emitTuplePerRecordCount mayores que uno son válidos sólo para atributos de lista. El valor declarado era ''{0}''.</target>
+          <target>Valores del parámetro emitTuplePerRecordCount mayores que uno sólo son válidos para los atributos basados en lista. El valor declarado fue ''{0}''.</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0204" extraData="INET_MALFORMED_URI" resname="CDIST0204E">
-          <source>The Uniform Resource Identifier string {0} specified in the URIList parameter contains a syntax error. The Processing Element will shut down now.</source>
+          <source>a URI specified in the URIList parameter contains a syntax error. The Processing Element will shut down now.</source>
           <!--TRNOTE Do not translate 'Uniform Resource Identifier' and 'Processing Element' -->
-          <target>La serie de identificador universal de recurso (URI) {0} especificada en el parámetro URIList contiene un error de sintaxis. El elemento de proceso se cerrará ahora.</target>
+          <target>un URI especificado en el parámetro URIList contiene un error de sintaxis. Se concluirá ahora el elemento de procesamiento. </target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0207" extraData="INET_OPORT_TYPE_CHECK_2" resname="CDIST0207E">
           <source>Output attribute ''{0}'' must be of type rstring or list&lt;rstring&gt; or blob or xml. It was declared as type {1}.</source>
@@ -87,12 +87,12 @@
         <trans-unit id="StreamsInetToolkitMessages_CDIST0209" extraData="INET_PARAM_CHECK_3" resname="CDIST0209E">
           <source>The emitTuplePerFetch and emitTuplePerURI parameters are valid only for attributes of type ''list$lt;rstring&gt;''. The attribute was declared as type ''{0}''.</source>
           <!--TRNOTE Do not translate the word emitTuplePerFetch, emitTuplePerURI and rstring -->
-          <target>Los parámetros emitTuplePerFetch y emitTuplePerURI son válidos sólo para atributos de tipo ''list$lt;rstring&gt;''. El atributo se ha declarado como tipo ''{0}''.</target>
+          <target>Los parámetros emitTuplePerFetch y emitTuplePerURI son válidos sólo para los atributos de tipo ''list&lt;rstring&gt;''. El atributo se ha declarado como de tipo ''{0}''.</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0210" extraData="INET_PARAM_CHECK_4" resname="CDIST0210E">
           <source>Values of the ''emitTuplePerRecordCount'' parameter greater than one are valid only for attributes of type ''list&lt;rstring&gt;''. The declared value was ''{0}''.</source>
           <!--TRNOTE Do not translate the word emitTuplePerRecordCount, list and rstring -->
-          <target>Los valores del parámetro ''emitTuplePerRecordCount'' mayores que uno son válidos sólo para atributos de tipo ''list&lt;rstring&gt;''. El valor declarado era ''{0}''.</target>
+          <target>Valores del parámetro ''emitTuplePerRecordCount'' mayores que uno sólo son válidos para los atributos de tipo ''list&lt;rstring&gt;''. El valor declarado fue ''{0}''.</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0211" extraData="INET_FTP_READER_PARAM_CHECK_1" resname="CDIST0211E">
           <source>The custom output function ''Binary()'' is not available in operation mode ''isDirReader''.</source>
@@ -102,12 +102,12 @@
         <trans-unit id="StreamsInetToolkitMessages_CDIST0212" extraData="INET_FTP_READER_PARAM_CHECK_2" resname="CDIST0212E">
           <source>The custom output function ''Binary()'' is not compatible to output functions ''Line()'', ''FileName()'', ''FileSize()'', ''FileDate()'', ''FileUser()'', ''FileGroup()'', ''FileInfo()'' and ''IsFile()''.</source>
           <!--TRNOTE Do not translate the words Binary, Line(), FileName(), FileSize(), FileDate(), FileUser(), FileGroup(), FileInfo() and IsFile() -->
-          <target>La función de salida personalizada ''Binary()'' no es compatible con las funciones de salida ''Line()'', ''FileName()'', ''FileSize()'', ''FileDate()'', ''FileUser()'', ''FileGroup()'', ''FileInfo()'' ni ''IsFile()''.</target>
+          <target>La función de salida personalizada ''Binary()'' no es compatible con las funciones de salida ''Line()'', ''FileName()'', ''FileSize()'', ''FileDate()'', ''FileUser()'', ''FileGroup()'', ''FileInfo()'' e ''IsFile()''.</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0213" extraData="INET_FTP_READER_PARAM_CHECK_3" resname="CDIST0213E">
           <source>The custom output functions: ''FileName()'', ''FileSize()'', ''FileDate()'', ''FileUser()'', ''FileGroup()'', ''FileInfo()'' and ''IsFile()'' can be used only in directory reader function mode.</source>
           <!--TRNOTE Do not translate the words FileName(), FileSize(), FileDate(), FileUser(), FileGroup(), FileInfo() and IsFile() -->
-          <target>Las funciones de salida personalizada: ''FileName()'', ''FileSize()'', ''FileDate()'', ''FileUser()'', ''FileGroup()'', ''FileInfo()'' y ''IsFile()'' se pueden utilizar sólo en modalidad de función de lector de directorios.</target>
+          <target>Las funciones de salida personalizada: ''FileName()'', ''FileSize()'', ''FileDate()'', ''FileUser()'', ''FileGroup()'', ''FileInfo()'' e ''IsFile()'' solo se pueden utilizar en la modalidad de función de lector de directorios. </target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0214" extraData="INET_FTP_READER_OUTPUT_PARAM_CHECK_1" resname="CDIST0214E">
           <source>The error output port must have one attribute of type rstring.</source>
@@ -117,16 +117,16 @@
         <trans-unit id="StreamsInetToolkitMessages_CDIST0230" extraData="INET_NONZERO_LIBCURL_RC" resname="CDIST0230W">
           <source>A Uniform Resource Identifier retrieval from {0} was not successful. The numeric return code from the libcurl agent was {1,number,integer} and the error message text was: {2}. The Processing Element will continue running.</source>
           <!--TRNOTE Do not translate 'Uniform Resource Identifier' and 'Processing Element' -->
-          <target>No se ha podido recuperar el identificador universal de recurso de {0}. El código de retorno numérico del agente libcurl ha sido {1,number,integer} y el texto del mensaje de error ha sido: {2}. El elemento de proceso continuará ejecutándose.</target>
+          <target>Una recuperación de un identificador uniforme de recursos (URI) desde {0} no fue satisfactoria. El código de retorno numérico del agente libcurl fue {1,number,integer} y el texto del mensaje de error fue: {2}. El elemento de proceso se continuará ejecutando. </target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0231" extraData="INET_NONZERO_LIBCURL_RC_REPEATED" resname="CDIST0231W">
           <source>A Uniform Resource Identifier retrieval from {0} has not been successful for the last {3,number,integer} attempts. The numeric return code from the libcurl agent was {1,number,integer} and the error message text was: {2}. The Processing Element will continue running.</source>
           <!--TRNOTE Do not translate 'Uniform Resource Identifier', 'Processing Element' and libcurl -->
-          <target>No se ha podido recuperar un identificador de recurso uniforme de {0} para los últimos {3,number,integer} intentos. El código de retorno numérico del agente libcurl ha sido {1,number,integer} y el texto del mensaje de error ha sido: {2}. El elemento de proceso continuará ejecutándose.</target>
+          <target>Una recuperación de un identificador uniforme de recursos (URI) desde {0} no ha sido satisfactoria en los últimos {3,number,integer} intentos. El código de retorno numérico del agente libcurl fue {1,number,integer} y el texto del mensaje de error fue: {2}. El elemento de proceso se continuará ejecutando. </target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0232" extraData="INET_DEPRECATED_COF" resname="CDIST0232W">
           <source>Deprecated custom output function used: ''{0}''</source>
-          <target>Función de salida personalizada en desuso utilizada: ''{0}''</target>
+          <target>Se ha utilizado una función de salida personalizada en desuso: ''{0}''</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0240" extraData="INET_CONNECTION_SUCCESS" resname="CDIST0240I">
           <source>Connection successful ''{0}''</source>

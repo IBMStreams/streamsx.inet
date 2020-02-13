@@ -57,42 +57,42 @@
         <trans-unit id="StreamsInetToolkitMessages_CDIST0201" extraData="INET_OPORT_TYPE_CHECK_1" resname="CDIST0201E">
           <source>Output attribute ''{0}'' must be of type rstring or list&lt;rstring&gt;. It was declared as type {1}.</source>
           <!--TRNOTE Do not translate the word rstring and list -->
-          <target>输出属性“{0}”的类型必须为 rstring 或 list&lt;rstring&gt;。该属性被声明为类型 {1}。</target>
+          <target>输出属性“{0}”的类型必须为 rstring 或 list&lt;rstring&gt;。 该属性被声明为类型 {1}。</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0202" extraData="INET_PARAM_CHECK_1" resname="CDIST0202E">
           <source>The emitTuplePerFetch and emitTuplePerURI parameters are valid for list-based attributes only. The attribute was declared as type ''{0}''.</source>
           <!--TRNOTE Do not translate the word emitTuplePerFetch and emitTuplePerURI -->
-          <target>emitTuplePerFetch 和 emitTuplePerURI 参数仅对基于列表的属性有效。该属性被声明为类型“{0}”。</target>
+          <target>emitTuplePerFetch 和 emitTuplePerURI 参数仅对基于列表的属性有效。 该属性被声明为类型“{0}”。</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0203" extraData="INET_PARAM_CHECK_2" resname="CDIST0203E">
           <source>Values of the emitTuplePerRecordCount parameter greater than one are valid for list-based attributes only. The declared value was ''{0}''.</source>
           <!--TRNOTE Do not translate the word emitTuplePerRecordCount -->
-          <target>大于 1 的 emitTuplePerRecordCount 参数值仅对基于列表的属性有效。声明的值为“{0}”。</target>
+          <target>大于 1 的 emitTuplePerRecordCount 参数值仅对基于列表的属性有效。 声明的值为“{0}”。</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0204" extraData="INET_MALFORMED_URI" resname="CDIST0204E">
-          <source>The Uniform Resource Identifier string {0} specified in the URIList parameter contains a syntax error. The Processing Element will shut down now.</source>
+          <source>a URI specified in the URIList parameter contains a syntax error. The Processing Element will shut down now.</source>
           <!--TRNOTE Do not translate 'Uniform Resource Identifier' and 'Processing Element' -->
-          <target>URIList 参数中指定的统一资源标识字符串 {0} 包含语法错误。处理元素将会立即关闭。</target>
+          <target>URIList 参数中指定的 URI 包含语法错误。处理单元将会立即关闭。</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0207" extraData="INET_OPORT_TYPE_CHECK_2" resname="CDIST0207E">
           <source>Output attribute ''{0}'' must be of type rstring or list&lt;rstring&gt; or blob or xml. It was declared as type {1}.</source>
           <!--TRNOTE Do not translate the word rstring, list, blob and xml -->
-          <target>输出属性“{0}”的类型必须为 rstring、list&lt;rstring&gt;、blob 或 xml。该属性被声明为类型 {1}。</target>
+          <target>输出属性“{0}”的类型必须为 rstring、list&lt;rstring&gt;、blob 或 xml。 该属性被声明为类型 {1}。</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0208" extraData="INET_OPORT_TYPE_CHECK_3" resname="CDIST0208E">
           <source>Output attribute ''{0}'' must be of type rstring. It was declared as type {1}.</source>
           <!--TRNOTE Do not translate the word rstring -->
-          <target>输出属性“{0}”的类型必须为 rstring。该属性被声明为类型 {1}。</target>
+          <target>输出属性“{0}”的类型必须为 rstring。 该属性被声明为类型 {1}。</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0209" extraData="INET_PARAM_CHECK_3" resname="CDIST0209E">
           <source>The emitTuplePerFetch and emitTuplePerURI parameters are valid only for attributes of type ''list$lt;rstring&gt;''. The attribute was declared as type ''{0}''.</source>
           <!--TRNOTE Do not translate the word emitTuplePerFetch, emitTuplePerURI and rstring -->
-          <target>emitTuplePerFetch 和 emitTuplePerURI 参数仅对类型为“list$lt;rstring&gt;”的属性有效。该属性被声明为类型“{0}”。</target>
+          <target>emitTuplePerFetch 和 emitTuplePerURI 参数仅对类型为“list$lt;rstring&gt;”的属性有效。 该属性被声明为类型“{0}”。</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0210" extraData="INET_PARAM_CHECK_4" resname="CDIST0210E">
           <source>Values of the ''emitTuplePerRecordCount'' parameter greater than one are valid only for attributes of type ''list&lt;rstring&gt;''. The declared value was ''{0}''.</source>
           <!--TRNOTE Do not translate the word emitTuplePerRecordCount, list and rstring -->
-          <target>大于 1 的“emitTuplePerRecordCount”参数值仅对类型为“list&lt;rstring&gt;”的属性有效。声明的值为“{0}”。</target>
+          <target>大于 1 的“emitTuplePerRecordCount”参数值仅对类型为“list&lt;rstring&gt;”的属性有效。 声明的值为“{0}”。</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0211" extraData="INET_FTP_READER_PARAM_CHECK_1" resname="CDIST0211E">
           <source>The custom output function ''Binary()'' is not available in operation mode ''isDirReader''.</source>
@@ -112,17 +112,17 @@
         <trans-unit id="StreamsInetToolkitMessages_CDIST0214" extraData="INET_FTP_READER_OUTPUT_PARAM_CHECK_1" resname="CDIST0214E">
           <source>The error output port must have one attribute of type rstring.</source>
           <!--TRNOTE Do not translate the words port and rstring -->
-          <target>错误输出端口必须具有一个类型为 rstring 的属性。</target>
+          <target>错误输出 port 必须具有一个类型为 rstring 的属性。</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0230" extraData="INET_NONZERO_LIBCURL_RC" resname="CDIST0230W">
           <source>A Uniform Resource Identifier retrieval from {0} was not successful. The numeric return code from the libcurl agent was {1,number,integer} and the error message text was: {2}. The Processing Element will continue running.</source>
           <!--TRNOTE Do not translate 'Uniform Resource Identifier' and 'Processing Element' -->
-          <target>从 {0} 中检索统一资源标识失败。来自 libcurl 代理程序的数字返回码为 {1,number,integer}，错误消息文本为：{2}。处理元素将继续运行。</target>
+          <target>从 {0} 中检索统一资源标识失败。 来自 libcurl 代理程序的数字返回码为 {1,number,integer}，错误消息文本为：{2}。 处理单元将继续运行。</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0231" extraData="INET_NONZERO_LIBCURL_RC_REPEATED" resname="CDIST0231W">
           <source>A Uniform Resource Identifier retrieval from {0} has not been successful for the last {3,number,integer} attempts. The numeric return code from the libcurl agent was {1,number,integer} and the error message text was: {2}. The Processing Element will continue running.</source>
           <!--TRNOTE Do not translate 'Uniform Resource Identifier', 'Processing Element' and libcurl -->
-          <target>前 {3,number,integer} 次尝试从 {0} 中检索统一资源标识失败。来自 libcurl 代理程序的数字返回码为 {1,number,integer}，错误消息文本为：{2}。处理元素将继续运行。</target>
+          <target>前 {3,number,integer} 次尝试从 {0} 中检索统一资源标识失败。 来自 libcurl 代理程序的数字返回码为 {1,number,integer}，错误消息文本为：{2}。 处理单元将继续运行。</target>
         </trans-unit>
         <trans-unit id="StreamsInetToolkitMessages_CDIST0232" extraData="INET_DEPRECATED_COF" resname="CDIST0232W">
           <source>Deprecated custom output function used: ''{0}''</source>

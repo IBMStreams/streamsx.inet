@@ -15,7 +15,7 @@ This toolkit separates its functionality into a number of namespaces:
 The http rest functions and the WebSocket server functions are now moved into streamsx.inetserver toolkit https://github.com/IBMStreams/streamsx.inetserver/releases
 
     </description>
-    <version>3.1.1</version>
+    <version>3.1.2</version>
     <requiredProductVersion>4.0.1.0</requiredProductVersion>
   </identity>
   <dependencies/>
@@ -27,9 +27,7 @@ The http rest functions and the WebSocket server functions are now moved into st
       <lang>fr_FR/InetResource.xlf</lang>
       <lang>it_IT/InetResource.xlf</lang>
       <lang>ja_JP/InetResource.xlf</lang>
-      <lang>ko_KR/InetResource.xlf</lang>
       <lang>pt_BR/InetResource.xlf</lang>
-      <lang>ru_RU/InetResource.xlf</lang>
       <lang>zh_CN/InetResource.xlf</lang>
       <lang>zh_TW/InetResource.xlf</lang>
     </messageSet>
