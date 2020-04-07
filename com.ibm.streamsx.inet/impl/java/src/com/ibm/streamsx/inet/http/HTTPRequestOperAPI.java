@@ -440,7 +440,7 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     public void setSocketTimeout(int socketTimeout) {
         this.socketTimeout = socketTimeout;
     }
-    @Parameter(optional=true, description="Assigns the header User-Agent value. Default is \\\"Apache-HttpClient/4.5.5 (Java/1.8.0)\\\"")
+    @Parameter(optional=true, description="Assigns the header User-Agent value. Default is \\\"Apache-HttpClient/4.5.12 (Java/1.8.0_231)\\\"")
     public void setUserAgent(String userAgent) {
         this.userAgent = userAgent;
     }
