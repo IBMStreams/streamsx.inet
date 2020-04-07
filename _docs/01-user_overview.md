@@ -17,6 +17,7 @@ sidebar:
 [SPLDoc for the streamsx.inet toolkit](https://ibmstreams.github.io/streamsx.inet/doc/spldoc/html/index.html)
 
 Reference of former releases:
+* [v3.1](https://ibmstreams.github.io/streamsx.inet/v3.1/doc/spldoc/html/index.html)
 * [v3.0](https://ibmstreams.github.io/streamsx.inet/v3.0/doc/spldoc/html/index.html)
 * [v2.9](https://ibmstreams.github.io/streamsx.inet/v2.9/doc/spldoc/html/index.html)
 * [v2.8](https://ibmstreams.github.io/streamsx.inet/v2.8/doc/spldoc/html/index.html)

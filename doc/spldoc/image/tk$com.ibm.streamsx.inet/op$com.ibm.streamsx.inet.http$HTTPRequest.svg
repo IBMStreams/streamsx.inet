@@ -77,35 +77,37 @@ unRSTlP/////////////////////////////////////////////////////////
       ><set attributeName="visibility" from="hidden" end="sdt0.mouseout" to="visible" begin="sdt0.mouseover"
     /></g
     ><g visibility="hidden" style="stroke:none;font-style:italic;font-size:12px;font-family:&apos;Helvetica&apos;,&apos;SansSerif&apos;;"
-    ><rect x="47.65" y="-105.0" width="474.75998" style="fill:rgb(230,230,255);stroke:rgb(0,0,80);" rx="2.0" ry="2.0" height="212.0"
-      /><text x="48.65" y="-92.0"
+    ><rect x="47.65" y="-120.0" width="474.75998" style="fill:rgb(230,230,255);stroke:rgb(0,0,80);" rx="2.0" ry="2.0" height="227.0"
+      /><text x="48.65" y="-107.0"
       >Optional: accessTokenAttribute, authenticationFile, </text
-      ><text x="48.65" y="-77.0"
+      ><text x="48.65" y="-92.0"
       >authenticationProperties, authenticationType, </text
-      ><text x="48.65" y="-62.0"
+      ><text x="48.65" y="-77.0"
       >connectionTimeout, contentType, disableAutomaticRetries, </text
-      ><text x="48.65" y="-47.0"
+      ><text x="48.65" y="-62.0"
       >disableContentCompression, disableRedirectHandling, </text
-      ><text x="48.65" y="-32.0"
+      ><text x="48.65" y="-47.0"
       >errorDiagnostics, extraHeaderAttribute, extraHeaders, </text
-      ><text x="48.65" y="-17.0"
+      ><text x="48.65" y="-32.0"
       >fixedContentType, fixedMethod, fixedUrl, method, </text
-      ><text x="48.65" y="-2.0"
+      ><text x="48.65" y="-17.0"
       >outputBody, outputBodyRaw, outputCharSet, outputContentEncoding, </text
-      ><text x="48.65" y="13.0"
+      ><text x="48.65" y="-2.0"
       >outputContentType, outputDataLine, outputHeader, </text
-      ><text x="48.65" y="28.0"
+      ><text x="48.65" y="13.0"
       >outputStatus, outputStatusCode, proxy, proxyPort, </text
-      ><text x="48.65" y="43.0"
+      ><text x="48.65" y="28.0"
       >redirectStrategy, requestAttributes, requestAttributesAsUrlArguments, </text
-      ><text x="48.65" y="58.0"
+      ><text x="48.65" y="43.0"
       >requestBodyAttribute, requestUrlArgumentsAttribute, </text
+      ><text x="48.65" y="58.0"
+      >socketTimeout, sslAcceptAllCertificates, sslKeyPassword, </text
       ><text x="48.65" y="73.0"
-      >sslAcceptAllCertificates, sslKeyPassword, sslKeyStoreFile, </text
+      >sslKeyStoreFile, sslKeyStorePassword, sslTrustStoreFile, </text
       ><text x="48.65" y="88.0"
-      >sslKeyStorePassword, sslTrustStoreFile, sslTrustStorePassword, </text
+      >sslTrustStorePassword, tokenTypeAttribute, url, </text
       ><text x="48.65" y="103.0"
-      >tokenTypeAttribute, url, userAgent</text
+      >userAgent</text
       ><set attributeName="visibility" from="hidden" end="sdt1.mouseout" to="visible" begin="sdt1.mouseover"
     /></g
     ><g visibility="hidden" style="stroke:none;font-style:italic;font-size:12px;font-family:&apos;Helvetica&apos;,&apos;SansSerif&apos;;"

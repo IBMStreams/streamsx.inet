@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="HTTPS Support"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="spldoc_page"/>
+<link rel="stylesheet" type="text/css" href="../../html/commonltr.css"/>
+<link rel="stylesheet" type="text/css" href="../../html/spldoc.css"/>
+<title>HTTPS Support</title>
+</head>
+<body id="spldoc_page">
+
+
+<h1 class="title topictitle1">HTTPS Support</h1>
+
+<div class="body refbody">
+<div class="section">
+<p class="p">
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 3.1.1</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.http.html">com.ibm.streamsx.inet.http</a> &gt; HTTPS Support</p>
+
+</div>
+
+
+<div class="section">
+<p class="p">Overview of HTTP and HTTPS support for <tt class="ph tt">com.ibm.streamsx.inet.http</tt> operators.
+</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">HTTPRequest
+</h2>
+
+<div class="p">HTTPS (SSL/TLS encryption) is supported for this operator. The operator is able to dispatch HTTPS request using TLSv1.2, TLSv1.1 or TLSv1.0. By default the operator uses the default truststore of the java ssl engine (<tt class="ph tt">$STREAMS_INSTALL/java/jre/lib/security/cacerts</tt>). The operator can be customized to use separate key and trust stores by using these parameters:
+<ul class="ul">
+<li class="li"> <tt class="ph tt">sslTrustStoreFile</tt> - URL to the trust store containing the certificate(s). If a relative file path then it is taken as relative to the application directory.</li>
+
+<li class="li"> <tt class="ph tt">sslTrustStorePassword</tt> - Password to the trust store.</li>
+
+<li class="li"> <tt class="ph tt">sslKeyStoreFile</tt> - URL to the key store containing the client certificate. If a relative file path then it is taken as relative to the application directory.</li>
+
+<li class="li"> <tt class="ph tt">sslKeyPassword</tt> - Password for the client key.</li>
+
+<li class="li"> <tt class="ph tt">setSslKeyStorePassword</tt>- Password for the key store. If the password for the store differs from the key password, use this parameter.</li>
+
+</ul>
+
+</div>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">Procedure to Generate Keys and Certificates
+</h2>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">Server Key and Certificate
+</h2>
+
+<div class="p">To generate a server key pair use the following command: 
+<pre class="pre codeblock">
+keytool -genkeypair -keyalg RSA -alias mykey -keypass changeit -storepass changeit -validity 1000 -keystore etc/keystore.jks -dname "CN=&lt;name/hostname&gt;, OU=&lt;org unit&gt;, O=&lt;organization&gt;, L=&lt;locality&gt;, ST=&lt;state&gt;, C=&lt;two-letter country code&gt;"
+</pre>
+
+
+</div>
+
+<div class="p">Check the content of an keystore file:
+<pre class="pre codeblock">
+keytool -list -v -keystore etc/keystore.jks
+</pre>
+
+
+</div>
+
+<div class="p">Extract the certificate for the client trust manager:
+<pre class="pre codeblock">
+keytool -export -rfc -alias mykey -file etc/servercert.pem -storepass changeit -keystore etc/keystore.jks
+</pre>
+
+
+</div>
+
+<div class="p">Insert the the certificate into a new truststore at the client site:
+<pre class="pre codeblock">
+keytool -import -file etc/servercert.pem -alias mykey -keystore etc/cacert.jks -storepass changeit -trustcacerts'
+</pre>
+
+
+</div>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">Client Key and Certificate
+</h2>
+
+<div class="p">The <tt class="ph tt">dname</tt> of an client key must match to the <tt class="ph tt">dname</tt> of the server key. To generate a client key use the following commands:
+<pre class="pre codeblock">
+keytool -genkeypair -keyalg RSA -alias myclientkey -keypass changeit -storepass changeit -keystore etc/clientkey.jks -dname '&lt;the dname string from the server certificate&gt;'
+</pre>
+
+
+</div>
+
+<div class="p">Extract the certificate for the server trust manager:
+<pre class="pre codeblock">
+keytool -export -rfc -alias myclientkey -file etc/clientkey.pem -keystore etc/clientkey.jks -storepass changeit -keypass changeit
+</pre>
+
+
+</div>
+
+<div class="p">Insert the the certificate into a new truststore at the srver site:
+<pre class="pre codeblock">
+keytool -import -file etc/clientkey.pem -alias myclientkey -keystore etc/cacert.jks -storepass changeit -trustcacerts
+</pre>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+</body>
+</html>

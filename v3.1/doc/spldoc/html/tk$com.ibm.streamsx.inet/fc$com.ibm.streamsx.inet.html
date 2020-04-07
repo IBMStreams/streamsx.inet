@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="C++ Native Functions: com.ibm.streamsx.inet"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="spldoc_functions"/>
+<link rel="stylesheet" type="text/css" href="../../html/commonltr.css"/>
+<link rel="stylesheet" type="text/css" href="../../html/spldoc.css"/>
+<title>C++ Native Functions: com.ibm.streamsx.inet</title>
+</head>
+<body id="spldoc_functions">
+
+
+<h1 class="title topictitle1">C++ Native Functions: <tt class="ph tt">com.ibm.streamsx.inet</tt></h1>
+
+<div class="body refbody">
+<div class="section">
+<p class="p">
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 3.1.1</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet</a> &gt; C++ Native Functions</p>
+
+</div>
+
+<div class="section">
+This page documents native functions that can be invoked from SPL, including the SPL interfaces that can be used to invoke each of the native functions.
+</div>
+
+<div class="section">
+<p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/FunctionModel.html#spldoc_reference_function_model__functionset__functions">Functions</a></strong></p>
+<dl class="dl" compact="compact">
+ 
+   <dt class="dt dlterm splpart" id="spldoc_functions__parseDatestring.rstring"><tt class="ph tt">      public int64 parseDatestring(rstring datestring)      </tt>   </dt>
+
+   <dd class="dd">
+<p class="p">        This function converts a string that specifies a date and time into a         64-bit integer corresponding to the 'unix epoch' value of that date and         time, which is the number of seconds since midnight on January 1st, 1970         in Greenwich, England. It recognizes all of the date and time formats         allowed in HTTP messages. For example:
+</p>
+
+<p class="p">        Sun, 06 Nov 1994 08:49:37 GMT
+</p>
+
+<p class="p">        Sunday, 06-Nov-94 08:49:37 GMT
+</p>
+
+<p class="p">        Sun Nov  6 08:49:37 1994
+</p>
+
+<p class="p">        06 Nov 1994 08:49:37 GMT
+</p>
+
+<p class="p">        06-Nov-94 08:49:37 GMT
+</p>
+
+<p class="p">        Nov  6 08:49:37 1994
+</p>
+
+<p class="p">        06 Nov 1994 08:49:37
+</p>
+
+<p class="p">        06-Nov-94 08:49:37
+</p>
+
+<p class="p">        1994 Nov 6 08:49:37
+</p>
+
+<p class="p">        GMT 08:49:37 06-Nov-94 Sunday
+</p>
+
+<p class="p">        94 6 Nov 08:49:37
+</p>
+
+<p class="p">        1994 Nov 6
+</p>
+
+<p class="p">        06-Nov-94
+</p>
+
+<p class="p">        Sun Nov 6 94
+</p>
+
+<p class="p">        1994.Nov.6
+</p>
+
+<p class="p">        Sun/Nov/6/94/GMT
+</p>
+
+<p class="p">        Sun, 06 Nov 1994 08:49:37 CET
+</p>
+
+<p class="p">        06 Nov 1994 08:49:37 EST
+</p>
+
+<p class="p">        Sun, 12 Sep 2004 15:05:58 -0700
+</p>
+
+<p class="p">        Sat, 11 Sep 2004 21:32:11 +0200
+</p>
+
+<p class="p">        20040912 15:05:58 -0700
+</p>
+
+<p class="p">        20040911 +0200
+</p>
+
+<p class="p">        For details, see <a class="xref" href="https://curl.haxx.se/libcurl/c/curl_getdate.html">https://curl.haxx.se/libcurl/c/curl_getdate.html</a>.
+</p>
+
+   </dd>
+
+ 
+</dl>
+
+</div>
+
+</div>
+
+
+</body>
+</html>
