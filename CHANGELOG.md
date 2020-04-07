@@ -1,5 +1,9 @@
 # Changes
 =======
+## v3.2.0
+* Update apache http client library to v 4.5.12
+* HTTPRequest operator: Introduce parameter socketTimeout
+
 ## v3.1.2:
 * Update globalization messages
 * Removed languages ko_KR, ru_RU
