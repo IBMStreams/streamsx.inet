@@ -40,7 +40,7 @@ All required libs are now available in the source repository
 	<path id="cp.manifest">
 		<fileset dir="opt">
 			<include name="signpost-1.2/lib/*.jar"/>
-			<include name="httpcomponents-client-4.5.7/lib/*.jar"/>
+			<include name="httpcomponents-client-4.5.12/lib/*.jar"/>
 		</fileset>
 	</path>
 

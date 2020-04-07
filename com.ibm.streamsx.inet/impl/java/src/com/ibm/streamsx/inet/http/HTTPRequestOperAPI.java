@@ -157,6 +157,7 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     private boolean            disableContentCompression = false;
     private boolean            disableAutomaticRetries = false;
     private int                connectionTimeout = 0;
+    private int                socketTimeout = -1;
     private String             userAgent = null;
 
     //internal operator state
@@ -426,11 +427,20 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     public void setDisableAutomaticRetries(boolean disableAutomaticRetries) {
         this.disableAutomaticRetries = disableAutomaticRetries;
     }
-    @Parameter(optional=true, description="Set the connection timeout in milliseconds. If value is 0, the default connection timeout is used. Default is 0.")
+    @Parameter(optional=true, description="Set the connection timeout in milliseconds. If value is 0, the default connection timeout is used. "
+            + "(You cannot specify a connection timeout that increases the platform default (130sec.); you can only use it to decrease the platform default. "
+            + "Default is 0.")
     public void setConnectionTimeout(int connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
     }
-    @Parameter(optional=true, description="Assigns the header User-Agent value. Default is \\\"Apache-HttpClient/4.5.5 (Java/1.8.0)\\\"")
+    @Parameter(optional=true, description="Set the socket timeout in milliseconds, which is the timeout for waiting for data "
+            + "(request-response cycle). "
+            + "A timeout value of zero is interpreted as an infinite timeout. A negative value is interpreted as system default. "
+            + "Default is -1.")
+    public void setSocketTimeout(int socketTimeout) {
+        this.socketTimeout = socketTimeout;
+    }
+    @Parameter(optional=true, description="Assigns the header User-Agent value. Default is \\\"Apache-HttpClient/4.5.12 (Java/1.8.0_231)\\\"")
     public void setUserAgent(String userAgent) {
         this.userAgent = userAgent;
     }
@@ -753,6 +763,7 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     protected boolean            getDisableContentCompression() { return disableContentCompression; }
     protected boolean            getDisableAutomaticRetries() { return disableAutomaticRetries; }
     protected int                getConnectionTimeout() { return connectionTimeout; }
+    protected int                getSocketTimeout() { return socketTimeout; }
     protected String             getUserAgent() { return userAgent; }
 
     //internal operator state

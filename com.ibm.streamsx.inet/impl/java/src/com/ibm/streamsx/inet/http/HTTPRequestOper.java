@@ -27,6 +27,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.config.RequestConfig.Builder;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -337,11 +338,19 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
      * set conn params
      **************************************************/
     private void setConnectionParams(HttpRequestBase request) {
-        if (getConnectionTimeout() > 0) {
-            if (tracer.isLoggable(TraceLevel.DEBUG))
-                tracer.log(TraceLevel.DEBUG, "client configuration: setConnectTimeout=" + new Integer(getConnectionTimeout()).toString());
-            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(getConnectionTimeout()).build();
-            request.setConfig(requestConfig);
+        if ((getConnectionTimeout() > 0) || (getSocketTimeout() >= 0)) {
+            Builder requestConfigBuilder = RequestConfig.custom();
+            if (getConnectionTimeout() > 0) {
+                if (tracer.isLoggable(TraceLevel.DEBUG))
+                    tracer.log(TraceLevel.DEBUG, "client configuration: setConnectTimeout=" + new Integer(getConnectionTimeout()).toString());
+                requestConfigBuilder = requestConfigBuilder.setConnectTimeout(getConnectionTimeout());
+            }
+            if (getSocketTimeout() >= 0) {
+                if (tracer.isLoggable(TraceLevel.DEBUG))
+                    tracer.log(TraceLevel.DEBUG, "client configuration: setSocketTimeout=" + new Integer(getSocketTimeout()).toString());
+                requestConfigBuilder = requestConfigBuilder.setSocketTimeout(getSocketTimeout());
+            }
+            request.setConfig(requestConfigBuilder.build());
         }
     }
     /******************************************************************************************************************

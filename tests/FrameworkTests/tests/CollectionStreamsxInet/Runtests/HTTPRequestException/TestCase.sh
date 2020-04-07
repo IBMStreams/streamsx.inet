@@ -1,4 +1,4 @@
-#--variantCount=6
+#--variantCount=8
 
 setCategory 'quick'
 
@@ -22,6 +22,12 @@ function myExplain {
 	5)
 		myUrl="http://${TTPR_httpServerAddr}/get"
 		echo "variant $TTRO_variantCase - get  method url $myUrl outputDataLine";;
+	6)
+		myUrl="http://${TTPR_httpServerAddr}/delay/25"
+		echo "variant $TTRO_variantCase - GET  method url $myUrl outputBody with expected socket timeout";;
+	7)
+		myUrl="http://${TTPR_httpServerAddr}/delay/4"
+		echo "variant $TTRO_variantCase - GET  method url $myUrl outputBody with expected success";;
 	*)
 		printErrorAndExit "invalid variant $TTRO_variantCase" $errRt;;
 	esac
@@ -55,6 +61,10 @@ function myEval {
 		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" '*status=""*' "*stat=-1*" "*UnknownHostException*" '*respData=""*';;
 	4|5)
 		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" '*status=""*' "*stat=-1*" "*IllegalArgumentException*" '*respData=""*';;
+	6)
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" '*status=""*' "*stat=-1*" "*java.net.SocketTimeoutException*" '*respData=""*';;
+	7)
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" "*id=0*" '*status="HTTP/1.1 200 OK"*' "*stat=200*" '*err=""*' '*respData="*Delayed*"*';;
 	esac
 }
 
