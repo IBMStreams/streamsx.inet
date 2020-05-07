@@ -11,10 +11,10 @@ function myExplain {
 		myUrl="httpx://${TTPR_httpServerAddr}/get"
 		echo "variant $TTRO_variantCase - GET  method url $myUrl outputDataLine";;
 	2)
-		myUrl="http://xx${TTPR_httpServerAddr}/get"
+		myUrl="http://xxasdadasdsgrtghbhtbtrhthttrfgd/get"
 		echo "variant $TTRO_variantCase - HEAD method url $myUrl outputBody";;
 	3)
-		myUrl="http://xx${TTPR_httpServerAddr}/get"
+		myUrl="http://xxasdadasdsgrtghbhtbtrhthttrfgd/get"
 		echo "variant $TTRO_variantCase - POST  method url $myUrl outputDataLine";;
 	4)
 		myUrl="http://${TTPR_httpServerAddr}/get"
