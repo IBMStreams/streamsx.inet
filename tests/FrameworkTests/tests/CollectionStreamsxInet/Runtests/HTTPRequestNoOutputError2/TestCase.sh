@@ -20,7 +20,7 @@ function myExplain {
 
 declare -a urlList=(
 	"httpx://$TTPR_httpServerAddr/get"
-	"http://xx${TTPR_httpServerAddr}/redirect/3"
+	"http://xxasdadasdsgrtghbhtbtrhthttrfgd/redirect/3"
 	"httpx://$TTPR_httpServerAddr/post"
 	"httpx://$TTPR_httpServerAddr/put"
 	"httxp://$TTPR_httpServerAddr/delete"
