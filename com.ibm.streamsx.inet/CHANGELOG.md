@@ -1,5 +1,9 @@
 # Changes
 =======
+
+## v3.2.1
+* * [#351](https://github.com/IBMStreams/streamsx.inet/issues/351) Update apache commons-codec to v1.14
+
 ## v3.2.0
 * Update apache http client library to v 4.5.12
 * HTTPRequest operator: Introduce parameter socketTimeout
