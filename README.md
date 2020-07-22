@@ -19,6 +19,9 @@ The http rest functions and the WebSocket server functions are now moved into [s
 # How to use this Toolkit
 See [DEVELOPMENT.md](DEVELOPMENT.md)
 
+## WHATS NEW
+see: [CHANGELOG.md](com.ibm.streamsx.inet/CHANGELOG.md)
+
 # Requirements
 This toolkit requires the following packages installed
 * libcurl (version 7.19.7 or higher) installed.
