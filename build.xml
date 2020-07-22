@@ -42,6 +42,11 @@
       <ant dir="${toolkit.test}" target="clean-all"/>
   </target>
 
+  <target name="requirements" depends="get_name"
+      description="Download required libraries." >
+      <ant dir="${toolkit.dir}" target="requirements"/>
+  </target>
+
   <target name="toolkit" depends="get_name"
       description="Build any code and index the toolkit." >
       <ant dir="${toolkit.dir}" target="all"/>

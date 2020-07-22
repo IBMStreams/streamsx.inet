@@ -1,3 +1,6 @@
+# Ignore top level project
+/.project
+
 # streams-specific excludes
 toolkit.xml
 *.pm
@@ -5,6 +8,8 @@ toolkit.xml
 # !foo.pm
 !CodeGenX.pm
 
+# Ignore generated and downloaded files
+/com.ibm.streamsx.inet/opt/
 /com.ibm.streamsx.inet/impl/nl/*.dat
 /com.ibm.streamsx.inet/impl/nl/include
 /com.ibm.streamsx.inet/build.info
@@ -73,6 +78,4 @@ com.ibm.streamsx.inet/impl/lib/*.jar
 
 # ignore this file created by Mac OS:
 .DS_Store
-# Ignore top level project
-/.project
 
