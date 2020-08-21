@@ -202,7 +202,7 @@
           destfile="${releasefilename}"
           basedir="${basedir}"
           includes="${toolkit.string}/** samples/** doc/** README.md LICENSE.md"
-          excludes="**/.gitignore **/.gitkeep ${toolkit.string}/.project ${toolkit.string}/.settings/** ${toolkit.string}/.classpath ${toolkit.string}/icons/ ${toolkit.string}/impl/java/ ${toolkit.string}/impl/cpp/ ${toolkit.string}/impl/src/ ${toolkit.string}/impl/Makefile ${toolkit.string}/build.xml "
+          excludes="**/pom.xml **/.gitignore **/.gitkeep ${toolkit.string}/.project ${toolkit.string}/.settings/** ${toolkit.string}/.classpath ${toolkit.string}/icons/ ${toolkit.string}/impl/java/ ${toolkit.string}/impl/cpp/ ${toolkit.string}/impl/src/ ${toolkit.string}/impl/Makefile ${toolkit.string}/build.xml "
     />
     <checksum file="${releasefilename}"/>
     <checksum algorithm="sha1" file="${releasefilename}"/>
