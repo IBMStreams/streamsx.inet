@@ -368,7 +368,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                 req.setEntity(new StringEntity(instr, contentType));
             } else {
                 //take request attributes content type specific 
-                if (contentType.getMimeType() == ContentType.APPLICATION_JSON.getMimeType()) {
+                if (contentType.getMimeType().equals(ContentType.APPLICATION_JSON.getMimeType())) {
                     JSONEncoding<JSONObject, JSONArray> je = EncodingFactory.getJSONEncoding();
                     JSONObject jo = je.encodeTuple(tuple);
                     for (Iterator<?> it = jo.keySet().iterator(); it.hasNext();) {
@@ -377,7 +377,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                         }
                     }
                     req.setEntity(new StringEntity(jo.serialize(), ContentType.APPLICATION_JSON));
-                } else if (contentType.getMimeType() == ContentType.APPLICATION_FORM_URLENCODED.getMimeType()) {
+                } else if (contentType.getMimeType().equals(ContentType.APPLICATION_FORM_URLENCODED.getMimeType())) {
                     StreamSchema ss = tuple.getStreamSchema();
                     Iterator<Attribute> ia = ss.iterator();
                     List<NameValuePair> params = new ArrayList<NameValuePair>();
