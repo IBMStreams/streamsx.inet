@@ -1,6 +1,9 @@
 # Changes
 =======
 
+## v3.2.2
+* Resolved [#335 Operator HTTPRequest throws exception when used with content type: application/octet-stream](https://github.com/IBMStreams/streamsx.inet/issues/355)
+
 ## v3.2.1
 * [#351](https://github.com/IBMStreams/streamsx.inet/issues/351) Update apache commons-codec to v1.14
 
