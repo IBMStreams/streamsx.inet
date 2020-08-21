@@ -24,6 +24,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.ParseException;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.config.RequestConfig;
@@ -127,9 +128,12 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             // Create the request from the input tuple.
             final String url = getUrl(tuple);
             final HTTPMethod method = getMethod(tuple);
-            final ContentType contentType = getContentType(tuple);
-            if ((contentType == null) && ((method == com.ibm.streamsx.inet.http.HTTPMethod.POST) || (method == com.ibm.streamsx.inet.http.HTTPMethod.PUT))) {
-                throw new DataException(Messages.getString("DATA_INVALID_CONTENT_TYPE", tuple.toString()));
+            ContentType contentType = null;
+            if ((method == com.ibm.streamsx.inet.http.HTTPMethod.POST) || (method == com.ibm.streamsx.inet.http.HTTPMethod.PUT)) {
+                contentType = getContentType(tuple);
+                if (contentType == null) {
+                    throw new DataException(Messages.getString("DATA_INVALID_CONTENT_TYPE", tuple.toString()));
+                }
             }
 
             if (tracer.isLoggable(TraceLevel.DEBUG))
@@ -234,7 +238,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             if (hasDataPort()) {
                 sendOtuple(tuple, "", -1, "", "", new ArrayList<RString>(), "", null, errmess, "");
             }
-        } catch (IOException | URISyntaxException | IllegalArgumentException e) {
+        } catch (IOException | URISyntaxException | IllegalArgumentException | ParseException e) {
             String errmess = e.getClass().getName() + ": " + e.getMessage() + " Input tuple:" + tuple.toString();
             tracer.log(TraceLevel.ERROR, errmess);
             if (hasDataPort()) {

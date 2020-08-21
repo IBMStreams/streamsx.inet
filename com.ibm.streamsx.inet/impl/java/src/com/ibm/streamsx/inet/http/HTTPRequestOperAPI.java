@@ -515,13 +515,13 @@ public class HTTPRequestOperAPI extends AbstractOperator {
         if ((fixedContentType == null) && (contentType == null))
             fixedContentType = ContentType.APPLICATION_JSON.getMimeType();
         if (fixedContentType != null) {
-            contentTypeToUse = ContentType.getByMimeType(fixedContentType);
+            contentTypeToUse = ContentType.parse(fixedContentType);
             if (contentTypeToUse == null) {
                 throw new IllegalArgumentException(Messages.getString("PARAM_CONTENT_TYPE_CHECK", fixedContentType));
             }
             contentTypeGetter = t -> contentTypeToUse;
         } else {
-            contentTypeGetter = tuple -> ContentType.getByMimeType(contentType.getValue(tuple));
+            contentTypeGetter = tuple -> ContentType.parse(contentType.getValue(tuple));
         }
 
         //Check whether all required request attributes are in input stream
