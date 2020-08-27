@@ -44,10 +44,10 @@ public class HTTPRequestOperAPI extends AbstractOperator {
             + "Entity enclosing requests (POST/PUT/PATCH) require a content type. The content type is specified with "
             + "`contenType` or `fixedContentType` parameter. The default is `application/json`. The message body of an "
             + "entity enclosing request can be defined in two ways:\\n"
-            + "* Method POST: If the parameter `requestBodyAttribute` is defined and the value of the attribute is not "
+            + "* Method POST: If the parameter `requestBodyAttribute` or `requestBodyAttributeBin` is defined and the value of the attribute is not "
             + "empty, the value of the attribute is copied into the request body. Otherwise the names and values of the "
             + "Request Attributes are used to generate the request form.\\n"
-            + "* Other Methods: If the parameter `requestBodyAttribute` is defined, the value of the attribute is copied "
+            + "* Other Methods: If the parameter `requestBodyAttribute` or `requestBodyAttributeBin` is defined, the value of the attribute is copied "
             + "into the request body.\\n"
             + "The operator can append Url Arguments to the request line. This happens if:\\n"
             + "* If parameter `requestUrlArgumentsAttribute` is specified and this attribute is not empty, the value of "
@@ -61,15 +61,19 @@ public class HTTPRequestOperAPI extends AbstractOperator {
             + "empty, this attribute is copied as URL argument string and overwrites all other arguments.\\n"
             + "# POST\\n"
             + "An HTTP POST request is made, any request attributes are set as the body of the request message if parameter "
-            + "`requestBodyAttribute` is not present or the value of the attribute is empty. The encoding of the request body takes "
+            + "`requestBodyAttribute` and `requestBodyAttributeBin` is not present or the value of the attribute is empty. The encoding of the request body takes "
             + "the content type into account. If content type is `application/json`, a json body is generated from request attributes. "
             + "If content type is `application/x-www-form-urlencoded`, a url-encoded body is generated from request attributes. "
             + "For all other content types, the content of all request attributes is concatenated into the message body. "
-            + "If `requestBodyAttribute` attribute is not empty, the body of the request is copied from this attribute instead.\\n"
+            + "If `requestBodyAttribute` or `requestBodyAttributeBin` attribute is not empty, the body of the request is copied "
+            + "from one of these attribute instead. If content type equals `application/octet-stream`, attribute `requestBodyAttributeBin` "
+            + "is taken.\\n"
             + "# PUT\\n"
-            + "An HTTP PUT request is made, the body of the request message is copied from `requestBodyAttribute` attribute.\\n"
+            + "An HTTP PUT request is made, the body of the request message is copied from `requestBodyAttribute` or `requestBodyAttributeBin` "
+            + "attribute, depending on the content type.\\n"
             + "# PATCH\\n"
-            + "An HTTP PATCH request is made, the body of the request message is copied from `requestBodyAttribute` attribute.\\n"
+            + "An HTTP PATCH request is made, the body of the request message is copied from `requestBodyAttribute` or `requestBodyAttributeBin` "
+            + "attribute, depending on the content type.\\n"
             + "# OPTIONS\\n"
             + "No message body is generated.\\n"
             + "# HEAD\\n"
@@ -83,7 +87,7 @@ public class HTTPRequestOperAPI extends AbstractOperator {
             + "are passed from input port to output port.\\n"
             + "# Request Attributes\\n"
             + "Attributes from the input tuple are request parameters except for:\\n"
-            + "* Any attribute specified by parameters `url`, `method`, `contentType`, `requestBodyAttribute` or `equestUrlArguments`.\\n"
+            + "* Any attribute specified by parameters `url`, `method`, `contentType`, `requestBodyAttribute`, `requestBodyAttributeBin` or `equestUrlArguments`.\\n"
             + "* If parameter `requestAttributes` is set, all attributes of this parameter are considered a request attribute.\\n"
             + "* If parameter `requestAttributes` has one empty element, no attributes are considered a request attribute.\\n"
             + "# Http Authentication\\n"
@@ -124,6 +128,7 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     
     //request configuration
     private TupleAttribute<Tuple, String> requestBodyAttribute = null;  //request body
+    private String                        requestBodyAttributeBin = null;  //request body for binary content
     private Set<String>                   requestAttributes = new HashSet<>(); //Attributes that are part of the request.
     private boolean                       requestAttributesAsUrlArguments = false;
     private TupleAttribute<Tuple, String> requestUrlArgumentsAttribute = null;
@@ -260,6 +265,16 @@ public class HTTPRequestOperAPI extends AbstractOperator {
             + "In method POST, any non-empty value overwrites the request attributes.")
     public void setRequestBodyAttribute(TupleAttribute<Tuple, String> requestBodyAttribute) {
         this.requestBodyAttribute = requestBodyAttribute;
+    }
+    @Parameter(optional=true, description="Request body attribute for any method that accepts an entity (PUT / POST / PATCH). "
+            + "In method PUT and PATCH the body of request is taken from this attribute. "
+            + "In method POST, any non-empty value overwrites the request attributes. The content of this attribue is used "
+            + "when the content type equals `application/octet-stream`. In all other cases, the content of the `requestBodyAttribute` "
+            + "is used.\n"
+            + "Note: Due to limitations of the java operstor api, this parameter must be of type string and must represent the name of an "
+            + "input attribute. The input attribute must be of type `blob`.")
+    public void setRequestBodyAttributeBin(String requestBodyAttributeBin) {
+        this.requestBodyAttributeBin = requestBodyAttributeBin;
     }
 
     /********************************
@@ -553,6 +568,8 @@ public class HTTPRequestOperAPI extends AbstractOperator {
                 requestAttributes.remove(requestUrlArgumentsAttribute.getAttribute().getName());
             if (requestBodyAttribute != null)
                 requestAttributes.remove(requestBodyAttribute.getAttribute().getName());
+            if (requestBodyAttributeBin != null)
+                requestAttributes.remove(requestBodyAttributeBin);
             if (extraHeaderAttribute != null)
                 requestAttributes.remove(extraHeaderAttribute.getAttribute().getName());
             if (accessTokenAttribute != null)
@@ -730,6 +747,7 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     
     //request config
     protected TupleAttribute<Tuple, String> getRequestBodyAttribute() { return requestBodyAttribute; }
+    protected String                        getRequestBodyAttributeBin() { return requestBodyAttributeBin; }
     protected Set<String>                   getRequestAttributes() { return  requestAttributes; }
     protected boolean                       getRequestAttributesAsUrlArguments() { return requestAttributesAsUrlArguments; }
     protected TupleAttribute<Tuple, String> getRequestUrlArgumentsAttribute() { return requestUrlArgumentsAttribute; }

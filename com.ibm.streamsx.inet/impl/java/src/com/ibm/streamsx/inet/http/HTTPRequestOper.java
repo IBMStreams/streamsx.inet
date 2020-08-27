@@ -40,6 +40,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpTrace;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
@@ -362,10 +363,26 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
      *******************************************************************************************************************/
     private void createEntity(HttpEntityEnclosingRequest req, Tuple tuple, ContentType contentType, boolean isPostMethod) throws IOException {
         if (isPostMethod) {
-            if ((getRequestBodyAttribute() != null) && ( ! getRequestBodyAttribute().getValue(tuple).isEmpty())) {
+            if (    ((getRequestBodyAttribute()    != null) && ( ! getRequestBodyAttribute().getValue(tuple).isEmpty()))
+                 || ((getRequestBodyAttributeBin() != null) && ( tuple.getBlob(getRequestBodyAttributeBin()).getLength() > 0))) {
                 //take request body from input tuple transparently
-                String instr = getRequestBodyAttribute().getValue(tuple);
-                req.setEntity(new StringEntity(instr, contentType));
+                // if contentType is application/octet-stream the take it from requestBodyAttributeBin
+                // otherwise take it from requestBodyAttribute
+                if (contentType.getMimeType().equals(ContentType.APPLICATION_OCTET_STREAM.getMimeType())) {
+                    if ((getRequestBodyAttributeBin() == null) || ( tuple.getBlob(getRequestBodyAttributeBin()).getLength() <= 0)) {
+                        throw new DataException("Method: PUT, content type: application/octet-stream but data are in requestBodyAttribute! Use attribute requestBodyAttributeBin instead");
+                    } else {
+                        Blob bl = tuple.getBlob(getRequestBodyAttributeBin());
+                        req.setEntity(new ByteArrayEntity(bl.getData(), contentType));
+                    }
+                } else {
+                    if ((getRequestBodyAttribute() == null) || ( getRequestBodyAttribute().getValue(tuple).isEmpty())) {
+                        throw new DataException("Method: PUT, content type is not application/octet-stream but data are in requestBodyAttributeBin! Use attribute requestBodyAttribute instead");
+                    } else {
+                        String instr = getRequestBodyAttribute().getValue(tuple);
+                        req.setEntity(new StringEntity(instr, contentType));
+                    }
+                }
             } else {
                 //take request attributes content type specific 
                 if (contentType.getMimeType().equals(ContentType.APPLICATION_JSON.getMimeType())) {
@@ -415,10 +432,22 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             }
         } else {
             //other methods take body from input tuple transparently
-            String payload = "";
-            if (getRequestBodyAttribute() != null)
-                payload = getRequestBodyAttribute().getValue(tuple);
-            req.setEntity(new StringEntity(payload, contentType));
+            if (contentType.getMimeType().equals(ContentType.APPLICATION_OCTET_STREAM.getMimeType())) {
+                Blob bl = null;
+                if (getRequestBodyAttribute() != null) {
+                    bl = tuple.getBlob(getRequestBodyAttributeBin());
+                } else {
+                    byte[] empty = new byte[]{};
+                    bl = ValueFactory.newBlob(empty);
+                }
+                req.setEntity(new ByteArrayEntity(bl.getData(), contentType));
+                
+            } else {
+                String payload = "";
+                if (getRequestBodyAttribute() != null)
+                    payload = getRequestBodyAttribute().getValue(tuple);
+                req.setEntity(new StringEntity(payload, contentType));
+            }
         }
     }
 
