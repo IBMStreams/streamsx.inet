@@ -270,8 +270,8 @@ public class HTTPRequestOperAPI extends AbstractOperator {
             + "In method PUT and PATCH the body of request is taken from this attribute. "
             + "In method POST, any non-empty value overwrites the request attributes. The content of this attribue is used "
             + "when the content type equals `application/octet-stream`. In all other cases, the content of the `requestBodyAttribute` "
-            + "is used.\n"
-            + "Note: Due to limitations of the java operstor api, this parameter must be of type string and must represent the name of an "
+            + "is used. "
+            + "**Note:** Due to limitations of the java operstor api, this parameter must be of type string and must represent the name of an "
             + "input attribute. The input attribute must be of type `blob`.")
     public void setRequestBodyAttributeBin(String requestBodyAttributeBin) {
         this.requestBodyAttributeBin = requestBodyAttributeBin;
