@@ -4,7 +4,7 @@
 	<groupId>com.ibm.streamsx.inet</groupId>
 	<artifactId>streamsx.inet</artifactId>
 	<packaging>jar</packaging>
-	<version>3.2.0</version>
+	<version>3.3.0</version>
 	<name>com.ibm.streamsx.inet</name>
 	<repositories>
 		<repository>
