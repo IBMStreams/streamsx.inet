@@ -539,8 +539,20 @@ public class HTTPRequestOperAPI extends AbstractOperator {
             contentTypeGetter = tuple -> ContentType.parse(contentType.getValue(tuple));
         }
 
-        //Check whether all required request attributes are in input stream
         StreamSchema ss = getInput(0).getStreamSchema();
+        //Check type of attribute requestBodyAttributeBin
+        if (requestBodyAttributeBin != null) {
+            Attribute bodyBinAttribute = ss.getAttribute(requestBodyAttributeBin);
+            if ( bodyBinAttribute == null) {
+                throw new IllegalArgumentException("Input attribute " + requestBodyAttributeBin + " is required!");
+            }
+            MetaType attributeType = bodyBinAttribute.getType().getMetaType();
+            if (attributeType != MetaType.BLOB) {
+                throw new IllegalArgumentException("Input attribute " + requestBodyAttributeBin + " must be of type blob but is " + attributeType.toString());
+            }
+        }
+        
+        //Check whether all required request attributes are in input stream
         Set<String> inputAttributeNames = ss.getAttributeNames();
         if (parameterNames.contains("requestAttributes")) {
             //read all attribute names from parameter

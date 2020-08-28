@@ -434,7 +434,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             //other methods take body from input tuple transparently
             if (contentType.getMimeType().equals(ContentType.APPLICATION_OCTET_STREAM.getMimeType())) {
                 Blob bl = null;
-                if (getRequestBodyAttribute() != null) {
+                if (getRequestBodyAttributeBin() != null) {
                     bl = tuple.getBlob(getRequestBodyAttributeBin());
                 } else {
                     byte[] empty = new byte[]{};
