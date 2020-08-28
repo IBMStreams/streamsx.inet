@@ -1,6 +1,11 @@
 # Changes
 =======
 
+## V3.3.0
+* HTTPRequest operator: Correction for method POST with application/octet-stream
+* HTTPRequest operator: New input attribute requestBodyAttributeBin
+* New serialization operators: Serializer and Deserializer in namespace: com.ibm.streamsx.inet.util
+
 ## v3.2.2
 * Resolved [#335 Operator HTTPRequest throws exception when used with content type: application/octet-stream](https://github.com/IBMStreams/streamsx.inet/issues/355)
 
