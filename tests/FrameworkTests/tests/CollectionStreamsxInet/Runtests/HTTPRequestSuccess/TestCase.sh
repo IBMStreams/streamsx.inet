@@ -1,4 +1,4 @@
-#--variantCount=12
+#--variantCount=14
 
 setCategory 'quick'
 
@@ -16,6 +16,8 @@ function myExplain {
 	9) echo "variant $TTRO_variantCase - DELETE dynamic method";;
 	10) echo "variant $TTRO_variantCase - NONE fixed method";;
 	11) echo "variant $TTRO_variantCase - NONE dynamic method";;
+	12) echo "variant $TTRO_variantCase - POST fixed method content type application/octet-stream";;
+	13) echo "variant $TTRO_variantCase - PUT fixed method content type application/octet-stream";;
 	esac
 }
 
@@ -29,7 +31,7 @@ STEPS=(
 	'myEval'
 )
 
-FINS='cancelJob'
+FINS='cancelJobAndLog'
 
 function myEval {
 	case "$TTRO_variantCase" in
@@ -57,5 +59,9 @@ function myEval {
 		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" '*id=0*';;
 	11)
 		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" '*id=0*method="NONE"*';;
+	12)
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" '*id=0*stat=200*method: POST*scheme: http*uri: /post*';;
+	13)
+		linewisePatternMatchInterceptAndSuccess "$TT_dataDir/Tuples" "true" '*id=0*stat=200*method: PUT*scheme: http*uri: /put*';;
 	esac
 }
