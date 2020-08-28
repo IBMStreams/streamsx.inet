@@ -9,7 +9,7 @@ use com.ibm.streamsx.inet.util::Deserializer;
  * 
  * @param   iterations The number of requests send
  */
-composite SerializeAttributes {
+public composite SerializeAttributes {
 	param
 		expression<uint32>  $iterations: (uint32)getSubmissionTimeValue("iterations", "8");
 
