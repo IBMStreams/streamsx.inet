@@ -1,0 +1,10 @@
+/**
+ * A set of internet utility operators.
+ * 
+ * Serializer: The serialization operator serializes input tuples/attributes in network byte order.
+ * Deserializer: De-Serialization operator reverts the operation of the Serializer.
+ * 
+ * These operators are useful to connect Streams jobs with http or websocket connections.
+ */
+
+namespace com.ibm.streamsx.inet.util;

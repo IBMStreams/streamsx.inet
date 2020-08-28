@@ -1,0 +1,117 @@
+<?xml version="1.0" ?>
+<operatorModel
+  xmlns="http://www.ibm.com/xmlns/prod/streams/spl/operator" 
+  xmlns:cmn="http://www.ibm.com/xmlns/prod/streams/spl/common" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.ibm.com/xmlns/prod/streams/spl/operator operatorModel.xsd">
+  <cppOperatorModel>
+    <context>
+      <description>
+      Serialization operator. The tuples of this single input port are serialized in network byte order and the serialization result is 
+      emitted as a blob or `rstring` to the output port. The serialization result data block may start with type information. 
+      The occurrence of the type information can be controlled with parameters `iterateTypeListCount` and `activateTypeList`. 
+      The logic for the generation of the type list combines both parameters with an logical `or`. 
+      The integrated type information can be used at the receiver side to validate the transmission configuration.
+      </description>
+      <customOutputFunctions>
+        <customOutputFunction>
+          <name>SerializeFunctions</name>
+          <function>
+            <description>
+            The default function for output attributes. This function assigns the output attribute to the value of the 
+            input attribute with the same name.
+            </description>
+            <prototype><![CDATA[<any T> T AsIs(T)]]></prototype> 
+          </function>
+          <function>
+            <description>
+            Serialized data. The type must be of rstring or blob.
+            </description>
+            <prototype><![CDATA[<any T> T serialized()]]></prototype> 
+          </function>
+          <function>
+            <description>
+            Sequence number of the output tuple. Starts with zero. Must be of type `uint64`.
+            </description>
+            <prototype><![CDATA[uint64 sequence()]]></prototype> 
+          </function>
+        </customOutputFunction>
+      </customOutputFunctions>
+      <providesSingleThreadedContext>Always</providesSingleThreadedContext>
+    </context>
+    <parameters>
+      <allowAny>false</allowAny>
+      <parameter>
+        <name>inputAttributes</name>
+        <description>
+        This parameter specifies the attributes of the input stream to serialize. If this parameter is absent, all
+        input attributes will be included in the serialized output blob/rstring.
+        
+        **Note:** The serialization sequence of the input attributes corresponds to the sequence of this parameter. If this 
+        parameter is absent, the attribute sequence of the input tuple is significant.
+        </description>
+        <optional>true</optional>
+        <rewriteAllowed>false</rewriteAllowed>
+        <expressionMode>Attribute</expressionMode>
+      </parameter>
+      <parameter>
+        <name>iterateTypeListCount</name>
+        <description>
+        This parameter controls how often the type list information is embedded in the serialization data block. The operator 
+        inserts a type list information all `iterateTypeListCount` tuples. If the value is zero, no type list information is 
+        inserted. Default is 100.
+        </description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>AttributeFree</expressionMode>
+        <type>uint32</type>
+        <cardinality>1</cardinality>
+      </parameter>
+      <parameter>
+        <name>activateTypeList</name>
+        <description>
+        If this parameter is true, a type list information is inserted into the serialized data block. Default is `false`.
+        </description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>Attribute</expressionMode>
+        <type>boolean</type>
+        <cardinality>1</cardinality>
+      </parameter>
+    </parameters>
+    <inputPorts>
+      <inputPortSet>
+        <description>
+        The tuples of this single input port are serialized and the serialization result is emitted as a blob to the 
+        output port.
+        </description>
+        <tupleMutationAllowed>false</tupleMutationAllowed>
+        <windowingMode>NonWindowed</windowingMode>
+        <windowPunctuationInputMode>Oblivious</windowPunctuationInputMode>
+        <cardinality>1</cardinality>
+        <optional>false</optional>
+      </inputPortSet>
+    </inputPorts>
+    <outputPorts>
+      <outputPortSet>
+        <description>
+        The output port with the serialized data. With output function `serialized` the serialized data can be assigned to 
+        output attributes. With output function `sequence` the sequence number can be assigned to an attribute. All other attributes 
+        are assigned from input tuple.
+        </description>
+        <expressionMode>Expression</expressionMode> 
+        <autoAssignment>true</autoAssignment>
+        <completeAssignment>true</completeAssignment>
+        <rewriteAllowed>true</rewriteAllowed>
+        <outputFunctions>
+            <default>AsIs</default>
+            <type>SerializeFunctions</type>
+        </outputFunctions> 
+        <windowPunctuationOutputMode>Free</windowPunctuationOutputMode>
+        <tupleMutationAllowed>true</tupleMutationAllowed>
+        <cardinality>1</cardinality>
+        <optional>false</optional>
+      </outputPortSet>
+    </outputPorts>
+  </cppOperatorModel>
+</operatorModel>

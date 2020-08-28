@@ -1,0 +1,23 @@
+/* Additional includes go here */
+
+<%SPL::CodeGen::headerPrologue($model);%>
+
+class MY_OPERATOR : public MY_BASE_OPERATOR {
+public:
+	//enum TransferType { TypeList = 0x55, TupleContent };
+	
+	// Constructor
+	MY_OPERATOR();
+
+	// Destructor
+	virtual ~MY_OPERATOR();
+
+	// Tuple processing for non-mutating ports
+	void process(Tuple const & tuple, uint32_t port);
+
+private:
+	const SPL::rstring typeList;
+	static const SPL::rstring aspect;
+};
+
+<%SPL::CodeGen::headerEpilogue($model);%>

@@ -1,0 +1,93 @@
+<?xml version="1.0" ?>
+<operatorModel
+  xmlns="http://www.ibm.com/xmlns/prod/streams/spl/operator" 
+  xmlns:cmn="http://www.ibm.com/xmlns/prod/streams/spl/common" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.ibm.com/xmlns/prod/streams/spl/operator operatorModel.xsd">
+  <cppOperatorModel>
+    <context>
+      <description>
+      De-Serialization operator. This operator reverts the operation of operator `Serializer`. The data received with parameter `serializedData` 
+      are de-serialized an assigned to the designated output attributes. Designated attributes are either
+      
+      output attributes with assignment from output function `deserialized(int32 i)`
+      
+      or
+      
+      all output attributes if the operator invocation has no explicit output assignment.
+      
+      The types, names and order of the serialized attributes and of the designated output attributes must be equal. 
+      
+      When the `Serializer` sends the embedded type list, the received type list is checked against the types and names of 
+      the designated output attributes. If the type does not match an exception is thrown and the operator terminates.
+      This parameter specifies the list of the designated attributes where the de-serialization results are . 
+      </description>
+      <customOutputFunctions>
+        <customOutputFunction>
+          <name>DeserializationFunctions</name>
+          <function>
+            <description>
+            The default function for output attributes. This function assigns the output attribute to the value of the 
+            input attribute with the same name.
+            </description>
+            <prototype><![CDATA[<any T> T AsIs(T)]]></prototype>
+          </function>
+          <function>
+            <description>
+            De-serialized data attribute with index `i`. The index starts with zero. The index parameter `i` must be a single 
+            compile time constant literal.
+            </description>
+            <prototype><![CDATA[<any T> T deserialized(int32 i)]]></prototype>
+          </function>
+        </customOutputFunction>
+      </customOutputFunctions>
+      <providesSingleThreadedContext>Always</providesSingleThreadedContext>
+    </context>
+    <parameters>
+      <allowAny>false</allowAny>
+      <parameter>
+        <name>serializedData</name>
+        <description>
+        This parameter specifies the attribute with the serialized data. The attribute must be of type blob. The data of this 
+        attribute are de-serialized and the results are assigned to the designated output attributes.
+        </description>
+        <optional>false</optional>
+        <rewriteAllowed>false</rewriteAllowed>
+        <expressionMode>Attribute</expressionMode>
+        <type>blob</type>
+        <cardinality>1</cardinality>
+      </parameter>
+    </parameters>
+    <inputPorts>
+      <inputPortSet>
+        <description>
+        The input port receives the input data to de-serialize in a single attribute of type blob. See parameter `serializedData`.
+        </description>
+        <tupleMutationAllowed>false</tupleMutationAllowed>
+        <windowingMode>NonWindowed</windowingMode>
+        <windowPunctuationInputMode>Oblivious</windowPunctuationInputMode>
+        <cardinality>1</cardinality>
+        <optional>false</optional>
+      </inputPortSet>
+    </inputPorts>
+    <outputPorts>
+      <outputPortSet>
+        <description>
+        If no output clause is present in the operator invocation, all output tuple attributes are designated for de-serialization. 
+        </description>
+        <expressionMode>Expression</expressionMode> 
+        <autoAssignment>false</autoAssignment>
+        <completeAssignment>false</completeAssignment>
+        <rewriteAllowed>false</rewriteAllowed>
+        <outputFunctions>
+            <default>AsIs</default>
+            <type>DeserializationFunctions</type>
+        </outputFunctions> 
+        <windowPunctuationOutputMode>Free</windowPunctuationOutputMode>
+        <tupleMutationAllowed>true</tupleMutationAllowed>
+        <cardinality>1</cardinality>
+        <optional>false</optional>
+      </outputPortSet>
+    </outputPorts>
+  </cppOperatorModel>
+</operatorModel>

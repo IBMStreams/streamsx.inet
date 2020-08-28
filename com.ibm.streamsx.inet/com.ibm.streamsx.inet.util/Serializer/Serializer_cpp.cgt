@@ -1,0 +1,152 @@
+<%
+my $ccContext = $model->getContext()->getOptionalContext("ConsistentRegion");
+if (defined $ccContext) {
+	SPL::CodeGen::exitln("Operator TupleToBlob can not be used in a Consisten Region", $model->getContext()->getSourceLocation());
+}
+
+# parameters
+my $iterateTypeListCount = $model->getParameterByName("iterateTypeListCount");
+$iterateTypeListCount = $iterateTypeListCount ? $iterateTypeListCount->getValueAt(0)->getCppExpression() : 100;
+
+my $activateTypeList = $model->getParameterByName("activateTypeList");
+$activateTypeList = $activateTypeList ? $activateTypeList->getValueAt(0)->getCppExpression() : "false";
+
+# determine the order and type of the attributes to serialize
+my $inputPort = $model->getInputPortAt(0);
+my $inputTupleName = $inputPort->getCppTupleName();
+my $inputAttributes = $model->getParameterByName("inputAttributes");
+my $inputTupleTypeDef = $inputPort->getSPLTupleType();
+print("// inputTupleType=$inputTupleTypeDef\n");
+my $inputElems = "";
+my $typeList = "";
+if ($inputAttributes) {
+# serialize dedicated tuple attributes
+	for (my $i = 0; $i < $inputAttributes->getNumberOfValues(); $i++) {
+		my $expr = $inputAttributes->getValueAt($i)->getCppExpression();
+		my $attrtype = $inputAttributes->getValueAt($i)->getSPLType();
+
+		# remove all chars before period
+		my $attrname = "$expr";
+		if ($attrname =~ s/.*\.get_//) {
+			#print "//\$attrname=$attrname\n";
+			#remove ()
+			if ($attrname =~ s/\(\)//) {
+				#print "//\$attrname=$attrname\n";
+			} else {
+				SPL::CodeGen::exitln("Wrong cpp expression \$expr=%s \$attrname=%s", $expr, $attrname);
+			}
+		} else {
+			SPL::CodeGen::exitln("Wrong cpp expression \$expr=%s \$attrname=%s", $expr, $attrname);
+		}
+		print "//\$expr=$expr extracted attribute name \$attrname=$attrname\n";
+
+		if ($i == 0) {
+			$inputElems = "$expr";
+			$typeList = "$attrtype $attrname";
+		} else {
+			$inputElems = "$inputElems << $expr";
+			$typeList = "$typeList,$attrtype $attrname";
+		}
+	}
+
+} else {
+	# serialize entire tuple
+	for (my $i = 0; $i < $inputPort->getNumberOfAttributes(); $i++) {
+		my $attrname = $inputPort->getAttributeAt($i)->getName();
+		my $attrtype = $inputPort->getAttributeAt($i)->getSPLType();
+		if ($i == 0) {
+			$inputElems = "$inputTupleName.get_$attrname()";
+			$typeList = "$attrtype $attrname";
+		} else {
+			$inputElems = "$inputElems << $inputTupleName.get_$attrname()";
+			$typeList = "$typeList,$attrtype $attrname";
+		}
+	}
+}
+print("// inputElems=$inputElems\n");
+print("// typeList=$typeList\n");
+%>
+
+/* Additional includes go here */
+#include <SPL/Runtime/Serialization/NetworkByteBuffer.h>
+
+<%SPL::CodeGen::implementationPrologue($model);%>
+
+// Constructor
+MY_OPERATOR::MY_OPERATOR() :
+	iterateTypeListCount(<%=$iterateTypeListCount%>),
+	typeList("<%=$typeList%>"),
+	sequence(0),
+	portMutex() {
+	std::cout << "Operator " << getContext().getName() << " works with serialization type list: " << typeList << std::endl;
+	std::cout << "Operator " << getContext().getName() << " works with sequence: " << sequence << std::endl;
+}
+
+// Destructor
+MY_OPERATOR::~MY_OPERATOR() {
+}
+
+// Tuple processing for non-mutating ports
+void MY_OPERATOR::process(Tuple const & tuple, uint32_t port) {
+	IPort0Type const & <%=$inputTupleName%> = static_cast<IPort0Type const &>(tuple);
+	SPL::AutoMutex autoMutex(portMutex);
+
+	// determine if type list is required
+	const bool insertTypeList = <%=$activateTypeList%> || ((iterateTypeListCount > 0) && ((sequence % iterateTypeListCount) == 0));
+	
+	// build the serialized buffer
+	NetworkByteBuffer buf;
+	if (insertTypeList) {
+		buf << typeList;
+	} else {
+		buf << emptyTypeList;
+	}
+	buf << <%=$inputElems%>;
+
+	// assign to output tuple
+	OPort0Type otuple;
+
+<%	my $oport = $model->getOutputPortAt(0); 
+	foreach my $attribute (@{$oport->getAttributes()}) { 
+		my $name = $attribute->getName(); 
+		# print "// $name\n";
+		my $operation = $attribute->getAssignmentOutputFunctionName();
+		# print "// $operation\n";
+		if ($operation eq "serialized") {
+			my $attributeType = $attribute->getSPLType();
+			if (SPL::CodeGen::Type::isBlob($attributeType)) {
+%>
+				unsigned char const* ptr = buf.getPtr();
+				uint64_t sz = buf.getContentSize();
+				blob& bl = otuple.get_<%=$name%>();
+				bl.setData(ptr, sz);
+<%
+			} elsif (SPL::CodeGen::Type::isRString($attributeType)) {
+%>
+				char const* ptr = reinterpret_cast<char const*>(buf.getPtr());
+				uint64_t sz = buf.getContentSize();
+				rstring& rs = otuple.get_<%=$name%>();
+				rs.append(ptr, sz);
+<%
+			} else {
+				SPL::CodeGen::exitln("Attribute %s has wrong type! It must be of type rstring or blob", "$name", $oport->getSourceLocation());
+			}
+		} elsif ($operation eq "sequence") {
+%>
+			otuple.set_<%=$name%>(sequence);
+<%
+		} elsif ($operation eq "AsIs") { 
+			my $init = $attribute->getAssignmentOutputFunctionParameterValueAt(0)->getCppExpression();
+%>
+			otuple.set_<%=$name%>(<%=$init%>);
+<%
+		}
+	}
+%>
+	submit(otuple, 0); // submit to output port 0
+	++sequence;
+}
+
+const SPL::rstring MY_OPERATOR::emptyTypeList;
+
+<%SPL::CodeGen::implementationEpilogue($model);%>

@@ -1,0 +1,148 @@
+<%
+my $ccContext = $model->getContext()->getOptionalContext("ConsistentRegion");
+if (defined $ccContext) {
+	SPL::CodeGen::exitln("Operator TupleToBlob can not be used in a Consisten Region", $model->getContext()->getSourceLocation());
+}
+
+my $inputPort = $model->getInputPortAt(0);
+my $inputTupleName = $inputPort->getCppTupleName();
+
+my $outputPort = $model->getOutputPortAt(0);
+my $outputTupleName = $outputPort->getCppTupleName();
+my $outputTupleType = $outputPort->getSPLTupleType();
+print("// outputTupleName=$outputTupleName\n");
+print("// outputTupleType=$outputTupleType\n");
+
+my $typeList = "";
+my $outputElems = "";
+my $maxIndex = -1;
+my @nameArray;
+my @typeArray;
+my $outputFunctionsUsed = 0;
+for (my $i = 0; $i < $outputPort->getNumberOfAttributes(); $i++) {
+	my $attribute = $outputPort->getAttributeAt($i);
+	my $name = $attribute->getName(); 
+	my $attributeType = $attribute->getSPLType();
+	my $operation = $attribute->getAssignmentOutputFunctionName();
+	print("//operation=$operation\n");
+	if ($operation eq "deserialized") {
+		my $index = $attribute->getAssignmentOutputFunctionParameterValueAt(0)->getSPLExpression();
+		print("//operation=$operation i = $index\n");
+		if ($index > $maxIndex) {
+			$maxIndex = $index;
+		}
+		$nameArray[$index] = $name;
+		$typeArray[$index] = $attributeType;
+	}
+	if ($operation eq "AsIs") {
+		$outputFunctionsUsed = 1;
+	}
+}
+
+if ($maxIndex > -1) {
+	$outputFunctionsUsed = 1;
+	for my $i (0 .. $maxIndex) {
+		print "// $nameArray[$i] i=$i\n";
+		if ($nameArray[$i] ne "") {
+			if ($i == 0) {
+				$typeList = "$typeArray[$i] $nameArray[$i]";
+				$outputElems = "$outputTupleName.get_$nameArray[$i]()";
+			} else {
+				$typeList = "$typeList,$typeArray[$i] $nameArray[$i]";
+				$outputElems = "$outputElems >> $outputTupleName.get_$nameArray[$i]()";
+			}
+		} else {
+			SPL::CodeGen::exitln("Output function deserialized with index %i is missing", "$i", $outputPort->getSourceLocation());
+		}
+	}
+}
+
+if ($outputFunctionsUsed == 0) {
+	for (my $i = 0; $i < $outputPort->getNumberOfAttributes(); $i++) {
+		my $attribute = $outputPort->getAttributeAt($i);
+		my $name = $attribute->getName(); 
+		my $attributeType = $attribute->getSPLType();
+		if ($i == 0) {
+			$typeList = "$attributeType $name";
+			$outputElems = "$outputTupleName.get_$name()";
+		} else {
+			$typeList = "$typeList,$attributeType $name";
+			$outputElems = "$outputElems >> $outputTupleName.get_$name()";
+		}
+	}
+}
+print("// outputFunctionsUsed=$outputFunctionsUsed\n");
+print("// typeList=$typeList\n");
+print("// outputElems=$outputElems\n");
+print("// max=$maxIndex\n");
+if (($outputFunctionsUsed == 1) && ($maxIndex < 0)) {
+	SPL::CodeGen::exitln("At least one output function deserialized() is required. Or omit the output clause complete.", $outputPort->getSourceLocation());
+}
+%>
+
+/* Additional includes go here */
+#include <SPL/Runtime/Serialization/NetworkByteBuffer.h>
+#include <stdexcept>
+
+<%SPL::CodeGen::implementationPrologue($model);%>
+
+// Constructor
+MY_OPERATOR::MY_OPERATOR() :
+	typeList("<%=$typeList%>") {
+	std::cout << "Operator " << getContext().getName() << " works with deserialization type list: " << typeList << std::endl;
+}
+
+// Destructor
+MY_OPERATOR::~MY_OPERATOR() {
+}
+
+// Tuple processing for non-mutating ports
+void MY_OPERATOR::process(Tuple const & tuple, uint32_t port) {
+	IPort0Type const & <%=$inputTupleName%> = static_cast<IPort0Type const &>(tuple);
+	
+	blob const& bl = <%=$inputTupleName%>.get_binData();
+	const unsigned char* ptr = bl.getData();
+	const uint64_t sz = bl.getSize();
+	if (sz < 1) {
+		SPLAPPTRC(L_ERROR, "Deserializer received to short input blob", aspect);
+		throw std::runtime_error("Deserializer received to short input blob");
+	} else {
+		NetworkByteBuffer buf(const_cast<unsigned char*>(ptr), sz);
+	
+		SPL::rstring typeReceived;
+		buf >> typeReceived;
+		SPLAPPTRC(L_TRACE, "Deserializer received type list=" << typeReceived, aspect);
+		if (! typeReceived.empty()) {
+			if ( typeReceived != typeList) {
+				SPLAPPTRC(L_ERROR, "Deserializer received type list does not fit output type list! typeReceived=" <<
+						typeReceived << " outputTypeList=" << typeList, aspect);
+				throw std::runtime_error("Deserializer received type list does not fit output type list! typeReceived=" +
+						typeReceived + " outputTypeList=" + typeList);
+			} else {
+				SPLAPPTRC(L_INFO, "Deserializer received a matching type list: " << typeReceived, aspect);
+			}
+		}
+		OPort0Type <%=$outputTupleName%>;
+<% 
+		for (my $i = 0; $i < $outputPort->getNumberOfAttributes(); $i++) {
+			my $attribute = $outputPort->getAttributeAt($i);
+			my $name = $attribute->getName(); 
+			my $operation = $attribute->getAssignmentOutputFunctionName();
+			if ($operation eq "AsIs") { 
+				my $init = $attribute->getAssignmentOutputFunctionParameterValueAt(0)->getCppExpression();
+%>
+				<%=$outputTupleName%>.set_<%=$name%>(<%=$init%>);
+<%
+			}
+		}
+%>
+		buf >> <%=$outputElems%>;
+		
+		//<%=$outputTupleName%>.deserialize(buf);
+		submit(<%=$outputTupleName%>, 0);
+	}
+}
+
+const SPL::rstring MY_OPERATOR::aspect("Deserializer");
+
+<%SPL::CodeGen::implementationEpilogue($model);%>
