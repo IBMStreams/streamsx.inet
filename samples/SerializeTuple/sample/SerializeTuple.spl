@@ -1,0 +1,89 @@
+namespace sample;
+
+use com.ibm.streamsx.inet.util::Serializer;
+use com.ibm.streamsx.inet.util::Deserializer;
+
+/**
+ * This sample demonstrates the use of the Serializer and Deserializer operator.
+ * In this sample the content of an entire tuple is serialized.
+ * 
+ * @param   iterations The number of requests send
+ */
+composite SerializeTuple {
+	param
+		expression<uint32>  $iterations: (uint32)getSubmissionTimeValue("iterations", "8");
+
+	type
+		/** a complex type to serialized*/
+		MyType =
+			int32 size, rstring strData, list<uint8> listData,
+			tuple<int32 a, rstring b> tpl,
+			float32 f1, float64 f2,
+			list<map<rstring, int64>> mm,
+			list<int32> integers,
+			boolean active;
+
+	graph
+		/* generate the initial trigger */
+		stream<int32 sequence> TriggerStream as O = Beacon() {
+			param
+				iterations: $iterations;
+		}
+
+		/* fill some data into the tuple */
+		stream<MyType> SenderStream as O = Custom(TriggerStream as I) {
+			logic
+				state : {
+					mutable list<uint8> theText = [0ub,1ub,2ub,3ub,4ub,5ub,6ub,7ub,8ub,9ub,10ub,11ub,12ub,13ub,14ub,15ub];
+					mutable list<int32> ints = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+				}
+				onTuple I : {
+					int32 s = size(theText);
+					O ot = {size = s, strData = convertFromBlob((blob)theText), listData = theText, tpl = {a=55, b="ab"},
+							f1 = 55.11w, f2 = 155.01, mm = [{"str1": 1l},{"str2": 22l}], integers = ints, active = s == 32};
+					printStringLn("size of the segments=" + (rstring)s);
+					submit(ot, O);
+					// append more data
+					mutable int32 i = 0;
+					while (i < s) {
+						uint8 x = theText[i];
+						appendM(theText, x);
+						int32 fx = ints[i];
+						appendM(ints, fx);
+						++i;
+					}
+				}
+		}
+
+		/* serialize data */
+		stream<uint64 sequence, int32 size, blob binData> SerializedDataStream as O = Serializer(SenderStream as I) {
+			output
+				O: binData = serialized(), sequence = sequence();
+		}
+
+		/* restore the tuples */
+		stream<MyType> RestoredTuples as O = Deserializer(SerializedDataStream as I) {
+			param
+				serializedData: binData;
+		}
+
+		/* print some output */
+		() as Printer = Custom(RestoredTuples as I) {
+			logic
+				onTuple I: {
+					printStringLn("size    =" + (rstring)size);
+					println(strData);
+					printStringLn("listData=" + (rstring)listData);
+					printStringLn("tpl     =" + (rstring)tpl);
+					printStringLn("f1      =" + (rstring)f1);
+					printStringLn("f2      =" + (rstring)f2);
+					printStringLn("mm      =" + (rstring)mm);
+					printStringLn("integers=" + (rstring)integers);
+					printStringLn("active  =" + (rstring)active);
+				}
+				onPunct I: println(currentPunct());
+		}
+
+	config
+		restartable: false;
+}
