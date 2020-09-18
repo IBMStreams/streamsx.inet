@@ -88,6 +88,7 @@ All required libs are now available in the source repository
 	<target name="requirements" depends="init"
 		description="Download required libraries">
 		<exec executable="mvn" failonerror="true">
+			<arg value="--batch-mode" />
 			<arg value="dependency:copy-dependencies" />
 			<arg value="-DoutputDirectory=${opt.dir}" />
 		</exec>
