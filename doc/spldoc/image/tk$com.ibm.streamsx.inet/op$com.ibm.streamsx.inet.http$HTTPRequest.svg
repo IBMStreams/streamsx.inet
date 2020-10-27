@@ -99,15 +99,15 @@ unRSTlP/////////////////////////////////////////////////////////
       ><text x="48.65" y="28.0"
       >redirectStrategy, requestAttributes, requestAttributesAsUrlArguments, </text
       ><text x="48.65" y="43.0"
-      >requestBodyAttribute, requestUrlArgumentsAttribute, </text
+      >requestBodyAttribute, requestBodyAttributeBin, </text
       ><text x="48.65" y="58.0"
-      >socketTimeout, sslAcceptAllCertificates, sslKeyPassword, </text
+      >requestUrlArgumentsAttribute, socketTimeout, </text
       ><text x="48.65" y="73.0"
-      >sslKeyStoreFile, sslKeyStorePassword, sslTrustStoreFile, </text
+      >sslAcceptAllCertificates, sslKeyPassword, sslKeyStoreFile, </text
       ><text x="48.65" y="88.0"
-      >sslTrustStorePassword, tokenTypeAttribute, url, </text
+      >sslKeyStorePassword, sslTrustStoreFile, sslTrustStorePassword, </text
       ><text x="48.65" y="103.0"
-      >userAgent</text
+      >tokenTypeAttribute, url, userAgent</text
       ><set attributeName="visibility" from="hidden" end="sdt1.mouseout" to="visible" begin="sdt1.mouseover"
     /></g
     ><g visibility="hidden" style="stroke:none;font-style:italic;font-size:12px;font-family:&apos;Helvetica&apos;,&apos;SansSerif&apos;;"
