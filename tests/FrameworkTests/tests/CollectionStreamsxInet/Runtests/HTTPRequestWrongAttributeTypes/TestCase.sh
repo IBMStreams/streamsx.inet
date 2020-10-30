@@ -1,4 +1,4 @@
-#--variantCount=9
+#--variantCount=10
 
 function myExplain {
 	case "$TTRO_variantCase" in
@@ -11,6 +11,7 @@ function myExplain {
 	6) echo "variant $TTRO_variantCase - outputStatus parameter wrong type";;
 	7) echo "variant $TTRO_variantCase - outputStatusCode parameter wrong type";;
 	8) echo "variant $TTRO_variantCase - errorDiagnostics parameter wrong type";;
+	9) echo "variant $TTRO_variantCase - errorDiagnostics input parameter requestBodyAttributeBin wrong type";;
 	*) printErrorAndExit "invalid variant $TTRO_variantCase";;
 	esac
 }
@@ -36,4 +37,6 @@ errorCodes=(
 	"*CDIST0223E Only types 'USTRING' and 'RSTRING' are allowed for attribute 'myAttribute'*"
 	"*CDIST0222E Only type 'INT32' is allowed for attribute 'stat'*"
 	"*CDIST0223E Only types 'USTRING' and 'RSTRING' are allowed for attribute 'myAttribute'*"
+	"*Input attribute data must be of type blob but is RSTRING*"
 )
+
