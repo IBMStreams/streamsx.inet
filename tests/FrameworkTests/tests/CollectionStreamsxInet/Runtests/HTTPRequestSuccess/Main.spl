@@ -47,7 +47,7 @@ public composite Main {
 				//<8>fixedMethod : DELETE;
 				//<10>fixedMethod : NONE;
 				//<!12 13>requestBodyAttribute : data;
-				//<12 13>requestBodyAttributeBin : "data";
+				//<12 13>requestBodyAttributeBin : data;
 				outputBody : "respData";
 				outputStatus : "status";
 				outputStatusCode : "stat";

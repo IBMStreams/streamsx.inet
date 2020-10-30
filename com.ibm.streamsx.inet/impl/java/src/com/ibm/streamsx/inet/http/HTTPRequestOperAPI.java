@@ -128,7 +128,7 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     
     //request configuration
     private TupleAttribute<Tuple, String> requestBodyAttribute = null;  //request body
-    private String                        requestBodyAttributeBin = null;  //request body for binary content
+    private TupleAttribute<Tuple, ?>      requestBodyAttributeBin = null;  //request body for binary content
     private Set<String>                   requestAttributes = new HashSet<>(); //Attributes that are part of the request.
     private boolean                       requestAttributesAsUrlArguments = false;
     private TupleAttribute<Tuple, String> requestUrlArgumentsAttribute = null;
@@ -271,9 +271,8 @@ public class HTTPRequestOperAPI extends AbstractOperator {
             + "In method POST, any non-empty value overwrites the request attributes. The content of this attribue is used "
             + "when the content type equals `application/octet-stream`. In all other cases, the content of the `requestBodyAttribute` "
             + "is used. "
-            + "**Note:** Due to limitations of the java operstor api, this parameter must be of type string and must represent the name of an "
-            + "input attribute. The input attribute must be of type `blob`.")
-    public void setRequestBodyAttributeBin(String requestBodyAttributeBin) {
+            + "**Note:** The input attribute must be of type `blob`.")
+    public void setRequestBodyAttributeBin(TupleAttribute<Tuple, ?> requestBodyAttributeBin) {
         this.requestBodyAttributeBin = requestBodyAttributeBin;
     }
 
@@ -542,13 +541,10 @@ public class HTTPRequestOperAPI extends AbstractOperator {
         StreamSchema ss = getInput(0).getStreamSchema();
         //Check type of attribute requestBodyAttributeBin
         if (requestBodyAttributeBin != null) {
-            Attribute bodyBinAttribute = ss.getAttribute(requestBodyAttributeBin);
-            if ( bodyBinAttribute == null) {
-                throw new IllegalArgumentException("Input attribute " + requestBodyAttributeBin + " is required!");
-            }
-            MetaType attributeType = bodyBinAttribute.getType().getMetaType();
+            MetaType attributeType = requestBodyAttributeBin.getAttribute().getType().getMetaType();
             if (attributeType != MetaType.BLOB) {
-                throw new IllegalArgumentException("Input attribute " + requestBodyAttributeBin + " must be of type blob but is " + attributeType.toString());
+                throw new IllegalArgumentException("Input attribute " + requestBodyAttributeBin.getAttribute().getName()
+                        + " must be of type blob but is " + attributeType.toString());
             }
         }
         
@@ -581,7 +577,7 @@ public class HTTPRequestOperAPI extends AbstractOperator {
             if (requestBodyAttribute != null)
                 requestAttributes.remove(requestBodyAttribute.getAttribute().getName());
             if (requestBodyAttributeBin != null)
-                requestAttributes.remove(requestBodyAttributeBin);
+                requestAttributes.remove(requestBodyAttributeBin.getAttribute().getName());
             if (extraHeaderAttribute != null)
                 requestAttributes.remove(extraHeaderAttribute.getAttribute().getName());
             if (accessTokenAttribute != null)
@@ -759,7 +755,7 @@ public class HTTPRequestOperAPI extends AbstractOperator {
     
     //request config
     protected TupleAttribute<Tuple, String> getRequestBodyAttribute() { return requestBodyAttribute; }
-    protected String                        getRequestBodyAttributeBin() { return requestBodyAttributeBin; }
+    protected TupleAttribute<Tuple, ?>      getRequestBodyAttributeBin() { return requestBodyAttributeBin; }
     protected Set<String>                   getRequestAttributes() { return  requestAttributes; }
     protected boolean                       getRequestAttributesAsUrlArguments() { return requestAttributesAsUrlArguments; }
     protected TupleAttribute<Tuple, String> getRequestUrlArgumentsAttribute() { return requestUrlArgumentsAttribute; }

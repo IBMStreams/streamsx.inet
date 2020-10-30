@@ -364,15 +364,15 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
     private void createEntity(HttpEntityEnclosingRequest req, Tuple tuple, ContentType contentType, boolean isPostMethod) throws IOException {
         if (isPostMethod) {
             if (    ((getRequestBodyAttribute()    != null) && ( ! getRequestBodyAttribute().getValue(tuple).isEmpty()))
-                 || ((getRequestBodyAttributeBin() != null) && ( tuple.getBlob(getRequestBodyAttributeBin()).getLength() > 0))) {
+                 || ((getRequestBodyAttributeBin() != null) && ( ((Blob)getRequestBodyAttributeBin().getValue(tuple)).getLength() > 0))) {
                 //take request body from input tuple transparently
                 // if contentType is application/octet-stream the take it from requestBodyAttributeBin
                 // otherwise take it from requestBodyAttribute
                 if (contentType.getMimeType().equals(ContentType.APPLICATION_OCTET_STREAM.getMimeType())) {
-                    if ((getRequestBodyAttributeBin() == null) || ( tuple.getBlob(getRequestBodyAttributeBin()).getLength() <= 0)) {
+                    if ((getRequestBodyAttributeBin() == null) || ( ((Blob)getRequestBodyAttributeBin().getValue(tuple)).getLength() <= 0)) {
                         throw new DataException("Method: PUT, content type: application/octet-stream but data are in requestBodyAttribute! Use attribute requestBodyAttributeBin instead");
                     } else {
-                        Blob bl = tuple.getBlob(getRequestBodyAttributeBin());
+                        Blob bl = (Blob)getRequestBodyAttributeBin().getValue(tuple);
                         req.setEntity(new ByteArrayEntity(bl.getData(), contentType));
                     }
                 } else {
@@ -387,11 +387,10 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
                 //take request attributes content type specific 
                 if (contentType.getMimeType().equals(ContentType.APPLICATION_JSON.getMimeType())) {
                     JSONEncoding<JSONObject, JSONArray> je = EncodingFactory.getJSONEncoding();
-                    JSONObject jo = je.encodeTuple(tuple);
-                    for (Iterator<?> it = jo.keySet().iterator(); it.hasNext();) {
-                        if (!isRequestAttribute(it.next())) {
-                            it.remove();
-                        }
+                    JSONObject jo = je.newJSONObject();
+                    for (String requestAttributeName: getRequestAttributes()) {
+                        Object attr = je.getAttributeObject(tuple, requestAttributeName);
+                        jo.put(requestAttributeName, attr);
                     }
                     req.setEntity(new StringEntity(jo.serialize(), ContentType.APPLICATION_JSON));
                 } else if (contentType.getMimeType().equals(ContentType.APPLICATION_FORM_URLENCODED.getMimeType())) {
@@ -435,7 +434,7 @@ public class HTTPRequestOper extends HTTPRequestOperClient {
             if (contentType.getMimeType().equals(ContentType.APPLICATION_OCTET_STREAM.getMimeType())) {
                 Blob bl = null;
                 if (getRequestBodyAttributeBin() != null) {
-                    bl = tuple.getBlob(getRequestBodyAttributeBin());
+                    bl = (Blob)getRequestBodyAttributeBin().getValue(tuple);
                 } else {
                     byte[] empty = new byte[]{};
                     bl = ValueFactory.newBlob(empty);
