@@ -1,6 +1,10 @@
 # Changes
 =======
 
+## V3.4.0
+* [#358](https://github.com/IBMStreams/streamsx.inet/issues/358) Samples: Makefiles prepared for CP4D buildservice (build with VS Code)
+* [#356](https://github.com/IBMStreams/streamsx.inet/issues/356) Update httpclient to 4.5.13
+
 ## V3.3.0
 * HTTPRequest operator: Correction for method POST with application/octet-stream
 * HTTPRequest operator: New input attribute requestBodyAttributeBin
