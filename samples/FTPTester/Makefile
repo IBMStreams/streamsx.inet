@@ -1,7 +1,7 @@
 # Copyright (C) 2019, International Business Machines Corporation
 # All Rights Reserved
 
-.PHONY: all distributed standalone clean clean-runtime-generated-files clean-all run
+.PHONY: all distributed standalone clean clean-all run
 
 STREAMS_INET_TOOLKIT ?=../../com.ibm.streamsx.inet:${STREAMS_INSTALL}/toolkits/com.ibm.streamsx.inet
 ifeq ($(STREAMS_STUDIO_BUILDING), 1)
@@ -19,6 +19,9 @@ else
     DATA_DIR = data
     OUTPUT_DIR = output
     TOOLKIT_PATH = $(STREAMS_INET_TOOLKIT)
+    ifdef STREAMS_BUILDSERVICE
+       TOOLKIT_PATH = ../toolkits:$(STREAMS_INSTALL)/toolkits
+    endif
 endif
 
 SPLC_FLAGS = -a
@@ -28,18 +31,15 @@ SPL_MAIN_COMPOSITE = Main
 all: clean distributed
 
 distributed:
-	$(SPLC) $(SPLC_FLAGS) -M $(SPL_MAIN_COMPOSITE) -t ${TOOLKIT_PATH} --data-dir $(DATA_DIR) --output-dir $(OUTPUT_DIR) $(SPL_CMD_ARGS)
+	$(SPLC) $(SPLC_FLAGS) -M $(SPL_MAIN_COMPOSITE) -t ${TOOLKIT_PATH} --output-dir $(OUTPUT_DIR) $(SPL_CMD_ARGS)
 
 standalone:
-	$(SPLC) $(SPLC_FLAGS) -T -M $(SPL_MAIN_COMPOSITE) -t ${TOOLKIT_PATH} --data-dir $(DATA_DIR) --output-dir $(OUTPUT_DIR) $(SPL_CMD_ARGS)
+	$(SPLC) $(SPLC_FLAGS) -T -M $(SPL_MAIN_COMPOSITE) -t ${TOOLKIT_PATH} --output-dir $(OUTPUT_DIR) $(SPL_CMD_ARGS)
 
-clean-all: clean clean-runtime-generated-files
+clean-all: clean
 
 clean:
-	$(SPLC) $(SPLC_FLAGS) -C -M $(SPL_MAIN_COMPOSITE) -t ${TOOLKIT_PATH} --data-dir $(DATA_DIR) --output-dir $(OUTPUT_DIR) $(SPL_CMD_ARGS)
-
-clean-runtime-generated-files:
-	-rm -rf $(DATA_DIR)/*.txt
+	$(SPLC) $(SPLC_FLAGS) -C -M $(SPL_MAIN_COMPOSITE) -t ${TOOLKIT_PATH} --output-dir $(OUTPUT_DIR) $(SPL_CMD_ARGS)
 
 run: standalone
 	$(OUTPUT_DIR)/bin/standalone

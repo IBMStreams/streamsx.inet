@@ -7,7 +7,7 @@
      This sample demonstrates the usage of composition of HTTPParallelRequest operator of the Internet Toolkit. 
      The HTTPParallelRequest issues HTTP requests in parallel asynchronously from the input stream
    </info:description>
-   <info:version>1.0.0</info:version>
+   <info:version>1.0.1</info:version>
    <info:requiredProductVersion>4.0.1.0</info:requiredProductVersion>
  </info:identity>
  <info:dependencies>

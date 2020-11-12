@@ -19,6 +19,9 @@ else
     DATA_DIR = data
     OUTPUT_DIR = output
     TOOLKIT_PATH = $(STREAMS_INET_TOOLKIT)
+    ifdef STREAMS_BUILDSERVICE
+       TOOLKIT_PATH = ../toolkits:$(STREAMS_INSTALL)/toolkits
+    endif
 endif
 
 SPLC_FLAGS = -a

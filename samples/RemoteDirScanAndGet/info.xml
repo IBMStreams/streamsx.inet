@@ -3,7 +3,7 @@
   <info:identity>
     <info:name>FTP RemoteDirScanAndGet sample</info:name>
     <info:description>Sample for remote ftp directory scan and file transfer demonstrates the use of the FTPReader operator</info:description>
-    <info:version>1.0.0</info:version>
+    <info:version>1.0.1</info:version>
     <info:requiredProductVersion>4.0.1.0</info:requiredProductVersion>
   </info:identity>
   <info:dependencies>

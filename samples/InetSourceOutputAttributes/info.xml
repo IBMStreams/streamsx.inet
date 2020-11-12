@@ -5,7 +5,7 @@
   <info:identity>
     <info:name>InetSourceOutputAttributes</info:name>
     <info:description>Sample demonstrating InetSource with explicit output attribute assignments</info:description>
-    <info:version>1.0.0</info:version>
+    <info:version>1.0.1</info:version>
     <info:requiredProductVersion>4.0.1.0</info:requiredProductVersion>
   </info:identity>
   <info:dependencies>

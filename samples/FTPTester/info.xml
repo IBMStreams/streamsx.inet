@@ -8,7 +8,7 @@
      feed the content of files from a ftp-server into a IBM Streams application. It can be used for
      a quick test of an ftp server connection.
    </info:description>
-   <info:version>1.0.0</info:version>
+   <info:version>1.0.1</info:version>
    <info:requiredProductVersion>4.0.1.0</info:requiredProductVersion>
  </info:identity>
  <info:dependencies>

@@ -19,6 +19,9 @@ else
     DATA_DIR = data
     OUTPUT_DIR = output
     TOOLKIT_PATH = $(STREAMS_INET_TOOLKIT)
+    ifdef STREAMS_BUILDSERVICE
+       TOOLKIT_PATH = ../toolkits:$(STREAMS_INSTALL)/toolkits
+    endif
 endif
 
 SPLC_FLAGS = -a
@@ -28,13 +31,13 @@ SPL_MAIN_COMPOSITE = sample::SerializeTuple
 all: clean distributed
 
 distributed:
-	$(SPLC) $(SPLC_FLAGS) -M $(SPL_MAIN_COMPOSITE)  -t ${TOOLKIT_PATH} --data-dir $(DATA_DIR) --output-dir $(OUTPUT_DIR) $(SPL_CMD_ARGS)
+	$(SPLC) $(SPLC_FLAGS) -M $(SPL_MAIN_COMPOSITE)  -t ${TOOLKIT_PATH} --output-dir $(OUTPUT_DIR) $(SPL_CMD_ARGS)
 
 standalone:
-	$(SPLC) $(SPLC_FLAGS) -T -M $(SPL_MAIN_COMPOSITE)  -t ${TOOLKIT_PATH} --data-dir $(DATA_DIR) --output-dir $(OUTPUT_DIR) $(SPL_CMD_ARGS)
+	$(SPLC) $(SPLC_FLAGS) -T -M $(SPL_MAIN_COMPOSITE)  -t ${TOOLKIT_PATH} --output-dir $(OUTPUT_DIR) $(SPL_CMD_ARGS)
 
 clean:
-	$(SPLC) $(SPLC_FLAGS) -C -M $(SPL_MAIN_COMPOSITE)  -t ${TOOLKIT_PATH} --data-dir $(DATA_DIR) --output-dir $(OUTPUT_DIR) $(SPL_CMD_ARGS)
+	$(SPLC) $(SPLC_FLAGS) -C -M $(SPL_MAIN_COMPOSITE)  -t ${TOOLKIT_PATH} --output-dir $(OUTPUT_DIR) $(SPL_CMD_ARGS)
 
 run: standalone
 	$(OUTPUT_DIR)/bin/standalone
