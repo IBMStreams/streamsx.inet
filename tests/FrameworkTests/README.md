@@ -28,6 +28,10 @@ If the property `TTPR_ftpServerHost` is set to an empty value, all ftp test are 
 
 **Note:** The FtpTest requires an running ssh daemon at the ftp server host.
 
+To check the ssh deamon and to start the sftp-server use:
+    sudo service sshd status
+    sudo service sshd start
+
 ### HTTP Test Server
 In the standard environment the http-test server is started automatically from the test script.
 
