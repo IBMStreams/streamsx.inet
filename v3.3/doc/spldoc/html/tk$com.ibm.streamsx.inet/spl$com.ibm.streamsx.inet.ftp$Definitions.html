@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="SPL File Definitions.spl"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="spldoc_compilationunit"/>
+<link rel="stylesheet" type="text/css" href="../../html/commonltr.css"/>
+<link rel="stylesheet" type="text/css" href="../../html/spldoc.css"/>
+<title>SPL File Definitions.spl</title>
+</head>
+<body id="spldoc_compilationunit">
+
+
+<h1 class="title topictitle1">SPL File <tt class="ph tt">Definitions.spl</tt></h1>
+
+<div class="body refbody">
+<div class="section">
+<p class="p">
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 3.3.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.ftp.html">com.ibm.streamsx.inet.ftp</a> &gt; Definitions.spl</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Content</h2>
+  
+  <dl class="dl">
+    <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+    
+      <dt class="dt dlterm splhead-2">Types</dt>
+
+      <dd class="dd">
+<ul class="sl simple">
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.inet.ftp$Definitions.html#spldoc_compilationunit__type__ConnectionCloseMode">ConnectionCloseMode</a></strong>: The persistence of the ftp connection can be controlled with parameter <tt class="ph tt">connectionCloseMode</tt>.
+</li>
+
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$com.ibm.streamsx.inet.ftp$Definitions.html#spldoc_compilationunit__type__Protocol">Protocol</a></strong>: The security level of all ftp connections are controlled with the parameter <tt class="ph tt">protocol</tt>.
+</li>
+
+</ul>
+
+      </dd>
+
+    
+  </dl>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Types</h2>
+  
+</div>
+
+<div class="section" id="spldoc_compilationunit__type__Protocol"><h2 class="title sectiontitle splpart">Protocol</h2>
+  
+</div>
+<div class="section">
+
+<div class="p">The security level of all ftp connections are controlled with the parameter <tt class="ph tt">protocol</tt>.  The parameter <tt class="ph tt">protocol</tt> takes a value of the type <tt class="ph tt">Protocol</tt> which has the following enums:
+<ul class="ul">
+<li class="li"> ftp - simple ftp protocol,</li>
+
+<li class="li"> ftpSSLAll - The client requires SSL/TLS encryption for the control and data connections</li>
+
+<li class="li"> ftpSSLControl - The client requires SSL/TLS encryption for the control connection.</li>
+
+<li class="li"> ftpSSLTry - The client tries to establish encryption, but it continues unencrypted if the server does not support encryption.</li>
+
+<li class="li"> ftps - use implicit TLS (default port 990)</li>
+
+<li class="li"> sftp - use ssh connection available form lib curl version 7.16.3 </li>
+
+</ul>
+
+</div>
+
+</div>
+
+<div class="section">
+   <p class="p">
+<tt class="ph tt">Protocol = enum { ftp, ftpSSLAll, ftpSSLControl, ftpSSLTry, ftps, sftp };</tt>
+   </p>
+
+</div>
+
+<div class="section" id="spldoc_compilationunit__type__ConnectionCloseMode"><h2 class="title sectiontitle splpart">ConnectionCloseMode</h2>
+  
+</div>
+<div class="section">
+
+<div class="p">The persistence of the ftp connection can be controlled with parameter <tt class="ph tt">connectionCloseMode</tt>.  This parameter takes a value of type <tt class="ph tt">ConnectionCloseMode</tt> which has the following enums:
+<ul class="ul">
+<li class="li"> never - the connection is kept open most of the time. The connections may be closed after a certain idle time. The connection is maintained from the underlying library.</li>
+
+<li class="li"> ever - the connection is closed after each transfer</li>
+
+<li class="li"> punct - the connection is closed when a window punctuation is received </li>
+
+</ul>
+
+</div>
+
+</div>
+
+<div class="section">
+   <p class="p">
+<tt class="ph tt">ConnectionCloseMode = enum { never, ever, punct };</tt>
+   </p>
+
+</div>
+
+</div>
+
+
+</body>
+</html>

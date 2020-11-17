@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 3.3.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.http.html">com.ibm.streamsx.inet.http</a> &gt; HTTPRequest</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.inet.html">com.ibm.streamsx.inet 3.4.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.inet.http.html">com.ibm.streamsx.inet.http</a> &gt; HTTPRequest</p>
 
 </div>
 
@@ -1300,7 +1300,7 @@ This parameter must not be used together with parameter <tt class="ph tt">disabl
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__requestBodyAttributeBin"><!-- --></a><tt class="ph tt">requestBodyAttributeBin</tt></dt>
 
 <dd class="dd">
-<p class="p">Request body attribute for any method that accepts an entity (PUT / POST / PATCH). In method PUT and PATCH the body of request is taken from this attribute. In method POST, any non-empty value overwrites the request attributes. The content of this attribue is used when the content type equals <tt class="ph tt">application/octet-stream</tt>. In all other cases, the content of the <tt class="ph tt">requestBodyAttribute</tt> is used. <strong class="ph b">Note:</strong> Due to limitations of the java operstor api, this parameter must be of type string and must represent the name of an input attribute. The input attribute must be of type <tt class="ph tt">blob</tt>.
+<p class="p">Request body attribute for any method that accepts an entity (PUT / POST / PATCH). In method PUT and PATCH the body of request is taken from this attribute. In method POST, any non-empty value overwrites the request attributes. The content of this attribue is used when the content type equals <tt class="ph tt">application/octet-stream</tt>. In all other cases, the content of the <tt class="ph tt">requestBodyAttribute</tt> is used. <strong class="ph b">Note:</strong> The input attribute must be of type <tt class="ph tt">blob</tt>.
 </p>
 <dl class="dl">
 
@@ -1308,13 +1308,13 @@ This parameter must not be used together with parameter <tt class="ph tt">disabl
 
  <dd class="dd">
   <ul class="sl simple">
-  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
-  </li>
-
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
      </li>
 
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Attribute
      </li>
 
   </ul>

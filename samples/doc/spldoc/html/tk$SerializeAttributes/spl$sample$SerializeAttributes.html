@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="SPL File SerializeAttributes.spl"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="spldoc_compilationunit"/>
+<link rel="stylesheet" type="text/css" href="../../html/commonltr.css"/>
+<link rel="stylesheet" type="text/css" href="../../html/spldoc.css"/>
+<title>SPL File SerializeAttributes.spl</title>
+</head>
+<body id="spldoc_compilationunit">
+
+
+<h1 class="title topictitle1">SPL File <tt class="ph tt">SerializeAttributes.spl</tt></h1>
+
+<div class="body refbody">
+<div class="section">
+<p class="p">
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Samples</a> &gt; <a class="xref" href="tk$SerializeAttributes.html">SerializeAttributes 1.0.1</a> &gt; <a class="xref" href="ns$sample.html">sample</a> &gt; SerializeAttributes.spl</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Content</h2>
+  
+  <dl class="dl">
+    <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+    
+      <dt class="dt dlterm splhead-2">Operators</dt>
+
+      <dd class="dd">
+<ul class="sl simple">
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$sample$SerializeAttributes.html#spldoc_compilationunit__composite_operator__SerializeAttributes">SerializeAttributes</a></strong>: This sample demonstrates the use of the Serializer and Deserializer operator.
+</li>
+
+</ul>
+
+      </dd>
+
+    
+  </dl>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Composites</h2>
+  
+</div>
+
+<div class="section" id="spldoc_compilationunit__composite_operator__SerializeAttributes"><h2 class="title sectiontitle splpart">composite SerializeAttributes</h2>
+  
+</div>
+
+<div class="section splgraph">
+  <embed class="image" src="../../image/tk$SerializeAttributes/op$sample$SerializeAttributes.svg" width="640" height="109"/>
+</div>
+
+<div class="section">
+
+<p class="p">This sample demonstrates the use of the Serializer and Deserializer operator. In this sample dedicated tuple attributes are serialized.
+</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">Parameters</h2>
+
+<ul class="sl simple">
+<li class="sli"><strong class="ph b">iterations</strong>: The number of requests send
+</li>
+
+</ul>
+
+</div>
+
+<div class="section">
+</div>
+
+<div class="section">
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-2">SPL Source Code</h2>
+  
+</div>
+
+
+<div class="section">
+   <pre class="pre codeblock">
+
+ public composite SerializeAttributes {
+ 	param
+ 		expression&lt;uint32&gt;  $iterations: (uint32)getSubmissionTimeValue("iterations", "8");
+ 
+ 	type
+ 		/** a complex type to serialized*/
+ 		MyType =
+ 			int32 size, rstring strData, list&lt;uint8&gt; listData,
+ 			tuple&lt;int32 a, rstring b&gt; tpl,
+ 			float32 f1, float64 f2,
+ 			list&lt;map&lt;rstring, int64&gt;&gt; mm,
+ 			list&lt;int32&gt; integers,
+ 			boolean active;
+ 
+ 	graph
+ 		/* generate the initial trigger */
+ 		stream&lt;int32 sequence1, rstring url&gt; TriggerStream as O = Beacon() {
+ 			param
+ 				iterations: $iterations;
+ 			output O:
+ 				sequence1 = (int32)IterationCount() + 100,
+ 				url = "someurl_" + (rstring)IterationCount();
+ 		}
+ 
+ 		/* fill some data into the tuple */
+ 		stream&lt;tuple&lt;int32 sequence1, rstring url&gt;, MyType&gt; SenderStream as O = Custom(TriggerStream as I) {
+ 			logic
+ 				state : {
+ 					mutable list&lt;uint8&gt; theText = [0ub,1ub,2ub,3ub,4ub,5ub,6ub,7ub,8ub,9ub,10ub,11ub,12ub,13ub,14ub,15ub];
+ 					mutable list&lt;int32&gt; ints = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+ 				}
+ 				onTuple I : {
+ 					int32 s = size(theText);
+ 					O ot = {sequence1 = sequence1, url = url,
+ 							size = s, strData = convertFromBlob((blob)theText), listData = theText, tpl = {a=55, b="ab"},
+ 							f1 = 55.11w, f2 = 155.01, mm = [{"str1": 1l},{"str2": 22l}], integers = ints, active = s == 32};
+ 					printStringLn("size of the segments=" + (rstring)s);
+ 					submit(ot, O);
+ 					// append more data
+ 					mutable int32 i = 0;
+ 					while (i &lt; s) {
+ 						uint8 x = theText[i];
+ 						appendM(theText, x);
+ 						int32 fx = ints[i];
+ 						appendM(ints, fx);
+ 						++i;
+ 					}
+ 				}
+ 		}
+ 
+ 		/* serialize data */
+ 		stream&lt;uint64 newsequence, int32 size, rstring url, blob binData&gt; SerializedDataStream as O = Serializer(SenderStream as I) {
+ 			// enter all attributes to serialize
+ 			// the order of parameter inputAttributes defines the serialization order
+ 			param
+ 				inputAttributes: sequence1, size, mm, f1, f2, integers, listData;
+ 			output
+ 				O: binData = serialized(),
+ 				newsequence = sequence();
+ 		}
+ 
+ 		/* printout */
+ 		stream&lt;I&gt; SerializedDataStream2 as O = Custom(SerializedDataStream as I) {
+ 			logic onTuple I : {
+ 				println(I);
+ 				submit(I, O);
+ 			}
+ 		}
+ 
+ 		/* restore the tuples */
+ 		stream&lt;tuple&lt;int32 sequence1&gt;, MyType&gt; RestoredTuples as O = Deserializer(SerializedDataStream2 as I) {
+ 			param
+ 				serializedData: binData;
+ 			output O:
+ 				// de serialization order must match the serialization order 
+ 				sequence1 = deserialized(0),
+ 				size = deserialized(1),
+ 				mm = deserialized(2),
+ 				f1 = deserialized(3),
+ 				f2 = deserialized(4),
+ 				integers = deserialized(5),
+ 				listData = deserialized(6);
+ 		}
+ 
+ 		/* print some output */
+ 		() as Printer = Custom(RestoredTuples as I) {
+ 			logic
+ 				onTuple I: {
+ 					printStringLn("sequence1=" + (rstring)sequence1);
+ 					printStringLn("size     =" + (rstring)size);
+ 					println(strData);
+ 					printStringLn("listData =" + (rstring)listData);
+ 					printStringLn("tpl      =" + (rstring)tpl);
+ 					printStringLn("f1       =" + (rstring)f1);
+ 					printStringLn("f2       =" + (rstring)f2);
+ 					printStringLn("mm       =" + (rstring)mm);
+ 					printStringLn("integers =" + (rstring)integers);
+ 					printStringLn("active   =" + (rstring)active);
+ 				}
+ 				onPunct I: println(currentPunct());
+ 		}
+ 
+ 	config
+ 		restartable: false;
+ }
+
+   </pre>
+
+</div>
+
+</div>
+
+
+</body>
+</html>

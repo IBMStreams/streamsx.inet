@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Samples</a> &gt; <a class="xref" href="tk$HTTPRequestDemo.html">HTTPRequestDemo 1.0.0</a> &gt; <a class="xref" href="ns$.html">&lt;default&gt;</a> &gt; Main.spl</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.inet Samples</a> &gt; <a class="xref" href="tk$HTTPRequestDemo.html">HTTPRequestDemo 1.1.1</a> &gt; <a class="xref" href="ns$.html">&lt;default&gt;</a> &gt; Main.spl</p>
 
 </div>
 
@@ -92,6 +92,9 @@
 <li class="sli"><strong class="ph b">contt</strong>: The Content-Type for methods POST ant PUT
 </li>
 
+<li class="sli"><strong class="ph b">bindata</strong>: The binary input data, used in POST and PUT with content type application/octet-stream
+</li>
+
 <li class="sli"><strong class="ph b">iterations</strong>: The number of requests send
 </li>
 
@@ -119,26 +122,26 @@
  public composite Main {
  	param
  		expression&lt;rstring&gt;       $host       :                 getSubmissionTimeValue("host", "httpbin.org");
- 		expression&lt;rstring&gt;       $schema     :                 getSubmissionTimeValue("schema", "https://");
- 		expression&lt;list&lt;rstring&gt;&gt; $url        : (list&lt;rstring&gt;) getSubmissionTimeValue(
- 			"url", '["/get","/gzip","/redirect/3","/post","/post","/put", "/delete", "/basic-auth/user1/passwd1"]'
- 		);
- 		expression&lt;list&lt;rstring&gt;&gt; $method     : (list&lt;rstring&gt;) getSubmissionTimeValue(
- 			"method", '["GET","GET","GET","POST","POST","PUT","DELETE","GET"]'
- 		);
- 		expression&lt;list&lt;rstring&gt;&gt; $data       : (list&lt;rstring&gt;) getSubmissionTimeValue(
- 			"data", '["","","","","","text 1 (t1)","",""]'
- 		);
- 		expression&lt;list&lt;rstring&gt;&gt; $mess       : (list&lt;rstring&gt;) getSubmissionTimeValue(
- 			"mess", '["mess 1 (&amp;m1)","mess 2 (&amp;m2)","mess 3 (m3)","mess 4 (m&amp;4)","mess 5 (m&amp;5)","xxx","xxx","xxx"]'
- 		);
- 		expression&lt;list&lt;rstring&gt;&gt; $contt      : (list&lt;rstring&gt;) getSubmissionTimeValue(
- 			"contt", '["","","","application/x-www-form-urlencoded","application/json","text/plain","",""]'
- 		);
- 		expression&lt;int32&gt;         $iterations : (int32)         getSubmissionTimeValue("iterations", "8");
+ 		expression&lt;rstring&gt;       $schema     :                 getSubmissionTimeValue("schema", "http://");
+ 
+ 		expression&lt;list&lt;rstring&gt;&gt; $url :
+ 			["/get","/gzip","/redirect/3","/post","/post","/post","/put","/put","/delete","/basic-auth/user1/passwd1"];
+ 		expression&lt;list&lt;rstring&gt;&gt; $method :
+ 			["GET","GET","GET","POST","POST","POST","PUT","PUT","DELETE","GET"];
+ 		expression&lt;list&lt;rstring&gt;&gt; $data :
+ 			["","","","","","","text 1 (t1)","",""];
+ 		expression&lt;list&lt;rstring&gt;&gt; $mess :
+ 			["mess 1 (&amp;m1)","mess 2 (&amp;m2)","mess 3 (m3)","mess 4 (m&amp;4)","mess 5 (m&amp;5)","","","","","mess 6 (m&amp;6)"];
+ 		expression&lt;list&lt;rstring&gt;&gt; $contt :
+ 			["","","","application/x-www-form-urlencoded","application/json","application/octet-stream","text/plain","application/octet-stream","",""];
+ 		expression&lt;list&lt;uint8&gt;&gt;   $bindata :
+ 			[0ub, 1ub, 2ub];
+ 
+ 		expression&lt;int32&gt;         $iterations : (int32)         getSubmissionTimeValue("iterations", "10");
  		expression&lt;float64&gt;       $period     : (float64)       getSubmissionTimeValue("period", "0.1");
+ 
  	graph
- 		stream&lt;uint64 id, rstring url, rstring method, rstring data, rstring mess, rstring contentType&gt; Trigger as O = Beacon() {
+ 		stream&lt;uint64 id, rstring url, rstring method, rstring data, rstring mess, rstring contentType, blob binData&gt; Trigger as O = Beacon() {
  			param 
  				iterations : $iterations;
  				period	 : $period;
@@ -148,7 +151,8 @@
  				method = $method[(int32)IterationCount() % size($method)],
  				data = $data[(int32)IterationCount() % size($data)],
  				mess = $mess[(int32)IterationCount() % size($mess)],
- 				contentType = $contt[(int32)IterationCount() % size($contt)];
+ 				contentType = $contt[(int32)IterationCount() % size($contt)],
+ 				binData = ((((int32)IterationCount() % size($contt)) == 5) || (((int32)IterationCount() % size($contt)) == 7)) ? (blob)$bindata : (blob)[];
  		}
  		
  		stream&lt;uint64 id, rstring method, rstring url, rstring status, int32 stat, rstring contentEncoding, rstring contentType, list&lt;rstring&gt; responseHeader, rstring respData, rstring err&gt; Response as O = HTTPRequest(Trigger as I) {
@@ -165,6 +169,7 @@
  				extraHeaders : "Myheader: aa(aa)", "Myheader2: bb&amp;b";
  				contentType : contentType;
  				requestBodyAttribute : data;
+ 				requestBodyAttributeBin : binData;
  				requestAttributesAsUrlArguments: true;
  				//sslTrustStoreFile : "etc/cacert.jks";
  				//sslTrustStorePassword : "changeit";
